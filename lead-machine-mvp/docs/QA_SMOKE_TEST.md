@@ -21,6 +21,7 @@
 ## Form Submit Single-Fire
 - Submit the lead form once.
 - Confirm `lead_submit` and `lead_submit_success` only fire once in debug panel.
+- Verify `lead_submit_success` includes `conversion_value_eur`.
 
 ## Idempotency Replay (same key)
 ```
