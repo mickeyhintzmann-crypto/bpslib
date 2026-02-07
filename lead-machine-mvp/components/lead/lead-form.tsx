@@ -9,7 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAreas, getAreaBySlug } from "@/lib/areas";
 import { defaultConsentState } from "@/lib/consent";
 import type { PageContext } from "@/lib/tracking";
-import { buildTrackingParams, getPersistedUtm, pushEvent } from "@/lib/tracking";
+import {
+  buildTrackingParams,
+  getPersistedUtm,
+  persistUtmFromUrl,
+  pushEvent
+} from "@/lib/tracking";
 import { calculateLeadScore } from "@/lib/leads/score";
 import { LeadSchema, type LeadFormData } from "@/lib/leads/schema";
 import type { PageSource } from "@/lib/page-context";
@@ -164,7 +169,9 @@ export function LeadForm({
     if (submitRef.current) return;
     submitRef.current = true;
 
-    pushEvent("lead_submit", buildTrackingParams(pageContext, getPersistedUtm()));
+    persistUtmFromUrl();
+    const attribution = getPersistedUtm();
+    pushEvent("lead_submit", buildTrackingParams(pageContext, attribution));
 
     const consentState = consent ?? defaultConsentState();
     const payload: LeadFormData = {
@@ -176,7 +183,7 @@ export function LeadForm({
         intent: pageSource.intent,
         path: typeof window !== "undefined" ? window.location.pathname : undefined
       },
-      utm: getPersistedUtm(),
+      utm: attribution,
       consent: consentState
     };
 
@@ -209,10 +216,13 @@ export function LeadForm({
       }
 
       if (!leadSubmitSuccessRef.current) {
+        const conversionValue =
+          leadScore >= 80 ? 300 : leadScore >= 60 ? 200 : leadScore >= 40 ? 100 : 50;
         leadSubmitSuccessRef.current = true;
         pushEvent("lead_submit_success", {
-          ...buildTrackingParams(pageContext, getPersistedUtm()),
-          lead_score: leadScore
+          ...buildTrackingParams(pageContext, attribution),
+          lead_score: leadScore,
+          conversion_value_eur: conversionValue
         });
       }
 

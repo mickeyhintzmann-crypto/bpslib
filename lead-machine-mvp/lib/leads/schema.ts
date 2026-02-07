@@ -7,7 +7,12 @@ export const UtmSchema = z.object({
   utm_term: z.string().optional(),
   utm_content: z.string().optional(),
   gclid: z.string().optional(),
-  fbclid: z.string().optional()
+  wbraid: z.string().optional(),
+  gbraid: z.string().optional(),
+  fbclid: z.string().optional(),
+  msclkid: z.string().optional(),
+  referrer: z.string().optional(),
+  landing_path: z.string().optional()
 });
 
 const ConsentSchema = z.object({

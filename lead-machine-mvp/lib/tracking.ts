@@ -7,7 +7,12 @@ export type UTMParams = {
   utm_term?: string;
   utm_content?: string;
   gclid?: string;
+  wbraid?: string;
+  gbraid?: string;
   fbclid?: string;
+  msclkid?: string;
+  referrer?: string;
+  landing_path?: string;
 };
 
 export type PageContext = {
@@ -63,18 +68,44 @@ export function persistUtmFromUrl(searchParams?: URLSearchParams) {
   if (typeof window === "undefined") return;
   const params = searchParams ?? new URLSearchParams(window.location.search);
 
-  const data: UTMParams = {
-    utm_source: params.get("utm_source") ?? undefined,
-    utm_medium: params.get("utm_medium") ?? undefined,
-    utm_campaign: params.get("utm_campaign") ?? undefined,
-    utm_term: params.get("utm_term") ?? undefined,
-    utm_content: params.get("utm_content") ?? undefined,
-    gclid: params.get("gclid") ?? undefined,
-    fbclid: params.get("fbclid") ?? undefined
-  };
+  const stored = readStorage();
+  const data: UTMParams = { ...(stored?.data ?? {}) };
+  let changed = false;
 
-  const hasAny = Object.values(data).some((value) => value);
-  if (hasAny) {
+  const updates: Array<keyof UTMParams> = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+    "gclid",
+    "wbraid",
+    "gbraid",
+    "fbclid",
+    "msclkid"
+  ];
+
+  updates.forEach((key) => {
+    const value = params.get(key) ?? undefined;
+    if (value) {
+      if (data[key] !== value) {
+        data[key] = value;
+        changed = true;
+      }
+    }
+  });
+
+  if (!data.landing_path) {
+    data.landing_path = `${window.location.pathname}${window.location.search}`;
+    changed = true;
+  }
+
+  if (!data.referrer && document.referrer) {
+    data.referrer = document.referrer;
+    changed = true;
+  }
+
+  if (changed) {
     writeStorage(data);
   }
 }

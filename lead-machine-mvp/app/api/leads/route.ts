@@ -34,7 +34,10 @@ function formatUtmSummary(utm?: LeadFormData["utm"]) {
     utm.utm_content && `content=${utm.utm_content}`,
     utm.utm_term && `term=${utm.utm_term}`,
     utm.gclid && "gclid",
-    utm.fbclid && "fbclid"
+    utm.wbraid && "wbraid",
+    utm.gbraid && "gbraid",
+    utm.fbclid && "fbclid",
+    utm.msclkid && "msclkid"
   ].filter(Boolean);
   return parts.length ? parts.join(" | ") : "none";
 }
