@@ -20,7 +20,14 @@ function buildSummary(leads: Array<{ id: string; created_at: string; status: str
   return `SLA breach summary: ${leads.length} leads over ${SLA_HOURS}h\n${lines.join("\n")}`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const provided = request.headers.get("x-cron-secret");
+    if (provided !== cronSecret) {
+      return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+    }
+  }
   try {
     requireSupabaseEnv();
   } catch (error) {

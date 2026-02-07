@@ -32,6 +32,9 @@ Optional (notifications):
 - `LEAD_WEBHOOK_URL`
 - `LEAD_WEBHOOK_SECRET`
 
+Optional (cron auth):
+- `CRON_SECRET`
+
 Optional (email):
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
