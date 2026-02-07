@@ -3,6 +3,9 @@ import { ContactLinks } from "@/components/marketing/contact-links";
 import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
 
 const footerLinks = [
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/areas", label: "Areas" },
+  { href: "/contact", label: "Contact" },
   { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
   { href: "/privacy", label: "Privacy" },
