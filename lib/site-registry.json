@@ -1,0 +1,261 @@
+[
+  {
+    "path": "/",
+    "title": "Forside",
+    "description": "Bordpladeslibning i massiv træ på Sjælland med hurtig prisvurdering.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 0,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-sjaelland",
+    "title": "Bordpladeslibning",
+    "description": "Pillar-side for bordpladeslibning i massiv træ på hele Sjælland.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 10,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/pris",
+    "title": "Pris",
+    "description": "Prisguide med faktorer, eksempler og slots for bordpladeslibning.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 20,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/prisberegner",
+    "title": "Prisberegner",
+    "description": "Upload billeder og få præcis vurdering af pris på massiv træbordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 30,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/prisberegner/tak",
+    "title": "Tak for prisberegner",
+    "description": "Kvitteringsside efter upload i prisberegneren.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 35,
+    "noIndex": true
+  },
+  {
+    "path": "/bordpladeslibning/book",
+    "title": "Book tid",
+    "description": "Book tid via roligt wizard-flow med næste ledige slots.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 40,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/akutte-tider",
+    "title": "Akutte tider",
+    "description": "Akutte tider til fast pris de næste 14 dage.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 50,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/kan-det-slibes",
+    "title": "Kan det slibes?",
+    "description": "Afklar om bordpladen er massiv træ, finer eller laminat.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 60,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/olie-eller-lak",
+    "title": "Olie eller lak",
+    "description": "Sammenligning af olie og lak til massiv træbordplader.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 70,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/skjolder",
+    "title": "Skjolder",
+    "description": "Guide til at fjerne skjolder i massiv træbordplader.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 80,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/ridser",
+    "title": "Ridser",
+    "description": "Guide til at fjerne ridser i massiv træbordplader.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 90,
+    "noIndex": false,
+    "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/olie",
+    "title": "Olie",
+    "description": "Intent-side om oliebehandling af massiv træbordplader.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 100,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/lak",
+    "title": "Lak",
+    "description": "Intent-side om lakering af massiv træbordplader.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 110,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-sjaelland",
+    "title": "Gulvafslibning",
+    "description": "Gulvafslibning på Sjælland som lead-gen hub i MVP.",
+    "navGroup": "gulv",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 120,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/pris",
+    "title": "Gulv pris",
+    "description": "Pris og vurdering af gulvafslibning via tilbudstid.",
+    "navGroup": "gulv",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 130,
+    "noIndex": false
+  },
+  {
+    "path": "/toemrer-sjaelland",
+    "title": "Tømrer",
+    "description": "Tømreropgaver på Sjælland via tilbudstid.",
+    "navGroup": "fag",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 140,
+    "noIndex": false
+  },
+  {
+    "path": "/maler-sjaelland",
+    "title": "Maler",
+    "description": "Maleropgaver på Sjælland via tilbudstid.",
+    "navGroup": "fag",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 150,
+    "noIndex": false
+  },
+  {
+    "path": "/murer-sjaelland",
+    "title": "Murer",
+    "description": "Mureropgaver på Sjælland via tilbudstid.",
+    "navGroup": "fag",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 160,
+    "noIndex": false
+  },
+  {
+    "path": "/tilbudstid",
+    "title": "Tilbudstid",
+    "description": "Lead-formular for gulv, tømrer, maler og murer.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 170,
+    "noIndex": false
+  },
+  {
+    "path": "/cases",
+    "title": "Cases",
+    "description": "Cases og før/efter eksempler på bordplader.",
+    "navGroup": "core",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 180,
+    "noIndex": false
+  },
+  {
+    "path": "/om-os",
+    "title": "Om os",
+    "description": "Om BPSLIB og hvordan vi arbejder med massiv træ.",
+    "navGroup": "core",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 190,
+    "noIndex": false
+  },
+  {
+    "path": "/kontakt",
+    "title": "Kontakt",
+    "description": "Kontakt BPSLIB for spørgsmål, booking eller tilbud.",
+    "navGroup": "core",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 200,
+    "noIndex": false
+  },
+  {
+    "path": "/privatlivspolitik",
+    "title": "Privatlivspolitik",
+    "description": "Hvordan vi behandler persondata.",
+    "navGroup": "legal",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 210,
+    "noIndex": false
+  },
+  {
+    "path": "/cookiepolitik",
+    "title": "Cookiepolitik",
+    "description": "Hvordan cookies bruges og administreres.",
+    "navGroup": "legal",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 220,
+    "noIndex": false
+  },
+  {
+    "path": "/handelsbetingelser",
+    "title": "Handelsbetingelser",
+    "description": "Vilkår for booking, afbud og ombooking.",
+    "navGroup": "legal",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 230,
+    "noIndex": false
+  }
+]

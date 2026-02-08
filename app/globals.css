@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 32 38% 97%;
+  --foreground: 20 14% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14% 12%;
+  --primary: 19 55% 38%;
+  --primary-foreground: 30 40% 98%;
+  --secondary: 38 32% 90%;
+  --secondary-foreground: 20 14% 18%;
+  --muted: 38 22% 92%;
+  --muted-foreground: 22 10% 45%;
+  --border: 30 18% 82%;
+  --radius: 12px;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  background-image: radial-gradient(
+      900px 480px at 12% -12%,
+      hsl(var(--primary) / 0.12),
+      transparent
+    ),
+    radial-gradient(800px 420px at 88% -18%, hsl(var(--secondary) / 0.55), transparent);
+}
+
+a {
+  @apply transition-colors;
+}
