@@ -40,7 +40,7 @@ export const SecondaryServices = () => {
             <h3 className="text-base font-semibold text-foreground">{service.title}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{service.text}</p>
             <Button asChild variant="outline" className="mt-4 w-full">
-              <Link href={service.href}>Få tilbud</Link>
+              <Link href={service.href}>Book uforpligtende tilbudstid</Link>
             </Button>
           </div>
         ))}

@@ -5,8 +5,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ESTIMATOR_STATUS_FLOW, STATUS_VALUES, type EstimatorStatus } from "@/lib/estimator";
-
-const TOKEN_STORAGE_KEY = "bpslib_admin_token";
+import { formatExtrasSummary, sanitizeExtras } from "@/lib/bordplade/extras";
 
 type InboxItem = {
   id: string;
@@ -18,6 +17,9 @@ type InboxItem = {
   postnr: string;
   priceMin: number | null;
   priceMax: number | null;
+  aiPriceMin: number | null;
+  aiPriceMax: number | null;
+  aiStatus: string | null;
   slotCount: number | null;
   thumbnails: string[];
 };
@@ -26,6 +28,7 @@ type DetailImage = {
   path: string;
   name: string;
   isEdge: boolean;
+  isOverview?: boolean;
   url: string | null;
 };
 
@@ -37,10 +40,14 @@ type DetailItem = {
   fields: Record<string, unknown>;
   images: DetailImage[];
   edgeImage: DetailImage | null;
+  overviewImage: DetailImage | null;
   retentionDeleteAt: string | null;
   internalNote: string | null;
   priceMin: number | null;
   priceMax: number | null;
+  aiPriceMin: number | null;
+  aiPriceMax: number | null;
+  aiStatus: string | null;
   slotCount: number | null;
   bookingId: string | null;
 };
@@ -119,6 +126,15 @@ const asListText = (value: unknown) => {
   return labels.length > 0 ? labels.join(", ") : "Ikke angivet";
 };
 
+const asExtrasText = (value: unknown) => formatExtrasSummary(sanitizeExtras(value));
+
+const formatPriceInterval = (min: number | null, max: number | null) => {
+  if (typeof min !== "number" || typeof max !== "number") {
+    return "Ikke beregnet";
+  }
+  return `${min}–${max} kr.`;
+};
+
 const toNullableInt = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -140,7 +156,6 @@ const toDateKey = (date: Date) => {
 };
 
 export const EstimatorInboxAdmin = () => {
-  const [adminToken, setAdminToken] = useState("");
   const [statusFilter, setStatusFilter] = useState<(typeof statusOptions)[number]>(STATUS_VALUES.new);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -171,15 +186,6 @@ export const EstimatorInboxAdmin = () => {
   const [convertInfo, setConvertInfo] = useState("");
   const [converting, setConverting] = useState(false);
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) {
-      setAdminToken(stored);
-    }
-  }, []);
-
-  const hasToken = useMemo(() => adminToken.trim().length > 0, [adminToken]);
-
   const selectedConvertDay = useMemo(
     () => availabilityDays.find((day) => day.date === selectedConvertDate) || null,
     [availabilityDays, selectedConvertDate]
@@ -208,21 +214,12 @@ export const EstimatorInboxAdmin = () => {
     setSlotCount(item.slotCount !== null ? String(item.slotCount) : "");
   };
 
-  const loadDetail = async (id: string, tokenOverride?: string) => {
-    const tokenToUse = (tokenOverride || adminToken).trim();
-    if (!tokenToUse) {
-      setDetailError("Indtast admin-token for at se detaljer.");
-      return;
-    }
-
+  const loadDetail = async (id: string) => {
     setDetailLoading(true);
     setDetailError("");
 
     try {
       const response = await fetch(`/api/admin/estimator/${id}`, {
-        headers: {
-          "x-admin-token": tokenToUse
-        },
         cache: "no-store"
       });
 
@@ -244,13 +241,7 @@ export const EstimatorInboxAdmin = () => {
     }
   };
 
-  const loadList = async (tokenOverride?: string) => {
-    const tokenToUse = (tokenOverride || adminToken).trim();
-    if (!tokenToUse) {
-      setListError("Indtast admin-token først.");
-      return;
-    }
-
+  const loadList = async () => {
     setListLoading(true);
     setListError("");
     setSaveMessage("");
@@ -262,12 +253,7 @@ export const EstimatorInboxAdmin = () => {
         params.set("q", searchQuery.trim());
       }
 
-      const response = await fetch(`/api/admin/estimator-inbox?${params.toString()}`, {
-        headers: {
-          "x-admin-token": tokenToUse
-        },
-        cache: "no-store"
-      });
+      const response = await fetch(`/api/admin/estimator-inbox?${params.toString()}`, { cache: "no-store" });
 
       const payload = (await response.json()) as ListResponse;
       if (!response.ok) {
@@ -285,14 +271,14 @@ export const EstimatorInboxAdmin = () => {
         selectedId !== null && nextItems.some((item) => item.id === selectedId);
 
       if (selectedStillExists && selectedId) {
-        await loadDetail(selectedId, tokenToUse);
+        await loadDetail(selectedId);
         return;
       }
 
       if (nextItems.length > 0) {
         const nextId = nextItems[0].id;
         setSelectedId(nextId);
-        await loadDetail(nextId, tokenToUse);
+        await loadDetail(nextId);
       } else {
         setSelectedId(null);
         setDetail(null);
@@ -309,12 +295,6 @@ export const EstimatorInboxAdmin = () => {
   };
 
   const loadAvailability = async (slotCountToUse: 1 | 2 | 3) => {
-    const tokenToUse = adminToken.trim();
-    if (!tokenToUse) {
-      setConvertError("Indtast admin-token først.");
-      return;
-    }
-
     setAvailabilityLoading(true);
     setConvertError("");
     setConvertInfo("");
@@ -326,12 +306,7 @@ export const EstimatorInboxAdmin = () => {
         slot_count: String(slotCountToUse)
       });
 
-      const response = await fetch(`/api/admin/availability?${params.toString()}`, {
-        headers: {
-          "x-admin-token": tokenToUse
-        },
-        cache: "no-store"
-      });
+      const response = await fetch(`/api/admin/availability?${params.toString()}`, { cache: "no-store" });
 
       const payload = (await response.json()) as AvailabilityResponse;
       if (!response.ok) {
@@ -370,16 +345,6 @@ export const EstimatorInboxAdmin = () => {
     }
   };
 
-  const onSaveTokenAndLoad = async () => {
-    const trimmed = adminToken.trim();
-    if (!trimmed) {
-      setListError("Admin-token mangler.");
-      return;
-    }
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, trimmed);
-    await loadList(trimmed);
-  };
-
   const onSelectItem = async (id: string) => {
     setSelectedId(id);
     setSaveMessage("");
@@ -387,8 +352,8 @@ export const EstimatorInboxAdmin = () => {
   };
 
   const onSaveDetail = async () => {
-    if (!selectedId || !hasToken) {
-      setDetailError("Vælg en sag og indtast token.");
+    if (!selectedId) {
+      setDetailError("Vælg en sag først.");
       return;
     }
 
@@ -425,8 +390,7 @@ export const EstimatorInboxAdmin = () => {
       const response = await fetch(`/api/admin/estimator/${selectedId}`, {
         method: "POST",
         headers: {
-          "content-type": "application/json",
-          "x-admin-token": adminToken.trim()
+          "content-type": "application/json"
         },
         body: JSON.stringify({
           status: editStatus,
@@ -485,6 +449,11 @@ export const EstimatorInboxAdmin = () => {
     setSelectedStartSlotIndex(day.availableStartSlots[0].startSlotIndex);
   };
 
+  useEffect(() => {
+    loadList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onConvertToBooking = async () => {
     if (!selectedId || !selectedConvertDate || selectedStartSlotIndex === null) {
       setConvertError("Vælg dato og starttid før konvertering.");
@@ -499,8 +468,7 @@ export const EstimatorInboxAdmin = () => {
       const response = await fetch("/api/admin/convert-estimator-to-booking", {
         method: "POST",
         headers: {
-          "content-type": "application/json",
-          "x-admin-token": adminToken.trim()
+          "content-type": "application/json"
         },
         body: JSON.stringify({
           estimator_id: selectedId,
@@ -557,18 +525,8 @@ export const EstimatorInboxAdmin = () => {
           Status-flow: Ny → Under review → Tilbud sendt → Booket → Lukket
         </p>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto_auto]">
-          <input
-            type="password"
-            value={adminToken}
-            onChange={(event) => setAdminToken(event.target.value)}
-            placeholder="Indtast ADMIN_TOKEN"
-            className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-          />
-          <Button variant="outline" onClick={onSaveTokenAndLoad}>
-            Gem token lokalt
-          </Button>
-          <Button onClick={() => loadList()} disabled={!hasToken || listLoading}>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Button onClick={() => loadList()} disabled={listLoading}>
             {listLoading ? "Henter..." : "Opdater liste"}
           </Button>
         </div>
@@ -591,7 +549,7 @@ export const EstimatorInboxAdmin = () => {
             placeholder="Søg på telefon eller postnr"
             className="h-10 rounded-md border border-border bg-white px-3 text-sm"
           />
-          <Button variant="secondary" onClick={() => loadList()} disabled={!hasToken || listLoading}>
+          <Button variant="secondary" onClick={() => loadList()} disabled={listLoading}>
             Filtrer
           </Button>
         </div>
@@ -627,6 +585,10 @@ export const EstimatorInboxAdmin = () => {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Massiv træ: {gatingLabelMap[item.gatingAnswer] || item.gatingAnswer}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  AI: {formatPriceInterval(item.aiPriceMin, item.aiPriceMax)} ·{" "}
+                  {item.aiStatus ? item.aiStatus : "ukendt status"}
                 </p>
               </button>
             ))}
@@ -710,6 +672,10 @@ export const EstimatorInboxAdmin = () => {
                   {asListText(detail.fields.skader)}
                 </p>
                 <p className="sm:col-span-2">
+                  <span className="font-semibold text-foreground">Tilvalg:</span>{" "}
+                  {asExtrasText(detail.fields.extras)}
+                </p>
+                <p className="sm:col-span-2">
                   <span className="font-semibold text-foreground">Kundens note:</span>{" "}
                   {asText(detail.fields.note)}
                 </p>
@@ -721,12 +687,20 @@ export const EstimatorInboxAdmin = () => {
                   <span className="font-semibold text-foreground">Retention sletning:</span>{" "}
                   {detail.retentionDeleteAt ? formatDateTime(detail.retentionDeleteAt) : "Ikke sat"}
                 </p>
+                <p className="sm:col-span-2">
+                  <span className="font-semibold text-foreground">AI-estimat:</span>{" "}
+                  {formatPriceInterval(detail.aiPriceMin, detail.aiPriceMax)}{" "}
+                  {detail.aiStatus ? `(${detail.aiStatus})` : ""}
+                </p>
               </div>
 
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-foreground">Billeder</h3>
                 <p className="text-sm text-muted-foreground">
                   Kant/ende-billede: {detail.edgeImage ? detail.edgeImage.name : "ikke angivet"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Køkkenbillede: {detail.overviewImage ? detail.overviewImage.name : "ikke angivet"}
                 </p>
                 {detail.images.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Ingen billeder fundet.</p>
@@ -752,6 +726,9 @@ export const EstimatorInboxAdmin = () => {
                         <p className="mt-2 text-xs text-muted-foreground">{image.name}</p>
                         {image.isEdge ? (
                           <p className="mt-1 text-xs font-semibold text-primary">Kant/ende</p>
+                        ) : null}
+                        {image.isOverview ? (
+                          <p className="mt-1 text-xs font-semibold text-primary">Køkkenbillede</p>
                         ) : null}
                       </a>
                     ))}
@@ -810,13 +787,13 @@ export const EstimatorInboxAdmin = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button onClick={onSaveDetail} disabled={saving || !hasToken}>
+                  <Button onClick={onSaveDetail} disabled={saving}>
                     {saving ? "Gemmer..." : "Gem ændringer"}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={openConvertModal}
-                    disabled={!hasToken || !selectedId || Boolean(detail.bookingId)}
+                    disabled={!selectedId || Boolean(detail.bookingId)}
                   >
                     Konvertér til booking
                   </Button>

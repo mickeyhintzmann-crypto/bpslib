@@ -7,9 +7,9 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 type DayOverrideRow = {
   date: string;
-  is_open: boolean;
-  open_from: string | null;
-  open_to: string | null;
+  open_slots_count: number | null;
+  show_on_acute_page: boolean | null;
+  note: string | null;
 };
 
 type BookingRow = {
@@ -153,37 +153,36 @@ const findBlockedSlotIndexes = (dateKey: string, bookings: BookingRow[]) => {
   return blocked;
 };
 
-const applyDayOverride = (
-  dateKey: string,
+const normalizeOpenSlotsCount = (value: number | null | undefined) => {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return null;
+  }
+  const rounded = Math.round(value);
+  if (rounded < 0 || rounded > 3) {
+    return null;
+  }
+  return rounded;
+};
+
+const openIndexesForOverride = (
   defaultOpenIndexes: number[],
-  override: DayOverrideRow | undefined
+  override: DayOverrideRow | undefined,
+  respectAcuteVisibility: boolean
 ) => {
-  if (!override) {
-    return new Set(defaultOpenIndexes);
+  let openIndexes = new Set(defaultOpenIndexes);
+
+  if (override) {
+    const openSlotsCount = normalizeOpenSlotsCount(override.open_slots_count);
+    if (openSlotsCount !== null) {
+      openIndexes = new Set(Array.from({ length: openSlotsCount }, (_, index) => index));
+    }
+
+    if (respectAcuteVisibility && override.show_on_acute_page === false) {
+      openIndexes = new Set();
+    }
   }
 
-  if (!override.is_open) {
-    return new Set<number>();
-  }
-
-  const openFrom = timeToMinutes(override.open_from);
-  const openTo = timeToMinutes(override.open_to);
-
-  const filtered = defaultOpenIndexes.filter((index) => {
-    const slotMinutes = timeToMinutes(SLOT_TIMES[index]);
-    if (slotMinutes === null) {
-      return false;
-    }
-    if (openFrom !== null && slotMinutes < openFrom) {
-      return false;
-    }
-    if (openTo !== null && slotMinutes >= openTo) {
-      return false;
-    }
-    return true;
-  });
-
-  return new Set(filtered);
+  return openIndexes;
 };
 
 const buildValidStartSlots = (
@@ -258,14 +257,21 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
   );
 };
 
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
+};
+
 export const getAvailabilityRange = async ({
   from,
   days,
-  slotCount
+  slotCount,
+  respectAcuteVisibility = false
 }: {
   from: string;
   days: number;
   slotCount: number;
+  respectAcuteVisibility?: boolean;
 }): Promise<{ data?: AvailabilityResult; error?: string; status?: number }> => {
   const safeDays = Math.max(1, Math.min(60, days));
   const safeSlotCount = Math.max(1, Math.min(3, slotCount));
@@ -289,7 +295,7 @@ export const getAvailabilityRange = async ({
   const [overridesResult, bookingsResult] = await Promise.all([
     supabase
       .from("day_overrides")
-      .select("date, is_open, open_from, open_to")
+      .select("date, open_slots_count, show_on_acute_page, note")
       .gte("date", from)
       .lte("date", lastDateInclusive),
     supabase
@@ -304,6 +310,13 @@ export const getAvailabilityRange = async ({
       return {
         error:
           "Tabellen day_overrides mangler i databasen. Opret den, så availability kan tage højde for overrides.",
+        status: 503
+      };
+    }
+    if (isMissingColumn(overridesResult.error.message)) {
+      return {
+        error:
+          "Kolonner til day_overrides mangler i databasen. Kør migrationen for day_overrides.",
         status: 503
       };
     }
@@ -332,7 +345,11 @@ export const getAvailabilityRange = async ({
 
   const items = dateKeys.map((dateKey) => {
     const defaultOpen = baseOpenSlotIndexes(dateKey);
-    const openIndexes = applyDayOverride(dateKey, defaultOpen, overrideByDate.get(dateKey));
+    const openIndexes = openIndexesForOverride(
+      defaultOpen,
+      overrideByDate.get(dateKey),
+      respectAcuteVisibility
+    );
     const blockedIndexes = findBlockedSlotIndexes(dateKey, bookingsByDate.get(dateKey) || []);
 
     const availableSlotIndexes = Array.from(openIndexes).filter((index) => !blockedIndexes.has(index));
@@ -381,4 +398,98 @@ export const getSlotRangeForBooking = (
     slotStartIso: `${dateKey}T${startTime}:00.000Z`,
     slotEndIso: `${dateKey}T${endTime}:00.000Z`
   };
+};
+
+export const checkBookingAvailability = async ({
+  date,
+  startSlotIndex,
+  slotCount,
+  excludeBookingId
+}: {
+  date: string;
+  startSlotIndex: number;
+  slotCount: number;
+  excludeBookingId?: string;
+}): Promise<{
+  ok: boolean;
+  status?: number;
+  message?: string;
+  availableSlots?: AvailabilityStartSlot[];
+}> => {
+  const parsedDate = parseDateKey(date);
+  if (!parsedDate) {
+    return { ok: false, status: 400, message: "Ugyldig dato. Brug format YYYY-MM-DD." };
+  }
+
+  if (!Number.isInteger(startSlotIndex) || startSlotIndex < 0 || startSlotIndex > 2) {
+    return { ok: false, status: 400, message: "Ugyldig starttid. Vælg 08:00, 11:00 eller 13:30." };
+  }
+
+  const safeSlotCount = Math.max(1, Math.min(3, slotCount));
+
+  const toExclusive = addDays(date, 1);
+  if (!toExclusive) {
+    return { ok: false, status: 400, message: "Kunne ikke beregne slutdato." };
+  }
+
+  const supabase = createSupabaseServiceClient();
+
+  const [overrideResult, bookingsResult] = await Promise.all([
+    supabase.from("day_overrides").select("date, open_slots_count, show_on_acute_page, note").eq("date", date),
+    supabase
+      .from("bookings")
+      .select("id, slot_start, slot_end, status")
+      .gte("slot_start", `${date}T00:00:00.000Z`)
+      .lt("slot_start", `${toExclusive}T00:00:00.000Z`)
+  ]);
+
+  if (overrideResult.error) {
+    if (isMissingRelation(overrideResult.error.message, "day_overrides")) {
+      return {
+        ok: false,
+        status: 503,
+        message: "Tabellen day_overrides mangler i databasen. Opret den før booking kan flyttes."
+      };
+    }
+    if (isMissingColumn(overrideResult.error.message)) {
+      return {
+        ok: false,
+        status: 503,
+        message:
+          "Kolonner til day_overrides mangler i databasen. Kør migrationen for day_overrides."
+      };
+    }
+    return { ok: false, status: 500, message: overrideResult.error.message };
+  }
+
+  if (bookingsResult.error) {
+    if (isMissingRelation(bookingsResult.error.message, "bookings")) {
+      return { ok: false, status: 503, message: "Tabellen bookings mangler i databasen." };
+    }
+    return { ok: false, status: 500, message: bookingsResult.error.message };
+  }
+
+  const overrideRow = Array.isArray(overrideResult.data) ? overrideResult.data[0] : null;
+  const bookings = (bookingsResult.data || []) as BookingRow[];
+  const filteredBookings = excludeBookingId
+    ? bookings.filter((booking) => booking.id !== excludeBookingId)
+    : bookings;
+
+  const defaultOpen = baseOpenSlotIndexes(date);
+  const openIndexes = openIndexesForOverride(defaultOpen, overrideRow || undefined, false);
+  const blockedIndexes = findBlockedSlotIndexes(date, filteredBookings as BookingRow[]);
+  const availableSlots = buildValidStartSlots(openIndexes, blockedIndexes, safeSlotCount);
+
+  const isAvailable = availableSlots.some((slot) => slot.startSlotIndex === startSlotIndex);
+
+  if (!isAvailable) {
+    return {
+      ok: false,
+      status: 409,
+      message: "Tiden er allerede optaget. Vælg en ny tid.",
+      availableSlots
+    };
+  }
+
+  return { ok: true, availableSlots };
 };

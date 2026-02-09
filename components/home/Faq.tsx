@@ -10,7 +10,8 @@ export const faqItems: FaqItem[] = [
   },
   {
     question: "Hvor lang tid tager det?",
-    answer: "De fleste opgaver kan udføres på en dag. Vi bekræfter tidsforbruget, når vi har set billeder og mål."
+    answer:
+      "De fleste opgaver kan udføres på en dag. Vi bekræfter tidsforbruget som 1/2/3 slots, når vi har set billeder og mål."
   },
   {
     question: "Olie eller lak – hvad anbefaler I?",

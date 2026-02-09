@@ -21,6 +21,226 @@
     "showInLinkRouter": true
   },
   {
+    "path": "/bordpladeslibning-koebenhavn-omegn",
+    "title": "København & omegn",
+    "description": "Region-hub for bordpladeslibning i København og omegn (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 15,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-amager",
+    "title": "Amager",
+    "description": "Region-hub for bordpladeslibning på Amager (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 16,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-nordsjaelland",
+    "title": "Nordsjælland",
+    "description": "Region-hub for bordpladeslibning i Nordsjælland (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 17,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-midtsjaelland",
+    "title": "Midtsjælland",
+    "description": "Region-hub for bordpladeslibning i Midtsjælland (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 18,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-vest-sydsjaelland",
+    "title": "Vest- & Sydsjælland",
+    "description": "Region-hub for bordpladeslibning i Vest- og Sydsjælland (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 19,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-koebenhavn",
+    "title": "København",
+    "description": "By-side for bordpladeslibning i København (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 20,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-frederiksberg",
+    "title": "Frederiksberg",
+    "description": "By-side for bordpladeslibning på Frederiksberg (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 21,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-gentofte",
+    "title": "Gentofte",
+    "description": "By-side for bordpladeslibning i Gentofte (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 22,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-lyngby",
+    "title": "Lyngby",
+    "description": "By-side for bordpladeslibning i Lyngby (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 23,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-gladsaxe",
+    "title": "Gladsaxe",
+    "description": "By-side for bordpladeslibning i Gladsaxe (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 24,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-roedovre",
+    "title": "Rødovre",
+    "description": "By-side for bordpladeslibning i Rødovre (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 25,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-hvidovre",
+    "title": "Hvidovre",
+    "description": "By-side for bordpladeslibning i Hvidovre (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 26,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-ballerup",
+    "title": "Ballerup",
+    "description": "By-side for bordpladeslibning i Ballerup (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 27,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-greve",
+    "title": "Greve",
+    "description": "By-side for bordpladeslibning i Greve (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 28,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-ishoej",
+    "title": "Ishøj",
+    "description": "By-side for bordpladeslibning i Ishøj (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 29,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-roskilde",
+    "title": "Roskilde",
+    "description": "By-side for bordpladeslibning i Roskilde (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 30,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-koege",
+    "title": "Køge",
+    "description": "By-side for bordpladeslibning i Køge (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 31,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-ringsted",
+    "title": "Ringsted",
+    "description": "By-side for bordpladeslibning i Ringsted (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 32,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-holbaek",
+    "title": "Holbæk",
+    "description": "By-side for bordpladeslibning i Holbæk (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 33,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-kalundborg",
+    "title": "Kalundborg",
+    "description": "By-side for bordpladeslibning i Kalundborg (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 34,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-naestved",
+    "title": "Næstved",
+    "description": "By-side for bordpladeslibning i Næstved (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 35,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning-hilleroed",
+    "title": "Hillerød",
+    "description": "By-side for bordpladeslibning i Hillerød (massiv træ).",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 36,
+    "noIndex": false
+  },
+  {
     "path": "/bordpladeslibning/pris",
     "title": "Pris",
     "description": "Prisguide med faktorer, eksempler og slots for bordpladeslibning.",
@@ -33,8 +253,8 @@
   },
   {
     "path": "/bordpladeslibning/prisberegner",
-    "title": "Prisberegner",
-    "description": "Upload billeder og få præcis vurdering af pris på massiv træbordplade.",
+    "title": "AI-prisberegner",
+    "description": "AI-prisberegner til bordplader. Upload billeder og få et realistisk prisoverslag.",
     "navGroup": "bordplade",
     "showInHeader": true,
     "showInFooter": true,
@@ -75,6 +295,16 @@
     "showInLinkRouter": true
   },
   {
+    "path": "/akutte-tider/tak",
+    "title": "Tak for akut booking",
+    "description": "Kvitteringsside efter reservering af akut tid.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 55,
+    "noIndex": true
+  },
+  {
     "path": "/bordpladeslibning/kan-det-slibes",
     "title": "Kan det slibes?",
     "description": "Afklar om bordpladen er massiv træ, finer eller laminat.",
@@ -84,6 +314,16 @@
     "priority": 60,
     "noIndex": false,
     "showInLinkRouter": true
+  },
+  {
+    "path": "/bordpladeslibning/omraader",
+    "title": "Områder",
+    "description": "Oversigt over områder og byer på Sjælland vi dækker.",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 62,
+    "noIndex": false
   },
   {
     "path": "/bordpladeslibning/olie-eller-lak",
@@ -119,6 +359,86 @@
     "showInLinkRouter": true
   },
   {
+    "path": "/bordpladeslibning/slidt-mat-overflade",
+    "title": "Slidt/mat overflade",
+    "description": "Guide til slidt eller mat bordplade og hvordan den kan friskes op.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 92,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/braendemaerker",
+    "title": "Brændemærker",
+    "description": "Kan brændemærker og varmepletter slibes væk i massiv træbordplader?",
+    "navGroup": "bordplade",
+    "showInHeader": true,
+    "showInFooter": false,
+    "priority": 95,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/egetrae",
+    "title": "Egetræ",
+    "description": "Materiale-side om slibning og behandling af massiv egetræsbordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 97,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/boeg",
+    "title": "Bøg",
+    "description": "Materiale-side om slibning og behandling af massiv bøgebordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 98,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/ask",
+    "title": "Ask",
+    "description": "Materiale-side om slibning og behandling af massiv askebordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 99,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/valnoed",
+    "title": "Valnød",
+    "description": "Materiale-side om slibning og behandling af massiv valnødsbordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 101,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/bambus",
+    "title": "Bambus",
+    "description": "Materiale-side om slibning og behandling af massiv bambusbordplade.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 102,
+    "noIndex": false
+  },
+  {
+    "path": "/bordpladeslibning/finer-laminat-kan-det-slibes",
+    "title": "Finér/laminat",
+    "description": "Afklaring af om finér eller laminat kan slibes, og hvad du gør hvis du er i tvivl.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 103,
+    "noIndex": false
+  },
+  {
     "path": "/bordpladeslibning/olie",
     "title": "Olie",
     "description": "Intent-side om oliebehandling af massiv træbordplader.",
@@ -149,13 +469,293 @@
     "noIndex": false
   },
   {
+    "path": "/gulvafslibning-koebenhavn-omegn",
+    "title": "København & omegn",
+    "description": "Region-hub for gulvafslibning i København og omegn.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 125,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-amager",
+    "title": "Amager",
+    "description": "Region-hub for gulvafslibning på Amager.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 126,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-nordsjaelland",
+    "title": "Nordsjælland",
+    "description": "Region-hub for gulvafslibning i Nordsjælland.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 127,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-midtsjaelland",
+    "title": "Midtsjælland",
+    "description": "Region-hub for gulvafslibning i Midtsjælland.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 128,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-vest-sydsjaelland",
+    "title": "Vest- & Sydsjælland",
+    "description": "Region-hub for gulvafslibning i Vest- og Sydsjælland.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 129,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-koebenhavn",
+    "title": "København",
+    "description": "By-side for gulvafslibning i København.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 130,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-frederiksberg",
+    "title": "Frederiksberg",
+    "description": "By-side for gulvafslibning på Frederiksberg.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 131,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-gentofte",
+    "title": "Gentofte",
+    "description": "By-side for gulvafslibning i Gentofte.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 132,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-lyngby",
+    "title": "Lyngby",
+    "description": "By-side for gulvafslibning i Lyngby.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 133,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-gladsaxe",
+    "title": "Gladsaxe",
+    "description": "By-side for gulvafslibning i Gladsaxe.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 134,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-roedovre",
+    "title": "Rødovre",
+    "description": "By-side for gulvafslibning i Rødovre.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 135,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-hvidovre",
+    "title": "Hvidovre",
+    "description": "By-side for gulvafslibning i Hvidovre.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 136,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-ballerup",
+    "title": "Ballerup",
+    "description": "By-side for gulvafslibning i Ballerup.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 137,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-greve",
+    "title": "Greve",
+    "description": "By-side for gulvafslibning i Greve.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 138,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-ishoej",
+    "title": "Ishøj",
+    "description": "By-side for gulvafslibning i Ishøj.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 139,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-roskilde",
+    "title": "Roskilde",
+    "description": "By-side for gulvafslibning i Roskilde.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 140,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-koege",
+    "title": "Køge",
+    "description": "By-side for gulvafslibning i Køge.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 141,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-ringsted",
+    "title": "Ringsted",
+    "description": "By-side for gulvafslibning i Ringsted.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 142,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-holbaek",
+    "title": "Holbæk",
+    "description": "By-side for gulvafslibning i Holbæk.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 143,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-kalundborg",
+    "title": "Kalundborg",
+    "description": "By-side for gulvafslibning i Kalundborg.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 144,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-slagelse",
+    "title": "Slagelse",
+    "description": "By-side for gulvafslibning i Slagelse.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 145,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning-naestved",
+    "title": "Næstved",
+    "description": "By-side for gulvafslibning i Næstved.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 146,
+    "noIndex": false
+  },
+  {
     "path": "/gulvafslibning/pris",
-    "title": "Gulv pris",
+    "title": "pris",
     "description": "Pris og vurdering af gulvafslibning via tilbudstid.",
     "navGroup": "gulv",
     "showInHeader": true,
     "showInFooter": false,
     "priority": 130,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/lak",
+    "title": "lak",
+    "description": "Intent-side om lakering efter gulvafslibning.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 131,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/olie",
+    "title": "olie",
+    "description": "Intent-side om oliebehandling efter gulvafslibning.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 132,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/saebe",
+    "title": "sæbe",
+    "description": "Intent-side om sæbebehandling efter gulvafslibning.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 133,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/omraader",
+    "title": "områder",
+    "description": "Oversigt over regioner og byer vi dækker med gulvafslibning.",
+    "navGroup": "gulv",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 134,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/gulvslibning",
+    "title": "Gulvslibning",
+    "description": "Intent-side om gulvslibning af trægulve.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 135,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvafslibning/ridser",
+    "title": "ridser",
+    "description": "Problem-side om ridser i trægulv og løsninger.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 134,
     "noIndex": false
   },
   {
@@ -169,6 +769,16 @@
     "noIndex": false
   },
   {
+    "path": "/toemrer/ydelser",
+    "title": "Tømrer ydelser",
+    "description": "Overblik over tømreropgaver på Sjælland.",
+    "navGroup": "fag",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 142,
+    "noIndex": false
+  },
+  {
     "path": "/maler-sjaelland",
     "title": "Maler",
     "description": "Maleropgaver på Sjælland via tilbudstid.",
@@ -176,6 +786,16 @@
     "showInHeader": true,
     "showInFooter": false,
     "priority": 150,
+    "noIndex": false
+  },
+  {
+    "path": "/maler/ydelser",
+    "title": "Maler ydelser",
+    "description": "Overblik over maleropgaver på Sjælland.",
+    "navGroup": "fag",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 152,
     "noIndex": false
   },
   {
@@ -189,6 +809,26 @@
     "noIndex": false
   },
   {
+    "path": "/murer/ydelser",
+    "title": "Murer ydelser",
+    "description": "Overblik over mureropgaver på Sjælland.",
+    "navGroup": "fag",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 162,
+    "noIndex": false
+  },
+  {
+    "path": "/ydelser",
+    "title": "Ydelser",
+    "description": "Oversigt over gulvafslibning, tømrer, maler og murer.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 168,
+    "noIndex": false
+  },
+  {
     "path": "/tilbudstid",
     "title": "Tilbudstid",
     "description": "Lead-formular for gulv, tømrer, maler og murer.",
@@ -199,6 +839,16 @@
     "noIndex": false
   },
   {
+    "path": "/tilbudstid/tak",
+    "title": "Tak for tilbudstid",
+    "description": "Kvitteringsside efter tilbudstid-forespørgsel.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": false,
+    "priority": 175,
+    "noIndex": true
+  },
+  {
     "path": "/cases",
     "title": "Cases",
     "description": "Cases og før/efter eksempler på bordplader.",
@@ -206,6 +856,26 @@
     "showInHeader": true,
     "showInFooter": true,
     "priority": 180,
+    "noIndex": false
+  },
+  {
+    "path": "/guides",
+    "title": "Guides & Råd",
+    "description": "Guides og råd om bordpladeslibning, gulve og vedligehold.",
+    "navGroup": "core",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 182,
+    "noIndex": false
+  },
+  {
+    "path": "/anmeldelser",
+    "title": "Anmeldelser",
+    "description": "Anmeldelser og vurderinger af BPSLIB.",
+    "navGroup": "core",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 185,
     "noIndex": false
   },
   {

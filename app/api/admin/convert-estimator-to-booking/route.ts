@@ -1,7 +1,9 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 
 import { assertAdminToken } from "@/lib/admin-auth";
 import { getAvailabilityRange, getSlotRangeForBooking } from "@/lib/admin-availability";
+import { formatExtrasSummary, hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
 import { STATUS_VALUES } from "@/lib/estimator";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -154,13 +156,16 @@ export async function POST(request: Request) {
     const customerEmail = asText(fields.email) || null;
     const noteFromEstimator = asText(fields.note);
     const postnr = asText(fields.postnr);
+    const extras = sanitizeExtras(fields.extras);
+    const extrasSummary = formatExtrasSummary(extras);
 
     const noteParts = [
       "Oprettet via estimator-konvertering.",
       `Estimator ID: ${estimator.id}`,
       `Slot-count: ${slotCount}`,
       postnr ? `Postnr: ${postnr}` : "",
-      noteFromEstimator ? `Kundenote: ${noteFromEstimator}` : ""
+      noteFromEstimator ? `Kundenote: ${noteFromEstimator}` : "",
+      hasSelectedExtras(extras) ? `Tilvalg: ${extrasSummary}` : ""
     ].filter(Boolean);
 
     const { data: bookingData, error: bookingError } = await supabase
@@ -172,10 +177,12 @@ export async function POST(request: Request) {
         service_type: "bordplade",
         slot_start: slotRange.slotStartIso,
         slot_end: slotRange.slotEndIso,
-        status: "pending",
+        manage_token: randomUUID(),
+        status: "pending_confirmation",
         notes: noteParts.join(" | "),
         source: "estimator",
-        estimator_request_id: estimator.id
+        estimator_request_id: estimator.id,
+        extras: hasSelectedExtras(extras) ? extras : null
       })
       .select("id, slot_start, slot_end")
       .single();

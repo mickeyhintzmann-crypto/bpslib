@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const isProduction = process.env.NODE_ENV === "production";
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+let supabaseHostname = null;
+
+try {
+  supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : null;
+} catch (error) {
+  supabaseHostname = null;
+}
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -17,6 +25,11 @@ if (isProduction) {
 
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: supabaseHostname
+      ? [{ protocol: "https", hostname: supabaseHostname }]
+      : [{ protocol: "https", hostname: "*.supabase.co" }]
+  },
   async headers() {
     return [
       {

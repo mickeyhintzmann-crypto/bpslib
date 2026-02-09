@@ -2,18 +2,23 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
+  SLOT_TIMES,
+  applyDayOverrides,
   createAcuteTemplates,
   slotKey,
   validStartTimes,
+  type DayOverrideInput,
   type SlotTime
 } from "@/lib/booking-schedule";
 import { trackEvent } from "@/lib/tracking";
 
 const PHONE_TEL = "tel:+45XXXXXXXX";
-const FAST_PRICE = "3.000 kr.";
+
+const formatPrice = (price: number) => `${price.toLocaleString("da-DK")} kr.`;
 
 type SelectedSlot = {
   dateKey: string;
@@ -21,21 +26,38 @@ type SelectedSlot = {
   time: SlotTime;
 };
 
-export const AcuteBooking = () => {
+export const AcuteBooking = ({
+  overrides = [],
+  price = 3000,
+  windowDays = 14
+}: {
+  overrides?: DayOverrideInput[];
+  price?: number;
+  windowDays?: number;
+}) => {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const templates = useMemo(() => createAcuteTemplates(14), []);
+  const templates = useMemo(
+    () => applyDayOverrides(createAcuteTemplates(windowDays), overrides, { respectAcuteVisibility: true }),
+    [overrides, windowDays]
+  );
+
+  const visibleTemplates = useMemo(
+    () => templates.filter((template) => template.showOnAcutePage !== false),
+    [templates]
+  );
 
   const initialBlocked = useMemo(() => {
     const blocked = new Set<string>();
-    templates.forEach((template) => {
+    visibleTemplates.forEach((template) => {
       template.initialBooked.forEach((time) => blocked.add(slotKey(template.dateKey, time)));
     });
     return blocked;
-  }, [templates]);
+  }, [visibleTemplates]);
 
   const [blockedSlots, setBlockedSlots] = useState<Set<string>>(new Set());
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
@@ -65,11 +87,11 @@ export const AcuteBooking = () => {
 
   const dayRows = useMemo(
     () =>
-      templates.map((template) => ({
+      visibleTemplates.map((template) => ({
         ...template,
         slots: validStartTimes(template, blockedSlots, 1)
       })),
-    [blockedSlots, templates]
+    [blockedSlots, visibleTemplates]
   );
 
   const nextThree = useMemo(() => {
@@ -98,7 +120,6 @@ export const AcuteBooking = () => {
   const openPanel = (slot: SelectedSlot) => {
     setSelectedSlot(slot);
     setErrorMessage("");
-    setSuccessMessage("");
 
     trackEvent("acute_slot_select", {
       date: slot.dateKey,
@@ -109,7 +130,7 @@ export const AcuteBooking = () => {
   };
 
   const ensureAvailability = (slot: SelectedSlot) => {
-    const day = templates.find((template) => template.dateKey === slot.dateKey);
+    const day = visibleTemplates.find((template) => template.dateKey === slot.dateKey);
     if (!day) {
       return false;
     }
@@ -117,7 +138,11 @@ export const AcuteBooking = () => {
     return validStartTimes(day, blockedSlots, 1).includes(slot.time);
   };
 
-  const submitAcuteBooking = () => {
+  const submitAcuteBooking = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     if (!selectedSlot) {
       setErrorMessage("Vælg en akut tid før du sender.");
       return;
@@ -144,20 +169,59 @@ export const AcuteBooking = () => {
       return;
     }
 
-    const nextBlocked = new Set(blockedSlots);
-    nextBlocked.add(slotKey(selectedSlot.dateKey, selectedSlot.time));
-    setBlockedSlots(nextBlocked);
+    const startSlotIndex = SLOT_TIMES.findIndex((slotTime) => slotTime === selectedSlot.time);
+    if (startSlotIndex < 0) {
+      setErrorMessage("Ugyldig starttid. Vælg en ny tid.");
+      return;
+    }
 
-    setSuccessMessage(
-      `Akut booking modtaget: ${selectedSlot.dateLabel} kl. ${selectedSlot.time}. Vi kontakter dig hurtigst muligt.`
-    );
+    setIsSubmitting(true);
     setErrorMessage("");
 
-    trackEvent("acute_booking_complete", {
-      date: selectedSlot.dateKey,
-      time: selectedSlot.time,
-      has_email: Boolean(email.trim())
-    });
+    try {
+      const response = await fetch("/api/bookings/acute/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          date: selectedSlot.dateKey,
+          startSlot: selectedSlot.time,
+          start_slot_index: startSlotIndex,
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || undefined,
+          address: address.trim(),
+          postalCode: postnr.trim(),
+          note: message.trim() || undefined
+        })
+      });
+
+      const payload = (await response.json()) as { bookingId?: string; message?: string };
+
+      if (!response.ok || !payload.bookingId) {
+        setErrorMessage(payload.message || "Kunne ikke gennemføre akut booking.");
+        return;
+      }
+
+      const nextBlocked = new Set(blockedSlots);
+      nextBlocked.add(slotKey(selectedSlot.dateKey, selectedSlot.time));
+      setBlockedSlots(nextBlocked);
+
+      trackEvent("acute_booking_complete", {
+        date: selectedSlot.dateKey,
+        time: selectedSlot.time,
+        has_email: Boolean(email.trim()),
+        booking_id: payload.bookingId
+      });
+
+      router.push(`/akutte-tider/tak?id=${encodeURIComponent(payload.bookingId)}`);
+    } catch (submitError) {
+      console.error(submitError);
+      setErrorMessage("Der opstod en netværksfejl. Prøv igen.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!mounted) {
@@ -172,7 +236,9 @@ export const AcuteBooking = () => {
     <section className="space-y-8">
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         <span className="rounded-full border border-border px-3 py-1">Kun massiv træ</span>
-        <span className="rounded-full border border-border px-3 py-1">Fast pris {FAST_PRICE}</span>
+        <span className="rounded-full border border-border px-3 py-1">
+          Fast pris {formatPrice(price)}
+        </span>
         <span className="rounded-full border border-border px-3 py-1">Svar hurtigt</span>
       </div>
 
@@ -194,7 +260,9 @@ export const AcuteBooking = () => {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-2xl font-semibold text-foreground">Ledige tider de næste 14 dage</h2>
+        <h2 className="text-2xl font-semibold text-foreground">
+          Ledige tider de næste {windowDays} dage
+        </h2>
         <div className="grid gap-3">
           {dayRows.map((day) => (
             <article key={day.dateKey} className="rounded-xl border border-border bg-white/70 p-4">
@@ -228,14 +296,14 @@ export const AcuteBooking = () => {
       </section>
 
       <p className="rounded-xl border border-border bg-white/70 px-4 py-3 text-sm text-muted-foreground">
-        Der er {totalRemaining} akutte tider tilbage de næste 14 dage.
+        Der er {totalRemaining} akutte tider tilbage de næste {windowDays} dage.
       </p>
 
       <section ref={panelRef} className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Akut booking</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {selectedSlot
-            ? `Valgt tid: ${selectedSlot.dateLabel} kl. ${selectedSlot.time} · Fast pris ${FAST_PRICE}`
+            ? `Valgt tid: ${selectedSlot.dateLabel} kl. ${selectedSlot.time} · Fast pris ${formatPrice(price)}`
             : "Vælg en tid ovenfor for at fortsætte."}
         </p>
 
@@ -306,7 +374,9 @@ export const AcuteBooking = () => {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button onClick={submitAcuteBooking}>Bekræft akut booking</Button>
+          <Button onClick={submitAcuteBooking} disabled={isSubmitting}>
+            {isSubmitting ? "Reserverer..." : "Bekræft akut booking"}
+          </Button>
           <Button asChild variant="outline">
             <a
               href={PHONE_TEL}
@@ -320,11 +390,6 @@ export const AcuteBooking = () => {
         </div>
 
         {errorMessage ? <p className="mt-4 text-sm font-medium text-red-700">{errorMessage}</p> : null}
-        {successMessage ? (
-          <p className="mt-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground">
-            {successMessage}
-          </p>
-        ) : null}
       </section>
 
       {showSticky && nextSlot ? (
@@ -335,7 +400,7 @@ export const AcuteBooking = () => {
             className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 rounded-xl border border-border bg-white px-4 py-3 text-left shadow-lg"
           >
             <span className="text-xs text-muted-foreground">
-              Fast pris {FAST_PRICE} · Næste tid: {nextSlot.dateLabel} kl. {nextSlot.time}
+              Fast pris {formatPrice(price)} · Næste tid: {nextSlot.dateLabel} kl. {nextSlot.time}
             </span>
             <span className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
               Book

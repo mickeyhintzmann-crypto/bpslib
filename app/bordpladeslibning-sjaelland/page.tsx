@@ -10,7 +10,6 @@ import {
   buildFaqSchema,
   buildServiceSchema
 } from "@/components/seo/StructuredData";
-import { BeforeAfterGallery } from "@/components/home/BeforeAfterGallery";
 import { ProcessSteps } from "@/components/home/ProcessSteps";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
@@ -95,7 +94,6 @@ export default function BordpladePillarPage() {
         showAkutteTider
       />
 
-      <BeforeAfterGallery />
       <ProcessSteps />
 
       <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
@@ -118,8 +116,9 @@ export default function BordpladePillarPage() {
         <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
           <h2 className="text-2xl font-semibold text-foreground">Finish og typiske problemer</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            Vi hjælper med valg mellem olie og lak, og vi håndterer ofte skjolder og ridser som en
-            del af samme opgave.
+            Vi hjælper med valg mellem olie og lak, og vi håndterer ofte skjolder, ridser og
+            slidt/mat overflade som en del af samme opgave. Vi kan udføre sæbebehandling, men
+            anbefaler normalt olie eller lak til bordplader.
           </p>
           <div className="mt-4 grid gap-2 text-sm text-muted-foreground">
             <Link href="/bordpladeslibning/olie-eller-lak" className="hover:text-foreground">
@@ -127,6 +126,9 @@ export default function BordpladePillarPage() {
             </Link>
             <Link href="/bordpladeslibning/skjolder" className="hover:text-foreground">
               Fjern skjolder på bordpladen
+            </Link>
+            <Link href="/bordpladeslibning/slidt-mat-overflade" className="hover:text-foreground">
+              Slidt eller mat bordplade
             </Link>
             <Link href="/bordpladeslibning/ridser" className="hover:text-foreground">
               Fjern ridser i bordpladen
@@ -145,6 +147,7 @@ export default function BordpladePillarPage() {
           { href: "/bordpladeslibning/kan-det-slibes", label: "Kan det slibes?" },
           { href: "/bordpladeslibning/olie-eller-lak", label: "Olie eller lak" },
           { href: "/bordpladeslibning/skjolder", label: "Skjolder" },
+          { href: "/bordpladeslibning/slidt-mat-overflade", label: "Slidt/mat overflade" },
           { href: "/bordpladeslibning/ridser", label: "Ridser" },
           { href: "/bordpladeslibning/prisberegner", label: "Få pris via billeder" },
           { href: "/bordpladeslibning/book", label: "Book tid" },

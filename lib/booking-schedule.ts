@@ -7,6 +7,14 @@ export type DayTemplate = {
   dateLabel: string;
   openSlotsCount: number;
   initialBooked: SlotTime[];
+  showOnAcutePage?: boolean;
+};
+
+export type DayOverrideInput = {
+  date: string;
+  open_slots_count?: number | null;
+  show_on_acute_page?: boolean | null;
+  note?: string | null;
 };
 
 const addDays = (date: Date, days: number) => {
@@ -86,7 +94,8 @@ const buildTemplate = (
       dateKey: toDateKey(dayDate),
       dateLabel: formatDateLabel(dayDate),
       openSlotsCount,
-      initialBooked: bookedPattern(index, openSlotsCount)
+      initialBooked: bookedPattern(index, openSlotsCount),
+      showOnAcutePage: true
     });
   }
 
@@ -96,6 +105,46 @@ const buildTemplate = (
 export const createBookingTemplates = (days = 30) => buildTemplate(days, bookingPattern);
 
 export const createAcuteTemplates = (days = 14) => buildTemplate(days, acutePattern);
+
+export const applyDayOverrides = (
+  templates: DayTemplate[],
+  overrides: DayOverrideInput[],
+  options?: { respectAcuteVisibility?: boolean }
+) => {
+  if (!overrides || overrides.length === 0) {
+    return templates;
+  }
+
+  const overrideByDate = new Map(overrides.map((override) => [override.date, override]));
+
+  return templates.map((template) => {
+    const override = overrideByDate.get(template.dateKey);
+    if (!override) {
+      return template;
+    }
+
+    let openSlotsCount = template.openSlotsCount;
+    if (typeof override.open_slots_count === "number") {
+      const normalized = Math.max(0, Math.min(3, Math.round(override.open_slots_count)));
+      openSlotsCount = normalized;
+    }
+
+    let showOnAcutePage = template.showOnAcutePage ?? true;
+    if (typeof override.show_on_acute_page === "boolean") {
+      showOnAcutePage = override.show_on_acute_page;
+    }
+
+    if (options?.respectAcuteVisibility && showOnAcutePage === false) {
+      openSlotsCount = 0;
+    }
+
+    return {
+      ...template,
+      openSlotsCount,
+      showOnAcutePage
+    };
+  });
+};
 
 export const slotKey = (dateKey: string, time: SlotTime) => `${dateKey}::${time}`;
 

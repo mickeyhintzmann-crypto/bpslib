@@ -1,52 +1,68 @@
-import Image from "next/image";
 import Link from "next/link";
 
+import { BpsImage } from "@/components/BpsImage";
 import { Button } from "@/components/ui/button";
-import { bordpladeCasePlaceholders } from "@/lib/bordplade/cases";
+import { getCases } from "@/lib/cases";
 
-const placeholderSvg = (label: string) => {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='720' height='480'>
-    <rect width='100%' height='100%' fill='#f2e7d8'/>
-    <rect x='32' y='32' width='656' height='416' rx='24' fill='#ffffff' stroke='#d9c9b5' stroke-width='2'/>
-    <text x='50%' y='50%' text-anchor='middle' font-family='Arial' font-size='24' fill='#8c6b4d'>${label}</text>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
+const limit = 3;
 
-export const BeforeAfterGallery = () => {
+export const BeforeAfterGallery = async () => {
+  const allCases = await getCases();
+  const items = allCases
+    .filter((item) => item.category === "bordplade" && item.afterImage)
+    .slice(0, limit);
   return (
     <section className="py-10 md:py-16">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">Før og efter</h2>
         <p className="text-sm text-muted-foreground">
-          Eksempler på typiske problemer og den finish vi leverer på massiv træbordplader.
+          Et lille udvalg af opgaver vi har løst på massiv træbordplader. Vi viser kun få før/efter
+          eksempler ad gangen, så kvaliteten er tydelig.
         </p>
       </div>
-      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {bordpladeCasePlaceholders.map((item) => (
-          <div key={item.title} className="rounded-2xl border border-border/70 bg-white/70 p-4">
-            <Image
-              src={placeholderSvg(item.title)}
-              alt={item.title}
-              width={720}
-              height={480}
-              className="h-40 w-full rounded-xl object-cover"
-              unoptimized
-            />
-            <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Problem: {item.title}</p>
-              <p>Løsning: {item.solution}</p>
-              <p>Finish: {item.finish}</p>
+      {items.length === 0 ? (
+        <div className="mt-6 rounded-2xl border border-border/70 bg-white/70 p-6 text-sm text-muted-foreground">
+          Før/efter cases bliver tilføjet løbende. Send billeder via prisberegneren, så vurderer vi
+          din bordplade.
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          {items.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-border/70 bg-white/70 p-4">
+              <div className="grid grid-cols-2 gap-2">
+                <figure className="space-y-2">
+                  <BpsImage
+                    src={item.beforeImage}
+                    alt={item.beforeAlt}
+                    width={1200}
+                    height={900}
+                    className="h-32 w-full rounded-xl object-cover"
+                  />
+                  <figcaption className="text-xs text-muted-foreground">Før</figcaption>
+                </figure>
+                <figure className="space-y-2">
+                  <BpsImage
+                    src={item.afterImage || item.beforeImage}
+                    alt={item.afterAlt || item.beforeAlt}
+                    width={1200}
+                    height={900}
+                    className="h-32 w-full rounded-xl object-cover"
+                  />
+                  <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
+                </figure>
+              </div>
+              <div className="mt-4 space-y-1 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">Træsort & olie: {item.title}</p>
+                <p>Lokation: {item.location}</p>
+                <p>Olie-farve: {item.problem}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <div className="mt-6 flex flex-wrap gap-3">
         <Button asChild>
-          <Link href="/bordpladeslibning/prisberegner">Få pris via billeder</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/bordpladeslibning/book">Book tid</Link>
+          <Link href="/bordpladeslibning/prisberegner">Få et prisestimat</Link>
         </Button>
       </div>
     </section>

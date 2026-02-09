@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { assertAdminToken } from "@/lib/admin-auth";
+import { auditLog } from "@/lib/audit";
 import {
   ESTIMATOR_BUCKET,
   ESTIMATOR_STATUS_FLOW,
@@ -12,6 +13,7 @@ type StoredImage = {
   path: string;
   name?: string;
   isEdge?: boolean;
+  isOverview?: boolean;
 };
 
 type EstimatorFields = {
@@ -31,6 +33,9 @@ type EstimatorDetailRow = {
   price_max: number | null;
   slot_count: number | null;
   booking_id: string | null;
+  ai_price_min: number | null;
+  ai_price_max: number | null;
+  ai_status: string | null;
 };
 
 type UpdatePayload = {
@@ -42,7 +47,7 @@ type UpdatePayload = {
 };
 
 type RouteContext = {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 };
 
 const isMissingEstimatorTable = (message: string | undefined) => {
@@ -76,7 +81,8 @@ const parseImages = (images: unknown): StoredImage[] => {
         parsed.push({
           path: item.path,
           name: item.name,
-          isEdge: Boolean(item.isEdge)
+          isEdge: Boolean(item.isEdge),
+          isOverview: Boolean(item.isOverview)
         });
       }
     }
@@ -129,10 +135,12 @@ const mapRowWithSignedImages = async (row: EstimatorDetailRow) => {
     path: image.path,
     name: image.name || `Billede ${index + 1}`,
     isEdge: Boolean(image.isEdge),
+    isOverview: Boolean(image.isOverview),
     url: signedUrlByPath.get(image.path) || null
   }));
 
   const edgeImage = images.find((image) => image.isEdge) || null;
+  const overviewImage = images.find((image) => image.isOverview) || null;
 
   return {
     id: row.id,
@@ -142,12 +150,16 @@ const mapRowWithSignedImages = async (row: EstimatorDetailRow) => {
     fields: parseFields(row.fields),
     images,
     edgeImage,
+    overviewImage,
     retentionDeleteAt: row.retention_delete_at,
     internalNote: row.internal_note,
     priceMin: row.price_min,
     priceMax: row.price_max,
     slotCount: row.slot_count,
-    bookingId: row.booking_id
+    bookingId: row.booking_id,
+    aiPriceMin: row.ai_price_min,
+    aiPriceMax: row.ai_price_max,
+    aiStatus: row.ai_status
   };
 };
 
@@ -156,7 +168,7 @@ const isKnownStatus = (value: unknown): value is EstimatorStatus =>
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const params = await Promise.resolve(context.params);
+    const params = await context.params;
     const authError = assertAdminToken(request);
     if (authError) {
       return authError;
@@ -167,7 +179,7 @@ export async function GET(request: Request, context: RouteContext) {
     const { data, error } = await supabase
       .from("estimator_requests")
       .select(
-        "id, created_at, status, gating_answer, fields, images, retention_delete_at, internal_note, price_min, price_max, slot_count, booking_id"
+        "id, created_at, status, gating_answer, fields, images, retention_delete_at, internal_note, price_min, price_max, slot_count, booking_id, ai_price_min, ai_price_max, ai_status"
       )
       .eq("id", params.id)
       .single();
@@ -198,7 +210,7 @@ export async function GET(request: Request, context: RouteContext) {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    const params = await Promise.resolve(context.params);
+    const params = await context.params;
     const authError = assertAdminToken(request);
     if (authError) {
       return authError;
@@ -273,13 +285,20 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const supabase = createSupabaseServiceClient();
+    const { data: beforeData } = await supabase
+      .from("estimator_requests")
+      .select(
+        "id, created_at, status, gating_answer, fields, images, retention_delete_at, internal_note, price_min, price_max, slot_count, booking_id, ai_price_min, ai_price_max, ai_status"
+      )
+      .eq("id", params.id)
+      .single();
 
     const { data, error } = await supabase
       .from("estimator_requests")
       .update(updateData)
       .eq("id", params.id)
       .select(
-        "id, created_at, status, gating_answer, fields, images, retention_delete_at, internal_note, price_min, price_max, slot_count, booking_id"
+        "id, created_at, status, gating_answer, fields, images, retention_delete_at, internal_note, price_min, price_max, slot_count, booking_id, ai_price_min, ai_price_max, ai_status"
       )
       .single();
 
@@ -300,6 +319,19 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const item = await mapRowWithSignedImages(data as EstimatorDetailRow);
+
+    await auditLog({
+      action: "estimator.update",
+      entityType: "estimator",
+      entityId: data.id,
+      meta: {
+        before: beforeData || null,
+        after: data,
+        changes: updateData
+      },
+      req: request
+    });
+
     return NextResponse.json({ item }, { status: 200 });
   } catch (error) {
     console.error(error);

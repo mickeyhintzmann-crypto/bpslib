@@ -70,3 +70,50 @@ export const buildServiceSchema = ({ name, description, url }: ServiceSchemaInpu
   },
   url
 });
+
+type LocalBusinessSchemaInput = {
+  name: string;
+  description: string;
+  url: string;
+  telephone: string;
+  email: string;
+  address?: string;
+  areaServed?: string;
+  openingHours?: string[];
+};
+
+export const buildLocalBusinessSchema = ({
+  name,
+  description,
+  url,
+  telephone,
+  email,
+  address,
+  areaServed = "Sjælland",
+  openingHours = []
+}: LocalBusinessSchemaInput) => {
+  const schema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name,
+    description,
+    url,
+    telephone,
+    email,
+    areaServed: {
+      "@type": "AdministrativeArea",
+      name: areaServed
+    },
+    openingHours
+  };
+
+  if (address && address.trim().length > 0) {
+    schema.address = {
+      "@type": "PostalAddress",
+      streetAddress: address,
+      addressCountry: "DK"
+    };
+  }
+
+  return schema;
+};

@@ -34,6 +34,9 @@ type EstimatorListRow = {
   price_min: number | null;
   price_max: number | null;
   slot_count: number | null;
+  ai_price_min: number | null;
+  ai_price_max: number | null;
+  ai_status: string | null;
 };
 
 const isMissingEstimatorTable = (message: string | undefined) => {
@@ -108,7 +111,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("estimator_requests")
       .select(
-        "id, created_at, status, gating_answer, fields, images, price_min, price_max, slot_count"
+        "id, created_at, status, gating_answer, fields, images, price_min, price_max, slot_count, ai_price_min, ai_price_max, ai_status"
       )
       .order("created_at", { ascending: false })
       .limit(120);
@@ -175,6 +178,9 @@ export async function GET(request: Request) {
         priceMin: row.price_min,
         priceMax: row.price_max,
         slotCount: row.slot_count,
+        aiPriceMin: row.ai_price_min,
+        aiPriceMax: row.ai_price_max,
+        aiStatus: row.ai_status,
         thumbnails: signedById.get(row.id) || []
       };
     });

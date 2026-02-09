@@ -5,11 +5,14 @@
   "scripts": {
     "dev": "next dev -p 3002",
     "check:routes": "node scripts/audit-routes.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "check:live": "node scripts/check_live.mjs",
     "cleanup:estimator": "node scripts/cleanup-estimator.mjs",
+    "import:ai-training": "node scripts/import-ai-training.mjs",
     "prebuild": "npm run check:routes",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint \"app/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\" \"lib/**/*.{js,jsx,ts,tsx}\" \"scripts/**/*.{js,jsx,ts,tsx,mjs}\"",
     "format": "prettier --check .",
     "format:write": "prettier --write ."
   },
@@ -20,12 +23,14 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.446.0",
     "next": "^16.1.6",
+    "nodemailer": "^8.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@types/node": "^20.12.14",
+    "@types/nodemailer": "^7.0.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",

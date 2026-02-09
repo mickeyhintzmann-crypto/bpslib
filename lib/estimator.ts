@@ -1,3 +1,5 @@
+import type { BordpladeExtras } from "@/lib/bordplade/extras";
+
 export const ESTIMATOR_BUCKET = "estimator-images";
 
 export const GATING_OPTIONS = ["ja", "nej", "ved_ikke"] as const;
@@ -33,17 +35,12 @@ export const ESTIMATOR_STATUS_FLOW = [
 export type EstimatorStatus = (typeof ESTIMATOR_STATUS_FLOW)[number];
 
 export type EstimatorFormFields = {
-  bordpladeType: string;
-  traesort: string;
-  overflade: string;
-  skader: string[];
-  laengdeCm: string;
-  dybdeCm: string;
-  antal: string;
-  postnr: string;
   navn: string;
   telefon: string;
-  email: string;
-  note: string;
-  noPrice: boolean;
+  email?: string;
+  note?: string;
+  laengdeCm?: number;
+  dybdeCm?: number;
+  antal?: number;
+  extras?: BordpladeExtras;
 };

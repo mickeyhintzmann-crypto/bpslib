@@ -2,30 +2,35 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import {
-  ESTIMATOR_BUCKET,
-  GATING_OPTIONS,
-  STATUS_VALUES,
-  type EstimatorFormFields,
-  type GatingAnswer
-} from "@/lib/estimator";
+import { estimateAiPrice } from "@/lib/ai-estimator";
+import { sanitizeExtras } from "@/lib/bordplade/extras";
+import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const parseBoolean = (value: FormDataEntryValue | null) => value === "true";
-
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
+const parseNumber = (value: string, min: number, max: number) => {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  const rounded = Math.round(parsed);
+  if (rounded < min || rounded > max) {
+    return null;
+  }
+  return rounded;
+};
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MIN_IMAGES = 3;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
-
-const parseGating = (value: string): GatingAnswer | null => {
-  return GATING_OPTIONS.includes(value as GatingAnswer) ? (value as GatingAnswer) : null;
-};
 
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
@@ -59,18 +64,16 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
 
-    const gatingAnswer = parseGating(asString(formData.get("gatingAnswer")));
-    const noPrice = parseBoolean(formData.get("noPrice"));
     const edgeImageIndexRaw = asString(formData.get("edgeImageIndex"));
+    const kitchenImageIndexRaw = asString(formData.get("kitchenImageIndex"));
+    const laengdeCmRaw = asString(formData.get("laengdeCm"));
+    const dybdeCmRaw = asString(formData.get("dybdeCm"));
+    const antalRaw = asString(formData.get("antal"));
 
     const images = formData
       .getAll("images")
       .filter((entry): entry is File => entry instanceof File)
       .filter((file) => file.size > 0);
-
-    if (!gatingAnswer) {
-      return NextResponse.json({ message: "Ugyldigt svar på massiv træ-gating." }, { status: 400 });
-    }
 
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
       return NextResponse.json({ message: "Upload mindst 3 og maks 6 billeder." }, { status: 400 });
@@ -99,69 +102,54 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!noPrice && gatingAnswer === "nej") {
-      return NextResponse.json(
-        { message: "Vi giver kun pris på massive træbordplader." },
-        { status: 400 }
-      );
-    }
-
-    const requiresEdgeImage = gatingAnswer === "ja" || gatingAnswer === "ved_ikke";
+    const requiresEdgeImage = true;
     const edgeImageIndex = Number.parseInt(edgeImageIndexRaw, 10);
+    const kitchenImageIndex = Number.parseInt(kitchenImageIndexRaw, 10);
 
     if (requiresEdgeImage && (!Number.isInteger(edgeImageIndex) || edgeImageIndex < 0 || edgeImageIndex >= images.length)) {
       return NextResponse.json({ message: "Markér hvilket billede der viser kant/ende." }, { status: 400 });
     }
-
-    let parsedSkader: string[] = [];
-    try {
-      const rawSkader = asString(formData.get("skader"));
-      parsedSkader = rawSkader ? (JSON.parse(rawSkader) as string[]) : [];
-      if (!Array.isArray(parsedSkader)) {
-        parsedSkader = [];
-      }
-    } catch {
-      return NextResponse.json({ message: "Skader kunne ikke læses korrekt." }, { status: 400 });
-    }
-
-    const fields: EstimatorFormFields = {
-      bordpladeType: asString(formData.get("bordpladeType")),
-      traesort: asString(formData.get("traesort")),
-      overflade: asString(formData.get("overflade")),
-      skader: parsedSkader,
-      laengdeCm: asString(formData.get("laengdeCm")),
-      dybdeCm: asString(formData.get("dybdeCm")),
-      antal: asString(formData.get("antal")),
-      postnr: asString(formData.get("postnr")),
-      navn: asString(formData.get("navn")),
-      telefon: asString(formData.get("telefon")),
-      email: asString(formData.get("email")),
-      note: asString(formData.get("note")),
-      noPrice
-    };
-
-    if (!/^\d{4}$/.test(fields.postnr)) {
-      return NextResponse.json({ message: "Postnr skal være 4 tal." }, { status: 400 });
-    }
-
-    if (!fields.navn || !fields.telefon || !fields.email) {
+    if (!Number.isInteger(kitchenImageIndex) || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return NextResponse.json(
-        { message: "Navn, telefon og email er obligatoriske." },
+        { message: "Markér hvilket billede der viser hele køkkenet/bordpladen." },
         { status: 400 }
       );
     }
 
-    const laengde = Number(fields.laengdeCm);
-    const dybde = Number(fields.dybdeCm);
+    const laengdeCm = parseNumber(laengdeCmRaw, 50, 800);
+    const dybdeCm = parseNumber(dybdeCmRaw, 40, 200);
+    const antal = parseNumber(antalRaw, 1, 10);
 
-    if (!Number.isFinite(laengde) || laengde <= 0 || !Number.isFinite(dybde) || dybde <= 0) {
-      return NextResponse.json({ message: "Længde og dybde skal være gyldige tal." }, { status: 400 });
+    const fields: EstimatorFormFields = {
+      navn: asString(formData.get("navn")),
+      telefon: asString(formData.get("telefon")),
+      laengdeCm: laengdeCm ?? undefined,
+      dybdeCm: dybdeCm ?? undefined,
+      antal: antal ?? undefined
+    };
+
+    let extras = sanitizeExtras(null);
+    try {
+      const rawExtras = asString(formData.get("extras"));
+      extras = sanitizeExtras(rawExtras ? (JSON.parse(rawExtras) as unknown) : null);
+    } catch {
+      return NextResponse.json({ message: "Tilvalg kunne ikke læses korrekt." }, { status: 400 });
+    }
+
+    if (!fields.navn || !fields.telefon) {
+      return NextResponse.json({ message: "Navn og telefon er obligatoriske." }, { status: 400 });
+    }
+    if (laengdeCm === null || dybdeCm === null || antal === null) {
+      return NextResponse.json(
+        { message: "Angiv ca. længde, dybde og antal bordplader for at få et AI-estimat." },
+        { status: 400 }
+      );
     }
 
     const supabase = createSupabaseServiceClient();
     const requestId = randomUUID();
 
-    const uploadedImages: Array<{ path: string; name: string; isEdge: boolean }> = [];
+    const uploadedImages: Array<{ path: string; name: string; isEdge: boolean; isOverview: boolean }> = [];
 
     for (const [index, file] of images.entries()) {
       const extension = file.name.includes(".") ? file.name.split(".").pop() || "jpg" : "jpg";
@@ -189,21 +177,31 @@ export async function POST(request: Request) {
       uploadedImages.push({
         path: filePath,
         name: file.name,
-        isEdge: Number.isInteger(edgeImageIndex) && edgeImageIndex === index
+        isEdge: Number.isInteger(edgeImageIndex) && edgeImageIndex === index,
+        isOverview: Number.isInteger(kitchenImageIndex) && kitchenImageIndex === index
       });
     }
 
     const retentionDeleteAt = new Date();
     retentionDeleteAt.setDate(retentionDeleteAt.getDate() + siteConfig.estimatorRetentionDays);
 
+    const aiEstimate = await estimateAiPrice(supabase, { fields, extras });
+    const aiStatus = aiEstimate ? "estimated" : "manual";
+
     const { data, error: insertError } = await supabase
       .from("estimator_requests")
       .insert({
-        gating_answer: gatingAnswer,
-        fields,
+        gating_answer: "ved_ikke",
+        fields: {
+          ...fields,
+          extras
+        },
         images: uploadedImages,
         status: STATUS_VALUES.new,
-        retention_delete_at: retentionDeleteAt.toISOString()
+        retention_delete_at: retentionDeleteAt.toISOString(),
+        ai_price_min: aiEstimate?.min ?? null,
+        ai_price_max: aiEstimate?.max ?? null,
+        ai_status: aiStatus
       })
       .select("id")
       .single();
@@ -225,7 +223,15 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ id: data.id }, { status: 200 });
+    return NextResponse.json(
+      {
+        id: data.id,
+        aiPriceMin: aiEstimate?.min ?? null,
+        aiPriceMax: aiEstimate?.max ?? null,
+        aiStatus
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(

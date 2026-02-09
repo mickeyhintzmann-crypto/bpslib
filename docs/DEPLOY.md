@@ -5,11 +5,11 @@
 - Produktion deployes fra main-branch.
 
 ## Miljøvariabler (minimum)
-- `NEXT_PUBLIC_SITE_URL` (f.eks. `https://bpslib.dk`)
+- `NEXT_PUBLIC_SITE_URL` (sæt til `https://bpslib.dk` i Production; kan være tom i Preview, så bruges `VERCEL_URL`)
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (kun server-side)
-- `GA4_MEASUREMENT_ID` (kan være tom før consent er aktiv)
+- `NEXT_PUBLIC_GA4_ID` (kan være tom før consent er aktiv)
 - `ADMIN_TOKEN` (kræves i produktion til admin API routes, valgfri i dev)
 - `RATE_LIMIT_SALT` (til hash af IP i rate limit, brug en lang random streng)
 

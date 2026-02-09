@@ -5,9 +5,9 @@ import { CtaRow } from "@/components/bordplade/CtaRow";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Prisberegner",
+  title: "AI-prisberegner",
   description:
-    "Upload 3-6 billeder af bordpladen og få hurtig vurdering. Kun massiv træ, tydelig databehandling og svar hurtigt.",
+    "AI-prisberegner til bordplader. Upload 3-6 billeder og få et realistisk overslag på ca. 2 min. Kun massiv træ.",
   path: "/bordpladeslibning/prisberegner"
 });
 
@@ -17,16 +17,17 @@ export default function PrisberegnerPage() {
       <section className="py-10 md:py-14">
         <div className="space-y-5 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Prisberegner
+            AI-prisberegner
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-            Få pris via billeder (kun massiv træ)
+            Få et AI-prisestimat via billeder (kun massiv træ)
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground md:text-lg">
-            Upload 3-6 billeder, inklusive kant/ende ved behov. Vi vender hurtigt tilbage med
-            vurdering af opgaven, næste skridt og realistisk prisniveau.
+            Upload 3-6 billeder (inkl. hel bordplade og kant/ende), skriv dit navn og telefonnummer,
+            og få et AI-prisestimat på ca. 2 minutter. Den endelige pris gælder først efter
+            bookingbekræftelse.
           </p>
-          <CtaRow showAkutteTider />
+          <CtaRow showAkutteTider primaryLabel="Få AI-prisestimat" />
         </div>
       </section>
 

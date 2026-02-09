@@ -1,9 +1,11 @@
 {
   "/TableSanding": "/bordpladeslibning-sjaelland",
+  "/tableSanding": "/bordpladeslibning-sjaelland",
   "/FloorSanding": "/gulvafslibning-sjaelland",
-  "/BordpladeSlibningRoskilde": "/bordpladeslibning-sjaelland",
-  "/TableSandingCopenhagen": "/bordpladeslibning-sjaelland",
+  "/BordpladeSlibningRoskilde": "/bordpladeslibning-roskilde",
+  "/TableSandingCopenhagen": "/bordpladeslibning-koebenhavn-omegn",
   "/About": "/om-os",
+  "/about": "/om-os",
   "/References": "/cases",
   "/Guides": "/bordpladeslibning-sjaelland",
   "/contact": "/kontakt",

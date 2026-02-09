@@ -13,8 +13,10 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleNavigate = () => setIsOpen(false);
+  const bookingRoute = getRouteByPath("/bordpladeslibning/book");
   const tilbudRoute = getRouteByPath("/tilbudstid");
   const tilbudCta = tilbudRoute ? { href: tilbudRoute.path, label: "Få tilbud" } : undefined;
+  const bookingCta = bookingRoute ? { href: bookingRoute.path, label: "Book nu" } : undefined;
 
   return (
     <header className="border-b border-border/70 bg-background/80 backdrop-blur">
@@ -43,7 +45,7 @@ export const Header = () => {
             <NavDropdown
               label="Bordplade"
               items={headerRegistry.bordplade.map((route) => ({ href: route.href, label: route.label }))}
-              cta={{ href: headerRegistry.cta.href, label: "Få pris" }}
+              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
               emphasis
             />
             <NavDropdown
@@ -75,8 +77,16 @@ export const Header = () => {
           >
             Tlf. {siteConfig.phoneDisplay}
           </a>
-          <Button asChild className="hidden sm:inline-flex">
-            <Link href={headerRegistry.cta.href}>Få pris</Link>
+          {bookingCta ? (
+            <Button
+              asChild
+              className="hidden sm:inline-flex bg-primary px-5 text-white shadow-md hover:bg-primary/90"
+            >
+              <Link href={bookingCta.href}>{bookingCta.label}</Link>
+            </Button>
+          ) : null}
+          <Button asChild variant="outline" className="hidden sm:inline-flex">
+            <Link href={headerRegistry.cta.href}>AI-prisberegner</Link>
           </Button>
           <button
             type="button"
@@ -96,7 +106,7 @@ export const Header = () => {
             <NavDropdown
               label="Bordplade"
               items={headerRegistry.bordplade.map((route) => ({ href: route.href, label: route.label }))}
-              cta={{ href: headerRegistry.cta.href, label: "Få pris" }}
+              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
               variant="mobile"
               onNavigate={handleNavigate}
             />

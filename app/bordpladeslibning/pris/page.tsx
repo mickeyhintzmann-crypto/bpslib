@@ -16,24 +16,44 @@ import { buildMetadata } from "@/lib/seo";
 
 const priceExamples = [
   {
-    title: "Lille køkkenbord (let slitage)",
-    range: "Fra ca. 2.900–4.200 kr.",
-    note: "Typisk 1 slot ved begrænset klargøring."
+    title: "Lille/alm. køkkenbord (små mål)",
+    range: "Ca. 3.000–4.000 kr.",
+    note: "Små køkkener kan i enkelte tilfælde lande omkring 3.000 kr."
   },
   {
-    title: "Mellemstort bord (synlige mærker)",
-    range: "Fra ca. 4.200–6.800 kr.",
-    note: "Ofte 1–2 slots afhængigt af dybde i skader."
+    title: "Stort køkken eller køkken med vandfald",
+    range: "Ca. 4.000–5.000 kr.",
+    note: "Køkkener ligger typisk her afhængigt af finish og tilstand."
   },
   {
-    title: "Stor bordplade med skjolder/ridser",
-    range: "Fra ca. 6.500–10.500 kr.",
-    note: "Typisk 2–3 slots inkl. ekstra klargøring."
+    title: "Tillæg: Spisebord",
+    range: "+1.200–2.200 kr.",
+    note: "Tilvalg når spisebordet slibes sammen med køkkenet."
   },
   {
-    title: "Kompleks opgave med kanter og udskæringer",
-    range: "Fra ca. 8.500–13.500 kr.",
-    note: "Kræver ofte ekstra tid til geometri og finish-kontrol."
+    title: "Tillæg: Sofabord",
+    range: "+500–1.500 kr.",
+    note: "Afhænger af størrelse og ønsket finish."
+  },
+  {
+    title: "Tillæg: Bryggers",
+    range: "+1.000–2.500 kr.",
+    note: "Ekstra bordplader i bryggers eller lignende."
+  },
+  {
+    title: "Tillæg: Vindueskarme",
+    range: "+250–500 kr. pr. stk.",
+    note: "Pris pr. karm afhænger af længde og tilstand."
+  },
+  {
+    title: "Tillæg: Vandfald",
+    range: "+600–900 kr. pr. stk.",
+    note: "Antal og længde påvirker prisen."
+  },
+  {
+    title: "Tillæg: Lister",
+    range: "Pris efter aftale",
+    note: "Oplys antal og længder i prisberegneren."
   }
 ];
 
@@ -131,7 +151,8 @@ export default function BordpladePrisPage() {
           </p>
           <p>
             <span className="font-semibold text-foreground">Finish:</span> valg mellem olie og lak
-            påvirker opbygning, tørretid og vedligehold.
+            påvirker opbygning, tørretid og vedligehold. Sæbebehandling kan udføres, men anbefales
+            sjældent til bordplader.
           </p>
           <p>
             <span className="font-semibold text-foreground">Ekstra arbejde:</span> komplicerede
@@ -147,6 +168,11 @@ export default function BordpladePrisPage() {
         <h2 className="text-2xl font-semibold text-foreground">Priseksempler (vejledende intervaller)</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Intervallerne er vejledende. Endelig pris kræver billedvurdering af din konkrete bordplade.
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Køkkener ligger normalt mellem 3.500 og 5.000 kr. Små køkkener kan i enkelte tilfælde lande
+          på 3.000 kr. Priser over 5.000 kr. skyldes typisk tilvalg som spisebord, vandfald eller
+          bryggers.
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {priceExamples.map((example) => (
@@ -208,6 +234,7 @@ export default function BordpladePrisPage() {
       </section>
 
       <MiniCase
+        caseSlug="pris-hub"
         title="Prisforløb med skjolder og ridser"
         problem="Kunden havde både varme-skjolder og dybe ridser med ujævn gammel behandling."
         solution="Foto-vurdering, 2-slot plan og finishvalg efter brugsmønster."
@@ -217,7 +244,7 @@ export default function BordpladePrisPage() {
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Midtvejs: få din konkrete pris</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Brug prisberegneren med billeder og mål. Jo bedre input, jo mere præcis pris og slot-plan.
+          Brug AI-prisberegneren med billeder og mål. Jo bedre input, jo mere præcis pris og slot-plan.
         </p>
         <div className="mt-4">
           <CtaRow showAkutteTider primaryLabel="Få konkret pris nu" />
@@ -233,7 +260,7 @@ export default function BordpladePrisPage() {
           { href: "/bordpladeslibning/olie-eller-lak", label: "Olie eller lak" },
           { href: "/bordpladeslibning/skjolder", label: "Skjolder" },
           { href: "/bordpladeslibning/ridser", label: "Ridser" },
-          { href: "/bordpladeslibning/prisberegner", label: "Prisberegner" },
+          { href: "/bordpladeslibning/prisberegner", label: "AI-prisberegner" },
           { href: "/bordpladeslibning/book", label: "Book tid" },
           { href: "/akutte-tider", label: "Akutte tider" }
         ]}
@@ -250,7 +277,7 @@ export default function BordpladePrisPage() {
           Send billeder for en præcis vurdering, eller book en tid hvis du er klar til udførelse.
         </p>
         <div className="mt-4">
-          <CtaRow showAkutteTider primaryLabel="Få pris via billeder" />
+          <CtaRow showAkutteTider primaryLabel="Få AI-prisestimat" />
         </div>
       </section>
 

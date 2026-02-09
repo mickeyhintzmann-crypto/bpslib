@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --background: 32 38% 97%;
-  --foreground: 20 14% 12%;
+  --background: 40 33% 98%;
+  --foreground: 24 18% 12%;
   --card: 0 0% 100%;
-  --card-foreground: 20 14% 12%;
-  --primary: 19 55% 38%;
-  --primary-foreground: 30 40% 98%;
-  --secondary: 38 32% 90%;
-  --secondary-foreground: 20 14% 18%;
-  --muted: 38 22% 92%;
-  --muted-foreground: 22 10% 45%;
-  --border: 30 18% 82%;
-  --radius: 12px;
+  --card-foreground: 24 18% 12%;
+  --primary: 24 88% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 36 100% 93%;
+  --secondary-foreground: 24 26% 20%;
+  --muted: 40 30% 94%;
+  --muted-foreground: 25 10% 45%;
+  --border: 30 18% 85%;
+  --radius: 16px;
 }
 
 * {
@@ -26,11 +26,11 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
     "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   background-image: radial-gradient(
-      900px 480px at 12% -12%,
-      hsl(var(--primary) / 0.12),
+      900px 520px at 12% -12%,
+      hsl(var(--primary) / 0.1),
       transparent
     ),
-    radial-gradient(800px 420px at 88% -18%, hsl(var(--secondary) / 0.55), transparent);
+    radial-gradient(800px 420px at 88% -18%, hsl(var(--secondary) / 0.7), transparent);
 }
 
 a {

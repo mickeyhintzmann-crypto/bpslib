@@ -5,7 +5,7 @@ const steps = [
   },
   {
     title: "Pris og anbefaling",
-    text: "Du får en konkret vurdering og forslag til tidspunkt eller næste step."
+    text: "Du får et prisestimat og anbefaling af tid (1/2/3 slots) eller næste step."
   },
   {
     title: "Vi udfører",
@@ -13,7 +13,7 @@ const steps = [
   }
 ];
 
-const trustNotes = ["Afdækning af arbejdsområde", "Støvkontrol under slibning"];
+const trustNotes = ["Afdækning af arbejdsområde", "Støvkontrol under slibning", "Rydder op efter os"];
 
 export const ProcessSteps = () => {
   return (
@@ -33,6 +33,12 @@ export const ProcessSteps = () => {
           </div>
         ))}
       </div>
+      <p className="mt-6 text-sm text-muted-foreground">
+        Vi aftaler altid tid og forventninger på forhånd, så processen bliver enkel for dig. Mange
+        opgaver klares på 1–2 slots, mens større eller mere komplekse bordplader kan kræve 3 slots.
+        Vi passer på dit hjem med grundig afdækning og støvkontrol, og vi sørger for, at du hurtigt
+        kan bruge køkkenet igen.
+      </p>
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted-foreground">
         {trustNotes.map((note) => (
           <span key={note} className="rounded-full border border-border/70 px-3 py-1">

@@ -30,6 +30,7 @@ export const IntentPageTemplate = ({ data }: { data: IntentPageData }) => {
   });
 
   const links = Array.from(linkMap.values());
+  const caseSlug = data.path.split("/").filter(Boolean).pop() ?? "default";
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Forside", item: `${BASE_URL}` },
@@ -60,7 +61,7 @@ export const IntentPageTemplate = ({ data }: { data: IntentPageData }) => {
         ))}
       </section>
 
-      <MiniCase {...data.miniCase} />
+      <MiniCase caseSlug={caseSlug} {...data.miniCase} />
 
       <InternalLinkGrid
         title="Næste relevante skridt"

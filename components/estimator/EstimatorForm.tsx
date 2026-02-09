@@ -6,147 +6,132 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
-  BORDPLADE_TYPE_OPTIONS,
-  OVERFLADE_OPTIONS,
-  SKADE_OPTIONS,
-  TRAESORT_OPTIONS,
-  type GatingAnswer
-} from "@/lib/estimator";
+  EXTRA_OPTIONS,
+  VANDFALD_PRICE_LABEL,
+  defaultBordpladeExtras,
+  formatExtrasSummary,
+  type BordpladeExtras
+} from "@/lib/bordplade/extras";
 import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
 
 const PHONE_TEL = "tel:+45XXXXXXXX";
 
-const gatingOptions: { value: GatingAnswer; label: string }[] = [
-  { value: "ja", label: "Ja, massiv træ" },
-  { value: "nej", label: "Nej" },
-  { value: "ved_ikke", label: "Ved ikke" }
-];
-
-const uploadGuide = [
-  "Hele bordpladen",
-  "Kant/ende (obligatorisk ved Ja/Ved ikke)",
+const UPLOAD_GUIDE = [
+  "Hel bordplade/køkken (obligatorisk)",
+  "Kant/ende (obligatorisk)",
   "Tæt på overfladen",
   "Problemområde",
   "Omkring vask/komfur (hvis relevant)"
 ];
 
-const signalLabel: Record<string, string> = {
-  ridser: "Ridser",
-  skjolder_vand: "Skjolder/vand",
-  brændemærker: "Brændemærker",
-  hakkede_kanter: "Hakkede kanter",
-  misfarvning_vask: "Misfarvning ved vask"
-};
-
-type FormValues = {
-  bordpladeType: string;
-  traesort: string;
-  overflade: string;
-  skader: string[];
-  laengdeCm: string;
-  dybdeCm: string;
-  antal: string;
-  postnr: string;
-  navn: string;
-  telefon: string;
-  email: string;
-  note: string;
-};
-
-const initialValues: FormValues = {
-  bordpladeType: "køkken",
-  traesort: "ved_ikke",
-  overflade: "ukendt",
-  skader: [],
-  laengdeCm: "",
-  dybdeCm: "",
-  antal: "1",
-  postnr: "",
-  navn: "",
-  telefon: "",
-  email: "",
-  note: ""
-};
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MIN_IMAGES = 3;
+const MAX_IMAGES = 6;
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 export const EstimatorForm = () => {
   const router = useRouter();
 
-  const [gatingAnswer, setGatingAnswer] = useState<GatingAnswer | null>(null);
-  const [allowNoPriceFlow, setAllowNoPriceFlow] = useState(false);
-  const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
   const [images, setImages] = useState<File[]>([]);
-  const [values, setValues] = useState<FormValues>(initialValues);
+  const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
+  const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
+  const [lengthCm, setLengthCm] = useState("");
+  const [depthCm, setDepthCm] = useState("");
+  const [count, setCount] = useState("1");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [extras, setExtras] = useState<BordpladeExtras>(defaultBordpladeExtras);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const requiresEdgeImage = gatingAnswer === "ja" || gatingAnswer === "ved_ikke";
-  const isNoPriceFlow = gatingAnswer === "nej";
-  const formEnabled = gatingAnswer !== null && (!isNoPriceFlow || allowNoPriceFlow);
-
   const imageCountLabel = useMemo(() => `${images.length} billeder valgt`, [images.length]);
-
-  const updateValue = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const toggleDamage = (damage: string) => {
-    setValues((prev) => ({
-      ...prev,
-      skader: prev.skader.includes(damage)
-        ? prev.skader.filter((item) => item !== damage)
-        : [...prev.skader, damage]
-    }));
-  };
+  const extrasSummary = useMemo(() => formatExtrasSummary(extras), [extras]);
 
   const onImageChange = (files: FileList | null) => {
     if (!files) {
       setImages([]);
       setEdgeImageIndex(null);
+      setKitchenImageIndex(null);
       return;
     }
 
-    const next = Array.from(files).slice(0, 6);
+    const next = Array.from(files)
+      .filter((file) => file.size > 0)
+      .slice(0, MAX_IMAGES);
     setImages(next);
 
     if (edgeImageIndex !== null && edgeImageIndex >= next.length) {
       setEdgeImageIndex(null);
     }
+    if (kitchenImageIndex !== null && kitchenImageIndex >= next.length) {
+      setKitchenImageIndex(null);
+    }
+  };
+
+  const validateImages = () => {
+    if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
+      return "Upload 3 til 6 billeder for at fortsætte.";
+    }
+    if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
+      return "Kun JPEG, PNG eller WEBP billeder er tilladt.";
+    }
+    const oversized = images.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
+    if (oversized) {
+      return `Billedet "${oversized.name}" er for stort. Maks 5 MB pr. billede.`;
+    }
+    const totalBytes = images.reduce((sum, file) => sum + file.size, 0);
+    if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
+      return "Den samlede upload er for stor. Maks 20 MB i alt.";
+    }
+    if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
+      return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
+    }
+    if (edgeImageIndex === null || edgeImageIndex < 0 || edgeImageIndex >= images.length) {
+      return "Markér hvilket billede der viser kant/ende.";
+    }
+    return null;
   };
 
   const validate = () => {
-    if (!gatingAnswer) {
-      return "Vælg først om bordpladen er massiv træ, ikke massiv eller ved ikke.";
+    const imageError = validateImages();
+    if (imageError) {
+      return imageError;
     }
-
-    if (!formEnabled) {
-      return "Aktivér vurdering uden pris, hvis du vil sende billeder alligevel.";
+    const lengthValue = Number.parseInt(lengthCm.replace(/\D/g, ""), 10);
+    const depthValue = Number.parseInt(depthCm.replace(/\D/g, ""), 10);
+    const countValue = Number.parseInt(count.replace(/\D/g, ""), 10);
+    if (!Number.isFinite(lengthValue) || lengthValue < 50 || lengthValue > 800) {
+      return "Angiv ca. længde på bordpladen (50–800 cm).";
     }
-
-    if (images.length < 3 || images.length > 6) {
-      return "Upload 3 til 6 billeder for at fortsætte.";
+    if (!Number.isFinite(depthValue) || depthValue < 40 || depthValue > 200) {
+      return "Angiv ca. dybde på bordpladen (40–200 cm).";
     }
-
-    if (requiresEdgeImage && (edgeImageIndex === null || edgeImageIndex < 0 || edgeImageIndex >= images.length)) {
-      return "Markér hvilket billede der viser kant/ende.";
+    if (!Number.isFinite(countValue) || countValue < 1 || countValue > 10) {
+      return "Angiv antal bordplader (1–10).";
     }
-
-    if (!/^\d{4}$/.test(values.postnr)) {
-      return "Postnr skal være 4 tal.";
+    if (!name.trim() || !phone.trim()) {
+      return "Navn og telefonnummer er obligatoriske.";
     }
-
-    if (!values.navn.trim() || !values.telefon.trim() || !values.email.trim()) {
-      return "Navn, telefon og email er obligatoriske.";
-    }
-
-    const lengthValue = Number(values.laengdeCm);
-    const depthValue = Number(values.dybdeCm);
-
-    if (!Number.isFinite(lengthValue) || lengthValue <= 0 || !Number.isFinite(depthValue) || depthValue <= 0) {
-      return "Indtast gyldig længde og dybde i cm.";
-    }
-
     return null;
+  };
+
+  const toggleExtra = (key: (typeof EXTRA_OPTIONS)[number]["key"]) => {
+    setExtras((prev) => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const updateVandfaldCount = (value: string) => {
+    if (!value.trim()) {
+      setExtras((prev) => ({ ...prev, vandfaldCount: 0 }));
+      return;
+    }
+    const parsed = Number.parseInt(value.replace(/\D/g, ""), 10);
+    const safeValue = Number.isNaN(parsed) ? 0 : Math.max(0, Math.min(20, parsed));
+    setExtras((prev) => ({ ...prev, vandfaldCount: safeValue }));
   };
 
   const submit = async () => {
@@ -156,30 +141,23 @@ export const EstimatorForm = () => {
       return;
     }
 
-    if (!gatingAnswer) {
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMessage("");
 
     try {
+      const lengthValue = Number.parseInt(lengthCm.replace(/\D/g, ""), 10);
+      const depthValue = Number.parseInt(depthCm.replace(/\D/g, ""), 10);
+      const countValue = Number.parseInt(count.replace(/\D/g, ""), 10);
+
       const formData = new FormData();
-      formData.append("gatingAnswer", gatingAnswer);
+      formData.append("navn", name.trim());
+      formData.append("telefon", phone.trim());
+      formData.append("laengdeCm", Number.isFinite(lengthValue) ? String(lengthValue) : "");
+      formData.append("dybdeCm", Number.isFinite(depthValue) ? String(depthValue) : "");
+      formData.append("antal", Number.isFinite(countValue) ? String(countValue) : "");
       formData.append("edgeImageIndex", edgeImageIndex !== null ? `${edgeImageIndex}` : "");
-      formData.append("noPrice", isNoPriceFlow ? "true" : "false");
-      formData.append("bordpladeType", values.bordpladeType);
-      formData.append("traesort", values.traesort);
-      formData.append("overflade", values.overflade);
-      formData.append("skader", JSON.stringify(values.skader));
-      formData.append("laengdeCm", values.laengdeCm);
-      formData.append("dybdeCm", values.dybdeCm);
-      formData.append("antal", values.antal);
-      formData.append("postnr", values.postnr);
-      formData.append("navn", values.navn);
-      formData.append("telefon", values.telefon);
-      formData.append("email", values.email);
-      formData.append("note", values.note);
+      formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
+      formData.append("extras", JSON.stringify(extras));
 
       images.forEach((file) => formData.append("images", file));
 
@@ -188,19 +166,48 @@ export const EstimatorForm = () => {
         body: formData
       });
 
-      const payload = (await response.json()) as { id?: string; message?: string };
+      const payload = (await response.json()) as {
+        id?: string;
+        aiPriceMin?: number | null;
+        aiPriceMax?: number | null;
+        aiStatus?: string;
+        message?: string;
+      };
 
       if (!response.ok || !payload.id) {
         setErrorMessage(payload.message || "Kunne ikke sende vurderingen. Prøv igen.");
         return;
       }
 
+      if (typeof window !== "undefined") {
+        const stored = {
+          estimatorId: payload.id,
+          name: name.trim(),
+          phone: phone.trim(),
+          priceMin: payload.aiPriceMin ?? null,
+          priceMax: payload.aiPriceMax ?? null
+        };
+        window.sessionStorage.setItem("estimator_contact", JSON.stringify(stored));
+      }
+
       trackEvent("estimator_submit", {
         source: "prisberegner_submit",
-        no_price: isNoPriceFlow
+        ai_status: payload.aiStatus || "unknown"
       });
 
-      router.push(`/bordpladeslibning/prisberegner/tak?id=${payload.id}`);
+      const params = new URLSearchParams();
+      params.set("id", payload.id);
+      if (payload.aiPriceMin !== null && payload.aiPriceMin !== undefined) {
+        params.set("min", String(payload.aiPriceMin));
+      }
+      if (payload.aiPriceMax !== null && payload.aiPriceMax !== undefined) {
+        params.set("max", String(payload.aiPriceMax));
+      }
+      if (payload.aiStatus) {
+        params.set("status", payload.aiStatus);
+      }
+
+      router.push(`/bordpladeslibning/prisberegner/tak?${params.toString()}`);
     } catch (error) {
       console.error(error);
       setErrorMessage("Der opstod en fejl under upload. Prøv igen.");
@@ -212,261 +219,192 @@ export const EstimatorForm = () => {
   return (
     <section className="space-y-6 rounded-3xl border border-border/70 bg-white/70 p-5 md:p-8">
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-foreground">1) Er bordpladen massiv træ?</h2>
-        <p className="text-sm text-muted-foreground">Vælg først materiale. Formularen kan udfyldes på under 60 sekunder.</p>
+        <h2 className="text-xl font-semibold text-foreground">1) Upload billeder (3–6)</h2>
+        <p className="text-sm text-muted-foreground">
+          Vi bruger billederne til at give et hurtigt AI-estimat. Husk at vise hele køkkenet, så vi kan vurdere størrelsen.
+        </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
-        {gatingOptions.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => {
-              setGatingAnswer(option.value);
-              setErrorMessage("");
-            }}
-            className={`rounded-xl border px-4 py-4 text-left text-sm ${
-              gatingAnswer === option.value ? "border-primary bg-primary/5" : "border-border"
-            }`}
-          >
-            <p className="font-semibold text-foreground">{option.label}</p>
-          </button>
+      <ul className="space-y-1 text-sm text-muted-foreground">
+        {UPLOAD_GUIDE.map((item, index) => (
+          <li key={item}>
+            {index + 1}. {item}
+          </li>
         ))}
-      </div>
+      </ul>
 
-      {isNoPriceFlow ? (
-        <div className="rounded-xl border border-border bg-background/60 p-4 text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground">Vi sliber kun massive træbordplader.</p>
-          <p className="mt-2">Du kan stadig sende en forespørgsel uden prisvurdering, eller gå direkte videre her:</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="/tilbudstid">Uforpligtende tilbudstid</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <a
-                href={PHONE_TEL}
-                onClick={() => {
-                  trackEvent("call_click", { source: "prisberegner_gating_nej" });
-                }}
-              >
-                Ring mig op
-              </a>
-            </Button>
-          </div>
-          <label className="mt-4 flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={allowNoPriceFlow}
-              onChange={(event) => setAllowNoPriceFlow(event.target.checked)}
-              className="mt-1"
-            />
-            <span>Jeg vil sende billeder til vurdering uden pris.</span>
-          </label>
-        </div>
-      ) : null}
+      <label className="grid gap-2 text-sm text-foreground">
+        Vælg billeder (JPEG/PNG/WEBP)
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          onChange={(event) => onImageChange(event.target.files)}
+          className="rounded-md border border-border bg-white px-3 py-2"
+        />
+      </label>
+      <p className="text-xs text-muted-foreground">{imageCountLabel}</p>
 
-      {formEnabled ? (
-        <>
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">2) Upload billeder (3–6)</h3>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              {uploadGuide.map((item, index) => (
-                <li key={item}>
-                  {index + 1}. {item}
-                </li>
-              ))}
-            </ul>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(event) => onImageChange(event.target.files)}
-              className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
-            />
-            <p className="text-xs text-muted-foreground">{imageCountLabel}</p>
-
-            {images.length > 0 ? (
-              <div className="space-y-2 rounded-xl border border-border bg-background/60 p-3">
-                <p className="text-sm font-medium text-foreground">
-                  Markér kant/ende-billede {requiresEdgeImage ? "(obligatorisk)" : "(valgfrit)"}
-                </p>
-                <div className="grid gap-2 text-sm text-muted-foreground">
-                  {images.map((file, index) => (
-                    <label key={`${file.name}-${index}`} className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="edgeImage"
-                        checked={edgeImageIndex === index}
-                        onChange={() => setEdgeImageIndex(index)}
-                      />
-                      <span>{file.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">3) Opgaveoplysninger</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm text-foreground">
-                Bordplade-type
-                <select
-                  value={values.bordpladeType}
-                  onChange={(event) => updateValue("bordpladeType", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                >
-                  {BORDPLADE_TYPE_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option.charAt(0).toUpperCase() + option.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Træsort (valgfri)
-                <select
-                  value={values.traesort}
-                  onChange={(event) => updateValue("traesort", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                >
-                  {TRAESORT_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option.replace("_", " ").charAt(0).toUpperCase() + option.replace("_", " ").slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Nuværende overflade
-                <select
-                  value={values.overflade}
-                  onChange={(event) => updateValue("overflade", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                >
-                  {OVERFLADE_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option.charAt(0).toUpperCase() + option.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Antal bordplader
-                <select
-                  value={values.antal}
-                  onChange={(event) => updateValue("antal", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3+">3+</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Længde (cm)
-                <input
-                  value={values.laengdeCm}
-                  onChange={(event) => updateValue("laengdeCm", event.target.value.replace(/\D/g, ""))}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                  inputMode="numeric"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Dybde (cm)
-                <input
-                  value={values.dybdeCm}
-                  onChange={(event) => updateValue("dybdeCm", event.target.value.replace(/\D/g, ""))}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                  inputMode="numeric"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Postnr.
-                <input
-                  value={values.postnr}
-                  onChange={(event) => updateValue("postnr", event.target.value.replace(/\D/g, "").slice(0, 4))}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                  inputMode="numeric"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">4) Skader</h3>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {SKADE_OPTIONS.map((damage) => (
-                <label key={damage} className="flex items-center gap-3 rounded-md border border-border px-3 py-2 text-sm">
+      {images.length > 0 ? (
+        <div className="grid gap-4 rounded-xl border border-border bg-background/60 p-4">
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-foreground">Markér hel bordplade/køkken</p>
+            <div className="grid gap-2 text-sm text-muted-foreground">
+              {images.map((file, index) => (
+                <label key={`kitchen-${file.name}-${index}`} className="flex items-center gap-3">
                   <input
-                    type="checkbox"
-                    checked={values.skader.includes(damage)}
-                    onChange={() => toggleDamage(damage)}
+                    type="radio"
+                    name="kitchenImage"
+                    checked={kitchenImageIndex === index}
+                    onChange={() => setKitchenImageIndex(index)}
                   />
-                  <span>{signalLabel[damage]}</span>
+                  <span>{file.name}</span>
                 </label>
               ))}
             </div>
           </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">5) Kontaktoplysninger</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm text-foreground">
-                Navn
-                <input
-                  value={values.navn}
-                  onChange={(event) => updateValue("navn", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-foreground">
-                Telefon
-                <input
-                  value={values.telefon}
-                  onChange={(event) => updateValue("telefon", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-foreground md:col-span-2">
-                Email
-                <input
-                  value={values.email}
-                  onChange={(event) => updateValue("email", event.target.value)}
-                  className="h-10 rounded-md border border-border bg-white px-3"
-                  type="email"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-foreground md:col-span-2">
-                Note (valgfri)
-                <textarea
-                  value={values.note}
-                  onChange={(event) => updateValue("note", event.target.value)}
-                  className="min-h-24 rounded-md border border-border bg-white px-3 py-2"
-                />
-              </label>
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede</p>
+            <div className="grid gap-2 text-sm text-muted-foreground">
+              {images.map((file, index) => (
+                <label key={`edge-${file.name}-${index}`} className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="edgeImage"
+                    checked={edgeImageIndex === index}
+                    onChange={() => setEdgeImageIndex(index)}
+                  />
+                  <span>{file.name}</span>
+                </label>
+              ))}
             </div>
           </div>
-
-          <div className="space-y-2 rounded-xl border border-border bg-background/60 p-4 text-sm text-muted-foreground">
-            <p>Billeder bruges kun til vurdering af opgaven.</p>
-            <p>Slettes automatisk efter {siteConfig.estimatorRetentionDays} dage.</p>
-            <Link href="/privatlivspolitik" className="font-semibold text-primary">
-              Læs privatlivspolitik
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={submit} disabled={isSubmitting}>
-              {isSubmitting ? "Sender..." : "Send til vurdering"}
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/bordpladeslibning/book">Book tid i stedet</Link>
-            </Button>
-          </div>
-        </>
+        </div>
       ) : null}
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-foreground">2) Størrelse (ca. mål)</h2>
+        <p className="text-sm text-muted-foreground">
+          Brug ca.-mål. Vi skal blot have en idé om størrelse og omfang for at beregne et AI-estimat.
+        </p>
+        <div className="grid gap-4 md:grid-cols-3">
+          <label className="grid gap-2 text-sm text-foreground">
+            Længde (cm)
+            <input
+              value={lengthCm}
+              onChange={(event) => setLengthCm(event.target.value)}
+              inputMode="numeric"
+              placeholder="fx 280"
+              className="h-10 rounded-md border border-border bg-white px-3"
+            />
+          </label>
+          <label className="grid gap-2 text-sm text-foreground">
+            Dybde (cm)
+            <input
+              value={depthCm}
+              onChange={(event) => setDepthCm(event.target.value)}
+              inputMode="numeric"
+              placeholder="fx 60"
+              className="h-10 rounded-md border border-border bg-white px-3"
+            />
+          </label>
+          <label className="grid gap-2 text-sm text-foreground">
+            Antal bordplader
+            <input
+              value={count}
+              onChange={(event) => setCount(event.target.value)}
+              inputMode="numeric"
+              placeholder="1"
+              className="h-10 rounded-md border border-border bg-white px-3"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-foreground">3) Kontaktoplysninger</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm text-foreground">
+            Navn
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3"
+            />
+          </label>
+          <label className="grid gap-2 text-sm text-foreground">
+            Telefon
+            <input
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold text-foreground">4) Tilvalg (valgfrit)</h2>
+        <p className="text-sm text-muted-foreground">
+          Tilføj ekstra flader, hvis du ønsker at få dem vurderet sammen med køkkenbordpladen.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {EXTRA_OPTIONS.map((option) => (
+            <label
+              key={option.key}
+              className="flex items-center justify-between gap-3 rounded-md border border-border bg-white/90 px-3 py-2 text-sm"
+            >
+              <span className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={extras[option.key]}
+                  onChange={() => toggleExtra(option.key)}
+                />
+                <span className="font-medium text-foreground">{option.label}</span>
+              </span>
+              <span className="text-xs text-muted-foreground">{option.priceLabel}</span>
+            </label>
+          ))}
+        </div>
+        <label className="grid gap-2 text-sm text-foreground">
+          Vandfald (antal)
+          <div className="flex items-center gap-3">
+            <input
+              value={extras.vandfaldCount ? String(extras.vandfaldCount) : ""}
+              onChange={(event) => updateVandfaldCount(event.target.value)}
+              className="h-10 w-24 rounded-md border border-border bg-white px-3"
+              inputMode="numeric"
+              placeholder="0"
+            />
+            <span className="text-xs text-muted-foreground">{VANDFALD_PRICE_LABEL}</span>
+          </div>
+        </label>
+        <p className="text-xs text-muted-foreground">Valgte tilvalg: {extrasSummary}</p>
+      </div>
+
+      <div className="space-y-2 rounded-xl border border-border bg-background/60 p-4 text-sm text-muted-foreground">
+        <p>Vi sliber kun massive træbordplader. Er du i tvivl, så send billeder alligevel.</p>
+        <p>Billeder bruges kun til vurdering af opgaven og slettes automatisk efter {siteConfig.estimatorRetentionDays} dage.</p>
+        <Link href="/privatlivspolitik" className="font-semibold text-primary">
+          Læs privatlivspolitik
+        </Link>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={submit} disabled={isSubmitting}>
+          {isSubmitting ? "Sender..." : "Få AI-prisestimat"}
+        </Button>
+        <Button asChild variant="outline">
+          <a
+            href={PHONE_TEL}
+            onClick={() => {
+              trackEvent("call_click", { source: "prisberegner" });
+            }}
+          >
+            Ring os op
+          </a>
+        </Button>
+      </div>
 
       {errorMessage ? <p className="text-sm font-medium text-red-700">{errorMessage}</p> : null}
     </section>
