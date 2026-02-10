@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { AdminShell } from "@/components/admin/AdminShell";
 import { adminSessionCookieName, verifyAdminSessionToken } from "@/lib/admin-auth";
 
 export const metadata: Metadata = {
@@ -35,5 +36,9 @@ export default async function AdminLayout({
     }
   }
 
-  return children;
+  if (isLoginRoute) {
+    return children;
+  }
+
+  return <AdminShell>{children}</AdminShell>;
 }

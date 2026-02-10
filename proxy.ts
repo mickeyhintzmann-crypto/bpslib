@@ -20,9 +20,17 @@ const redirectTo = (request: NextRequest, pathname: string) => {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") || "";
 
   if (pathname.startsWith("/_next") || PUBLIC_FILE.test(pathname)) {
     return NextResponse.next();
+  }
+
+  if (host.startsWith("app.") && !pathname.startsWith("/admin") && !pathname.startsWith("/api/admin")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
+    url.search = "";
+    return NextResponse.redirect(url, 307);
   }
 
   const normalized = normalizePath(pathname);

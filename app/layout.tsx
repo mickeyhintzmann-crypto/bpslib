@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import Script from "next/script";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -38,16 +38,27 @@ export default async function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA4_ID || "";
   const consentCookie = (await cookies()).get("cookie_consent")?.value || "";
   const hasConsent = consentCookie === "accepted";
+  const headerList = await headers();
+  const host = headerList.get("host") || "";
+  const pathHint =
+    headerList.get("x-pathname") ||
+    headerList.get("x-nextjs-route") ||
+    headerList.get("x-invoke-path") ||
+    headerList.get("x-matched-path") ||
+    headerList.get("x-next-url") ||
+    headerList.get("next-url") ||
+    "";
+  const isAdminShell = host.startsWith("app.") || pathHint.startsWith("/admin");
 
   return (
     <html lang="da">
       <body className="flex min-h-screen flex-col font-sans">
-        <Header />
-        <div className="flex-1 pb-20 md:pb-0">{children}</div>
-        <Footer />
-        <MobileStickyCta />
-        <CookieConsentBanner />
-        {gaId && hasConsent ? (
+        {isAdminShell ? null : <Header />}
+        <div className={`flex-1 ${isAdminShell ? "" : "pb-20 md:pb-0"}`}>{children}</div>
+        {isAdminShell ? null : <Footer />}
+        {isAdminShell ? null : <MobileStickyCta />}
+        {isAdminShell ? null : <CookieConsentBanner />}
+        {!isAdminShell && gaId && hasConsent ? (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
             <Script id="ga4-init" strategy="afterInteractive">
