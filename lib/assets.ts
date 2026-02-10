@@ -54,12 +54,12 @@ export const caseAssets: Record<string, CaseAsset> = {
   },
   "dybe-ridser": {
     before: {
-      src: "/images/cases/boeg-natur-before.jpg",
-      alt: "Bøg bordplade før slibning (natur olie)"
+      src: "/images/cases/boeg-hvid-before.jpg",
+      alt: "Bøg bordplade før slibning (hvid olie)"
     },
     after: {
-      src: "/images/cases/boeg-natur-after.jpg",
-      alt: "Bøg bordplade efter slibning (natur olie)"
+      src: "/images/cases/boeg-hvid-after.jpg",
+      alt: "Bøg bordplade efter slibning (hvid olie)"
     }
   },
   "skjolder-efter-varme": {
@@ -84,42 +84,42 @@ export const caseAssets: Record<string, CaseAsset> = {
   },
   vandmaerker: {
     before: {
-      src: "/images/cases/ask-natur-before.jpg",
-      alt: "Ask bordplade før slibning (natur olie)"
+      src: "/images/cases/ask-hvid-before.jpg",
+      alt: "Ask bordplade før slibning (hvid olie)"
     },
     after: {
-      src: "/images/cases/ask-natur-after.jpg",
-      alt: "Ask bordplade efter slibning (natur olie)"
+      src: "/images/cases/ask-hvid-after.jpg",
+      alt: "Ask bordplade efter slibning (hvid olie)"
     }
   },
   "slidt-koekkenbord": {
     before: {
-      src: "/images/cases/eg-dark-coco-before.jpg",
-      alt: "Eg bordplade før slibning (dark coco olie)"
+      src: "/images/cases/mahogni-natur-before.jpg",
+      alt: "Massiv bordplade før slibning (natur olie)"
     },
     after: {
-      src: "/images/cases/eg-dark-coco-after.jpg",
-      alt: "Eg bordplade efter slibning (dark coco olie)"
+      src: "/images/cases/mahogni-natur-after.jpg",
+      alt: "Massiv bordplade efter slibning (natur olie)"
     }
   },
   "hak-og-ujaevnheder": {
     before: {
-      src: "/images/cases/boeg-hvid-before.jpg",
-      alt: "Bøg bordplade før slibning (hvid olie)"
+      src: "/images/cases/boeg-sort-before.jpg",
+      alt: "Bøg bordplade før slibning (sort olie)"
     },
     after: {
-      src: "/images/cases/boeg-hvid-after.jpg",
-      alt: "Bøg bordplade efter slibning (hvid olie)"
+      src: "/images/cases/boeg-sort-after.jpg",
+      alt: "Bøg bordplade efter slibning (sort olie)"
     }
   },
   "gulnet-lak": {
     before: {
-      src: "/images/cases/eg-sort-before.jpg",
-      alt: "Eg bordplade før slibning (sort olie)"
+      src: "/images/cases/eg-natur-before.jpg",
+      alt: "Eg bordplade før slibning (natur olie)"
     },
     after: {
-      src: "/images/cases/eg-sort-after.jpg",
-      alt: "Eg bordplade efter slibning (sort olie)"
+      src: "/images/cases/eg-natur-after.jpg",
+      alt: "Eg bordplade efter slibning (natur olie)"
     }
   },
   olie: {
@@ -144,32 +144,32 @@ export const caseAssets: Record<string, CaseAsset> = {
   },
   "olie-eller-lak": {
     before: {
-      src: "/images/cases/valnoed-dark-coco-before.jpg",
-      alt: "Valnød bordplade før slibning (dark coco olie)"
+      src: "/images/cases/boeg-sort-before.jpg",
+      alt: "Bøg bordplade før slibning (sort olie)"
     },
     after: {
-      src: "/images/cases/valnoed-dark-coco-after.jpg",
-      alt: "Valnød bordplade efter slibning (dark coco olie)"
+      src: "/images/cases/boeg-sort-after.jpg",
+      alt: "Bøg bordplade efter slibning (sort olie)"
     }
   },
   skjolder: {
     before: {
-      src: "/images/cases/boeg-natur-before.jpg",
-      alt: "Bøg bordplade før slibning (natur olie)"
+      src: "/images/cases/valnoed-natur-before.jpg",
+      alt: "Valnød bordplade før slibning (natur olie)"
     },
     after: {
-      src: "/images/cases/boeg-natur-after.jpg",
-      alt: "Bøg bordplade efter slibning (natur olie)"
+      src: "/images/cases/valnoed-natur-after.jpg",
+      alt: "Valnød bordplade efter slibning (natur olie)"
     }
   },
   ridser: {
     before: {
-      src: "/images/cases/ask-natur-before.jpg",
-      alt: "Ask bordplade før slibning (natur olie)"
+      src: "/images/cases/ask-hvid-before.jpg",
+      alt: "Ask bordplade før slibning (hvid olie)"
     },
     after: {
-      src: "/images/cases/ask-natur-after.jpg",
-      alt: "Ask bordplade efter slibning (natur olie)"
+      src: "/images/cases/ask-hvid-after.jpg",
+      alt: "Ask bordplade efter slibning (hvid olie)"
     }
   },
   "pris-hub": {

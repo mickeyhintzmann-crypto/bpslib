@@ -37,42 +37,6 @@ export const cases: CaseItem[] = [
     afterAlt: "Eg bordplade efter slibning med hvid olie"
   },
   {
-    id: "bordplade-eg-sort",
-    category: "bordplade",
-    title: "Eg · Sort olie",
-    location: "Roskilde",
-    finish: "olie",
-    problem: "Sort olie",
-    beforeImage: "/images/cases/eg-sort-before.jpg",
-    afterImage: "/images/cases/eg-sort-after.jpg",
-    beforeAlt: "Eg bordplade før slibning med sort olie",
-    afterAlt: "Eg bordplade efter slibning med sort olie"
-  },
-  {
-    id: "bordplade-eg-dark-coco",
-    category: "bordplade",
-    title: "Eg · Dark Coco",
-    location: "Gentofte",
-    finish: "olie",
-    problem: "Dark Coco olie",
-    beforeImage: "/images/cases/eg-dark-coco-before.jpg",
-    afterImage: "/images/cases/eg-dark-coco-after.jpg",
-    beforeAlt: "Eg bordplade før slibning med dark coco olie",
-    afterAlt: "Eg bordplade efter slibning med dark coco olie"
-  },
-  {
-    id: "bordplade-boeg-natur",
-    category: "bordplade",
-    title: "Bøg · Natur olie",
-    location: "Lyngby",
-    finish: "olie",
-    problem: "Natur olie",
-    beforeImage: "/images/cases/boeg-natur-before.jpg",
-    afterImage: "/images/cases/boeg-natur-after.jpg",
-    beforeAlt: "Bøg bordplade før slibning med natur olie",
-    afterAlt: "Bøg bordplade efter slibning med natur olie"
-  },
-  {
     id: "bordplade-boeg-hvid",
     category: "bordplade",
     title: "Bøg · Hvid olie",
@@ -85,16 +49,28 @@ export const cases: CaseItem[] = [
     afterAlt: "Bøg bordplade efter slibning med hvid olie"
   },
   {
-    id: "bordplade-ask-natur",
+    id: "bordplade-boeg-sort",
     category: "bordplade",
-    title: "Ask · Natur olie",
+    title: "Bøg · Sort olie",
+    location: "Roskilde",
+    finish: "olie",
+    problem: "Sort olie",
+    beforeImage: "/images/cases/boeg-sort-before.jpg",
+    afterImage: "/images/cases/boeg-sort-after.jpg",
+    beforeAlt: "Bøg bordplade før slibning med sort olie",
+    afterAlt: "Bøg bordplade efter slibning med sort olie"
+  },
+  {
+    id: "bordplade-ask-hvid",
+    category: "bordplade",
+    title: "Ask · Hvid olie",
     location: "Ballerup",
     finish: "olie",
-    problem: "Natur olie",
-    beforeImage: "/images/cases/ask-natur-before.jpg",
-    afterImage: "/images/cases/ask-natur-after.jpg",
-    beforeAlt: "Ask bordplade før slibning med natur olie",
-    afterAlt: "Ask bordplade efter slibning med natur olie"
+    problem: "Hvid olie",
+    beforeImage: "/images/cases/ask-hvid-before.jpg",
+    afterImage: "/images/cases/ask-hvid-after.jpg",
+    beforeAlt: "Ask bordplade før slibning med hvid olie",
+    afterAlt: "Ask bordplade efter slibning med hvid olie"
   },
   {
     id: "bordplade-valnoed-natur",
@@ -109,99 +85,15 @@ export const cases: CaseItem[] = [
     afterAlt: "Valnød bordplade efter slibning med natur olie"
   },
   {
-    id: "bordplade-valnoed-dark-coco",
+    id: "bordplade-mahogni-natur",
     category: "bordplade",
-    title: "Valnød · Dark Coco",
-    location: "Køge",
-    finish: "olie",
-    problem: "Dark Coco olie",
-    beforeImage: "/images/cases/valnoed-dark-coco-before.jpg",
-    afterImage: "/images/cases/valnoed-dark-coco-after.jpg",
-    beforeAlt: "Valnød bordplade før slibning med dark coco olie",
-    afterAlt: "Valnød bordplade efter slibning med dark coco olie"
-  },
-  {
-    id: "bordplade-bambus-natur",
-    category: "bordplade",
-    title: "Bambus · Natur olie",
+    title: "Massiv træ · Natur olie",
     location: "Sjælland",
     finish: "olie",
     problem: "Natur olie",
-    beforeImage: "/images/cases/bambus-natur-before.jpg",
-    afterImage: "/images/cases/bambus-natur-after.jpg",
-    beforeAlt: "Bambus bordplade før slibning med natur olie",
-    afterAlt: "Bambus bordplade efter slibning med natur olie"
-  },
-  {
-    id: "gulv-opfriskning",
-    category: "gulv",
-    title: "Lys egetrae - opfriskning",
-    location: "Koebenhavn",
-    finish: "lak",
-    problem: "Slidt overflade",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på opfrisket trægulv",
-    afterAlt: null
-  },
-  {
-    id: "gulv-ridser",
-    category: "gulv",
-    title: "Parketgulv - ridser fjernet",
-    location: "Frederiksberg",
-    finish: "olie",
-    problem: "Ridser og pletter",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på gulv med ridser før opfriskning",
-    afterAlt: null
-  },
-  {
-    id: "gulv-saebe",
-    category: "gulv",
-    title: "Lyst gulv - saebebehandling",
-    location: "Roskilde",
-    finish: "saebe",
-    problem: "Pletter og ujavn glans",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på lyst gulv efter sæbebehandling",
-    afterAlt: null
-  },
-  {
-    id: "andet-toemrer",
-    category: "andet",
-    title: "Lister og afslutninger",
-    location: "Gentofte",
-    finish: "andet",
-    problem: "Slidte afslutninger",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på tømreropgave",
-    afterAlt: null
-  },
-  {
-    id: "andet-maler",
-    category: "andet",
-    title: "Maling af traevaerk",
-    location: "Lyngby",
-    finish: "andet",
-    problem: "Skrammer og ujavn daekning",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på maleropgave",
-    afterAlt: null
-  },
-  {
-    id: "andet-murer",
-    category: "andet",
-    title: "Fugereparation",
-    location: "Hvidovre",
-    finish: "andet",
-    problem: "Slidte fuger",
-    beforeImage: "/images/placeholders/fallback.jpg",
-    afterImage: null,
-    beforeAlt: "Eksempel på mureropgave",
-    afterAlt: null
+    beforeImage: "/images/cases/mahogni-natur-before.jpg",
+    afterImage: "/images/cases/mahogni-natur-after.jpg",
+    beforeAlt: "Massiv bordplade før slibning med natur olie",
+    afterAlt: "Massiv bordplade efter slibning med natur olie"
   }
 ];

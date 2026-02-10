@@ -25,6 +25,9 @@ export const MiniCaseGrid = async ({
 }: MiniCaseGridProps) => {
   const allCases = await getCases();
   const filteredCases = allCases.filter((item) => item.category === category).slice(0, limit);
+  if (filteredCases.length === 0) {
+    return null;
+  }
   const cta =
     category === "bordplade"
       ? { href: "/bordpladeslibning/prisberegner", label: "Få pris" }
@@ -40,16 +43,11 @@ export const MiniCaseGrid = async ({
         </Button>
       </div>
 
-      {filteredCases.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Cases bliver tilføjet løbende, når vi har nye før/efter eksempler klar.
-        </p>
-      ) : (
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCases.map((item) => {
-            const hasAfter = Boolean(item.afterImage);
+      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredCases.map((item) => {
+          const hasAfter = Boolean(item.afterImage);
 
-            return (
+          return (
             <article key={item.id} className="rounded-3xl border border-border/70 bg-white/80 p-5">
               <div className="space-y-1">
                 <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
@@ -91,9 +89,8 @@ export const MiniCaseGrid = async ({
               </div>
             </article>
           );
-          })}
-        </div>
-      )}
+        })}
+      </div>
     </section>
   );
 };
