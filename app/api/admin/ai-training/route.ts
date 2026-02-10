@@ -50,9 +50,6 @@ export async function POST(request: Request) {
 
     const edgeImageIndexRaw = asString(formData.get("edgeImageIndex"));
     const kitchenImageIndexRaw = asString(formData.get("kitchenImageIndex"));
-    const laengdeCmRaw = asString(formData.get("laengdeCm"));
-    const dybdeCmRaw = asString(formData.get("dybdeCm"));
-    const antalRaw = asString(formData.get("antal"));
     const priceMinRaw = asString(formData.get("priceMin"));
     const priceMaxRaw = asString(formData.get("priceMax"));
     const label = asString(formData.get("label"));
@@ -100,15 +97,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const laengdeCm = parseNumber(laengdeCmRaw, 50, 800);
-    const dybdeCm = parseNumber(dybdeCmRaw, 40, 200);
-    const antal = parseNumber(antalRaw, 1, 10);
     const priceMin = parseNumber(priceMinRaw, 500, 20000);
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
 
-    if (laengdeCm === null || dybdeCm === null || antal === null) {
-      return NextResponse.json({ message: "Angiv længde, dybde og antal." }, { status: 400 });
-    }
     if (priceMin === null || priceMax === null) {
       return NextResponse.json({ message: "Angiv prisinterval (min/max)." }, { status: 400 });
     }
@@ -167,9 +158,6 @@ export async function POST(request: Request) {
       navn: label || "Træning",
       telefon: "00000000",
       note: note || undefined,
-      laengdeCm,
-      dybdeCm,
-      antal,
       extras
     };
 

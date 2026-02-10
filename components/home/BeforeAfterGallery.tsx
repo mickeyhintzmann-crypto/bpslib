@@ -9,7 +9,7 @@ const limit = 3;
 export const BeforeAfterGallery = async () => {
   const allCases = await getCases();
   const items = allCases
-    .filter((item) => item.category === "bordplade" && item.afterImage)
+    .filter((item) => item.category === "bordplade" && item.afterImage && item.finish === "olie")
     .slice(0, limit);
   if (items.length === 0) {
     return null;
@@ -17,10 +17,10 @@ export const BeforeAfterGallery = async () => {
   return (
     <section className="py-10 md:py-16">
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-foreground">Før og efter</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Før og efter (træsort &amp; olie)</h2>
         <p className="text-sm text-muted-foreground">
-          Et lille udvalg af opgaver vi har løst på massiv træbordplader. Vi viser kun få før/efter
-          eksempler ad gangen, så kvaliteten er tydelig.
+          Små udvalgte eksempler på hvordan forskellige træsorter tager sig ud før og efter
+          slibning med olie. Vi viser kun få ad gangen for at holde kvaliteten tydelig.
         </p>
       </div>
       <div className="mt-6 grid gap-6 md:grid-cols-3">
@@ -34,8 +34,8 @@ export const BeforeAfterGallery = async () => {
                   width={1200}
                   height={900}
                   className="h-32 w-full rounded-xl object-cover"
-                />
-                <figcaption className="text-xs text-muted-foreground">Før</figcaption>
+                  />
+                  <figcaption className="text-xs text-muted-foreground">Før</figcaption>
               </figure>
               <figure className="space-y-2">
                 <BpsImage
@@ -44,14 +44,14 @@ export const BeforeAfterGallery = async () => {
                   width={1200}
                   height={900}
                   className="h-32 w-full rounded-xl object-cover"
-                />
-                <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
+                  />
+                  <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
               </figure>
             </div>
             <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Træsort & olie: {item.title}</p>
-              <p>Lokation: {item.location}</p>
+              <p className="font-medium text-foreground">{item.title}</p>
               <p>Olie-farve: {item.problem}</p>
+              <p>Lokation: {item.location}</p>
             </div>
           </div>
         ))}

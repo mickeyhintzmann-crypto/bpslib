@@ -30,9 +30,6 @@ export const AiTrainingAdmin = () => {
   const [images, setImages] = useState<File[]>([]);
   const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
   const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
-  const [lengthCm, setLengthCm] = useState("");
-  const [depthCm, setDepthCm] = useState("");
-  const [count, setCount] = useState("1");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [label, setLabel] = useState("");
@@ -104,21 +101,9 @@ export const AiTrainingAdmin = () => {
       return "Markér hvilket billede der viser kant/ende.";
     }
 
-    const lengthValue = parseNumber(lengthCm);
-    const depthValue = parseNumber(depthCm);
-    const countValue = parseNumber(count);
     const minValue = parseNumber(priceMin);
     const maxValue = parseNumber(priceMax);
 
-    if (!lengthValue || lengthValue < 50 || lengthValue > 800) {
-      return "Angiv længde (50–800 cm).";
-    }
-    if (!depthValue || depthValue < 40 || depthValue > 200) {
-      return "Angiv dybde (40–200 cm).";
-    }
-    if (!countValue || countValue < 1 || countValue > 10) {
-      return "Angiv antal bordplader (1–10).";
-    }
     if (!minValue || !maxValue) {
       return "Angiv prisinterval (min/max).";
     }
@@ -142,9 +127,6 @@ export const AiTrainingAdmin = () => {
 
     try {
       const formData = new FormData();
-      formData.append("laengdeCm", String(parseNumber(lengthCm) ?? ""));
-      formData.append("dybdeCm", String(parseNumber(depthCm) ?? ""));
-      formData.append("antal", String(parseNumber(count) ?? ""));
       formData.append("priceMin", String(parseNumber(priceMin) ?? ""));
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("label", label.trim());
@@ -170,9 +152,6 @@ export const AiTrainingAdmin = () => {
       setImages([]);
       setEdgeImageIndex(null);
       setKitchenImageIndex(null);
-      setLengthCm("");
-      setDepthCm("");
-      setCount("1");
       setPriceMin("");
       setPriceMax("");
       setLabel("");
@@ -191,7 +170,7 @@ export const AiTrainingAdmin = () => {
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">AI træning</h1>
         <p className="text-sm text-muted-foreground">
-          Upload billeder og pris, så AI-estimatoren lærer størrelse og omfang. Kræver hel køkkenbillede + kant/ende.
+          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel køkkenbillede + kant/ende.
         </p>
       </div>
 
@@ -250,34 +229,7 @@ export const AiTrainingAdmin = () => {
         ) : null}
       </div>
 
-      <div className="grid gap-4 rounded-xl border border-border bg-background/70 p-4 md:grid-cols-3">
-        <label className="grid gap-2 text-sm text-foreground">
-          Længde (cm)
-          <input
-            value={lengthCm}
-            onChange={(event) => setLengthCm(event.target.value)}
-            inputMode="numeric"
-            className="h-10 rounded-md border border-border bg-white px-3"
-          />
-        </label>
-        <label className="grid gap-2 text-sm text-foreground">
-          Dybde (cm)
-          <input
-            value={depthCm}
-            onChange={(event) => setDepthCm(event.target.value)}
-            inputMode="numeric"
-            className="h-10 rounded-md border border-border bg-white px-3"
-          />
-        </label>
-        <label className="grid gap-2 text-sm text-foreground">
-          Antal bordplader
-          <input
-            value={count}
-            onChange={(event) => setCount(event.target.value)}
-            inputMode="numeric"
-            className="h-10 rounded-md border border-border bg-white px-3"
-          />
-        </label>
+      <div className="grid gap-4 rounded-xl border border-border bg-background/70 p-4 md:grid-cols-2">
         <label className="grid gap-2 text-sm text-foreground">
           Pris min (kr)
           <input

@@ -10,22 +10,6 @@ import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
-const parseNumber = (value: string, min: number, max: number) => {
-  if (!value) {
-    return null;
-  }
-  const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
-  const parsed = Number.parseFloat(normalized);
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-  const rounded = Math.round(parsed);
-  if (rounded < min || rounded > max) {
-    return null;
-  }
-  return rounded;
-};
-
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MIN_IMAGES = 3;
 const MAX_IMAGES = 6;
@@ -66,9 +50,6 @@ export async function POST(request: Request) {
 
     const edgeImageIndexRaw = asString(formData.get("edgeImageIndex"));
     const kitchenImageIndexRaw = asString(formData.get("kitchenImageIndex"));
-    const laengdeCmRaw = asString(formData.get("laengdeCm"));
-    const dybdeCmRaw = asString(formData.get("dybdeCm"));
-    const antalRaw = asString(formData.get("antal"));
 
     const images = formData
       .getAll("images")
@@ -116,16 +97,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const laengdeCm = parseNumber(laengdeCmRaw, 50, 800);
-    const dybdeCm = parseNumber(dybdeCmRaw, 40, 200);
-    const antal = parseNumber(antalRaw, 1, 10);
-
     const fields: EstimatorFormFields = {
       navn: asString(formData.get("navn")),
-      telefon: asString(formData.get("telefon")),
-      laengdeCm: laengdeCm ?? undefined,
-      dybdeCm: dybdeCm ?? undefined,
-      antal: antal ?? undefined
+      telefon: asString(formData.get("telefon"))
     };
 
     let extras = sanitizeExtras(null);
@@ -138,12 +112,6 @@ export async function POST(request: Request) {
 
     if (!fields.navn || !fields.telefon) {
       return NextResponse.json({ message: "Navn og telefon er obligatoriske." }, { status: 400 });
-    }
-    if (laengdeCm === null || dybdeCm === null || antal === null) {
-      return NextResponse.json(
-        { message: "Angiv ca. længde, dybde og antal bordplader for at få et AI-estimat." },
-        { status: 400 }
-      );
     }
 
     const supabase = createSupabaseServiceClient();

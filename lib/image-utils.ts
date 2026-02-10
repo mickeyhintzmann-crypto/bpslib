@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const publicDir = path.join(process.cwd(), "public");
-const fallbackPath = path.join(publicDir, "images", "placeholders", "fallback.jpg");
+const fallbackPath = path.join(publicDir, "images", "placeholders", "fallback.svg");
 let fallbackBuffer: Buffer | null = null;
 
 const normalizePath = (src: string) => src.split("?")[0];

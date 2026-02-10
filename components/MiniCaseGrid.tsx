@@ -45,7 +45,8 @@ export const MiniCaseGrid = async ({
 
       <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredCases.map((item) => {
-          const hasAfter = Boolean(item.afterImage);
+          const primaryImage = item.afterImage || item.beforeImage;
+          const primaryAlt = item.afterAlt || item.beforeAlt;
 
           return (
             <article key={item.id} className="rounded-3xl border border-border/70 bg-white/80 p-5">
@@ -53,31 +54,14 @@ export const MiniCaseGrid = async ({
                 <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
                 <p className="text-xs text-muted-foreground">Lokation: {item.location}</p>
               </div>
-              <div className={`mt-4 grid gap-3 ${hasAfter ? "grid-cols-2" : "grid-cols-1"}`}>
-                <figure className="space-y-2">
-                  <BpsImage
-                    src={item.beforeImage}
-                    alt={item.beforeAlt}
-                    width={1200}
-                    height={900}
-                    className="h-28 w-full rounded-xl object-cover"
-                  />
-                  <figcaption className="text-xs text-muted-foreground">
-                    {hasAfter ? "Før" : "Eksempel"}
-                  </figcaption>
-                </figure>
-                {hasAfter ? (
-                  <figure className="space-y-2">
-                    <BpsImage
-                      src={item.afterImage || item.beforeImage}
-                      alt={item.afterAlt || item.beforeAlt}
-                      width={1200}
-                      height={900}
-                      className="h-28 w-full rounded-xl object-cover"
-                    />
-                    <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
-                  </figure>
-                ) : null}
+              <div className="mt-4">
+                <BpsImage
+                  src={primaryImage}
+                  alt={primaryAlt}
+                  width={1200}
+                  height={900}
+                  className="h-36 w-full rounded-2xl object-cover"
+                />
               </div>
               <div className="mt-4 space-y-1 text-sm text-muted-foreground">
                 <p>

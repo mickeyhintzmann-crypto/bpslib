@@ -84,16 +84,10 @@ const main = async () => {
   for (const row of rows) {
     const line = row.__line;
     const caseId = row.case_id || randomUUID();
-    const lengthCm = parseNumber(row.length_cm, "length_cm", line);
-    const depthCm = parseNumber(row.depth_cm, "depth_cm", line);
-    const count = parseNumber(row.count, "count", line);
     const priceMin = parseNumber(row.price_min, "price_min", line);
     const priceMax = parseNumber(row.price_max, "price_max", line);
     const extras = parseExtras(row.extras_json, line);
 
-    if (!lengthCm || !depthCm || !count) {
-      throw new Error(`Mangler mål (length_cm/dpeth_cm/count) på linje ${line}.`);
-    }
     if (!priceMin || !priceMax) {
       throw new Error(`Mangler price_min/price_max på linje ${line}.`);
     }
@@ -155,9 +149,6 @@ const main = async () => {
       fields: {
         navn: "Træning",
         telefon: "00000000",
-        laengdeCm: lengthCm,
-        dybdeCm: depthCm,
-        antal: count,
         extras: extras ?? undefined
       },
       images: uploadedImages,

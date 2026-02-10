@@ -37,9 +37,6 @@ export const EstimatorForm = () => {
   const [images, setImages] = useState<File[]>([]);
   const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
   const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
-  const [lengthCm, setLengthCm] = useState("");
-  const [depthCm, setDepthCm] = useState("");
-  const [count, setCount] = useState("1");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [extras, setExtras] = useState<BordpladeExtras>(defaultBordpladeExtras);
@@ -99,18 +96,6 @@ export const EstimatorForm = () => {
     if (imageError) {
       return imageError;
     }
-    const lengthValue = Number.parseInt(lengthCm.replace(/\D/g, ""), 10);
-    const depthValue = Number.parseInt(depthCm.replace(/\D/g, ""), 10);
-    const countValue = Number.parseInt(count.replace(/\D/g, ""), 10);
-    if (!Number.isFinite(lengthValue) || lengthValue < 50 || lengthValue > 800) {
-      return "Angiv ca. længde på bordpladen (50–800 cm).";
-    }
-    if (!Number.isFinite(depthValue) || depthValue < 40 || depthValue > 200) {
-      return "Angiv ca. dybde på bordpladen (40–200 cm).";
-    }
-    if (!Number.isFinite(countValue) || countValue < 1 || countValue > 10) {
-      return "Angiv antal bordplader (1–10).";
-    }
     if (!name.trim() || !phone.trim()) {
       return "Navn og telefonnummer er obligatoriske.";
     }
@@ -145,16 +130,9 @@ export const EstimatorForm = () => {
     setErrorMessage("");
 
     try {
-      const lengthValue = Number.parseInt(lengthCm.replace(/\D/g, ""), 10);
-      const depthValue = Number.parseInt(depthCm.replace(/\D/g, ""), 10);
-      const countValue = Number.parseInt(count.replace(/\D/g, ""), 10);
-
       const formData = new FormData();
       formData.append("navn", name.trim());
       formData.append("telefon", phone.trim());
-      formData.append("laengdeCm", Number.isFinite(lengthValue) ? String(lengthValue) : "");
-      formData.append("dybdeCm", Number.isFinite(depthValue) ? String(depthValue) : "");
-      formData.append("antal", Number.isFinite(countValue) ? String(countValue) : "");
       formData.append("edgeImageIndex", edgeImageIndex !== null ? `${edgeImageIndex}` : "");
       formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
       formData.append("extras", JSON.stringify(extras));
@@ -283,46 +261,7 @@ export const EstimatorForm = () => {
       ) : null}
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">2) Størrelse (ca. mål)</h2>
-        <p className="text-sm text-muted-foreground">
-          Brug ca.-mål. Vi skal blot have en idé om størrelse og omfang for at beregne et AI-estimat.
-        </p>
-        <div className="grid gap-4 md:grid-cols-3">
-          <label className="grid gap-2 text-sm text-foreground">
-            Længde (cm)
-            <input
-              value={lengthCm}
-              onChange={(event) => setLengthCm(event.target.value)}
-              inputMode="numeric"
-              placeholder="fx 280"
-              className="h-10 rounded-md border border-border bg-white px-3"
-            />
-          </label>
-          <label className="grid gap-2 text-sm text-foreground">
-            Dybde (cm)
-            <input
-              value={depthCm}
-              onChange={(event) => setDepthCm(event.target.value)}
-              inputMode="numeric"
-              placeholder="fx 60"
-              className="h-10 rounded-md border border-border bg-white px-3"
-            />
-          </label>
-          <label className="grid gap-2 text-sm text-foreground">
-            Antal bordplader
-            <input
-              value={count}
-              onChange={(event) => setCount(event.target.value)}
-              inputMode="numeric"
-              placeholder="1"
-              className="h-10 rounded-md border border-border bg-white px-3"
-            />
-          </label>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">3) Kontaktoplysninger</h2>
+        <h2 className="text-xl font-semibold text-foreground">2) Kontaktoplysninger</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm text-foreground">
             Navn
@@ -344,7 +283,7 @@ export const EstimatorForm = () => {
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-foreground">4) Tilvalg (valgfrit)</h2>
+        <h2 className="text-xl font-semibold text-foreground">3) Tilvalg (valgfrit)</h2>
         <p className="text-sm text-muted-foreground">
           Tilføj ekstra flader, hvis du ønsker at få dem vurderet sammen med køkkenbordpladen.
         </p>
@@ -384,6 +323,7 @@ export const EstimatorForm = () => {
 
       <div className="space-y-2 rounded-xl border border-border bg-background/60 p-4 text-sm text-muted-foreground">
         <p>Vi sliber kun massive træbordplader. Er du i tvivl, så send billeder alligevel.</p>
+        <p>Prisen gælder først efter bookingbekræftelse. Vi ringer altid, hvis der er spørgsmål.</p>
         <p>Billeder bruges kun til vurdering af opgaven og slettes automatisk efter {siteConfig.estimatorRetentionDays} dage.</p>
         <Link href="/privatlivspolitik" className="font-semibold text-primary">
           Læs privatlivspolitik

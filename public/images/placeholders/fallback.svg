@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#f3efe9"/>
+  <rect x="80" y="80" width="1040" height="740" rx="24" fill="#fff" stroke="#e2d7cd" stroke-width="6"/>
+  <text x="600" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="#8b5a2b">
+    BPSLIB billede
+  </text>
+</svg>

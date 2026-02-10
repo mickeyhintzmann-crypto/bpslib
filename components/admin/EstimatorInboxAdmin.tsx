@@ -635,42 +635,6 @@ export const EstimatorInboxAdmin = () => {
                   <span className="font-semibold text-foreground">Telefon:</span>{" "}
                   {asText(detail.fields.telefon)}
                 </p>
-                <p>
-                  <span className="font-semibold text-foreground">Email:</span>{" "}
-                  {asText(detail.fields.email)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Postnr:</span>{" "}
-                  {asText(detail.fields.postnr)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Bordplade-type:</span>{" "}
-                  {asText(detail.fields.bordpladeType)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Træsort:</span>{" "}
-                  {asText(detail.fields.traesort)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Overflade:</span>{" "}
-                  {asText(detail.fields.overflade)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Antal:</span>{" "}
-                  {asText(detail.fields.antal)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Længde (cm):</span>{" "}
-                  {asText(detail.fields.laengdeCm)}
-                </p>
-                <p>
-                  <span className="font-semibold text-foreground">Dybde (cm):</span>{" "}
-                  {asText(detail.fields.dybdeCm)}
-                </p>
-                <p className="sm:col-span-2">
-                  <span className="font-semibold text-foreground">Skader:</span>{" "}
-                  {asListText(detail.fields.skader)}
-                </p>
                 <p className="sm:col-span-2">
                   <span className="font-semibold text-foreground">Tilvalg:</span>{" "}
                   {asExtrasText(detail.fields.extras)}

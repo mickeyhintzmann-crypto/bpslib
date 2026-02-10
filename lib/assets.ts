@@ -1,13 +1,13 @@
-export const defaultFallback = "/images/placeholders/fallback.jpg";
+export const defaultFallback = "/images/placeholders/fallback.svg";
 
 export const brandAssets = {
   logo: "/images/brand/logo-placeholder.svg",
-  favicon: "/images/brand/favicon.png",
+  favicon: "/images/brand/favicon.svg",
   hero: "/images/home/hero.jpg"
 } as const;
 
 export const trustAssets = {
-  anmeldHaandvaerkerBadge: "/images/trust/anmeld-haandvaerker-badge.png"
+  anmeldHaandvaerkerBadge: "/images/trust/anmeld-haandvaerker-badge.svg"
 } as const;
 
 export const homeAssets = {

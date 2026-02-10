@@ -39,8 +39,5 @@ export type EstimatorFormFields = {
   telefon: string;
   email?: string;
   note?: string;
-  laengdeCm?: number;
-  dybdeCm?: number;
-  antal?: number;
   extras?: BordpladeExtras;
 };

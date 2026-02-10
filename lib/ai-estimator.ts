@@ -77,48 +77,17 @@ type EstimatorAiInput = {
   extras?: BordpladeExtras | null;
 };
 
-const parseNumber = (value: unknown) => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-  if (typeof value === "string" && value.trim()) {
-    const parsed = Number.parseFloat(value.trim().replace(",", "."));
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-};
-
-const areaFromFields = (fields: EstimatorFormFields | null | undefined) => {
-  if (!fields) {
+const toBaseMid = (min: number, max: number, extras: BordpladeExtras | null) => {
+  const extrasRange = getExtrasPriceRange(extras);
+  const baseMin = min - extrasRange.max;
+  const baseMax = max - extrasRange.min;
+  if (!Number.isFinite(baseMin) || !Number.isFinite(baseMax) || baseMin <= 0 || baseMax <= 0) {
     return null;
   }
-  const lengthCm = parseNumber(fields.laengdeCm);
-  const depthCm = parseNumber(fields.dybdeCm);
-  const count = parseNumber(fields.antal);
-  if (!lengthCm || !depthCm || !count) {
+  if (baseMin > baseMax) {
     return null;
   }
-  if (lengthCm <= 0 || depthCm <= 0 || count <= 0) {
-    return null;
-  }
-  const areaM2 = (lengthCm * depthCm * count) / 10000;
-  return areaM2 > 0 ? areaM2 : null;
-};
-
-const estimateBaseFromArea = (areaM2: number) => {
-  if (areaM2 <= 2.5) {
-    return { min: 3000, max: 3500 };
-  }
-  if (areaM2 <= 3.5) {
-    return { min: 3400, max: 3900 };
-  }
-  if (areaM2 <= 4.5) {
-    return { min: 3800, max: 4400 };
-  }
-  if (areaM2 <= 6) {
-    return { min: 4300, max: 5000 };
-  }
-  return { min: 4700, max: 5000 };
+  return (baseMin + baseMax) / 2;
 };
 
 export const estimateAiPrice = async (
@@ -153,32 +122,17 @@ export const estimateAiPrice = async (
       }
 
       const fields = row.fields as EstimatorFormFields | null;
-      const area = areaFromFields(fields);
-      if (!area) {
-        return null;
-      }
-
       const extras = sanitizeExtras(fields?.extras ?? null);
-      const extrasRange = getExtrasPriceRange(extras);
-
-      const baseMin = min - extrasRange.max;
-      const baseMax = max - extrasRange.min;
-      if (!Number.isFinite(baseMin) || !Number.isFinite(baseMax) || baseMin <= 0 || baseMax <= 0) {
+      const baseMid = toBaseMid(min, max, extras);
+      if (!baseMid) {
         return null;
       }
 
-      const baseMid = (baseMin + baseMax) / 2;
-      const pricePerM2 = baseMid / area;
-      if (!Number.isFinite(pricePerM2) || pricePerM2 <= 0) {
-        return null;
-      }
-
-      return { pricePerM2 };
+      return { baseMid };
     })
-    .filter((row): row is { pricePerM2: number } => Boolean(row));
+    .filter((row): row is { baseMid: number } => Boolean(row));
 
-  const inputArea = areaFromFields(input?.fields ?? null);
-  if (!inputArea) {
+  if (samples.length < settings.minSamples) {
     return null;
   }
 
@@ -188,16 +142,9 @@ export const estimateAiPrice = async (
   let baseMin: number;
   let baseMax: number;
 
-  if (samples.length >= settings.minSamples) {
-    const avgPerM2 = samples.reduce((sum, row) => sum + row.pricePerM2, 0) / samples.length;
-    const baseMid = avgPerM2 * inputArea;
-    baseMin = Math.round(baseMid - halfInterval);
-    baseMax = Math.round(baseMid + halfInterval);
-  } else {
-    const fallback = estimateBaseFromArea(inputArea);
-    baseMin = fallback.min;
-    baseMax = fallback.max;
-  }
+  const avgBase = samples.reduce((sum, row) => sum + row.baseMid, 0) / samples.length;
+  baseMin = Math.round(avgBase - halfInterval);
+  baseMax = Math.round(avgBase + halfInterval);
 
   baseMin = clamp(baseMin, settings.minPrice, settings.maxPrice);
   baseMax = clamp(baseMax, settings.minPrice, settings.maxPrice);
