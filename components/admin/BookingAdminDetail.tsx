@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
+import { useAdminSession } from "@/components/admin/AdminSessionContext";
 import { Button } from "@/components/ui/button";
 import {
   EXTRA_OPTIONS,
@@ -29,6 +30,7 @@ type BookingItem = {
   status: string;
   service_type: string;
   source: string | null;
+  assigned_to: string | null;
   customer_name: string;
   customer_phone: string;
   customer_email: string | null;
@@ -41,10 +43,26 @@ type BookingItem = {
   internal_note: string | null;
   estimator_request_id: string | null;
   extras: BordpladeExtras | null;
+  price_total: number | null;
+  price_net: number | null;
+  price_vat: number | null;
 };
 
 type BookingResponse = {
   item?: BookingItem;
+  message?: string;
+};
+
+type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+};
+
+type UsersResponse = {
+  items?: AdminUser[];
   message?: string;
 };
 
@@ -78,7 +96,20 @@ const formatDate = (iso: string | null) => {
 const dateKeyFromIso = (iso: string | null) => (iso ? iso.slice(0, 10) : "");
 const timeFromIso = (iso: string | null) => (iso ? iso.slice(11, 16) : "");
 
+const normalizePriceInput = (value: string) => value.replace(/[^\d]/g, "");
+const toNullableNumber = (value: string) => {
+  const cleaned = normalizePriceInput(value);
+  if (!cleaned) {
+    return null;
+  }
+  const parsed = Number.parseInt(cleaned, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
+  const session = useAdminSession();
+  const canEdit = session?.role === "owner" || session?.role === "admin";
+
   const [item, setItem] = useState<BookingItem | null>(null);
   const [status, setStatus] = useState<(typeof STATUS_FLOW)[number]>("new");
   const [note, setNote] = useState("");
@@ -87,6 +118,12 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
   const [moveStart, setMoveStart] = useState<(typeof SLOT_TIMES)[number]>(SLOT_TIMES[0]);
   const [moveSlotCount, setMoveSlotCount] = useState("1");
   const [extrasState, setExtrasState] = useState<BordpladeExtras>(defaultBordpladeExtras);
+  const [assignedTo, setAssignedTo] = useState("");
+  const [priceTotal, setPriceTotal] = useState("");
+  const [priceNet, setPriceNet] = useState("");
+  const [priceVat, setPriceVat] = useState("");
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [usersError, setUsersError] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -112,6 +149,10 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
     const slotCount = nextItem.slot_count && nextItem.slot_count > 0 ? String(nextItem.slot_count) : "1";
     setMoveSlotCount(slotCount);
     setExtrasState(sanitizeExtras(nextItem.extras));
+    setAssignedTo(nextItem.assigned_to || "");
+    setPriceTotal(nextItem.price_total ? String(nextItem.price_total) : "");
+    setPriceNet(nextItem.price_net ? String(nextItem.price_net) : "");
+    setPriceVat(nextItem.price_vat ? String(nextItem.price_vat) : "");
   };
 
   const toggleExtra = (key: (typeof EXTRA_OPTIONS)[number]["key"]) => {
@@ -156,6 +197,28 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
       setError("Netværksfejl ved hentning af booking.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    if (!canEdit) {
+      return;
+    }
+    setUsersError("");
+    try {
+      const response = await fetch("/api/admin/users?active=1", { cache: "no-store" });
+      const payload = (await response.json()) as UsersResponse;
+      if (!response.ok || !payload.items) {
+        setUsers([]);
+        setUsersError(payload.message || "Kunne ikke hente medarbejdere.");
+        return;
+      }
+      const filtered = payload.items.filter((user) => user.is_active && user.role !== "viewer");
+      setUsers(filtered);
+    } catch (fetchError) {
+      console.error(fetchError);
+      setUsers([]);
+      setUsersError("Netværksfejl ved hentning af medarbejdere.");
     }
   };
 
@@ -229,8 +292,41 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
     });
   };
 
+  const handleSaveAssignment = () => {
+    updateBooking({
+      assigned_to: assignedTo.trim() ? assignedTo.trim() : null
+    });
+  };
+
+  const handleSavePricing = () => {
+    updateBooking({
+      price_total: toNullableNumber(priceTotal),
+      price_net: toNullableNumber(priceNet),
+      price_vat: toNullableNumber(priceVat)
+    });
+  };
+
+  const priceSummary = useMemo(() => {
+    const total = toNullableNumber(priceTotal);
+    const net = toNullableNumber(priceNet);
+    const vat = toNullableNumber(priceVat);
+    return { total, net, vat };
+  }, [priceNet, priceTotal, priceVat]);
+
+  const assignedLabel = useMemo(() => {
+    if (!item?.assigned_to) {
+      return "Ikke tildelt";
+    }
+    const match = users.find((user) => user.id === item.assigned_to);
+    if (!match) {
+      return item.assigned_to;
+    }
+    return `${match.name} (${match.role})`;
+  }, [item?.assigned_to, users]);
+
   useEffect(() => {
     loadBooking();
+    loadUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId]);
 
@@ -266,6 +362,9 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
                 <span className="font-semibold text-foreground">Kilde:</span> {item.source || "Ikke angivet"}
               </p>
               <p>
+                <span className="font-semibold text-foreground">Tildelt:</span> {assignedLabel}
+              </p>
+              <p>
                 <span className="font-semibold text-foreground">Kunde:</span> {item.customer_name}
               </p>
               <p>
@@ -292,6 +391,18 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
               <p>
                 <span className="font-semibold text-foreground">Slots:</span>{" "}
                 {item.slot_count ? item.slot_count : "-"}
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Pris (total):</span>{" "}
+                {item.price_total ? `${item.price_total} kr.` : "Ikke angivet"}
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Beløb (netto):</span>{" "}
+                {item.price_net ? `${item.price_net} kr.` : "Ikke angivet"}
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Moms:</span>{" "}
+                {item.price_vat ? `${item.price_vat} kr.` : "Ikke angivet"}
               </p>
               <p className="sm:col-span-2">
                 <span className="font-semibold text-foreground">Note:</span> {item.notes || "Ingen note"}
@@ -400,6 +511,91 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
                 2 slots kan kun starte 08:00 eller 11:00. 3 slots kan kun starte 08:00.
               </p>
             </div>
+
+            {canEdit ? (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">Tildel medarbejder</p>
+                {usersError ? <p className="text-xs text-red-700">{usersError}</p> : null}
+                <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                  <select
+                    value={assignedTo}
+                    onChange={(event) => setAssignedTo(event.target.value)}
+                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                  >
+                    <option value="">Ikke tildelt</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} ({user.role})
+                      </option>
+                    ))}
+                  </select>
+                  <Button onClick={handleSaveAssignment} disabled={saving}>
+                    {saving ? "Gemmer..." : "Gem tildeling"}
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
+            {canEdit ? (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">Pris</p>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                    Pris (total)
+                    <input
+                      value={priceTotal}
+                      onChange={(event) => {
+                        const next = normalizePriceInput(event.target.value);
+                        setPriceTotal(next);
+                        if (!priceNet && !priceVat && next) {
+                          const total = toNullableNumber(next);
+                          if (total) {
+                            const net = Math.round(total / 1.25);
+                            const vat = total - net;
+                            setPriceNet(String(net));
+                            setPriceVat(String(vat));
+                          }
+                        }
+                      }}
+                      className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      inputMode="numeric"
+                      placeholder="3000"
+                    />
+                  </label>
+                  <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                    Beløb (netto)
+                    <input
+                      value={priceNet}
+                      onChange={(event) => setPriceNet(normalizePriceInput(event.target.value))}
+                      className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      inputMode="numeric"
+                      placeholder="2400"
+                    />
+                  </label>
+                  <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                    Moms
+                    <input
+                      value={priceVat}
+                      onChange={(event) => setPriceVat(normalizePriceInput(event.target.value))}
+                      className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      inputMode="numeric"
+                      placeholder="600"
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                  <span>Hvis du kun udfylder total, beregner vi netto og moms automatisk.</span>
+                  <span>
+                    {priceSummary.total
+                      ? `Total: ${priceSummary.total} kr.`
+                      : "Pris ikke angivet"}
+                  </span>
+                </div>
+                <Button onClick={handleSavePricing} disabled={saving}>
+                  {saving ? "Gemmer..." : "Gem pris"}
+                </Button>
+              </div>
+            ) : null}
 
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">Noter</p>

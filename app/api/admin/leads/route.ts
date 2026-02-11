@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const STATUS_FLOW = ["new", "contacted", "quote_sent", "won", "lost", "closed"] as const;
@@ -69,9 +69,9 @@ const parsePositiveInt = (value: string | null, fallback: number) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);

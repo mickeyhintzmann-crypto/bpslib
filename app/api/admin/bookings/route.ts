@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { checkBookingAvailability, getSlotRangeForBooking } from "@/lib/admin-availability";
 import { hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
@@ -29,6 +29,7 @@ type BookingRow = {
   status: string | null;
   service_type: string | null;
   source: string | null;
+  assigned_to?: string | null;
   customer_name: string | null;
   customer_phone: string | null;
   customer_email: string | null;
@@ -39,6 +40,9 @@ type BookingRow = {
   notes: string | null;
   internal_note: string | null;
   extras: unknown | null;
+  price_total?: number | null;
+  price_net?: number | null;
+  price_vat?: number | null;
 };
 
 type CreatePayload = {
@@ -54,6 +58,10 @@ type CreatePayload = {
   postal_code?: unknown;
   note?: unknown;
   extras?: unknown;
+  assigned_to?: unknown;
+  price_total?: unknown;
+  price_net?: unknown;
+  price_vat?: unknown;
 };
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
@@ -111,6 +119,19 @@ const parseSlotCount = (value: unknown) => {
     return Number.parseInt(value, 10);
   }
   return NaN;
+};
+
+const toNullableInt = (value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return { valid: true, value: null as number | null };
+  }
+  if (typeof value === "number" && Number.isInteger(value)) {
+    return { valid: true, value };
+  }
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    return { valid: true, value: Number.parseInt(value, 10) };
+  }
+  return { valid: false, value: null as number | null };
 };
 
 const normalizeStatusFilter = (raw: string | null) => {
@@ -182,9 +203,9 @@ const addDaysToDateKey = (dateKey: string, days: number) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);
@@ -203,7 +224,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras",
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat",
         {
           count: "exact"
         }
@@ -240,6 +261,10 @@ export async function GET(request: Request) {
       }
     }
 
+    if (session?.role === "employee") {
+      query = query.eq("assigned_to", session.id);
+    }
+
     const { data, error, count } = await query;
 
     if (error) {
@@ -255,12 +280,16 @@ export async function GET(request: Request) {
       status: row.status,
       service: row.service_type,
       source: row.source,
+      assignedTo: row.assigned_to ?? null,
       name: row.customer_name,
       phone: row.customer_phone,
       postalCode: row.postal_code,
       slotStart: row.slot_start,
       slotEnd: row.slot_end,
-      slotCount: slotCountFromRange(row.slot_start, row.slot_end)
+      slotCount: slotCountFromRange(row.slot_start, row.slot_end),
+      priceTotal: row.price_total ?? null,
+      priceNet: row.price_net ?? null,
+      priceVat: row.price_vat ?? null
     }));
 
     return NextResponse.json(
@@ -280,9 +309,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const payload = (await request.json()) as CreatePayload;
@@ -296,6 +325,15 @@ export async function POST(request: Request) {
     const note = typeof payload.note === "string" ? payload.note.trim() : "";
     const service = typeof payload.service === "string" ? payload.service.trim() : "bordplade";
     const extras = sanitizeExtras(payload.extras);
+    const assignedTo = typeof payload.assigned_to === "string" ? payload.assigned_to.trim() : "";
+
+    const totalParsed = toNullableInt(payload.price_total);
+    const netParsed = toNullableInt(payload.price_net);
+    const vatParsed = toNullableInt(payload.price_vat);
+
+    if (!totalParsed.valid || !netParsed.valid || !vatParsed.valid) {
+      return NextResponse.json({ message: "Prisfelter skal være tal." }, { status: 400 });
+    }
 
     if (!dateRegex.test(date)) {
       return NextResponse.json({ message: "Ugyldig dato. Brug format YYYY-MM-DD." }, { status: 400 });
@@ -353,6 +391,12 @@ export async function POST(request: Request) {
     }
 
     const supabase = createSupabaseServiceClient();
+    let priceNet = netParsed.value;
+    let priceVat = vatParsed.value;
+    if (totalParsed.value !== null && (priceNet === null || priceVat === null)) {
+      priceNet = Math.round(totalParsed.value / 1.25);
+      priceVat = totalParsed.value - priceNet;
+    }
     const { data, error } = await supabase
       .from("bookings")
       .insert({
@@ -368,9 +412,13 @@ export async function POST(request: Request) {
         manage_token: randomUUID(),
         status: "new",
         source: "manual",
-        extras: service === "bordplade" && hasSelectedExtras(extras) ? extras : null
+        extras: service === "bordplade" && hasSelectedExtras(extras) ? extras : null,
+        assigned_to: assignedTo || null,
+        price_total: totalParsed.value,
+        price_net: priceNet,
+        price_vat: priceVat
       })
-      .select("id, created_at, status, service_type, source, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras")
+      .select("id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat")
       .single();
 
     if (error || !data) {
@@ -397,7 +445,9 @@ export async function POST(request: Request) {
         after: data,
         source: "manual"
       },
-      req: request
+      req: request,
+      actor: session?.email,
+      role: session?.role
     });
 
     return NextResponse.json(

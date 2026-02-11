@@ -29,16 +29,16 @@ export default async function AdminLayout({
     "";
   const isLoginRoute = pathHint.includes("/admin/login");
 
-  if (!isLoginRoute) {
-    const sessionToken = (await cookies()).get(adminSessionCookieName)?.value;
-    if (!verifyAdminSessionToken(sessionToken)) {
-      redirect("/admin/login");
-    }
+  const sessionToken = (await cookies()).get(adminSessionCookieName)?.value;
+  const session = verifyAdminSessionToken(sessionToken);
+
+  if (!isLoginRoute && !session) {
+    redirect("/admin/login");
   }
 
   if (isLoginRoute) {
     return children;
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return <AdminShell session={session}>{children}</AdminShell>;
 }

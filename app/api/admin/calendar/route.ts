@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { SLOT_TIMES } from "@/lib/booking-schedule";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -50,9 +50,9 @@ const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: strin
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const ENTITY_TYPES = ["booking", "lead", "estimator", "day_override", "setting"] as const;
+const ENTITY_TYPES = ["booking", "lead", "estimator", "day_override", "setting", "case", "user"] as const;
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
   const normalized = (message || "").toLowerCase();
@@ -26,9 +26,9 @@ const parsePositiveInt = (value: string | null, fallback: number) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);

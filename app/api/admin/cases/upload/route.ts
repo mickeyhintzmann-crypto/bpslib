@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const CASES_BUCKET = "case-images";
@@ -19,9 +19,9 @@ const slugify = (value: string) =>
 
 export async function POST(request: NextRequest) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const formData = await request.formData();

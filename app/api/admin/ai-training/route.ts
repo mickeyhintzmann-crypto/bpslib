@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
+import { auditLog } from "@/lib/audit";
 import { sanitizeExtras } from "@/lib/bordplade/extras";
 import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -41,9 +42,9 @@ const isMissingEstimatorTable = (message: string | undefined) => {
 
 export async function POST(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const formData = await request.formData();
@@ -193,6 +194,20 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    await auditLog({
+      action: "estimator.training",
+      entityType: "estimator",
+      entityId: data.id,
+      meta: {
+        priceMin,
+        priceMax,
+        imageCount: uploadedImages.length
+      },
+      req: request,
+      actor: session?.email,
+      role: session?.role
+    });
 
     return NextResponse.json({ id: data.id }, { status: 200 });
   } catch (error) {

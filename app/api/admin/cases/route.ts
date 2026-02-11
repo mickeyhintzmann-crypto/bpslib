@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -93,9 +93,9 @@ const parsePayload = (payload: Record<string, unknown>, requireAll: boolean) => 
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);
@@ -168,9 +168,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const payload = (await request.json()) as Record<string, unknown>;
@@ -218,7 +218,9 @@ export async function POST(request: Request) {
       entityType: "case",
       entityId: data.id,
       meta: { after: parsed.data },
-      req: request
+      req: request,
+      actor: session?.email,
+      role: session?.role
     });
 
     return NextResponse.json(

@@ -1,6 +1,18 @@
 import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 
+export type AdminRole = "owner" | "admin" | "employee" | "viewer";
+
+export type AdminSession = {
+  id: string;
+  email: string;
+  name?: string;
+  role: AdminRole;
+  iat: number;
+  exp: number;
+  sid: string;
+};
+
 const ADMIN_COOKIE_NAME = "admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
@@ -23,14 +35,25 @@ const safeEqual = (left: string, right: string) => {
   return timingSafeEqual(leftBuf, rightBuf);
 };
 
-export const createAdminSessionToken = () => {
+const normalizeRole = (role: string | null | undefined): AdminRole => {
+  if (role === "owner" || role === "admin" || role === "employee" || role === "viewer") {
+    return role;
+  }
+  return "viewer";
+};
+
+export const createAdminSessionToken = (session: Pick<AdminSession, "id" | "email" | "name" | "role">) => {
   const secret = getAdminPassword();
   if (!secret) {
     throw new Error("ADMIN_PASSWORD mangler i miljøvariabler.");
   }
 
   const now = Math.floor(Date.now() / 1000);
-  const payload = {
+  const payload: AdminSession = {
+    id: session.id,
+    email: session.email,
+    name: session.name,
+    role: normalizeRole(session.role),
     iat: now,
     exp: now + SESSION_TTL_SECONDS,
     sid: randomUUID()
@@ -40,35 +63,49 @@ export const createAdminSessionToken = () => {
   return `${payloadEncoded}.${signature}`;
 };
 
-export const verifyAdminSessionToken = (token?: string | null) => {
+export const verifyAdminSessionToken = (token?: string | null): AdminSession | null => {
   if (!token) {
-    return false;
+    return null;
   }
 
   const secret = getAdminPassword();
   if (!secret) {
-    return false;
+    return null;
   }
 
   const [payloadEncoded, signature] = token.split(".");
   if (!payloadEncoded || !signature) {
-    return false;
+    return null;
   }
 
   const expectedSignature = signPayload(payloadEncoded, secret);
   if (!safeEqual(signature, expectedSignature)) {
-    return false;
+    return null;
   }
 
   try {
-    const payload = JSON.parse(base64UrlDecode(payloadEncoded)) as { exp?: number };
+    const payload = JSON.parse(base64UrlDecode(payloadEncoded)) as Partial<AdminSession>;
     if (!payload.exp || typeof payload.exp !== "number") {
-      return false;
+      return null;
     }
     const now = Math.floor(Date.now() / 1000);
-    return payload.exp > now;
+    if (payload.exp <= now) {
+      return null;
+    }
+    if (!payload.id || !payload.email) {
+      return null;
+    }
+    return {
+      id: payload.id,
+      email: payload.email,
+      name: payload.name,
+      role: normalizeRole(payload.role),
+      iat: payload.iat ?? now,
+      exp: payload.exp,
+      sid: payload.sid || randomUUID()
+    };
   } catch {
-    return false;
+    return null;
   }
 };
 
@@ -84,20 +121,51 @@ const getCookieValue = (cookieHeader: string | null, name: string) => {
   return match.slice(name.length + 1);
 };
 
-export const assertAdminToken = (request: Request): NextResponse | null => {
+export const getAdminSessionFromRequest = (request: Request): AdminSession | null => {
   const sessionToken = getCookieValue(request.headers.get("cookie"), ADMIN_COOKIE_NAME);
-  if (verifyAdminSessionToken(sessionToken)) {
-    return null;
+  const session = verifyAdminSessionToken(sessionToken);
+  if (session) {
+    return session;
   }
 
   const expectedToken = getExpectedAdminToken();
   const requestToken = request.headers.get("x-admin-token");
-
   if (expectedToken && requestToken === expectedToken) {
-    return null;
+    const now = Math.floor(Date.now() / 1000);
+    return {
+      id: "token",
+      email: "token",
+      name: "API token",
+      role: "owner",
+      iat: now,
+      exp: now + SESSION_TTL_SECONDS,
+      sid: randomUUID()
+    };
   }
 
-  return NextResponse.json({ message: "Ingen adgang til admin-endpoint." }, { status: 401 });
+  return null;
+};
+
+export const requireAdmin = (request: Request, roles?: AdminRole[]) => {
+  const session = getAdminSessionFromRequest(request);
+  if (!session) {
+    return {
+      session: null,
+      error: NextResponse.json({ message: "Ingen adgang til admin-endpoint." }, { status: 401 })
+    };
+  }
+  if (roles && roles.length > 0 && !roles.includes(session.role)) {
+    return {
+      session,
+      error: NextResponse.json({ message: "Ingen adgang til denne handling." }, { status: 403 })
+    };
+  }
+  return { session, error: null };
+};
+
+export const assertAdminToken = (request: Request): NextResponse | null => {
+  const { error } = requireAdmin(request);
+  return error ?? null;
 };
 
 export const adminSessionCookieName = ADMIN_COOKIE_NAME;

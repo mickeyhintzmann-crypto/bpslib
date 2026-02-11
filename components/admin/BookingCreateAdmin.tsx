@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,29 @@ type CreateResponse = {
   message?: string;
 };
 
+type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+};
+
+type UsersResponse = {
+  items?: AdminUser[];
+  message?: string;
+};
+
+const normalizePriceInput = (value: string) => value.replace(/[^\d]/g, "");
+const toNullableNumber = (value: string) => {
+  const cleaned = normalizePriceInput(value);
+  if (!cleaned) {
+    return null;
+  }
+  const parsed = Number.parseInt(cleaned, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 export const BookingCreateAdmin = () => {
   const [service, setService] = useState<(typeof SERVICE_VALUES)[number]>("bordplade");
   const [date, setDate] = useState("");
@@ -33,7 +56,13 @@ export const BookingCreateAdmin = () => {
   const [address, setAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [note, setNote] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
+  const [priceTotal, setPriceTotal] = useState("");
+  const [priceNet, setPriceNet] = useState("");
+  const [priceVat, setPriceVat] = useState("");
   const [extras, setExtras] = useState<BordpladeExtras>(defaultBordpladeExtras);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [usersError, setUsersError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -78,6 +107,10 @@ export const BookingCreateAdmin = () => {
           address: address.trim() ? address.trim() : null,
           postal_code: postalCode.trim() ? postalCode.trim() : null,
           note: note.trim() ? note.trim() : null,
+          assigned_to: assignedTo.trim() ? assignedTo.trim() : null,
+          price_total: toNullableNumber(priceTotal),
+          price_net: toNullableNumber(priceNet),
+          price_vat: toNullableNumber(priceVat),
           extras: service === "bordplade" ? extras : null
         })
       });
@@ -97,6 +130,30 @@ export const BookingCreateAdmin = () => {
       setLoading(false);
     }
   };
+
+  const loadUsers = async () => {
+    setUsersError("");
+    try {
+      const response = await fetch("/api/admin/users?active=1", { cache: "no-store" });
+      const payload = (await response.json()) as UsersResponse;
+      if (!response.ok || !payload.items) {
+        setUsers([]);
+        setUsersError(payload.message || "Kunne ikke hente medarbejdere.");
+        return;
+      }
+      const filtered = payload.items.filter((user) => user.is_active && user.role !== "viewer");
+      setUsers(filtered);
+    } catch (fetchError) {
+      console.error(fetchError);
+      setUsers([]);
+      setUsersError("Netværksfejl ved hentning af medarbejdere.");
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -224,6 +281,69 @@ export const BookingCreateAdmin = () => {
               className="h-10 rounded-md border border-border bg-white px-3 text-sm"
             />
           </div>
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-xs font-semibold uppercase text-muted-foreground">
+              Tildel medarbejder (valgfri)
+            </label>
+            {usersError ? <p className="text-xs text-red-700">{usersError}</p> : null}
+            <select
+              value={assignedTo}
+              onChange={(event) => setAssignedTo(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+            >
+              <option value="">Ikke tildelt</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} ({user.role})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+            Pris (total)
+            <input
+              value={priceTotal}
+              onChange={(event) => {
+                const next = normalizePriceInput(event.target.value);
+                setPriceTotal(next);
+                if (!priceNet && !priceVat && next) {
+                  const total = toNullableNumber(next);
+                  if (total) {
+                    const net = Math.round(total / 1.25);
+                    const vat = total - net;
+                    setPriceNet(String(net));
+                    setPriceVat(String(vat));
+                  }
+                }
+              }}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              inputMode="numeric"
+              placeholder="3000"
+            />
+          </label>
+          <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+            Beløb (netto)
+            <input
+              value={priceNet}
+              onChange={(event) => setPriceNet(normalizePriceInput(event.target.value))}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              inputMode="numeric"
+              placeholder="2400"
+            />
+          </label>
+          <label className="grid gap-2 text-xs font-semibold uppercase text-muted-foreground">
+            Moms
+            <input
+              value={priceVat}
+              onChange={(event) => setPriceVat(normalizePriceInput(event.target.value))}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              inputMode="numeric"
+              placeholder="600"
+            />
+          </label>
         </div>
 
         <div className="space-y-2">

@@ -1,7 +1,8 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
+import { auditLog } from "@/lib/audit";
 import { getAvailabilityRange, getSlotRangeForBooking } from "@/lib/admin-availability";
 import { formatExtrasSummary, hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
 import { STATUS_VALUES } from "@/lib/estimator";
@@ -37,9 +38,9 @@ const asText = (value: unknown) => (typeof value === "string" ? value.trim() : "
 
 export async function POST(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const payload = (await request.json()) as ConvertPayload;
@@ -220,6 +221,21 @@ export async function POST(request: Request) {
       );
     }
 
+    await auditLog({
+      action: "estimator.convert",
+      entityType: "estimator",
+      entityId: estimator.id,
+      meta: {
+        bookingId: bookingData.id,
+        slotCount,
+        slotStart: bookingData.slot_start,
+        slotEnd: bookingData.slot_end
+      },
+      req: request,
+      actor: session?.email,
+      role: session?.role
+    });
+
     return NextResponse.json(
       {
         bookingId: bookingData.id,
@@ -229,7 +245,7 @@ export async function POST(request: Request) {
         slotLabel: validStart.label,
         slotStart: bookingData.slot_start,
         slotEnd: bookingData.slot_end,
-        adminBookingPath: `/admin/bookinger/${bookingData.id}`
+        adminBookingPath: `/admin/bookings/${bookingData.id}`
       },
       { status: 200 }
     );

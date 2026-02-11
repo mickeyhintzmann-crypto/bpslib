@@ -120,7 +120,18 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p className="font-semibold">{error}</p>
+          {error.toLowerCase().includes("bookings") ? (
+            <p className="mt-2 text-xs text-red-600">
+              Kør migrationerne:{" "}
+              <code>supabase/migrations/20260207_000000_bookings_base.sql</code> og{" "}
+              <code>supabase/migrations/20260208_000007_bookings_admin_columns.sql</code>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-border bg-background/70 p-4">

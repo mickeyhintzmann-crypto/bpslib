@@ -3,7 +3,6 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { estimateAiPrice } from "@/lib/ai-estimator";
-import { sanitizeExtras } from "@/lib/bordplade/extras";
 import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
@@ -102,14 +101,6 @@ export async function POST(request: Request) {
       telefon: asString(formData.get("telefon"))
     };
 
-    let extras = sanitizeExtras(null);
-    try {
-      const rawExtras = asString(formData.get("extras"));
-      extras = sanitizeExtras(rawExtras ? (JSON.parse(rawExtras) as unknown) : null);
-    } catch {
-      return NextResponse.json({ message: "Tilvalg kunne ikke læses korrekt." }, { status: 400 });
-    }
-
     if (!fields.navn || !fields.telefon) {
       return NextResponse.json({ message: "Navn og telefon er obligatoriske." }, { status: 400 });
     }
@@ -153,7 +144,7 @@ export async function POST(request: Request) {
     const retentionDeleteAt = new Date();
     retentionDeleteAt.setDate(retentionDeleteAt.getDate() + siteConfig.estimatorRetentionDays);
 
-    const aiEstimate = await estimateAiPrice(supabase, { fields, extras });
+    const aiEstimate = await estimateAiPrice(supabase, { fields, extras: null });
     const aiStatus = aiEstimate ? "estimated" : "manual";
 
     const { data, error: insertError } = await supabase
@@ -162,7 +153,7 @@ export async function POST(request: Request) {
         gating_answer: "ved_ikke",
         fields: {
           ...fields,
-          extras
+          extras: null
         },
         images: uploadedImages,
         status: STATUS_VALUES.new,

@@ -1,6 +1,6 @@
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-type EntityType = "booking" | "lead" | "estimator" | "day_override" | "setting" | "case";
+type EntityType = "booking" | "lead" | "estimator" | "day_override" | "setting" | "case" | "user";
 
 type AuditParams = {
   action: string;
@@ -9,6 +9,7 @@ type AuditParams = {
   meta?: Record<string, unknown> | null;
   req: Request;
   actor?: string;
+  role?: string | null;
 };
 
 const getIp = (req: Request) => {
@@ -22,7 +23,7 @@ const getIp = (req: Request) => {
   return req.headers.get("x-real-ip") || req.headers.get("cf-connecting-ip") || null;
 };
 
-export const auditLog = async ({ action, entityType, entityId, meta, req, actor }: AuditParams) => {
+export const auditLog = async ({ action, entityType, entityId, meta, req, actor, role }: AuditParams) => {
   try {
     const supabase = createSupabaseServiceClient();
     const ip = getIp(req);
@@ -30,6 +31,7 @@ export const auditLog = async ({ action, entityType, entityId, meta, req, actor 
 
     await supabase.from("audit_log").insert({
       actor: actor || "admin",
+      role: role || null,
       action,
       entity_type: entityType,
       entity_id: entityId,

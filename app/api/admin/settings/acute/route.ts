@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -34,9 +34,9 @@ const parseIntValue = (value: unknown) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner"]);
+    if (error) {
+      return error;
     }
 
     const supabase = createSupabaseServiceClient();
@@ -75,9 +75,9 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner"]);
+    if (error) {
+      return error;
     }
 
     const payload = (await request.json()) as Record<string, unknown>;
@@ -131,7 +131,9 @@ export async function PUT(request: Request) {
       entityType: "setting",
       entityId: "acute",
       meta: { after: data?.value ?? { enabled, price, windowDays } },
-      req: request
+      req: request,
+      actor: session?.email,
+      role: session?.role
     });
 
     return NextResponse.json({ item: data?.value ?? { enabled, price, windowDays } }, { status: 200 });

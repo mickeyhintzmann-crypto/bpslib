@@ -5,13 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-  EXTRA_OPTIONS,
-  VANDFALD_PRICE_LABEL,
-  defaultBordpladeExtras,
-  formatExtrasSummary,
-  type BordpladeExtras
-} from "@/lib/bordplade/extras";
 import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
 
@@ -39,12 +32,10 @@ export const EstimatorForm = () => {
   const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [extras, setExtras] = useState<BordpladeExtras>(defaultBordpladeExtras);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const imageCountLabel = useMemo(() => `${images.length} billeder valgt`, [images.length]);
-  const extrasSummary = useMemo(() => formatExtrasSummary(extras), [extras]);
 
   const onImageChange = (files: FileList | null) => {
     if (!files) {
@@ -102,23 +93,6 @@ export const EstimatorForm = () => {
     return null;
   };
 
-  const toggleExtra = (key: (typeof EXTRA_OPTIONS)[number]["key"]) => {
-    setExtras((prev) => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const updateVandfaldCount = (value: string) => {
-    if (!value.trim()) {
-      setExtras((prev) => ({ ...prev, vandfaldCount: 0 }));
-      return;
-    }
-    const parsed = Number.parseInt(value.replace(/\D/g, ""), 10);
-    const safeValue = Number.isNaN(parsed) ? 0 : Math.max(0, Math.min(20, parsed));
-    setExtras((prev) => ({ ...prev, vandfaldCount: safeValue }));
-  };
-
   const submit = async () => {
     const validationError = validate();
     if (validationError) {
@@ -135,7 +109,6 @@ export const EstimatorForm = () => {
       formData.append("telefon", phone.trim());
       formData.append("edgeImageIndex", edgeImageIndex !== null ? `${edgeImageIndex}` : "");
       formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
-      formData.append("extras", JSON.stringify(extras));
 
       images.forEach((file) => formData.append("images", file));
 
@@ -280,45 +253,6 @@ export const EstimatorForm = () => {
             />
           </label>
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-foreground">3) Tilvalg (valgfrit)</h2>
-        <p className="text-sm text-muted-foreground">
-          Tilføj ekstra flader, hvis du ønsker at få dem vurderet sammen med køkkenbordpladen.
-        </p>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {EXTRA_OPTIONS.map((option) => (
-            <label
-              key={option.key}
-              className="flex items-center justify-between gap-3 rounded-md border border-border bg-white/90 px-3 py-2 text-sm"
-            >
-              <span className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={extras[option.key]}
-                  onChange={() => toggleExtra(option.key)}
-                />
-                <span className="font-medium text-foreground">{option.label}</span>
-              </span>
-              <span className="text-xs text-muted-foreground">{option.priceLabel}</span>
-            </label>
-          ))}
-        </div>
-        <label className="grid gap-2 text-sm text-foreground">
-          Vandfald (antal)
-          <div className="flex items-center gap-3">
-            <input
-              value={extras.vandfaldCount ? String(extras.vandfaldCount) : ""}
-              onChange={(event) => updateVandfaldCount(event.target.value)}
-              className="h-10 w-24 rounded-md border border-border bg-white px-3"
-              inputMode="numeric"
-              placeholder="0"
-            />
-            <span className="text-xs text-muted-foreground">{VANDFALD_PRICE_LABEL}</span>
-          </div>
-        </label>
-        <p className="text-xs text-muted-foreground">Valgte tilvalg: {extrasSummary}</p>
       </div>
 
       <div className="space-y-2 rounded-xl border border-border bg-background/60 p-4 text-sm text-muted-foreground">

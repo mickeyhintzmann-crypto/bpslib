@@ -615,7 +615,7 @@ export const EstimatorInboxAdmin = () => {
                   <p className="text-sm text-muted-foreground">
                     Booking-ID:
                     <Link
-                      href={`/admin/bookinger/${detail.bookingId}`}
+                      href={`/admin/bookings/${detail.bookingId}`}
                       className="ml-1 font-semibold text-primary"
                     >
                       {detail.bookingId}

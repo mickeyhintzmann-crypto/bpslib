@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { getAvailabilityRange } from "@/lib/admin-availability";
 
 const toDateKey = (date: Date) => {
@@ -23,9 +23,9 @@ const parseIntParam = (value: string | null, fallback: number) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);

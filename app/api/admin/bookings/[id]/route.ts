@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { checkBookingAvailability, getSlotRangeForBooking } from "@/lib/admin-availability";
 import { hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
@@ -20,6 +20,10 @@ type UpdatePayload = {
   note?: unknown;
   internalNote?: unknown;
   extras?: unknown;
+  assigned_to?: unknown;
+  price_total?: unknown;
+  price_net?: unknown;
+  price_vat?: unknown;
 };
 
 const STATUS_FLOW = [
@@ -93,19 +97,35 @@ const parseSlotCount = (value: unknown) => {
   return NaN;
 };
 
+const toNullableInt = (value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return { valid: true, value: null as number | null };
+  }
+
+  if (typeof value === "number" && Number.isInteger(value)) {
+    return { valid: true, value };
+  }
+
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    return { valid: true, value: Number.parseInt(value, 10) };
+  }
+
+  return { valid: false, value: null as number | null };
+};
+
 export async function GET(request: Request, context: RouteContext) {
   try {
     const params = await Promise.resolve(context.params);
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, estimator_request_id, extras"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -115,6 +135,10 @@ export async function GET(request: Request, context: RouteContext) {
         return NextResponse.json({ message: "Tabellen bookings mangler i databasen." }, { status: 503 });
       }
       return NextResponse.json({ message: error?.message || "Booking blev ikke fundet." }, { status: 404 });
+    }
+
+    if (session?.role === "employee" && data.assigned_to !== session.id) {
+      return NextResponse.json({ message: "Du har ikke adgang til denne booking." }, { status: 403 });
     }
 
     const slotCount = slotCountFromRange(data.slot_start, data.slot_end);
@@ -137,9 +161,9 @@ export async function GET(request: Request, context: RouteContext) {
 export async function PATCH(request: Request, context: RouteContext) {
   try {
     const params = await Promise.resolve(context.params);
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin", "employee"]);
+    if (error) {
+      return error;
     }
 
     const payload = (await request.json()) as UpdatePayload;
@@ -151,7 +175,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { data: current, error: currentError } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -161,6 +185,10 @@ export async function PATCH(request: Request, context: RouteContext) {
         return NextResponse.json({ message: "Tabellen bookings mangler i databasen." }, { status: 503 });
       }
       return NextResponse.json({ message: currentError?.message || "Booking blev ikke fundet." }, { status: 404 });
+    }
+
+    if (session?.role === "employee" && current.assigned_to !== session.id) {
+      return NextResponse.json({ message: "Du har ikke adgang til denne booking." }, { status: 403 });
     }
 
     const updateData: Record<string, unknown> = {};
@@ -193,6 +221,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     if ("extras" in payload) {
+      if (session?.role === "employee") {
+        return NextResponse.json({ message: "Kun admin kan ændre tilvalg." }, { status: 403 });
+      }
       if (payload.extras === null || payload.extras === "") {
         updateData.extras = null;
       } else {
@@ -204,6 +235,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     const currentDate = dateKeyFromIso(current.slot_start);
     const currentStartIndex = SLOT_TIMES.indexOf(timeFromIso(current.slot_start) as (typeof SLOT_TIMES)[number]);
     const currentSlotCount = slotCountFromRange(current.slot_start, current.slot_end) || 1;
+
+    if (session?.role === "employee" && ("date" in payload || "startSlot" in payload || "start_slot_index" in payload || "slot_count" in payload)) {
+      return NextResponse.json({ message: "Kun admin kan flytte tider." }, { status: 403 });
+    }
 
     const nextDate = typeof payload.date === "string" ? payload.date : currentDate;
     const parsedStartIndex = parseStartSlotIndex(payload);
@@ -243,6 +278,43 @@ export async function PATCH(request: Request, context: RouteContext) {
       updateData.slot_end = slotRange.slotEndIso;
     }
 
+    if ("assigned_to" in payload) {
+      if (session?.role === "employee") {
+        return NextResponse.json({ message: "Kun admin kan tildele medarbejder." }, { status: 403 });
+      }
+      if (payload.assigned_to === null || payload.assigned_to === "") {
+        updateData.assigned_to = null;
+      } else if (typeof payload.assigned_to === "string") {
+        updateData.assigned_to = payload.assigned_to;
+      } else {
+        return NextResponse.json({ message: "assigned_to skal være tekst." }, { status: 400 });
+      }
+    }
+
+    if ("price_total" in payload || "price_net" in payload || "price_vat" in payload) {
+      if (session?.role === "employee") {
+        return NextResponse.json({ message: "Kun admin kan opdatere pris." }, { status: 403 });
+      }
+      const totalParsed = toNullableInt(payload.price_total);
+      const netParsed = toNullableInt(payload.price_net);
+      const vatParsed = toNullableInt(payload.price_vat);
+
+      if (!totalParsed.valid || !netParsed.valid || !vatParsed.valid) {
+        return NextResponse.json({ message: "Prisfelter skal være tal." }, { status: 400 });
+      }
+
+      let priceNet = netParsed.value;
+      let priceVat = vatParsed.value;
+      if (totalParsed.value !== null && (priceNet === null || priceVat === null)) {
+        priceNet = Math.round(totalParsed.value / 1.25);
+        priceVat = totalParsed.value - priceNet;
+      }
+
+      updateData.price_total = totalParsed.value;
+      updateData.price_net = priceNet;
+      updateData.price_vat = priceVat;
+    }
+
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ message: "Ingen felter at opdatere." }, { status: 400 });
     }
@@ -252,7 +324,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       .update(updateData)
       .eq("id", params.id)
       .select(
-        "id, created_at, status, service_type, source, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat"
       )
       .single();
 
@@ -283,7 +355,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         after: data,
         changes: updateData
       },
-      req: request
+      req: request,
+      actor: session?.email,
+      role: session?.role
     });
 
     return NextResponse.json({ item: { ...data, slot_count: slotCount } }, { status: 200 });

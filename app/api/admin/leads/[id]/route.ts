@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -62,9 +62,9 @@ const mapLeadRow = (row: LeadRow) => ({
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const params = await Promise.resolve(context.params);
@@ -98,9 +98,9 @@ export async function GET(request: Request, context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { session, error } = requireAdmin(request, ["owner", "admin"]);
+    if (error) {
+      return error;
     }
 
     const params = await Promise.resolve(context.params);
@@ -178,7 +178,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         after: data,
         changes: updateData
       },
-      req: request
+      req: request,
+      actor: session?.email,
+      role: session?.role
     });
 
     return NextResponse.json({ item: mapLeadRow(data as LeadRow) }, { status: 200 });

@@ -4,31 +4,35 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
+import type { AdminRole, AdminSession } from "@/lib/admin-auth";
+import { AdminSessionProvider, useAdminSession } from "@/components/admin/AdminSessionContext";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
   label: string;
   href: string;
+  roles: AdminRole[];
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Oversigt", href: "/admin" },
-  { label: "Bookinger", href: "/admin/bookings" },
-  { label: "Tidsrum", href: "/admin/tidsrum" },
-  { label: "Kalender", href: "/admin/kalender" },
-  { label: "Kundehendvendelser", href: "/admin/leads" },
-  { label: "Prisberegner", href: "/admin/estimator" },
-  { label: "Medarbejdere", href: "/admin/medarbejdere" },
-  { label: "Cases", href: "/admin/cases" },
-  { label: "Statistik", href: "/admin/statistik" },
-  { label: "Nyhedsbreve", href: "/admin/nyhedsbreve" },
-  { label: "Audit log", href: "/admin/audit" },
-  { label: "Indstillinger", href: "/admin/indstillinger" }
+  { label: "Oversigt", href: "/admin", roles: ["owner", "admin", "employee", "viewer"] },
+  { label: "Bookinger", href: "/admin/bookings", roles: ["owner", "admin", "employee", "viewer"] },
+  { label: "Kalender", href: "/admin/kalender", roles: ["owner", "admin"] },
+  { label: "Kundehendvendelser", href: "/admin/leads", roles: ["owner", "admin", "viewer"] },
+  { label: "Prisberegner", href: "/admin/estimator", roles: ["owner", "admin", "viewer"] },
+  { label: "AI træning", href: "/admin/ai-traening", roles: ["owner", "admin"] },
+  { label: "Medarbejdere", href: "/admin/medarbejdere", roles: ["owner"] },
+  { label: "Cases", href: "/admin/cases", roles: ["owner", "admin"] },
+  { label: "Økonomi", href: "/admin/okonomi", roles: ["owner", "viewer"] },
+  { label: "Audit log", href: "/admin/audit", roles: ["owner", "admin"] },
+  { label: "Indstillinger", href: "/admin/indstillinger", roles: ["owner"] }
 ];
 
-export const AdminShell = ({ children }: { children: React.ReactNode }) => {
+const ShellContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const session = useAdminSession();
+  const role: AdminRole = session?.role || "viewer";
 
   const activeHref = useMemo(() => {
     if (!pathname) {
@@ -37,6 +41,8 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
     const match = NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
     return match?.href || "/admin";
   }, [pathname]);
+
+  const visibleItems = useMemo(() => NAV_ITEMS.filter((item) => item.roles.includes(role)), [role]);
 
   const handleLogout = async () => {
     try {
@@ -56,7 +62,7 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
               <span className="text-xs text-white/60">Admin Panel</span>
             </div>
             <nav className="mt-4 space-y-1 text-sm">
-              {NAV_ITEMS.map((item) => {
+              {visibleItems.map((item) => {
                 const isActive = activeHref === item.href;
                 return (
                   <Link
@@ -73,7 +79,8 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
               })}
             </nav>
             <div className="mt-6 border-t border-white/10 pt-4 text-xs text-white/60">
-              <p>Logget ind som admin</p>
+              <p>Logget ind som {session?.name || session?.email || "admin"}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-white/40">{role}</p>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -95,14 +102,33 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
               <Link href="/" className="rounded-full border border-border px-4 py-2 text-sm text-foreground">
                 Tilbage til hjemmeside
               </Link>
-              <Link href="/admin/bookings/new" className="rounded-full bg-primary px-4 py-2 text-sm text-white">
-                Opret booking
-              </Link>
+              {role !== "employee" && role !== "viewer" ? (
+                <Link
+                  href="/admin/bookings/new"
+                  className="rounded-full bg-primary px-4 py-2 text-sm text-white"
+                >
+                  Opret booking
+                </Link>
+              ) : null}
             </div>
           </div>
           <div className="rounded-2xl border border-border/70 bg-white p-5 shadow-sm md:p-6">{children}</div>
         </div>
       </div>
     </div>
+  );
+};
+
+export const AdminShell = ({
+  children,
+  session
+}: {
+  children: React.ReactNode;
+  session: AdminSession | null;
+}) => {
+  return (
+    <AdminSessionProvider session={session}>
+      <ShellContent>{children}</ShellContent>
+    </AdminSessionProvider>
   );
 };

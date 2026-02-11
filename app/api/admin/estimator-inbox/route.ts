@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { assertAdminToken } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import {
   ESTIMATOR_BUCKET,
   ESTIMATOR_STATUS_FLOW,
@@ -97,9 +97,9 @@ const matchesSearch = (fields: EstimatorFields, searchQuery: string) => {
 
 export async function GET(request: Request) {
   try {
-    const authError = assertAdminToken(request);
-    if (authError) {
-      return authError;
+    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (error) {
+      return error;
     }
 
     const url = new URL(request.url);
