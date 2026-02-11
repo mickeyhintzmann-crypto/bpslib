@@ -41,7 +41,7 @@ export default function PrivatlivspolitikPage() {
           <ul className="mt-3 space-y-2">
             <li>Kontaktoplysninger: navn, telefon og eventuelt email.</li>
             <li>Bookingoplysninger: adresse/postnr, ønsket tidspunkt og praktiske noter.</li>
-            <li>Billeder til vurdering i prisberegneren, herunder kant/ende-foto hvis muligt.</li>
+            <li>Billeder til vurdering i prisberegneren.</li>
           </ul>
         </article>
 

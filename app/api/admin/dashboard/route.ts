@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { getSlotRangeForBooking } from "@/lib/admin-availability";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -44,20 +45,6 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
   );
 };
 
-const SLOT_TIMES = ["08:00", "11:00", "13:30"] as const;
-const SLOT_END_TIMES = ["11:00", "13:30", "16:00"] as const;
-
-const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: string | null | undefined) => {
-  const startTime = slotStart ? slotStart.slice(11, 16) : "";
-  const endTime = slotEnd ? slotEnd.slice(11, 16) : "";
-  const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
-  const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return 0;
-  }
-  return endIndex - startIndex + 1;
-};
-
 const isActiveBooking = (status: string | null) => {
   if (!status) {
     return true;
@@ -84,25 +71,25 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Kunne ikke beregne datointerval." }, { status: 500 });
     }
 
-    const bookingStart = `${today}T00:00:00.000Z`;
-    const todayEndExclusive = `${addDaysToDateKey(today, 1)}T00:00:00.000Z`;
-    const bookingEndExclusive = `${addDaysToDateKey(nextWeek, 1)}T00:00:00.000Z`;
+    const todayEndExclusive = addDaysToDateKey(today, 1) || today;
+    const bookingEndExclusive = addDaysToDateKey(nextWeek, 1) || nextWeek;
 
     const bookingsTodayQuery = supabase
       .from("bookings")
       .select("id", { count: "exact", head: true })
-      .gte("slot_start", bookingStart)
-      .lt("slot_start", todayEndExclusive);
+      .gte("date", today)
+      .lt("date", todayEndExclusive);
     const bookingsNextQuery = supabase
       .from("bookings")
       .select("id", { count: "exact", head: true })
-      .gte("slot_start", bookingStart)
-      .lt("slot_start", bookingEndExclusive);
+      .gte("date", today)
+      .lt("date", bookingEndExclusive);
     const upcomingBookingsQuery = supabase
       .from("bookings")
-      .select("id, slot_start, customer_name, source, status, assigned_to")
-      .gte("slot_start", bookingStart)
-      .order("slot_start", { ascending: true })
+      .select("id, date, start_slot_index, slot_count, customer_name, source, status, assigned_to")
+      .gte("date", today)
+      .order("date", { ascending: true })
+      .order("start_slot_index", { ascending: true })
       .limit(10);
 
     if (isEmployee && session?.id) {
@@ -200,14 +187,14 @@ export async function GET(request: Request) {
       const revenueMonthRangeEnd = nextMonth || today;
       const revenueWeekQuery = supabase
         .from("bookings")
-        .select("id, price_total, status, slot_start, slot_end")
-        .gte("slot_start", `${today}T00:00:00.000Z`)
-        .lt("slot_start", `${revenueWeekRangeEnd}T00:00:00.000Z`);
+        .select("id, price_total, status, date")
+        .gte("date", today)
+        .lt("date", revenueWeekRangeEnd);
       const revenueMonthQuery = supabase
         .from("bookings")
-        .select("id, price_total, status, slot_start, slot_end")
-        .gte("slot_start", `${today}T00:00:00.000Z`)
-        .lt("slot_start", `${revenueMonthRangeEnd}T00:00:00.000Z`);
+        .select("id, price_total, status, date")
+        .gte("date", today)
+        .lt("date", revenueMonthRangeEnd);
 
       if (isEmployee && session?.id) {
         revenueWeekQuery.eq("assigned_to", session.id);
@@ -227,9 +214,9 @@ export async function GET(request: Request) {
             .lte("date", nextWeek || today),
           supabase
             .from("bookings")
-            .select("slot_start, slot_end, status")
-            .gte("slot_start", bookingStart)
-            .lt("slot_start", bookingEndExclusive)
+            .select("date, start_slot_index, slot_count, status")
+            .gte("date", today)
+            .lt("date", bookingEndExclusive)
         ]);
 
       if (!weekData.error && weekData.data) {
@@ -271,10 +258,25 @@ export async function GET(request: Request) {
         }
 
         const activeBookings = (bookingsForSlots.data || []).filter((row: any) => isActiveBooking(row.status));
-        usedSlots = activeBookings.reduce((sum: number, row: any) => sum + slotCountFromRange(row.slot_start, row.slot_end), 0);
+        usedSlots = activeBookings.reduce((sum: number, row: any) => {
+          const count = typeof row.slot_count === "number" ? row.slot_count : 1;
+          return sum + count;
+        }, 0);
         occupancy = totalSlots > 0 ? Math.round((usedSlots / totalSlots) * 100) : 0;
       }
     }
+
+    const upcomingBookings = (upcomingBookingsResult.data || []).map((booking: any) => {
+      const slotRange =
+        booking.date && Number.isInteger(booking.start_slot_index) && Number.isInteger(booking.slot_count)
+          ? getSlotRangeForBooking(booking.date, booking.start_slot_index, booking.slot_count)
+          : null;
+      return {
+        ...booking,
+        slot_start: slotRange?.slotStartIso ?? null,
+        slot_end: slotRange?.slotEndIso ?? null
+      };
+    });
 
     return NextResponse.json(
       {
@@ -291,7 +293,7 @@ export async function GET(request: Request) {
           conversion,
           occupancy
         },
-        upcomingBookings: upcomingBookingsResult.data || [],
+        upcomingBookings,
         latestLeads: latestLeadsResult.data || [],
         latestEstimators
       },

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getSlotRangeForBooking } from "@/lib/admin-availability";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 type RouteContext = {
@@ -26,7 +27,7 @@ export async function POST(request: Request, context: RouteContext) {
     const supabase = createSupabaseServiceClient();
     const { data: booking, error } = await supabase
       .from("bookings")
-      .select("id, slot_start, status")
+      .select("id, date, start_slot_index, slot_count, status")
       .eq("manage_token", token)
       .single();
 
@@ -37,7 +38,11 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ message: "Linket er ugyldigt." }, { status: 404 });
     }
 
-    const slotStart = new Date(booking.slot_start);
+    const slotRange =
+      booking.date && Number.isInteger(booking.start_slot_index) && Number.isInteger(booking.slot_count)
+        ? getSlotRangeForBooking(booking.date, booking.start_slot_index, booking.slot_count)
+        : null;
+    const slotStart = slotRange?.slotStartIso ? new Date(slotRange.slotStartIso) : new Date("invalid");
     const now = new Date();
     const hoursUntil = Number.isNaN(slotStart.getTime())
       ? null

@@ -19,8 +19,6 @@ const STATUS_FLOW = [
 ] as const;
 const SOURCE_VALUES = ["normal", "acute", "manual", "estimator"] as const;
 const SERVICE_VALUES = ["bordplade", "gulv", "toemrer", "maler", "murer", "andet"] as const;
-const SLOT_END_TIMES = ["11:00", "13:30", "16:00"] as const;
-
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 type BookingRow = {
@@ -35,8 +33,9 @@ type BookingRow = {
   customer_email: string | null;
   address: string | null;
   postal_code: string | null;
-  slot_start: string | null;
-  slot_end: string | null;
+  date: string | null;
+  start_slot_index: number | null;
+  slot_count: number | null;
   notes: string | null;
   internal_note: string | null;
   extras: unknown | null;
@@ -75,21 +74,6 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
 const isMissingColumn = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return normalized.includes("column") && normalized.includes("does not exist");
-};
-
-const dateKeyFromIso = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : "");
-
-const timeFromIso = (iso: string | null | undefined) => (iso ? iso.slice(11, 16) : "");
-
-const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: string | null | undefined) => {
-  const startTime = timeFromIso(slotStart);
-  const endTime = timeFromIso(slotEnd);
-  const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
-  const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return null;
-  }
-  return endIndex - startIndex + 1;
 };
 
 const parseStartSlotIndex = (payload: CreatePayload) => {
@@ -224,12 +208,13 @@ export async function GET(request: Request) {
     let query = supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat",
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat",
         {
           count: "exact"
         }
       )
-      .order("slot_start", { ascending: false })
+      .order("date", { ascending: false })
+      .order("start_slot_index", { ascending: false })
       .range(fromIndex, toIndex);
 
     if (statusFilter) {
@@ -251,13 +236,13 @@ export async function GET(request: Request) {
     }
 
     if (dateFrom && dateRegex.test(dateFrom)) {
-      query = query.gte("slot_start", `${dateFrom}T00:00:00.000Z`);
+      query = query.gte("date", dateFrom);
     }
 
     if (dateTo && dateRegex.test(dateTo)) {
       const next = addDaysToDateKey(dateTo, 1);
       if (next) {
-        query = query.lt("slot_start", `${next}T00:00:00.000Z`);
+        query = query.lt("date", next);
       }
     }
 
@@ -274,23 +259,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    const items = ((data || []) as BookingRow[]).map((row) => ({
-      id: row.id,
-      createdAt: row.created_at,
-      status: row.status,
-      service: row.service_type,
-      source: row.source,
-      assignedTo: row.assigned_to ?? null,
-      name: row.customer_name,
-      phone: row.customer_phone,
-      postalCode: row.postal_code,
-      slotStart: row.slot_start,
-      slotEnd: row.slot_end,
-      slotCount: slotCountFromRange(row.slot_start, row.slot_end),
-      priceTotal: row.price_total ?? null,
-      priceNet: row.price_net ?? null,
-      priceVat: row.price_vat ?? null
-    }));
+    const items = ((data || []) as BookingRow[]).map((row) => {
+      const slotRange =
+        row.date && Number.isInteger(row.start_slot_index) && Number.isInteger(row.slot_count)
+          ? getSlotRangeForBooking(row.date, row.start_slot_index as number, row.slot_count as number)
+          : null;
+
+      return {
+        id: row.id,
+        createdAt: row.created_at,
+        status: row.status,
+        service: row.service_type,
+        source: row.source,
+        assignedTo: row.assigned_to ?? null,
+        name: row.customer_name,
+        phone: row.customer_phone,
+        postalCode: row.postal_code,
+        slotStart: slotRange?.slotStartIso ?? null,
+        slotEnd: slotRange?.slotEndIso ?? null,
+        slotCount: row.slot_count ?? null,
+        priceTotal: row.price_total ?? null,
+        priceNet: row.price_net ?? null,
+        priceVat: row.price_vat ?? null
+      };
+    });
 
     return NextResponse.json(
       {
@@ -407,6 +399,9 @@ export async function POST(request: Request) {
         address: address || null,
         postal_code: postalCode || null,
         notes: note || null,
+        date,
+        start_slot_index: startSlotIndex,
+        slot_count: slotCount,
         slot_start: slotRange.slotStartIso,
         slot_end: slotRange.slotEndIso,
         manage_token: randomUUID(),
@@ -418,7 +413,9 @@ export async function POST(request: Request) {
         price_net: priceNet,
         price_vat: priceVat
       })
-      .select("id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat")
+      .select(
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
+      )
       .single();
 
     if (error || !data) {
@@ -454,7 +451,8 @@ export async function POST(request: Request) {
       {
         item: {
           ...data,
-          slot_count: slotCountFromRange(data.slot_start, data.slot_end)
+          slot_start: getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)?.slotStartIso ?? null,
+          slot_end: getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)?.slotEndIso ?? null
         }
       },
       { status: 200 }

@@ -21,7 +21,7 @@ export default function KontaktPage() {
     {
       question: "Hvordan får jeg hurtigst en pris?",
       answer:
-        "Den hurtigste vej er prisberegneren, hvor du uploader billeder af bordpladen og gerne kant/ende hvis muligt."
+        "Den hurtigste vej er prisberegneren, hvor du uploader billeder af bordpladen."
     },
     {
       question: "Kan jeg booke direkte?",

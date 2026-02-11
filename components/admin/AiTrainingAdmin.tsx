@@ -28,7 +28,6 @@ const parseNumber = (value: string) => {
 
 export const AiTrainingAdmin = () => {
   const [images, setImages] = useState<File[]>([]);
-  const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
   const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
@@ -45,7 +44,6 @@ export const AiTrainingAdmin = () => {
   const onImageChange = (files: FileList | null) => {
     if (!files) {
       setImages([]);
-      setEdgeImageIndex(null);
       setKitchenImageIndex(null);
       return;
     }
@@ -54,9 +52,6 @@ export const AiTrainingAdmin = () => {
       .slice(0, MAX_IMAGES);
     setImages(next);
 
-    if (edgeImageIndex !== null && edgeImageIndex >= next.length) {
-      setEdgeImageIndex(null);
-    }
     if (kitchenImageIndex !== null && kitchenImageIndex >= next.length) {
       setKitchenImageIndex(null);
     }
@@ -97,10 +92,6 @@ export const AiTrainingAdmin = () => {
     if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
     }
-    if (edgeImageIndex !== null && (edgeImageIndex < 0 || edgeImageIndex >= images.length)) {
-      return "Kant/ende-markeringen er ugyldig. Vælg et andet billede eller fjern markeringen.";
-    }
-
     const minValue = parseNumber(priceMin);
     const maxValue = parseNumber(priceMax);
 
@@ -131,7 +122,6 @@ export const AiTrainingAdmin = () => {
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("label", label.trim());
       formData.append("note", note.trim());
-      formData.append("edgeImageIndex", edgeImageIndex !== null ? `${edgeImageIndex}` : "");
       formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
       formData.append("extras", JSON.stringify(extras));
 
@@ -150,7 +140,6 @@ export const AiTrainingAdmin = () => {
 
       setMessage(`Træningscase gemt (id: ${payload.id}).`);
       setImages([]);
-      setEdgeImageIndex(null);
       setKitchenImageIndex(null);
       setPriceMin("");
       setPriceMax("");
@@ -170,8 +159,8 @@ export const AiTrainingAdmin = () => {
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">AI træning</h1>
         <p className="text-sm text-muted-foreground">
-          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel køkkenbillede.
-          Kant/ende er valgfrit.
+          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel
+          køkkenbillede.
         </p>
       </div>
 
@@ -204,22 +193,6 @@ export const AiTrainingAdmin = () => {
                       name="kitchenImage"
                       checked={kitchenImageIndex === index}
                       onChange={() => setKitchenImageIndex(index)}
-                    />
-                    <span>{file.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede (valgfrit)</p>
-              <div className="grid gap-2 text-sm text-muted-foreground">
-                {images.map((file, index) => (
-                  <label key={`edge-${file.name}-${index}`} className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="edgeImage"
-                      checked={edgeImageIndex === index}
-                      onChange={() => setEdgeImageIndex(index)}
                     />
                     <span>{file.name}</span>
                   </label>

@@ -8,7 +8,7 @@ import { homeAssets } from "@/lib/assets";
 const steps = [
   {
     title: "Send billeder",
-    text: "Tag 3–6 billeder af bordpladen, gerne kant/ende hvis muligt."
+    text: "Tag 3–6 billeder af bordpladen/køkkenet."
   },
   {
     title: "AI-vurdering",

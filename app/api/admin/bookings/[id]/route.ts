@@ -35,7 +35,6 @@ const STATUS_FLOW = [
   "cancelled",
   "pending"
 ] as const;
-const SLOT_END_TIMES = ["11:00", "13:30", "16:00"] as const;
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
   const normalized = (message || "").toLowerCase();
@@ -52,21 +51,6 @@ const isMissingColumn = (message: string | undefined) => {
 
 const isKnownStatus = (value: unknown): value is (typeof STATUS_FLOW)[number] =>
   typeof value === "string" && STATUS_FLOW.includes(value as (typeof STATUS_FLOW)[number]);
-
-const dateKeyFromIso = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : "");
-
-const timeFromIso = (iso: string | null | undefined) => (iso ? iso.slice(11, 16) : "");
-
-const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: string | null | undefined) => {
-  const startTime = timeFromIso(slotStart);
-  const endTime = timeFromIso(slotEnd);
-  const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
-  const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return null;
-  }
-  return endIndex - startIndex + 1;
-};
 
 const parseStartSlotIndex = (payload: UpdatePayload) => {
   if (typeof payload.startSlot === "string") {
@@ -125,7 +109,7 @@ export async function GET(request: Request, context: RouteContext) {
     const { data, error } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -141,13 +125,17 @@ export async function GET(request: Request, context: RouteContext) {
       return NextResponse.json({ message: "Du har ikke adgang til denne booking." }, { status: 403 });
     }
 
-    const slotCount = slotCountFromRange(data.slot_start, data.slot_end);
+    const slotRange =
+      data.date && Number.isInteger(data.start_slot_index) && Number.isInteger(data.slot_count)
+        ? getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)
+        : null;
 
     return NextResponse.json(
       {
         item: {
           ...data,
-          slot_count: slotCount
+          slot_start: slotRange?.slotStartIso ?? null,
+          slot_end: slotRange?.slotEndIso ?? null
         }
       },
       { status: 200 }
@@ -175,7 +163,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { data: current, error: currentError } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -232,9 +220,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
     }
 
-    const currentDate = dateKeyFromIso(current.slot_start);
-    const currentStartIndex = SLOT_TIMES.indexOf(timeFromIso(current.slot_start) as (typeof SLOT_TIMES)[number]);
-    const currentSlotCount = slotCountFromRange(current.slot_start, current.slot_end) || 1;
+    const currentDate = current.date || "";
+    const currentStartIndex =
+      typeof current.start_slot_index === "number" && Number.isInteger(current.start_slot_index)
+        ? current.start_slot_index
+        : 0;
+    const currentSlotCount =
+      typeof current.slot_count === "number" && Number.isInteger(current.slot_count) ? current.slot_count : 1;
 
     if (session?.role === "employee" && ("date" in payload || "startSlot" in payload || "start_slot_index" in payload || "slot_count" in payload)) {
       return NextResponse.json({ message: "Kun admin kan flytte tider." }, { status: 403 });
@@ -269,13 +261,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         );
       }
 
-      const slotRange = getSlotRangeForBooking(nextDate, nextStartIndex, nextSlotCount);
-      if (!slotRange) {
-        return NextResponse.json({ message: "Kunne ikke beregne slot-interval." }, { status: 400 });
-      }
-
-      updateData.slot_start = slotRange.slotStartIso;
-      updateData.slot_end = slotRange.slotEndIso;
+      updateData.date = nextDate;
+      updateData.start_slot_index = nextStartIndex;
+      updateData.slot_count = nextSlotCount;
     }
 
     if ("assigned_to" in payload) {
@@ -324,7 +312,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       .update(updateData)
       .eq("id", params.id)
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, slot_start, slot_end, notes, internal_note, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
       )
       .single();
 
@@ -344,7 +332,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ message: error?.message || "Kunne ikke opdatere booking." }, { status: 500 });
     }
 
-    const slotCount = slotCountFromRange(data.slot_start, data.slot_end);
+    const slotRange =
+      data.date && Number.isInteger(data.start_slot_index) && Number.isInteger(data.slot_count)
+        ? getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)
+        : null;
 
     await auditLog({
       action: "booking.update",
@@ -360,7 +351,16 @@ export async function PATCH(request: Request, context: RouteContext) {
       role: session?.role
     });
 
-    return NextResponse.json({ item: { ...data, slot_count: slotCount } }, { status: 200 });
+    return NextResponse.json(
+      {
+        item: {
+          ...data,
+          slot_start: slotRange?.slotStartIso ?? null,
+          slot_end: slotRange?.slotEndIso ?? null
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "Uventet fejl ved opdatering af booking." }, { status: 500 });

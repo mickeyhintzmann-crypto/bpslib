@@ -5,7 +5,6 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const COMPLETED_STATUSES = new Set(["done", "invoiced", "closed"]);
 const SLOT_STARTS = ["08:00", "11:00", "13:30"] as const;
-const SLOT_ENDS = ["11:00", "13:30", "16:00"] as const;
 
 const dateKeyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -43,20 +42,6 @@ const startOfMonth = (date: Date) => {
 const startOfQuarter = (date: Date) => {
   const quarter = Math.floor(date.getUTCMonth() / 3);
   return new Date(Date.UTC(date.getUTCFullYear(), quarter * 3, 1, 12, 0, 0));
-};
-
-const slotCountFromRange = (slotStart: string | null, slotEnd: string | null) => {
-  if (!slotStart || !slotEnd) {
-    return 0;
-  }
-  const startTime = slotStart.slice(11, 16);
-  const endTime = slotEnd.slice(11, 16);
-  const startIndex = SLOT_STARTS.indexOf(startTime as (typeof SLOT_STARTS)[number]);
-  const endIndex = SLOT_ENDS.indexOf(endTime as (typeof SLOT_ENDS)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return 0;
-  }
-  return endIndex - startIndex + 1;
 };
 
 const isActiveStatus = (status: string | null) =>
@@ -107,9 +92,9 @@ export async function GET(request: Request) {
   const { data: bookings, error: bookingsError } = await supabase
     .from("bookings")
     .select(
-      "id, created_at, status, source, service_type, customer_name, customer_phone, postal_code, slot_start, slot_end, price_total"
+      "id, created_at, status, source, service_type, customer_name, customer_phone, postal_code, date, start_slot_index, slot_count, price_total"
     )
-    .gte("slot_start", `${quarterStartKey}T00:00:00.000Z`);
+    .gte("date", quarterStartKey);
 
   if (bookingsError) {
     return NextResponse.json({ message: bookingsError.message }, { status: 500 });
@@ -122,18 +107,15 @@ export async function GET(request: Request) {
   let bookingsMonth = 0;
   let acuteCount = 0;
 
-  const monthStartIso = `${monthStartKey}T00:00:00.000Z`;
-  const weekStartIso = `${weekStartKey}T00:00:00.000Z`;
-
   (bookings || []).forEach((booking) => {
     const price = booking.price_total || 0;
     const status = booking.status || "";
-    const slotStart = booking.slot_start || "";
-    if (booking.source === "acute" && slotStart >= monthStartIso) {
+    const bookingDate = booking.date || "";
+    if (booking.source === "acute" && bookingDate >= monthStartKey) {
       acuteCount += 1;
     }
 
-    if (slotStart >= monthStartIso) {
+    if (bookingDate >= monthStartKey) {
       bookingsMonth += 1;
     }
 
@@ -144,10 +126,10 @@ export async function GET(request: Request) {
     if (price > 0) {
       completedPrices.push(price);
     }
-    if (slotStart >= weekStartIso) {
+    if (bookingDate >= weekStartKey) {
       revenueWeek += price;
     }
-    if (slotStart >= monthStartIso) {
+    if (bookingDate >= monthStartKey) {
       revenueMonth += price;
     }
     revenueQuarter += price;
@@ -182,7 +164,7 @@ export async function GET(request: Request) {
 
   const todayKey = toDateKey(now);
   const endKey = addDays(todayKey, 6) || todayKey;
-  const endIso = `${addDays(todayKey, 7) || endKey}T00:00:00.000Z`;
+  const endExclusive = addDays(todayKey, 7) || endKey;
 
   const { data: overrides } = await supabase
     .from("day_overrides")
@@ -192,9 +174,9 @@ export async function GET(request: Request) {
 
   const { data: upcomingBookings } = await supabase
     .from("bookings")
-    .select("slot_start, slot_end, status")
-    .gte("slot_start", `${todayKey}T00:00:00.000Z`)
-    .lt("slot_start", endIso);
+    .select("date, start_slot_index, slot_count, status")
+    .gte("date", todayKey)
+    .lt("date", endExclusive);
 
   const overrideMap = new Map<string, number>();
   (overrides || []).forEach((row) => {
@@ -221,7 +203,8 @@ export async function GET(request: Request) {
     if (!isActiveStatus(booking.status)) {
       return;
     }
-    filledSlots += slotCountFromRange(booking.slot_start, booking.slot_end);
+    const count = typeof booking.slot_count === "number" ? booking.slot_count : 1;
+    filledSlots += count;
   });
 
   const occupancyPercent = totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0;
@@ -230,9 +213,12 @@ export async function GET(request: Request) {
     const rows =
       (bookings || []).map((booking) => ({
         id: booking.id,
-        date: booking.slot_start ? booking.slot_start.slice(0, 10) : "",
-        start_time: booking.slot_start ? booking.slot_start.slice(11, 16) : "",
-        slot_count: slotCountFromRange(booking.slot_start, booking.slot_end),
+        date: booking.date || "",
+        start_time:
+          typeof booking.start_slot_index === "number" && SLOT_STARTS[booking.start_slot_index]
+            ? SLOT_STARTS[booking.start_slot_index]
+            : "",
+        slot_count: typeof booking.slot_count === "number" ? booking.slot_count : null,
         service: booking.service_type,
         source: booking.source,
         status: booking.status,

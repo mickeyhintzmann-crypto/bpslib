@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
-import { SLOT_TIMES } from "@/lib/booking-schedule";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-const SLOT_END_TIMES = ["11:00", "13:30", "16:00"] as const;
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
   const normalized = (message || "").toLowerCase();
@@ -33,19 +31,6 @@ const addDays = (dateKey: string, delta: number) => {
   const mm = `${base.getUTCMonth() + 1}`.padStart(2, "0");
   const dd = `${base.getUTCDate()}`.padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
-};
-
-const timeFromIso = (iso: string | null | undefined) => (iso ? iso.slice(11, 16) : "");
-
-const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: string | null | undefined) => {
-  const startTime = timeFromIso(slotStart);
-  const endTime = timeFromIso(slotEnd);
-  const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
-  const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return null;
-  }
-  return endIndex - startIndex + 1;
 };
 
 export async function GET(request: Request) {
@@ -82,9 +67,9 @@ export async function GET(request: Request) {
         .order("date", { ascending: true }),
       supabase
         .from("bookings")
-        .select("id, slot_start, slot_end, source, status, customer_name, postal_code")
-        .gte("slot_start", `${from}T00:00:00.000Z`)
-        .lt("slot_start", `${toExclusive}T00:00:00.000Z`)
+        .select("id, date, start_slot_index, slot_count, source, status, customer_name, postal_code")
+        .gte("date", from)
+        .lt("date", toExclusive)
     ]);
 
     if (overrideResult.error) {
@@ -110,23 +95,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: bookingResult.error.message }, { status: 500 });
     }
 
-    const bookings = (bookingResult.data || []).map((booking) => {
-      const date = booking.slot_start ? booking.slot_start.slice(0, 10) : "";
-      const startIndex = SLOT_TIMES.indexOf(
-        timeFromIso(booking.slot_start) as (typeof SLOT_TIMES)[number]
-      );
-
-      return {
-        id: booking.id,
-        date,
-        start_slot_index: startIndex === -1 ? null : startIndex,
-        slot_count: slotCountFromRange(booking.slot_start, booking.slot_end) || 1,
-        source: booking.source ?? null,
-        status: booking.status ?? null,
-        customer_name: booking.customer_name ?? null,
-        postal_code: booking.postal_code ?? null
-      };
-    });
+    const bookings = (bookingResult.data || []).map((booking) => ({
+      id: booking.id,
+      date: booking.date || "",
+      start_slot_index:
+        typeof booking.start_slot_index === "number" && Number.isInteger(booking.start_slot_index)
+          ? booking.start_slot_index
+          : null,
+      slot_count:
+        typeof booking.slot_count === "number" && Number.isInteger(booking.slot_count)
+          ? booking.slot_count
+          : 1,
+      source: booking.source ?? null,
+      status: booking.status ?? null,
+      customer_name: booking.customer_name ?? null,
+      postal_code: booking.postal_code ?? null
+    }));
 
     return NextResponse.json(
       {

@@ -176,6 +176,9 @@ export async function POST(request: Request) {
         customer_phone: customerPhone,
         customer_email: customerEmail,
         service_type: "bordplade",
+        date,
+        start_slot_index: startSlotIndex,
+        slot_count: slotCount,
         slot_start: slotRange.slotStartIso,
         slot_end: slotRange.slotEndIso,
         manage_token: randomUUID(),
@@ -185,7 +188,7 @@ export async function POST(request: Request) {
         estimator_request_id: estimator.id,
         extras: hasSelectedExtras(extras) ? extras : null
       })
-      .select("id, slot_start, slot_end")
+      .select("id, date, start_slot_index, slot_count")
       .single();
 
     if (bookingError || !bookingData) {
@@ -228,8 +231,10 @@ export async function POST(request: Request) {
       meta: {
         bookingId: bookingData.id,
         slotCount,
-        slotStart: bookingData.slot_start,
-        slotEnd: bookingData.slot_end
+        slotStart: getSlotRangeForBooking(bookingData.date, bookingData.start_slot_index, bookingData.slot_count)
+          ?.slotStartIso,
+        slotEnd: getSlotRangeForBooking(bookingData.date, bookingData.start_slot_index, bookingData.slot_count)
+          ?.slotEndIso
       },
       req: request,
       actor: session?.email,
@@ -243,8 +248,8 @@ export async function POST(request: Request) {
         status: STATUS_VALUES.booked,
         slotCount,
         slotLabel: validStart.label,
-        slotStart: bookingData.slot_start,
-        slotEnd: bookingData.slot_end,
+        slotStart: slotRange?.slotStartIso ?? null,
+        slotEnd: slotRange?.slotEndIso ?? null,
         adminBookingPath: `/admin/bookings/${bookingData.id}`
       },
       { status: 200 }

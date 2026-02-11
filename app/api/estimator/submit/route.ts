@@ -47,7 +47,6 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
 
-    const edgeImageIndexRaw = asString(formData.get("edgeImageIndex"));
     const kitchenImageIndexRaw = asString(formData.get("kitchenImageIndex"));
 
     const images = formData
@@ -82,7 +81,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const edgeImageIndex = Number.parseInt(edgeImageIndexRaw, 10);
     const kitchenImageIndex = Number.parseInt(kitchenImageIndexRaw, 10);
 
     if (!Number.isInteger(kitchenImageIndex) || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
@@ -132,7 +130,7 @@ export async function POST(request: Request) {
       uploadedImages.push({
         path: filePath,
         name: file.name,
-        isEdge: Number.isInteger(edgeImageIndex) && edgeImageIndex === index,
+        isEdge: false,
         isOverview: Number.isInteger(kitchenImageIndex) && kitchenImageIndex === index
       });
     }

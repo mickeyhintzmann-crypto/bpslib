@@ -12,7 +12,6 @@ const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const UPLOAD_GUIDE = [
   "Hel bordplade/køkken (obligatorisk)",
-  "Kant/ende (hvis muligt)",
   "Tæt på overfladen",
   "Problemområde",
   "Omkring vask/komfur (hvis relevant)"
@@ -28,7 +27,6 @@ export const EstimatorForm = () => {
   const router = useRouter();
 
   const [images, setImages] = useState<File[]>([]);
-  const [edgeImageIndex, setEdgeImageIndex] = useState<number | null>(null);
   const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -40,7 +38,6 @@ export const EstimatorForm = () => {
   const onImageChange = (files: FileList | null) => {
     if (!files) {
       setImages([]);
-      setEdgeImageIndex(null);
       setKitchenImageIndex(null);
       return;
     }
@@ -50,9 +47,6 @@ export const EstimatorForm = () => {
       .slice(0, MAX_IMAGES);
     setImages(next);
 
-    if (edgeImageIndex !== null && edgeImageIndex >= next.length) {
-      setEdgeImageIndex(null);
-    }
     if (kitchenImageIndex !== null && kitchenImageIndex >= next.length) {
       setKitchenImageIndex(null);
     }
@@ -104,7 +98,6 @@ export const EstimatorForm = () => {
       const formData = new FormData();
       formData.append("navn", name.trim());
       formData.append("telefon", phone.trim());
-      formData.append("edgeImageIndex", edgeImageIndex !== null ? `${edgeImageIndex}` : "");
       formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
 
       images.forEach((file) => formData.append("images", file));
@@ -205,22 +198,6 @@ export const EstimatorForm = () => {
                     name="kitchenImage"
                     checked={kitchenImageIndex === index}
                     onChange={() => setKitchenImageIndex(index)}
-                  />
-                  <span>{file.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede (valgfrit)</p>
-            <div className="grid gap-2 text-sm text-muted-foreground">
-              {images.map((file, index) => (
-                <label key={`edge-${file.name}-${index}`} className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="edgeImage"
-                    checked={edgeImageIndex === index}
-                    onChange={() => setEdgeImageIndex(index)}
                   />
                   <span>{file.name}</span>
                 </label>

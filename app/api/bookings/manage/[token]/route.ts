@@ -1,25 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { SLOT_TIMES } from "@/lib/booking-schedule";
+import { getSlotRangeForBooking } from "@/lib/admin-availability";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 type RouteContext = {
   params: Promise<{ token: string }> | { token: string };
-};
-
-const SLOT_END_TIMES = ["11:00", "13:30", "16:00"] as const;
-
-const timeFromIso = (iso: string | null | undefined) => (iso ? iso.slice(11, 16) : "");
-
-const slotCountFromRange = (slotStart: string | null | undefined, slotEnd: string | null | undefined) => {
-  const startTime = timeFromIso(slotStart);
-  const endTime = timeFromIso(slotEnd);
-  const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
-  const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return null;
-  }
-  return endIndex - startIndex + 1;
 };
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
@@ -42,7 +27,7 @@ export async function GET(request: Request, context: RouteContext) {
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("bookings")
-      .select("id, slot_start, slot_end, status")
+      .select("id, date, start_slot_index, slot_count, status")
       .eq("manage_token", token)
       .single();
 
@@ -53,14 +38,18 @@ export async function GET(request: Request, context: RouteContext) {
       return NextResponse.json({ message: "Linket er ugyldigt." }, { status: 404 });
     }
 
-    const slotCount = slotCountFromRange(data.slot_start, data.slot_end) || 1;
+    const slotRange =
+      data.date && Number.isInteger(data.start_slot_index) && Number.isInteger(data.slot_count)
+        ? getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)
+        : null;
+    const slotCount = data.slot_count || 1;
 
     return NextResponse.json(
       {
         item: {
           id: data.id,
-          slotStart: data.slot_start,
-          slotEnd: data.slot_end,
+          slotStart: slotRange?.slotStartIso ?? null,
+          slotEnd: slotRange?.slotEndIso ?? null,
           slotCount,
           status: data.status
         }

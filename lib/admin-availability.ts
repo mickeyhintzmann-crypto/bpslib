@@ -14,8 +14,9 @@ type DayOverrideRow = {
 
 type BookingRow = {
   id: string;
-  slot_start: string;
-  slot_end: string;
+  date: string | null;
+  start_slot_index: number | null;
+  slot_count: number | null;
   status: string | null;
 };
 
@@ -85,23 +86,6 @@ const formatDateLabel = (dateKey: string) => {
   }).format(date);
 };
 
-const timeToMinutes = (timeValue: string | null) => {
-  if (!timeValue) {
-    return null;
-  }
-  const normalized = timeValue.slice(0, 5);
-  if (!/^\d{2}:\d{2}$/.test(normalized)) {
-    return null;
-  }
-  const [hoursRaw, minutesRaw] = normalized.split(":");
-  const hours = Number.parseInt(hoursRaw, 10);
-  const minutes = Number.parseInt(minutesRaw, 10);
-  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) {
-    return null;
-  }
-  return hours * 60 + minutes;
-};
-
 const baseOpenSlotIndexes = (dateKey: string) => {
   const date = parseDateKey(dateKey);
   if (!date) {
@@ -121,10 +105,6 @@ const baseOpenSlotIndexes = (dateKey: string) => {
 const activeStatus = (status: string | null) =>
   !status || (status.toLowerCase() !== "cancelled" && status.toLowerCase() !== "annulleret");
 
-const createUtcDate = (dateKey: string, timeValue: string) => {
-  return new Date(`${dateKey}T${timeValue}:00.000Z`);
-};
-
 const findBlockedSlotIndexes = (dateKey: string, bookings: BookingRow[]) => {
   const blocked = new Set<number>();
 
@@ -132,22 +112,21 @@ const findBlockedSlotIndexes = (dateKey: string, bookings: BookingRow[]) => {
     if (!activeStatus(booking.status)) {
       return;
     }
-
-    const bookingStart = new Date(booking.slot_start);
-    const bookingEnd = new Date(booking.slot_end);
-
-    if (Number.isNaN(bookingStart.getTime()) || Number.isNaN(bookingEnd.getTime())) {
+    if (!booking.date || booking.date !== dateKey) {
       return;
     }
-
-    SLOT_TIMES.forEach((time, index) => {
-      const slotStart = createUtcDate(dateKey, time);
-      const slotEnd = createUtcDate(dateKey, SLOT_END_TIMES[index]);
-      const overlaps = bookingStart < slotEnd && bookingEnd > slotStart;
-      if (overlaps) {
+    const startIndex = typeof booking.start_slot_index === "number" ? booking.start_slot_index : NaN;
+    const slotCount = typeof booking.slot_count === "number" ? booking.slot_count : 1;
+    if (!Number.isInteger(startIndex) || startIndex < 0 || startIndex > 2) {
+      return;
+    }
+    const safeSlotCount = Math.max(1, Math.min(3, slotCount));
+    for (let offset = 0; offset < safeSlotCount; offset += 1) {
+      const index = startIndex + offset;
+      if (index >= 0 && index < SLOT_TIMES.length) {
         blocked.add(index);
       }
-    });
+    }
   });
 
   return blocked;
@@ -236,11 +215,10 @@ const groupBookingsByDate = (bookings: BookingRow[]) => {
   const byDate = new Map<string, BookingRow[]>();
 
   bookings.forEach((booking) => {
-    const slotStart = new Date(booking.slot_start);
-    if (Number.isNaN(slotStart.getTime())) {
+    const dateKey = booking.date;
+    if (!dateKey || !dateKeyRegex.test(dateKey)) {
       return;
     }
-    const dateKey = toDateKey(slotStart);
     const current = byDate.get(dateKey) || [];
     current.push(booking);
     byDate.set(dateKey, current);
@@ -300,9 +278,9 @@ export const getAvailabilityRange = async ({
       .lte("date", lastDateInclusive),
     supabase
       .from("bookings")
-      .select("id, slot_start, slot_end, status")
-      .lt("slot_start", `${toExclusive}T00:00:00.000Z`)
-      .gte("slot_start", `${from}T00:00:00.000Z`)
+      .select("id, date, start_slot_index, slot_count, status")
+      .gte("date", from)
+      .lte("date", lastDateInclusive)
   ]);
 
   if (overridesResult.error) {
@@ -438,9 +416,8 @@ export const checkBookingAvailability = async ({
     supabase.from("day_overrides").select("date, open_slots_count, show_on_acute_page, note").eq("date", date),
     supabase
       .from("bookings")
-      .select("id, slot_start, slot_end, status")
-      .gte("slot_start", `${date}T00:00:00.000Z`)
-      .lt("slot_start", `${toExclusive}T00:00:00.000Z`)
+      .select("id, date, start_slot_index, slot_count, status")
+      .eq("date", date)
   ]);
 
   if (overrideResult.error) {
