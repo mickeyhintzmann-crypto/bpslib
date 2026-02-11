@@ -97,8 +97,8 @@ export const AiTrainingAdmin = () => {
     if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
     }
-    if (edgeImageIndex === null || edgeImageIndex < 0 || edgeImageIndex >= images.length) {
-      return "Markér hvilket billede der viser kant/ende.";
+    if (edgeImageIndex !== null && (edgeImageIndex < 0 || edgeImageIndex >= images.length)) {
+      return "Kant/ende-markeringen er ugyldig. Vælg et andet billede eller fjern markeringen.";
     }
 
     const minValue = parseNumber(priceMin);
@@ -170,7 +170,8 @@ export const AiTrainingAdmin = () => {
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">AI træning</h1>
         <p className="text-sm text-muted-foreground">
-          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel køkkenbillede + kant/ende.
+          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel køkkenbillede.
+          Kant/ende er valgfrit.
         </p>
       </div>
 
@@ -210,7 +211,7 @@ export const AiTrainingAdmin = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede</p>
+              <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede (valgfrit)</p>
               <div className="grid gap-2 text-sm text-muted-foreground">
                 {images.map((file, index) => (
                   <label key={`edge-${file.name}-${index}`} className="flex items-center gap-3">

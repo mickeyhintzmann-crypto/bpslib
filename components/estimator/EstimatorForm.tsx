@@ -12,7 +12,7 @@ const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const UPLOAD_GUIDE = [
   "Hel bordplade/køkken (obligatorisk)",
-  "Kant/ende (obligatorisk)",
+  "Kant/ende (hvis muligt)",
   "Tæt på overfladen",
   "Problemområde",
   "Omkring vask/komfur (hvis relevant)"
@@ -75,9 +75,6 @@ export const EstimatorForm = () => {
     }
     if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
-    }
-    if (edgeImageIndex === null || edgeImageIndex < 0 || edgeImageIndex >= images.length) {
-      return "Markér hvilket billede der viser kant/ende.";
     }
     return null;
   };
@@ -215,7 +212,7 @@ export const EstimatorForm = () => {
             </div>
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede</p>
+            <p className="text-sm font-semibold text-foreground">Markér kant/ende-billede (valgfrit)</p>
             <div className="grid gap-2 text-sm text-muted-foreground">
               {images.map((file, index) => (
                 <label key={`edge-${file.name}-${index}`} className="flex items-center gap-3">

@@ -134,7 +134,7 @@ export default function BraendemaerkerPage() {
               >
                 prisberegneren
               </Link>
-              , inklusiv kant/ende, så vi kan bekræfte massiv træ og skadens niveau.
+              , gerne kant/ende hvis muligt, så vi kan bekræfte massiv træ og skadens niveau.
             </p>
           </article>
           <article className="rounded-2xl border border-border/70 bg-white/70 p-5">
@@ -191,7 +191,7 @@ export default function BraendemaerkerPage() {
       <section className="my-8 rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
         <h2 className="text-xl font-semibold text-foreground">Vi sliber kun massive træbordplader</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Er du i tvivl om materiale? Upload et kant/ende-billede i{" "}
+          Er du i tvivl om materiale? Upload et kant/ende-billede hvis muligt i{" "}
           <Link
             href="/bordpladeslibning/prisberegner"
             className="font-medium text-foreground hover:text-primary"

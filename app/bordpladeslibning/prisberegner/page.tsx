@@ -23,9 +23,9 @@ export default function PrisberegnerPage() {
             Få et AI-prisestimat via billeder (kun massiv træ)
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground md:text-lg">
-            Upload 3-6 billeder (inkl. hel bordplade og kant/ende), skriv dit navn og telefonnummer,
-            og få et AI-prisestimat på ca. 2 minutter. Den endelige pris gælder først efter
-            bookingbekræftelse.
+            Upload 3-6 billeder (hel bordplade, gerne kant/ende hvis muligt), skriv dit navn og
+            telefonnummer, og få et AI-prisestimat på ca. 2 minutter. Den endelige pris gælder først
+            efter bookingbekræftelse.
           </p>
           <CtaRow showAkutteTider primaryLabel="Få AI-prisestimat" />
         </div>

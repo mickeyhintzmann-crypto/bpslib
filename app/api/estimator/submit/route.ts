@@ -82,13 +82,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const requiresEdgeImage = true;
     const edgeImageIndex = Number.parseInt(edgeImageIndexRaw, 10);
     const kitchenImageIndex = Number.parseInt(kitchenImageIndexRaw, 10);
 
-    if (requiresEdgeImage && (!Number.isInteger(edgeImageIndex) || edgeImageIndex < 0 || edgeImageIndex >= images.length)) {
-      return NextResponse.json({ message: "Markér hvilket billede der viser kant/ende." }, { status: 400 });
-    }
     if (!Number.isInteger(kitchenImageIndex) || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return NextResponse.json(
         { message: "Markér hvilket billede der viser hele køkkenet/bordpladen." },

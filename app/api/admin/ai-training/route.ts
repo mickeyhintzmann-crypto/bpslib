@@ -88,9 +88,6 @@ export async function POST(request: Request) {
     const edgeImageIndex = Number.parseInt(edgeImageIndexRaw, 10);
     const kitchenImageIndex = Number.parseInt(kitchenImageIndexRaw, 10);
 
-    if (!Number.isInteger(edgeImageIndex) || edgeImageIndex < 0 || edgeImageIndex >= images.length) {
-      return NextResponse.json({ message: "Markér hvilket billede der viser kant/ende." }, { status: 400 });
-    }
     if (!Number.isInteger(kitchenImageIndex) || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
       return NextResponse.json(
         { message: "Markér hvilket billede der viser hele køkkenet/bordpladen." },
@@ -147,7 +144,7 @@ export async function POST(request: Request) {
       uploadedImages.push({
         path: filePath,
         name: file.name,
-        isEdge: edgeImageIndex === index,
+        isEdge: Number.isInteger(edgeImageIndex) && edgeImageIndex === index,
         isOverview: kitchenImageIndex === index
       });
     }
