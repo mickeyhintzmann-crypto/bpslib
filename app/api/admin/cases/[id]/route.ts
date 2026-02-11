@@ -69,9 +69,9 @@ const resolveId = async (context: RouteContext) => {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const id = await resolveId(context);
@@ -129,9 +129,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const id = await resolveId(context);
@@ -221,9 +221,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const id = await resolveId(context);

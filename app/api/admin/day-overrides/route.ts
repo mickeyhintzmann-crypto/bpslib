@@ -31,9 +31,9 @@ const normalizeOpenSlots = (value: unknown) => {
 
 export async function GET(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const url = new URL(request.url);
@@ -80,9 +80,9 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as Record<string, unknown>;

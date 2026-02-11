@@ -79,7 +79,7 @@ export async function POST(request: Request) {
           role: "owner",
           is_active: true
         })
-        .select("id, email, name, role")
+        .select("id, email, name, role, is_active")
         .single();
 
       if (createError || !created) {

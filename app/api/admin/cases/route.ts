@@ -93,9 +93,9 @@ const parsePayload = (payload: Record<string, unknown>, requireAll: boolean) => 
 
 export async function GET(request: Request) {
   try {
-    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const url = new URL(request.url);
@@ -168,9 +168,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as Record<string, unknown>;

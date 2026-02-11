@@ -19,9 +19,9 @@ const slugify = (value: string) =>
 
 export async function POST(request: NextRequest) {
   try {
-    const { error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const formData = await request.formData();

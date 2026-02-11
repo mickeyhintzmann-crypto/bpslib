@@ -169,9 +169,9 @@ const isKnownStatus = (value: unknown): value is EstimatorStatus =>
 export async function GET(request: Request, context: RouteContext) {
   try {
     const params = await context.params;
-    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const supabase = createSupabaseServiceClient();
@@ -211,9 +211,9 @@ export async function GET(request: Request, context: RouteContext) {
 export async function POST(request: Request, context: RouteContext) {
   try {
     const params = await context.params;
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as UpdatePayload;

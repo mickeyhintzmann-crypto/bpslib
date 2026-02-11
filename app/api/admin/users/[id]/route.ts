@@ -14,9 +14,9 @@ const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() 
 const isValidEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value);
 
 export async function GET(request: Request, context: RouteContext) {
-  const { error } = requireAdmin(request, ["owner"]);
-  if (error) {
-    return error;
+  const { error: authError } = requireAdmin(request, ["owner"]);
+  if (authError) {
+    return authError;
   }
 
   const params = await Promise.resolve(context.params);
@@ -35,9 +35,9 @@ export async function GET(request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const { session, error } = requireAdmin(request, ["owner"]);
-  if (error) {
-    return error;
+  const { session, error: authError } = requireAdmin(request, ["owner"]);
+  if (authError) {
+    return authError;
   }
 
   const params = await Promise.resolve(context.params);
@@ -102,9 +102,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(request: Request, context: RouteContext) {
-  const { session, error } = requireAdmin(request, ["owner"]);
-  if (error) {
-    return error;
+  const { session, error: authError } = requireAdmin(request, ["owner"]);
+  if (authError) {
+    return authError;
   }
 
   const params = await Promise.resolve(context.params);

@@ -19,9 +19,9 @@ const parseBoolean = (value: unknown) => (typeof value === "boolean" ? value : n
 
 export async function GET(request: Request) {
   try {
-    const { error } = requireAdmin(request, ["owner"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner"]);
+    if (authError) {
+      return authError;
     }
 
     const supabase = createSupabaseServiceClient();
@@ -63,9 +63,9 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as Record<string, unknown>;

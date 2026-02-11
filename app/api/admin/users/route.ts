@@ -11,9 +11,9 @@ const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() 
 const isValidEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value);
 
 export async function GET(request: Request) {
-  const { error } = requireAdmin(request, ["owner", "admin"]);
-  if (error) {
-    return error;
+  const { error: authError } = requireAdmin(request, ["owner", "admin"]);
+  if (authError) {
+    return authError;
   }
 
   const url = new URL(request.url);
@@ -45,9 +45,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { session, error } = requireAdmin(request, ["owner"]);
-  if (error) {
-    return error;
+  const { session, error: authError } = requireAdmin(request, ["owner"]);
+  if (authError) {
+    return authError;
   }
 
   const payload = (await request.json()) as Record<string, unknown>;

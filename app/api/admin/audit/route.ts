@@ -26,9 +26,9 @@ const parsePositiveInt = (value: string | null, fallback: number) => {
 
 export async function GET(request: Request) {
   try {
-    const { error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const url = new URL(request.url);

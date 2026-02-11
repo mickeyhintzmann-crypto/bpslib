@@ -85,9 +85,9 @@ const buildCsv = (rows: Array<Record<string, string | number | null>>) => {
 };
 
 export async function GET(request: Request) {
-  const { error } = requireAdmin(request, ["owner", "viewer"]);
-  if (error) {
-    return error;
+  const { error: authError } = requireAdmin(request, ["owner", "viewer"]);
+  if (authError) {
+    return authError;
   }
 
   const url = new URL(request.url);

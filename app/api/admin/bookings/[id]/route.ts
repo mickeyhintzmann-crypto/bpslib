@@ -116,9 +116,9 @@ const toNullableInt = (value: unknown) => {
 export async function GET(request: Request, context: RouteContext) {
   try {
     const params = await Promise.resolve(context.params);
-    const { session, error } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const supabase = createSupabaseServiceClient();
@@ -161,9 +161,9 @@ export async function GET(request: Request, context: RouteContext) {
 export async function PATCH(request: Request, context: RouteContext) {
   try {
     const params = await Promise.resolve(context.params);
-    const { session, error } = requireAdmin(request, ["owner", "admin", "employee"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin", "employee"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as UpdatePayload;

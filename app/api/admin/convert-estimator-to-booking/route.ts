@@ -38,9 +38,9 @@ const asText = (value: unknown) => (typeof value === "string" ? value.trim() : "
 
 export async function POST(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const payload = (await request.json()) as ConvertPayload;

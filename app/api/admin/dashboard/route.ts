@@ -68,9 +68,9 @@ const isActiveBooking = (status: string | null) => {
 
 export async function GET(request: Request) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin", "employee", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const supabase = createSupabaseServiceClient();

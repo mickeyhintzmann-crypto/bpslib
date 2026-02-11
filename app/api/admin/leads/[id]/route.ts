@@ -62,9 +62,9 @@ const mapLeadRow = (row: LeadRow) => ({
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const { error } = requireAdmin(request, ["owner", "admin", "viewer"]);
-    if (error) {
-      return error;
+    const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
+    if (authError) {
+      return authError;
     }
 
     const params = await Promise.resolve(context.params);
@@ -98,9 +98,9 @@ export async function GET(request: Request, context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
-    const { session, error } = requireAdmin(request, ["owner", "admin"]);
-    if (error) {
-      return error;
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
     }
 
     const params = await Promise.resolve(context.params);
