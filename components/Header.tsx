@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { BpsImage } from "@/components/BpsImage";
 import { NavDropdown } from "@/components/NavDropdown";
 import { Button } from "@/components/ui/button";
+import { brandAssets } from "@/lib/assets";
 import { getRouteByPath, headerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
@@ -38,8 +40,16 @@ export const Header = () => {
 
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="font-display text-xl font-semibold tracking-tight">
-            {siteConfig.companyName}
+          <Link href="/" className="flex items-center gap-3">
+            <BpsImage
+              src={brandAssets.logo}
+              alt={`${siteConfig.companyName} logo`}
+              width={140}
+              height={40}
+              className="h-9 w-auto"
+              priority
+            />
+            <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
             <NavDropdown

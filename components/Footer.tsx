@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BpsImage } from "@/components/BpsImage";
-import { trustAssets } from "@/lib/assets";
+import { brandAssets, trustAssets } from "@/lib/assets";
 import { footerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
 
@@ -68,7 +68,14 @@ export const Footer = () => {
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 md:grid-cols-4">
         <div className="space-y-4">
           <div>
-            <p className="font-display text-lg font-semibold">{siteConfig.companyName}</p>
+            <BpsImage
+              src={brandAssets.logo}
+              alt={`${siteConfig.companyName} logo`}
+              width={160}
+              height={48}
+              className="h-10 w-auto"
+            />
+            <p className="mt-3 font-display text-lg font-semibold">{siteConfig.companyName}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               Bordpladeslibning i massiv træ med fokus på finish, holdbarhed og hurtig dialog.
             </p>
