@@ -3,13 +3,6 @@
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  EXTRA_OPTIONS,
-  VANDFALD_PRICE_LABEL,
-  defaultBordpladeExtras,
-  formatExtrasSummary,
-  type BordpladeExtras
-} from "@/lib/bordplade/extras";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MIN_IMAGES = 1;
@@ -32,13 +25,11 @@ export const AiTrainingAdmin = () => {
   const [priceMax, setPriceMax] = useState("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
-  const [extras, setExtras] = useState<BordpladeExtras>(defaultBordpladeExtras);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   const imageCountLabel = useMemo(() => `${images.length} billeder valgt`, [images.length]);
-  const extrasSummary = useMemo(() => formatExtrasSummary(extras), [extras]);
 
   const onImageChange = (files: FileList | null) => {
     if (!files) {
@@ -50,24 +41,6 @@ export const AiTrainingAdmin = () => {
       .slice(0, MAX_IMAGES);
     setImages(next);
   };
-
-  const toggleExtra = (key: (typeof EXTRA_OPTIONS)[number]["key"]) => {
-    setExtras((prev) => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const updateVandfaldCount = (value: string) => {
-    if (!value.trim()) {
-      setExtras((prev) => ({ ...prev, vandfaldCount: 0 }));
-      return;
-    }
-    const parsed = Number.parseInt(value.replace(/\D/g, ""), 10);
-    const safeValue = Number.isNaN(parsed) ? 0 : Math.max(0, Math.min(20, parsed));
-    setExtras((prev) => ({ ...prev, vandfaldCount: safeValue }));
-  };
-
   const validate = () => {
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
       return "Upload 1 til 6 billeder for at fortsætte.";
@@ -113,8 +86,6 @@ export const AiTrainingAdmin = () => {
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("label", label.trim());
       formData.append("note", note.trim());
-      formData.append("extras", JSON.stringify(extras));
-
       images.forEach((file) => formData.append("images", file));
 
       const response = await fetch("/api/admin/ai-training", {
@@ -134,7 +105,6 @@ export const AiTrainingAdmin = () => {
       setPriceMax("");
       setLabel("");
       setNote("");
-      setExtras(defaultBordpladeExtras);
     } catch (submitError) {
       console.error(submitError);
       setError("Uventet fejl under upload.");
@@ -215,42 +185,6 @@ export const AiTrainingAdmin = () => {
             className="h-10 rounded-md border border-border bg-white px-3"
           />
         </label>
-      </div>
-
-      <div className="space-y-3 rounded-xl border border-border bg-background/70 p-4">
-        <h2 className="text-base font-semibold text-foreground">Tilvalg</h2>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {EXTRA_OPTIONS.map((option) => (
-            <label
-              key={option.key}
-              className="flex items-center justify-between gap-3 rounded-md border border-border bg-white/90 px-3 py-2 text-sm"
-            >
-              <span className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={extras[option.key]}
-                  onChange={() => toggleExtra(option.key)}
-                />
-                <span className="font-medium text-foreground">{option.label}</span>
-              </span>
-              <span className="text-xs text-muted-foreground">{option.priceLabel}</span>
-            </label>
-          ))}
-        </div>
-        <label className="grid gap-2 text-sm text-foreground">
-          Vandfald (antal)
-          <div className="flex items-center gap-3">
-            <input
-              value={extras.vandfaldCount ? String(extras.vandfaldCount) : ""}
-              onChange={(event) => updateVandfaldCount(event.target.value)}
-              className="h-10 w-24 rounded-md border border-border bg-white px-3"
-              inputMode="numeric"
-              placeholder="0"
-            />
-            <span className="text-xs text-muted-foreground">{VANDFALD_PRICE_LABEL}</span>
-          </div>
-        </label>
-        <p className="text-xs text-muted-foreground">Valgte tilvalg: {extrasSummary}</p>
       </div>
 
       <Button onClick={submit} disabled={saving}>

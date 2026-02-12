@@ -206,7 +206,7 @@ export const SettingsAdmin = () => {
           <p className="text-base font-semibold text-foreground">AI-prisberegner</p>
           <p className="text-sm text-muted-foreground">
             Styr om AI-estimat vises direkte til kunden. Interval er 300 kr og basisprisen holdes mellem
-            3.000 og 5.000 kr. (tilvalg kan lægge ekstra oveni).
+            3.000 og 5.000 kr.
           </p>
         </div>
 

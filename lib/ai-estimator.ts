@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { getExtrasPriceRange, sanitizeExtras, type BordpladeExtras } from "@/lib/bordplade/extras";
+import { getExtrasPriceRange, type BordpladeExtras } from "@/lib/bordplade/extras";
 import type { EstimatorFormFields } from "@/lib/estimator";
 
 export type EstimatorAiSettings = {
@@ -77,17 +77,14 @@ type EstimatorAiInput = {
   extras?: BordpladeExtras | null;
 };
 
-const toBaseMid = (min: number, max: number, extras: BordpladeExtras | null) => {
-  const extrasRange = getExtrasPriceRange(extras);
-  const baseMin = min - extrasRange.max;
-  const baseMax = max - extrasRange.min;
-  if (!Number.isFinite(baseMin) || !Number.isFinite(baseMax) || baseMin <= 0 || baseMax <= 0) {
+const toBaseMid = (min: number, max: number) => {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0) {
     return null;
   }
-  if (baseMin > baseMax) {
+  if (min > max) {
     return null;
   }
-  return (baseMin + baseMax) / 2;
+  return (min + max) / 2;
 };
 
 export const estimateAiPrice = async (
@@ -121,9 +118,7 @@ export const estimateAiPrice = async (
         return null;
       }
 
-      const fields = row.fields as EstimatorFormFields | null;
-      const extras = sanitizeExtras(fields?.extras ?? null);
-      const baseMid = toBaseMid(min, max, extras);
+      const baseMid = toBaseMid(min, max);
       if (!baseMid) {
         return null;
       }
@@ -132,11 +127,15 @@ export const estimateAiPrice = async (
     })
     .filter((row): row is { baseMid: number } => Boolean(row));
 
-  if (samples.length < settings.minSamples) {
+  if (samples.length === 0) {
     return null;
   }
 
   const extraRange = getExtrasPriceRange(input?.extras ?? null);
+  const boardCountRaw = input?.fields?.boardCount;
+  const boardCount = Number.isFinite(boardCountRaw)
+    ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
+    : 1;
   const halfInterval = Math.max(0, Math.round(settings.interval / 2));
 
   let baseMin: number;
@@ -159,8 +158,8 @@ export const estimateAiPrice = async (
     }
   }
 
-  let min = Math.round(baseMin + extraRange.min);
-  let max = Math.round(baseMax + extraRange.max);
+  let min = Math.round(baseMin * boardCount + extraRange.min);
+  let max = Math.round(baseMax * boardCount + extraRange.max);
 
   if (max - min < settings.interval) {
     max = min + settings.interval;

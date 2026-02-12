@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
-import { sanitizeExtras } from "@/lib/bordplade/extras";
 import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -97,14 +96,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Prisinterval: min må ikke være større end max." }, { status: 400 });
     }
 
-    let extras = sanitizeExtras(null);
-    try {
-      const rawExtras = asString(formData.get("extras"));
-      extras = sanitizeExtras(rawExtras ? (JSON.parse(rawExtras) as unknown) : null);
-    } catch {
-      return NextResponse.json({ message: "Tilvalg kunne ikke læses korrekt." }, { status: 400 });
-    }
-
     const supabase = createSupabaseServiceClient();
     const requestId = randomUUID();
 
@@ -148,7 +139,6 @@ export async function POST(request: Request) {
       navn: label || "Træning",
       telefon: "00000000",
       note: note || undefined,
-      extras,
       boardCount,
       aiNote
     };
