@@ -11,7 +11,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -49,7 +49,6 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
 
-    const kitchenImageIndexRaw = asString(formData.get("kitchenImageIndex"));
     const priceMinRaw = asString(formData.get("priceMin"));
     const priceMaxRaw = asString(formData.get("priceMax"));
     const label = asString(formData.get("label"));
@@ -61,7 +60,7 @@ export async function POST(request: Request) {
       .filter((file) => file.size > 0);
 
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
-      return NextResponse.json({ message: "Upload mindst 3 og maks 6 billeder." }, { status: 400 });
+      return NextResponse.json({ message: "Upload mindst 1 og maks 6 billeder." }, { status: 400 });
     }
     if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
       return NextResponse.json(
@@ -84,14 +83,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const kitchenImageIndex = Number.parseInt(kitchenImageIndexRaw, 10);
-
-    if (!Number.isInteger(kitchenImageIndex) || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
-      return NextResponse.json(
-        { message: "Markér hvilket billede der viser hele køkkenet/bordpladen." },
-        { status: 400 }
-      );
-    }
+    const boardCount = images.length;
+    const aiNote =
+      "Hvert billede repræsenterer én bordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.";
 
     const priceMin = parseNumber(priceMinRaw, 500, 20000);
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
@@ -143,7 +137,7 @@ export async function POST(request: Request) {
         path: filePath,
         name: file.name,
         isEdge: false,
-        isOverview: kitchenImageIndex === index
+        isOverview: true
       });
     }
 
@@ -154,7 +148,9 @@ export async function POST(request: Request) {
       navn: label || "Træning",
       telefon: "00000000",
       note: note || undefined,
-      extras
+      extras,
+      boardCount,
+      aiNote
     };
 
     const { data, error: insertError } = await supabase
@@ -197,7 +193,8 @@ export async function POST(request: Request) {
       meta: {
         priceMin,
         priceMax,
-        imageCount: uploadedImages.length
+        imageCount: uploadedImages.length,
+        boardCount
       },
       req: request,
       actor: session?.email,

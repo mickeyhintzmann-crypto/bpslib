@@ -12,7 +12,7 @@ import {
 } from "@/lib/bordplade/extras";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -28,7 +28,6 @@ const parseNumber = (value: string) => {
 
 export const AiTrainingAdmin = () => {
   const [images, setImages] = useState<File[]>([]);
-  const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [label, setLabel] = useState("");
@@ -44,17 +43,12 @@ export const AiTrainingAdmin = () => {
   const onImageChange = (files: FileList | null) => {
     if (!files) {
       setImages([]);
-      setKitchenImageIndex(null);
       return;
     }
     const next = Array.from(files)
       .filter((file) => file.size > 0)
       .slice(0, MAX_IMAGES);
     setImages(next);
-
-    if (kitchenImageIndex !== null && kitchenImageIndex >= next.length) {
-      setKitchenImageIndex(null);
-    }
   };
 
   const toggleExtra = (key: (typeof EXTRA_OPTIONS)[number]["key"]) => {
@@ -76,7 +70,7 @@ export const AiTrainingAdmin = () => {
 
   const validate = () => {
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
-      return "Upload 3 til 6 billeder for at fortsætte.";
+      return "Upload 1 til 6 billeder for at fortsætte.";
     }
     if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
       return "Kun JPEG, PNG eller WEBP billeder er tilladt.";
@@ -88,9 +82,6 @@ export const AiTrainingAdmin = () => {
     const totalBytes = images.reduce((sum, file) => sum + file.size, 0);
     if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
       return "Den samlede upload er for stor. Maks 20 MB i alt.";
-    }
-    if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
-      return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
     }
     const minValue = parseNumber(priceMin);
     const maxValue = parseNumber(priceMax);
@@ -122,7 +113,6 @@ export const AiTrainingAdmin = () => {
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("label", label.trim());
       formData.append("note", note.trim());
-      formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
       formData.append("extras", JSON.stringify(extras));
 
       images.forEach((file) => formData.append("images", file));
@@ -140,7 +130,6 @@ export const AiTrainingAdmin = () => {
 
       setMessage(`Træningscase gemt (id: ${payload.id}).`);
       setImages([]);
-      setKitchenImageIndex(null);
       setPriceMin("");
       setPriceMax("");
       setLabel("");
@@ -159,8 +148,8 @@ export const AiTrainingAdmin = () => {
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">AI træning</h1>
         <p className="text-sm text-muted-foreground">
-          Upload billeder og pris, så AI-estimatoren lærer ud fra rigtige cases. Kræver hel
-          køkkenbillede.
+          Upload 1 billede pr. bordplade, så AI-estimatoren lærer ud fra rigtige cases. Hvert billede
+          skal vise hele bordpladen.
         </p>
       </div>
 
@@ -169,6 +158,9 @@ export const AiTrainingAdmin = () => {
 
       <div className="space-y-3 rounded-xl border border-border bg-background/70 p-4">
         <h2 className="text-base font-semibold text-foreground">1) Upload billeder</h2>
+        <p className="text-xs text-muted-foreground">
+          Upload 1 billede pr. bordplade. Har du 2 bordplader? Upload 2 billeder.
+        </p>
         <label className="grid gap-2 text-sm text-foreground">
           Vælg billeder (JPEG/PNG/WEBP)
           <input
@@ -180,26 +172,10 @@ export const AiTrainingAdmin = () => {
           />
         </label>
         <p className="text-xs text-muted-foreground">{imageCountLabel}</p>
-
-        {images.length > 0 ? (
-          <div className="grid gap-4 rounded-xl border border-border bg-white/70 p-4">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground">Markér hel bordplade/køkken</p>
-              <div className="grid gap-2 text-sm text-muted-foreground">
-                {images.map((file, index) => (
-                  <label key={`kitchen-${file.name}-${index}`} className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="kitchenImage"
-                      checked={kitchenImageIndex === index}
-                      onChange={() => setKitchenImageIndex(index)}
-                    />
-                    <span>{file.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
+        {images.length > 1 ? (
+          <p className="text-xs text-muted-foreground">
+            Tjek at du ikke har uploadet samme bordplade to gange.
+          </p>
         ) : null}
       </div>
 

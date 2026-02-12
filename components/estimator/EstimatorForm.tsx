@@ -11,14 +11,13 @@ import { trackEvent } from "@/lib/tracking";
 const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const UPLOAD_GUIDE = [
-  "Hel bordplade/køkken (obligatorisk)",
-  "Tæt på overfladen",
-  "Problemområde",
-  "Omkring vask/komfur (hvis relevant)"
+  "Upload 1 billede pr. bordplade (hele bordpladen i billedet).",
+  "Har du 2 bordplader? Upload 2 billeder.",
+  "Undgå at uploade samme bordplade flere gange."
 ];
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MIN_IMAGES = 3;
+const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -27,7 +26,6 @@ export const EstimatorForm = () => {
   const router = useRouter();
 
   const [images, setImages] = useState<File[]>([]);
-  const [kitchenImageIndex, setKitchenImageIndex] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +36,6 @@ export const EstimatorForm = () => {
   const onImageChange = (files: FileList | null) => {
     if (!files) {
       setImages([]);
-      setKitchenImageIndex(null);
       return;
     }
 
@@ -46,15 +43,11 @@ export const EstimatorForm = () => {
       .filter((file) => file.size > 0)
       .slice(0, MAX_IMAGES);
     setImages(next);
-
-    if (kitchenImageIndex !== null && kitchenImageIndex >= next.length) {
-      setKitchenImageIndex(null);
-    }
   };
 
   const validateImages = () => {
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
-      return "Upload 3 til 6 billeder for at fortsætte.";
+      return "Upload 1 til 6 billeder for at fortsætte.";
     }
     if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
       return "Kun JPEG, PNG eller WEBP billeder er tilladt.";
@@ -66,9 +59,6 @@ export const EstimatorForm = () => {
     const totalBytes = images.reduce((sum, file) => sum + file.size, 0);
     if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
       return "Den samlede upload er for stor. Maks 20 MB i alt.";
-    }
-    if (kitchenImageIndex === null || kitchenImageIndex < 0 || kitchenImageIndex >= images.length) {
-      return "Markér hvilket billede der viser hele køkkenet/bordpladen.";
     }
     return null;
   };
@@ -98,7 +88,6 @@ export const EstimatorForm = () => {
       const formData = new FormData();
       formData.append("navn", name.trim());
       formData.append("telefon", phone.trim());
-      formData.append("kitchenImageIndex", kitchenImageIndex !== null ? `${kitchenImageIndex}` : "");
 
       images.forEach((file) => formData.append("images", file));
 
@@ -160,9 +149,9 @@ export const EstimatorForm = () => {
   return (
     <section className="space-y-6 rounded-3xl border border-border/70 bg-white/70 p-5 md:p-8">
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-foreground">1) Upload billeder (3–6)</h2>
+        <h2 className="text-xl font-semibold text-foreground">1) Upload billeder (1–6)</h2>
         <p className="text-sm text-muted-foreground">
-          Vi bruger billederne til at give et hurtigt AI-estimat. Husk at vise hele køkkenet, så vi kan vurdere størrelsen.
+          Vi bruger billederne til at give et hurtigt AI-estimat. Husk at hele bordpladen er synlig i hvert billede.
         </p>
       </div>
 
@@ -185,26 +174,10 @@ export const EstimatorForm = () => {
         />
       </label>
       <p className="text-xs text-muted-foreground">{imageCountLabel}</p>
-
-      {images.length > 0 ? (
-        <div className="grid gap-4 rounded-xl border border-border bg-background/60 p-4">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground">Markér hel bordplade/køkken</p>
-            <div className="grid gap-2 text-sm text-muted-foreground">
-              {images.map((file, index) => (
-                <label key={`kitchen-${file.name}-${index}`} className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="kitchenImage"
-                    checked={kitchenImageIndex === index}
-                    onChange={() => setKitchenImageIndex(index)}
-                  />
-                  <span>{file.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
+      {images.length > 1 ? (
+        <p className="text-xs text-muted-foreground">
+          Tjek at du ikke har uploadet samme bordplade to gange.
+        </p>
       ) : null}
 
       <div className="space-y-4">
