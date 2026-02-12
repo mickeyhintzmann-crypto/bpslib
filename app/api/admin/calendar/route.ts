@@ -67,7 +67,9 @@ export async function GET(request: Request) {
         .order("date", { ascending: true }),
       supabase
         .from("bookings")
-        .select("id, date, start_slot_index, slot_count, source, status, customer_name, postal_code")
+        .select(
+          "id, date, start_slot_index, slot_count, source, status, customer_name, postal_code, address, assigned_to, service_type"
+        )
         .gte("date", from)
         .lt("date", toExclusive)
     ]);
@@ -109,7 +111,10 @@ export async function GET(request: Request) {
       source: booking.source ?? null,
       status: booking.status ?? null,
       customer_name: booking.customer_name ?? null,
-      postal_code: booking.postal_code ?? null
+      postal_code: booking.postal_code ?? null,
+      address: booking.address ?? null,
+      assigned_to: booking.assigned_to ?? null,
+      service_type: booking.service_type ?? null
     }));
 
     return NextResponse.json(
