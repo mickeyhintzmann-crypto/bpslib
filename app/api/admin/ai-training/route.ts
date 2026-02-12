@@ -9,11 +9,17 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif"
+]);
 const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
 
 const parseNumber = (value: string, min: number, max: number) => {
   if (!value) {
@@ -63,21 +69,21 @@ export async function POST(request: Request) {
     }
     if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
       return NextResponse.json(
-        { message: "Kun JPEG, PNG eller WEBP billeder er tilladt." },
+        { message: "Kun JPEG, PNG, WEBP eller HEIC billeder er tilladt." },
         { status: 400 }
       );
     }
     const oversizedFile = images.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
     if (oversizedFile) {
       return NextResponse.json(
-        { message: `Billedet "${oversizedFile.name}" er for stort. Maks 5 MB pr. billede.` },
+        { message: `Billedet "${oversizedFile.name}" er for stort. Maks 10 MB pr. billede.` },
         { status: 400 }
       );
     }
     const totalUploadBytes = images.reduce((sum, file) => sum + file.size, 0);
     if (totalUploadBytes > MAX_TOTAL_UPLOAD_BYTES) {
       return NextResponse.json(
-        { message: "Den samlede upload er for stor. Maks 20 MB i alt." },
+        { message: "Den samlede upload er for stor. Maks 40 MB i alt." },
         { status: 400 }
       );
     }

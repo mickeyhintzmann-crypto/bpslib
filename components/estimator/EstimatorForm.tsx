@@ -16,11 +16,17 @@ const UPLOAD_GUIDE = [
   "Undgå at uploade samme bordplade flere gange."
 ];
 
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif"
+]);
 const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
 
 export const EstimatorForm = () => {
   const router = useRouter();
@@ -50,15 +56,15 @@ export const EstimatorForm = () => {
       return "Upload 1 til 6 billeder for at fortsætte.";
     }
     if (images.some((file) => !ALLOWED_IMAGE_TYPES.has(file.type))) {
-      return "Kun JPEG, PNG eller WEBP billeder er tilladt.";
+      return "Kun JPEG, PNG, WEBP eller HEIC billeder er tilladt.";
     }
     const oversized = images.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
     if (oversized) {
-      return `Billedet "${oversized.name}" er for stort. Maks 5 MB pr. billede.`;
+      return `Billedet "${oversized.name}" er for stort. Maks 10 MB pr. billede.`;
     }
     const totalBytes = images.reduce((sum, file) => sum + file.size, 0);
     if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
-      return "Den samlede upload er for stor. Maks 20 MB i alt.";
+      return "Den samlede upload er for stor. Maks 40 MB i alt.";
     }
     return null;
   };
@@ -164,10 +170,10 @@ export const EstimatorForm = () => {
       </ul>
 
       <label className="grid gap-2 text-sm text-foreground">
-        Vælg billeder (JPEG/PNG/WEBP)
+        Vælg billeder (JPEG/PNG/WEBP/HEIC)
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           multiple
           onChange={(event) => onImageChange(event.target.files)}
           className="rounded-md border border-border bg-white px-3 py-2"
