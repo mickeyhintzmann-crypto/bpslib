@@ -44,11 +44,23 @@ const parseSampleNumber = (value: unknown) => {
     return value;
   }
   if (typeof value === "string") {
-    const normalized = value.trim().replace(",", ".");
-    if (/^\d+(\.\d+)?$/.test(normalized)) {
-      const parsed = Number.parseFloat(normalized);
-      return Number.isFinite(parsed) ? parsed : null;
+    let normalized = value.trim();
+    if (!normalized) {
+      return null;
     }
+    // Fjern valuta/tekst og mellemrum.
+    normalized = normalized.replace(/[^\d.,]/g, "");
+    if (!normalized) {
+      return null;
+    }
+    // Dansk notation: punktum som tusindtalsseparator.
+    if (normalized.includes(",")) {
+      normalized = normalized.replace(/\./g, "").replace(",", ".");
+    } else {
+      normalized = normalized.replace(/\./g, "");
+    }
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
 };
