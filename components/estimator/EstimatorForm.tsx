@@ -27,8 +27,8 @@ const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
-const MAX_IMAGE_DIMENSION = 1600;
-const JPEG_QUALITY = 0.82;
+const MAX_IMAGE_DIMENSION = 1280;
+const JPEG_QUALITY = 0.78;
 
 export const EstimatorForm = () => {
   const router = useRouter();
@@ -162,7 +162,8 @@ export const EstimatorForm = () => {
         body: formData
       });
 
-      const payload = (await response.json()) as {
+      const rawBody = await response.text();
+      type EstimatorResponsePayload = {
         id?: string;
         aiPriceMin?: number | null;
         aiPriceMax?: number | null;
@@ -170,8 +171,20 @@ export const EstimatorForm = () => {
         message?: string;
       };
 
-      if (!response.ok || !payload.id) {
-        setErrorMessage(payload.message || "Kunne ikke sende vurderingen. Prøv igen.");
+      let payload: EstimatorResponsePayload | null = null;
+
+      try {
+        payload = rawBody ? (JSON.parse(rawBody) as EstimatorResponsePayload) : null;
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok || !payload?.id) {
+        if (response.status === 413) {
+          setErrorMessage("Upload er for stor. Vælg færre billeder eller mindre filer.");
+          return;
+        }
+        setErrorMessage(payload?.message || "Kunne ikke sende vurderingen. Prøv igen.");
         return;
       }
 
@@ -282,7 +295,7 @@ export const EstimatorForm = () => {
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={submit} disabled={isSubmitting || isProcessing}>
-          {isSubmitting ? "Sender..." : "Få AI-prisestimat"}
+      {isSubmitting ? "Sender..." : "Få AI-prisestimat"}
         </Button>
         <Button asChild variant="outline">
           <a

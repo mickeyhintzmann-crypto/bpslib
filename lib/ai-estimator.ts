@@ -39,6 +39,20 @@ const parseIntValue = (value: unknown) => {
   return null;
 };
 
+const parseSampleNumber = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const normalized = value.trim().replace(",", ".");
+    if (/^\d+(\.\d+)?$/.test(normalized)) {
+      const parsed = Number.parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+  }
+  return null;
+};
+
 export const getEstimatorAiSettings = async (supabase: SupabaseClient): Promise<EstimatorAiSettings> => {
   try {
     const { data, error } = await supabase
@@ -112,8 +126,8 @@ export const estimateAiPrice = async (
 
   const samples = (data || [])
     .map((row) => {
-      const min = typeof row.price_min === "number" ? row.price_min : null;
-      const max = typeof row.price_max === "number" ? row.price_max : null;
+      const min = parseSampleNumber(row.price_min);
+      const max = parseSampleNumber(row.price_max);
       if (min === null || max === null) {
         return null;
       }
