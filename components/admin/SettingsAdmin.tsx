@@ -15,7 +15,9 @@ const DEFAULT_AI_SETTINGS = {
   minSamples: 1,
   interval: 300,
   minPrice: 3000,
-  maxPrice: 5000
+  maxPrice: 5000,
+  fixedPrice: false,
+  roundTo: 100
 };
 
 type SettingsResponse = {
@@ -122,7 +124,11 @@ export const SettingsAdmin = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ enabled: aiSettings.enabled })
+        body: JSON.stringify({
+          enabled: aiSettings.enabled,
+          fixedPrice: aiSettings.fixedPrice,
+          roundTo: aiSettings.roundTo
+        })
       });
 
       const payload = (await response.json()) as AiSettingsResponse;
@@ -205,8 +211,7 @@ export const SettingsAdmin = () => {
         <div>
           <p className="text-base font-semibold text-foreground">AI-prisberegner</p>
           <p className="text-sm text-muted-foreground">
-            Styr om AI-estimat vises direkte til kunden. Interval er 300 kr og basisprisen holdes mellem
-            3.000 og 5.000 kr.
+            Styr om AI-estimat vises direkte til kunden. Du kan vælge fast pris (én værdi) eller interval.
           </p>
         </div>
 
@@ -221,6 +226,34 @@ export const SettingsAdmin = () => {
           />
           AI-prisberegner aktiveret
         </label>
+
+        <label className="flex items-center gap-3 text-sm font-medium text-foreground">
+          <input
+            type="checkbox"
+            checked={aiSettings.fixedPrice}
+            onChange={(event) => setAiSettings((prev) => ({ ...prev, fixedPrice: event.target.checked }))}
+          />
+          Vis fast pris (én værdi)
+        </label>
+
+        {aiSettings.fixedPrice ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Afrunding (kr)
+            <input
+              type="number"
+              min={0}
+              step={50}
+              value={aiSettings.roundTo}
+              onChange={(event) =>
+                setAiSettings((prev) => ({
+                  ...prev,
+                  roundTo: Number.parseInt(event.target.value || "0", 10) || 0
+                }))
+              }
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+            />
+          </label>
+        ) : null}
 
         <div className="grid gap-2 text-xs text-muted-foreground">
           <span>Min. læringseksempler: {aiSettings.minSamples}</span>

@@ -16,6 +16,7 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
 const isMissingRow = (code: string | undefined) => code === "PGRST116";
 
 const parseBoolean = (value: unknown) => (typeof value === "boolean" ? value : null);
+const parseNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 
 export async function GET(request: Request) {
   try {
@@ -50,7 +51,9 @@ export async function GET(request: Request) {
           minSamples: typeof value.minSamples === "number" ? value.minSamples : ESTIMATOR_AI_DEFAULTS.minSamples,
           interval: typeof value.interval === "number" ? value.interval : ESTIMATOR_AI_DEFAULTS.interval,
           minPrice: typeof value.minPrice === "number" ? value.minPrice : ESTIMATOR_AI_DEFAULTS.minPrice,
-          maxPrice: typeof value.maxPrice === "number" ? value.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice
+          maxPrice: typeof value.maxPrice === "number" ? value.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice,
+          fixedPrice: typeof value.fixedPrice === "boolean" ? value.fixedPrice : ESTIMATOR_AI_DEFAULTS.fixedPrice,
+          roundTo: typeof value.roundTo === "number" ? value.roundTo : ESTIMATOR_AI_DEFAULTS.roundTo
         }
       },
       { status: 200 }
@@ -70,6 +73,8 @@ export async function PUT(request: Request) {
 
     const payload = (await request.json()) as Record<string, unknown>;
     const enabled = parseBoolean(payload.enabled);
+    const fixedPrice = parseBoolean(payload.fixedPrice);
+    const roundTo = parseNumber(payload.roundTo);
 
     if (enabled === null) {
       return NextResponse.json({ message: "enabled skal være true/false." }, { status: 400 });
@@ -89,7 +94,15 @@ export async function PUT(request: Request) {
         typeof existingValue.minSamples === "number" ? existingValue.minSamples : ESTIMATOR_AI_DEFAULTS.minSamples,
       interval: typeof existingValue.interval === "number" ? existingValue.interval : ESTIMATOR_AI_DEFAULTS.interval,
       minPrice: typeof existingValue.minPrice === "number" ? existingValue.minPrice : ESTIMATOR_AI_DEFAULTS.minPrice,
-      maxPrice: typeof existingValue.maxPrice === "number" ? existingValue.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice
+      maxPrice: typeof existingValue.maxPrice === "number" ? existingValue.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice,
+      fixedPrice:
+        fixedPrice ??
+        (typeof existingValue.fixedPrice === "boolean"
+          ? existingValue.fixedPrice
+          : ESTIMATOR_AI_DEFAULTS.fixedPrice),
+      roundTo:
+        roundTo ??
+        (typeof existingValue.roundTo === "number" ? existingValue.roundTo : ESTIMATOR_AI_DEFAULTS.roundTo)
     };
 
     const { data, error } = await supabase

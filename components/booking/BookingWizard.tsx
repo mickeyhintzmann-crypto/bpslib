@@ -284,6 +284,7 @@ export const BookingWizard = ({
     typeof resolvedEstimateMin === "number" &&
     typeof resolvedEstimateMax === "number" &&
     resolvedEstimateMin <= resolvedEstimateMax;
+  const isFixedEstimate = hasEstimate && resolvedEstimateMin === resolvedEstimateMax;
 
   const nextAvailableDay = useMemo(() => dayRows.find((day) => day.startTimes.length > 0) || null, [dayRows]);
 
@@ -800,7 +801,9 @@ export const BookingWizard = ({
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
               <p className="font-semibold text-foreground">Dit AI-prisestimat</p>
               <p className="mt-1 text-lg font-semibold text-primary">
-                {resolvedEstimateMin}–{resolvedEstimateMax} kr.
+                {isFixedEstimate
+                  ? `${resolvedEstimateMin} kr.`
+                  : `${resolvedEstimateMin}–${resolvedEstimateMax} kr.`}
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 Prisen gælder først efter bookingbekræftelse. Vi bekræfter altid tid og pris manuelt.
@@ -913,7 +916,11 @@ export const BookingWizard = ({
           ) : null}
           {hasEstimate ? (
             <p className="text-sm text-muted-foreground">
-              AI-prisestimat: {resolvedEstimateMin}–{resolvedEstimateMax} kr. (gælder efter bekræftelse).
+              AI-prisestimat:{" "}
+              {isFixedEstimate
+                ? `${resolvedEstimateMin} kr.`
+                : `${resolvedEstimateMin}–${resolvedEstimateMax} kr.`}{" "}
+              (gælder efter bekræftelse).
             </p>
           ) : null}
           {extrasSummary !== "Ingen" ? (
