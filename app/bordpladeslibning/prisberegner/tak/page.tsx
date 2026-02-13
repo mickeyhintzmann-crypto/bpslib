@@ -19,7 +19,9 @@ export const metadata = {
 };
 
 type TakPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?:
+    | Record<string, string | string[] | undefined>
+    | Promise<Record<string, string | string[] | undefined>>;
 };
 
 const getParam = (value: string | string[] | undefined) => {
@@ -33,7 +35,7 @@ const getParam = (value: string | string[] | undefined) => {
 };
 
 export default async function PrisberegnerTakPage({ searchParams }: TakPageProps) {
-  const params = searchParams ?? {};
+  const params = (await searchParams) ?? {};
   const id = getParam(params.id);
   const min = getParam(params.min);
   const max = getParam(params.max);
