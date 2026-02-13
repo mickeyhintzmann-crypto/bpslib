@@ -153,7 +153,9 @@ export const estimateAiPrice = async (
   const settings = await getEstimatorAiSettings(supabase);
 
   if (!settings.enabled) {
-    return null;
+    // Hvis AI er slået fra, returnér stadig et fallback-estimat,
+    // så kunden kan få en pris uden at flowet stopper.
+    return buildFallbackEstimate(settings, input);
   }
 
   const { data, error } = await supabase
@@ -186,7 +188,7 @@ export const estimateAiPrice = async (
     })
     .filter((row): row is { baseMid: number } => Boolean(row));
 
-  if (samples.length === 0) {
+  if (samples.length === 0 || samples.length < settings.minSamples) {
     return buildFallbackEstimate(settings, input);
   }
 
