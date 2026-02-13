@@ -103,6 +103,39 @@ type EstimatorAiInput = {
   extras?: BordpladeExtras | null;
 };
 
+const getBoardCount = (input?: EstimatorAiInput) => {
+  const boardCountRaw = input?.fields?.boardCount;
+  return Number.isFinite(boardCountRaw)
+    ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
+    : 1;
+};
+
+const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorAiInput) => {
+  const boardCount = getBoardCount(input);
+  const extraRange = getExtrasPriceRange(input?.extras ?? null);
+  const halfInterval = Math.max(0, Math.round(settings.interval / 2));
+  const fallbackMid = (settings.minPrice + settings.maxPrice) / 2;
+
+  let baseMin = Math.round(fallbackMid - halfInterval);
+  let baseMax = Math.round(fallbackMid + halfInterval);
+
+  baseMin = clamp(baseMin, settings.minPrice, settings.maxPrice);
+  baseMax = clamp(baseMax, settings.minPrice, settings.maxPrice);
+
+  let min = Math.round(baseMin * boardCount + extraRange.min);
+  let max = Math.round(baseMax * boardCount + extraRange.max);
+
+  if (max - min < settings.interval) {
+    max = min + settings.interval;
+  }
+
+  if (min > max) {
+    min = max;
+  }
+
+  return { min, max, sampleCount: 0 };
+};
+
 const toBaseMid = (min: number, max: number) => {
   if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0) {
     return null;
@@ -133,7 +166,7 @@ export const estimateAiPrice = async (
 
   if (error) {
     console.error("Kunne ikke hente estimator samples:", error);
-    return null;
+    return buildFallbackEstimate(settings, input);
   }
 
   const samples = (data || [])
@@ -154,33 +187,11 @@ export const estimateAiPrice = async (
     .filter((row): row is { baseMid: number } => Boolean(row));
 
   if (samples.length === 0) {
-    const boardCountRaw = input?.fields?.boardCount;
-    const boardCount = Number.isFinite(boardCountRaw)
-      ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
-      : 1;
-    const halfInterval = Math.max(0, Math.round(settings.interval / 2));
-    const fallbackMid = (settings.minPrice + settings.maxPrice) / 2;
-    let baseMin = Math.round(fallbackMid - halfInterval);
-    let baseMax = Math.round(fallbackMid + halfInterval);
-
-    baseMin = clamp(baseMin, settings.minPrice, settings.maxPrice);
-    baseMax = clamp(baseMax, settings.minPrice, settings.maxPrice);
-
-    let min = Math.round(baseMin * boardCount);
-    let max = Math.round(baseMax * boardCount);
-
-    if (max - min < settings.interval) {
-      max = min + settings.interval;
-    }
-
-    return { min, max, sampleCount: 0 };
+    return buildFallbackEstimate(settings, input);
   }
 
   const extraRange = getExtrasPriceRange(input?.extras ?? null);
-  const boardCountRaw = input?.fields?.boardCount;
-  const boardCount = Number.isFinite(boardCountRaw)
-    ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
-    : 1;
+  const boardCount = getBoardCount(input);
   const halfInterval = Math.max(0, Math.round(settings.interval / 2));
 
   let baseMin: number;

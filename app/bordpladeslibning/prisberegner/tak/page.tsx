@@ -1,7 +1,10 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import type { EstimatorFormFields } from "@/lib/estimator";
+import { estimateAiPrice } from "@/lib/ai-estimator";
 import { buildMetadata } from "@/lib/seo";
+import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 export const metadata = {
   ...buildMetadata({
@@ -31,16 +34,50 @@ const getParam = (value: string | string[] | undefined) => {
   return "";
 };
 
-export default function PrisberegnerTakPage({ searchParams }: TakPageProps) {
+export default async function PrisberegnerTakPage({ searchParams }: TakPageProps) {
   const params = searchParams ?? {};
   const id = getParam(params.id);
   const min = getParam(params.min);
   const max = getParam(params.max);
   const status = getParam(params.status);
 
-  const minValue = min && /^\d+$/.test(min) ? Number.parseInt(min, 10) : null;
-  const maxValue = max && /^\d+$/.test(max) ? Number.parseInt(max, 10) : null;
-  const hasEstimate = minValue !== null && maxValue !== null && minValue <= maxValue;
+  let minValue = min && /^\d+$/.test(min) ? Number.parseInt(min, 10) : null;
+  let maxValue = max && /^\d+$/.test(max) ? Number.parseInt(max, 10) : null;
+  let resolvedStatus = status;
+  let hasEstimate = minValue !== null && maxValue !== null && minValue <= maxValue;
+
+  if (!hasEstimate && id) {
+    try {
+      const supabase = createSupabaseServiceClient();
+      const { data } = await supabase
+        .from("estimator_requests")
+        .select("ai_price_min, ai_price_max, fields")
+        .eq("id", id)
+        .maybeSingle();
+
+      const aiMin = data?.ai_price_min ?? null;
+      const aiMax = data?.ai_price_max ?? null;
+
+      if (typeof aiMin === "number" && typeof aiMax === "number") {
+        minValue = aiMin;
+        maxValue = aiMax;
+        hasEstimate = aiMin <= aiMax;
+        resolvedStatus = resolvedStatus || "estimated";
+      } else if (data?.fields) {
+        const estimate = await estimateAiPrice(supabase, {
+          fields: data.fields as EstimatorFormFields
+        });
+        if (estimate) {
+          minValue = estimate.min;
+          maxValue = estimate.max;
+          hasEstimate = estimate.min <= estimate.max;
+          resolvedStatus = resolvedStatus || "estimated";
+        }
+      }
+    } catch (error) {
+      console.error("Kunne ikke hente AI-estimat til tak-side:", error);
+    }
+  }
 
   const bookingParams = new URLSearchParams();
   if (id) bookingParams.set("estimator_id", id);
@@ -72,9 +109,9 @@ export default function PrisberegnerTakPage({ searchParams }: TakPageProps) {
             </p>
           </div>
         )}
-        {status && status !== "estimated" ? (
+        {resolvedStatus && resolvedStatus !== "estimated" ? (
           <p className="text-sm text-muted-foreground">
-            Status: {status === "manual" ? "Manuel vurdering" : status}
+            Status: {resolvedStatus === "manual" ? "Manuel vurdering" : resolvedStatus}
           </p>
         ) : null}
         <div className="flex flex-wrap gap-3">
