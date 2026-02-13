@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -27,9 +27,6 @@ export const EstimatorTakClient = ({
   initialStatus
 }: EstimatorTakClientProps) => {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [autoRedirect, setAutoRedirect] = useState(true);
-  const [secondsLeft, setSecondsLeft] = useState(3);
 
   const resolved = useMemo(() => {
     const minFromUrl = parseNumber(searchParams.get("min"));
@@ -59,26 +56,6 @@ export const EstimatorTakClient = ({
     return `/bordpladeslibning/book?${params.toString()}`;
   }, [id, resolved.max, resolved.min]);
 
-  useEffect(() => {
-    if (!resolved.hasEstimate || !autoRedirect) {
-      return;
-    }
-
-    setSecondsLeft(3);
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    const timeout = setTimeout(() => {
-      router.push(bookingUrl);
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [autoRedirect, bookingUrl, resolved.hasEstimate, router]);
-
   return (
     <>
       {resolved.hasEstimate ? (
@@ -91,21 +68,8 @@ export const EstimatorTakClient = ({
             {resolved.isFixed ? `${resolved.min} kr.` : `${resolved.min}–${resolved.max} kr.`}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Prisen gælder først efter bookingbekræftelse. Vi kontakter dig hurtigt, hvis der er
-            spørgsmål til opgaven.
+            Dette er et prisestimat. Prisen gælder først, når en medarbejder har bekræftet din booking.
           </p>
-          {autoRedirect ? (
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              <span>Sender dig videre til booking om {secondsLeft} sek.</span>
-              <button
-                type="button"
-                className="font-semibold text-primary"
-                onClick={() => setAutoRedirect(false)}
-              >
-                Bliv her
-              </button>
-            </div>
-          ) : null}
         </div>
       ) : (
         <div className="rounded-2xl border border-border/70 bg-white/70 p-4 text-sm text-muted-foreground">
@@ -124,7 +88,7 @@ export const EstimatorTakClient = ({
 
       <div className="flex flex-wrap gap-3">
         <Button asChild>
-          <Link href={bookingUrl}>Book tid</Link>
+          <Link href={bookingUrl}>Book nu</Link>
         </Button>
         <Button asChild variant="outline">
           <Link href="/bordpladeslibning/pris">Se prisguide</Link>
