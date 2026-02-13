@@ -27,6 +27,8 @@ const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 1600;
+const JPEG_QUALITY = 0.82;
 
 export const EstimatorForm = () => {
   const router = useRouter();
@@ -35,20 +37,74 @@ export const EstimatorForm = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const imageCountLabel = useMemo(() => `${images.length} billeder valgt`, [images.length]);
 
-  const onImageChange = (files: FileList | null) => {
+  const loadImage = (file: File) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Kunne ikke indlæse billede."));
+      };
+      img.src = url;
+    });
+
+  const compressImage = async (file: File) => {
+    try {
+      const img = await loadImage(file);
+      const maxSide = Math.max(img.width, img.height);
+      const scale = maxSide > MAX_IMAGE_DIMENSION ? MAX_IMAGE_DIMENSION / maxSide : 1;
+      const targetWidth = Math.max(1, Math.round(img.width * scale));
+      const targetHeight = Math.max(1, Math.round(img.height * scale));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        return file;
+      }
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY)
+      );
+      if (!blob) {
+        return file;
+      }
+
+      const baseName = file.name.replace(/\.[^/.]+$/, "");
+      return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+    } catch (error) {
+      console.warn("Kunne ikke komprimere billede, bruger original.", error);
+      return file;
+    }
+  };
+
+  const onImageChange = async (files: FileList | null) => {
     if (!files) {
       setImages([]);
       return;
     }
 
-    const next = Array.from(files)
+    setIsProcessing(true);
+    setErrorMessage("");
+
+    const selected = Array.from(files)
       .filter((file) => file.size > 0)
       .slice(0, MAX_IMAGES);
-    setImages(next);
+
+    const processed = await Promise.all(selected.map((file) => compressImage(file)));
+    setImages(processed);
+    setIsProcessing(false);
   };
 
   const validateImages = () => {
@@ -81,6 +137,10 @@ export const EstimatorForm = () => {
   };
 
   const submit = async () => {
+    if (isProcessing) {
+      setErrorMessage("Vi er stadig i gang med at behandle billederne. Prøv igen om et øjeblik.");
+      return;
+    }
     const validationError = validate();
     if (validationError) {
       setErrorMessage(validationError);
@@ -158,6 +218,7 @@ export const EstimatorForm = () => {
         <h2 className="text-xl font-semibold text-foreground">1) Upload billeder (1–6)</h2>
         <p className="text-sm text-muted-foreground">
           Vi bruger billederne til at give et hurtigt AI-estimat. Husk at hele bordpladen er synlig i hvert billede.
+          Vi komprimerer automatisk billederne, så de går hurtigere igennem.
         </p>
       </div>
 
@@ -179,7 +240,9 @@ export const EstimatorForm = () => {
           className="rounded-md border border-border bg-white px-3 py-2"
         />
       </label>
-      <p className="text-xs text-muted-foreground">{imageCountLabel}</p>
+      <p className="text-xs text-muted-foreground">
+        {isProcessing ? "Behandler billeder..." : imageCountLabel}
+      </p>
       {images.length > 1 ? (
         <p className="text-xs text-muted-foreground">
           Tjek at du ikke har uploadet samme bordplade to gange.
@@ -218,7 +281,7 @@ export const EstimatorForm = () => {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button onClick={submit} disabled={isSubmitting}>
+        <Button onClick={submit} disabled={isSubmitting || isProcessing}>
           {isSubmitting ? "Sender..." : "Få AI-prisestimat"}
         </Button>
         <Button asChild variant="outline">
