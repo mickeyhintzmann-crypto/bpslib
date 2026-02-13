@@ -154,7 +154,26 @@ export const estimateAiPrice = async (
     .filter((row): row is { baseMid: number } => Boolean(row));
 
   if (samples.length === 0) {
-    return null;
+    const boardCountRaw = input?.fields?.boardCount;
+    const boardCount = Number.isFinite(boardCountRaw)
+      ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
+      : 1;
+    const halfInterval = Math.max(0, Math.round(settings.interval / 2));
+    const fallbackMid = (settings.minPrice + settings.maxPrice) / 2;
+    let baseMin = Math.round(fallbackMid - halfInterval);
+    let baseMax = Math.round(fallbackMid + halfInterval);
+
+    baseMin = clamp(baseMin, settings.minPrice, settings.maxPrice);
+    baseMax = clamp(baseMax, settings.minPrice, settings.maxPrice);
+
+    let min = Math.round(baseMin * boardCount);
+    let max = Math.round(baseMax * boardCount);
+
+    if (max - min < settings.interval) {
+      max = min + settings.interval;
+    }
+
+    return { min, max, sampleCount: 0 };
   }
 
   const extraRange = getExtrasPriceRange(input?.extras ?? null);
