@@ -17,6 +17,7 @@ const isMissingRow = (code: string | undefined) => code === "PGRST116";
 
 const parseBoolean = (value: unknown) => (typeof value === "boolean" ? value : null);
 const parseNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export async function GET(request: Request) {
   try {
@@ -43,6 +44,22 @@ export async function GET(request: Request) {
     }
 
     const value = (data?.value || {}) as Partial<EstimatorAiSettings>;
+    const hardMin = ESTIMATOR_AI_DEFAULTS.minPrice;
+    const hardMax = ESTIMATOR_AI_DEFAULTS.maxPrice;
+
+    let resolvedMinPrice = clamp(
+      typeof value.minPrice === "number" ? value.minPrice : ESTIMATOR_AI_DEFAULTS.minPrice,
+      hardMin,
+      hardMax
+    );
+    let resolvedMaxPrice = clamp(
+      typeof value.maxPrice === "number" ? value.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice,
+      hardMin,
+      hardMax
+    );
+    if (resolvedMaxPrice < resolvedMinPrice) {
+      resolvedMaxPrice = resolvedMinPrice;
+    }
 
     return NextResponse.json(
       {
@@ -50,8 +67,8 @@ export async function GET(request: Request) {
           enabled: typeof value.enabled === "boolean" ? value.enabled : ESTIMATOR_AI_DEFAULTS.enabled,
           minSamples: typeof value.minSamples === "number" ? value.minSamples : ESTIMATOR_AI_DEFAULTS.minSamples,
           interval: typeof value.interval === "number" ? value.interval : ESTIMATOR_AI_DEFAULTS.interval,
-          minPrice: typeof value.minPrice === "number" ? value.minPrice : ESTIMATOR_AI_DEFAULTS.minPrice,
-          maxPrice: typeof value.maxPrice === "number" ? value.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice,
+          minPrice: resolvedMinPrice,
+          maxPrice: resolvedMaxPrice,
           fixedPrice: typeof value.fixedPrice === "boolean" ? value.fixedPrice : ESTIMATOR_AI_DEFAULTS.fixedPrice,
           roundTo: typeof value.roundTo === "number" ? value.roundTo : ESTIMATOR_AI_DEFAULTS.roundTo
         }
@@ -93,8 +110,8 @@ export async function PUT(request: Request) {
       minSamples:
         typeof existingValue.minSamples === "number" ? existingValue.minSamples : ESTIMATOR_AI_DEFAULTS.minSamples,
       interval: typeof existingValue.interval === "number" ? existingValue.interval : ESTIMATOR_AI_DEFAULTS.interval,
-      minPrice: typeof existingValue.minPrice === "number" ? existingValue.minPrice : ESTIMATOR_AI_DEFAULTS.minPrice,
-      maxPrice: typeof existingValue.maxPrice === "number" ? existingValue.maxPrice : ESTIMATOR_AI_DEFAULTS.maxPrice,
+      minPrice: ESTIMATOR_AI_DEFAULTS.minPrice,
+      maxPrice: ESTIMATOR_AI_DEFAULTS.maxPrice,
       fixedPrice:
         fixedPrice ??
         (typeof existingValue.fixedPrice === "boolean"

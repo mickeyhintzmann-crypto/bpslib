@@ -14,8 +14,8 @@ const DEFAULT_AI_SETTINGS = {
   enabled: true,
   minSamples: 1,
   interval: 300,
-  minPrice: 3000,
-  maxPrice: 5000,
+  minPrice: 3200,
+  maxPrice: 4000,
   fixedPrice: false,
   roundTo: 100
 };

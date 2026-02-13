@@ -13,6 +13,9 @@ export type EstimatorAiSettings = {
   roundTo: number;
 };
 
+const HARD_MIN_PRICE = 3200;
+const HARD_MAX_PRICE = 4000;
+
 export type EstimatorAiEstimate = {
   min: number;
   max: number;
@@ -23,8 +26,8 @@ export const ESTIMATOR_AI_DEFAULTS: EstimatorAiSettings = {
   enabled: true,
   minSamples: 1,
   interval: 300,
-  minPrice: 3000,
-  maxPrice: 5000,
+  minPrice: HARD_MIN_PRICE,
+  maxPrice: HARD_MAX_PRICE,
   fixedPrice: false,
   roundTo: 100
 };
@@ -91,12 +94,21 @@ export const getEstimatorAiSettings = async (supabase: SupabaseClient): Promise<
     const fixedPrice = parseBoolean(value.fixedPrice);
     const roundTo = parseIntValue(value.roundTo);
 
+    let resolvedMinPrice = minPrice ?? ESTIMATOR_AI_DEFAULTS.minPrice;
+    let resolvedMaxPrice = maxPrice ?? ESTIMATOR_AI_DEFAULTS.maxPrice;
+
+    resolvedMinPrice = Math.max(resolvedMinPrice, HARD_MIN_PRICE);
+    resolvedMaxPrice = Math.min(resolvedMaxPrice, HARD_MAX_PRICE);
+    if (resolvedMaxPrice < resolvedMinPrice) {
+      resolvedMaxPrice = resolvedMinPrice;
+    }
+
     return {
       enabled: enabled ?? ESTIMATOR_AI_DEFAULTS.enabled,
       minSamples: minSamples ?? ESTIMATOR_AI_DEFAULTS.minSamples,
       interval: interval ?? ESTIMATOR_AI_DEFAULTS.interval,
-      minPrice: minPrice ?? ESTIMATOR_AI_DEFAULTS.minPrice,
-      maxPrice: maxPrice ?? ESTIMATOR_AI_DEFAULTS.maxPrice,
+      minPrice: resolvedMinPrice,
+      maxPrice: resolvedMaxPrice,
       fixedPrice: fixedPrice ?? ESTIMATOR_AI_DEFAULTS.fixedPrice,
       roundTo: roundTo ?? ESTIMATOR_AI_DEFAULTS.roundTo
     };
@@ -141,6 +153,8 @@ const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorA
     min = max;
   }
 
+  ({ min, max } = clampFinalRange(min, max));
+
   if (settings.fixedPrice) {
     const rounded = roundFixedPrice(settings, (min + max) / 2);
     return { min: rounded, max: rounded, sampleCount: 0 };
@@ -163,6 +177,15 @@ const roundFixedPrice = (settings: EstimatorAiSettings, value: number) => {
   const roundTo = settings.roundTo > 0 ? settings.roundTo : 100;
   const rounded = Math.round(value / roundTo) * roundTo;
   return clamp(Math.round(rounded), settings.minPrice, settings.maxPrice);
+};
+
+const clampFinalRange = (min: number, max: number) => {
+  let clampedMin = clamp(min, HARD_MIN_PRICE, HARD_MAX_PRICE);
+  let clampedMax = clamp(max, HARD_MIN_PRICE, HARD_MAX_PRICE);
+  if (clampedMin > clampedMax) {
+    clampedMax = clampedMin;
+  }
+  return { min: clampedMin, max: clampedMax };
 };
 
 export const estimateAiPrice = async (
@@ -245,6 +268,8 @@ export const estimateAiPrice = async (
   if (min > max) {
     min = max;
   }
+
+  ({ min, max } = clampFinalRange(min, max));
 
   if (settings.fixedPrice) {
     const rounded = roundFixedPrice(settings, (min + max) / 2);
