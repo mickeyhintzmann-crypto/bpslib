@@ -19,12 +19,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Local ML artifacts
+model.pth
+model.scaler.pkl
+
 # TypeScript build info
 tsconfig.tsbuildinfo
 
 # Lokale/andre projekter i samme mappe (hold repo rent)
 lead-machine-mvp/
-moltbot/
+MyAiHelper/
 maltti-trader/
 bordplade/
 bordplader/
