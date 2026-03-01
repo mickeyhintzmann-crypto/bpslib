@@ -36,6 +36,46 @@ const faqItems = [
     question: "Kører I på hele Sjælland?",
     answer:
       "Ja, vi dækker hele Sjælland og planlægger opgaverne, så du får en stabil tidsplan."
+  },
+  {
+    question: "Skal hele boligen tømmes for møbler?",
+    answer:
+      "Ikke nødvendigvis. Vi kan ofte planlægge i etaper, så boligen stadig kan fungere. Vi aftaler det konkret før vi starter."
+  },
+  {
+    question: "Kan I slibe et gulv der har dybe ridser?",
+    answer:
+      "Ofte kan ridser reduceres eller fjernes, men det afhænger af dybde, gulvtype og hvor meget der tidligere er slebet. Vi vurderer det ud fra stand og ønsker."
+  },
+  {
+    question: "Hvilken finish er mest vedligeholdelsesnem?",
+    answer:
+      "Lak er ofte nemmest i drift. Olie og sæbe kan give flotte udtryk, men kræver mere løbende pleje. Vi rådgiver ud fra brug."
+  },
+  {
+    question: "Hvor lang tid tager gulvafslibning typisk?",
+    answer:
+      "Det afhænger af m², antal rum og tørretider for behandlingen. Du får en realistisk plan, når vi kender omfanget."
+  },
+  {
+    question: "Kan gulvet bruges med det samme efter behandling?",
+    answer:
+      "Nej, der er typisk tørretid afhængigt af valgt behandling. Vi fortæller dig præcist, hvornår du må gå på gulvet og flytte møbler tilbage."
+  },
+  {
+    question: "Kan I tage flere rum i samme opgave?",
+    answer:
+      "Ja. Vi planlægger rækkefølge og eventuelle etaper, så det fungerer praktisk med adgang og tørretider."
+  },
+  {
+    question: "Dækker I hele Sjælland?",
+    answer:
+      "Ja. Vi planlægger efter område og opgavens type, så du får stabile tider og en realistisk plan."
+  },
+  {
+    question: "Hvad kan jeg gøre for at gulvet holder sig pænt længere?",
+    answer:
+      "Valg af finish og korrekt vedligehold er afgørende. Du får konkrete råd ved aflevering til rengøring og pleje."
   }
 ];
 
@@ -66,6 +106,144 @@ export default function GulvHubPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Gulvafslibning på Sjælland – når gulvet skal være pænt og praktisk igen
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Trægulve kan holde i mange år, men overfladen tager imod slid: ridser, matte felter,
+          misfarvninger og et udtryk der bliver “uroligt” i lyset. Gulvafslibning handler om at
+          genskabe en ensartet overflade og vælge en behandling, der passer til rummets brug.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          På Sjælland hjælper vi både lejligheder og huse — og vi planlægger forløbet, så det
+          fungerer med adgang, møbler og tørretider.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Ensartet udtryk: færre synlige ridser og roligere overflade i dagslys</li>
+          <li>Rådgivning om finish ud fra drift og vedligehold (olie/lak/sæbe)</li>
+          <li>Realistisk plan for tørretid og hvornår gulvet kan tages i brug</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Typiske problemer vi løser</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Mange kontakter os, når gulvet stadig er “godt” i træet, men overfladen ikke længere er
+          pæn i hverdagen.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Ridser og mærker fra daglig trafik, stole og legetøj</li>
+          <li>Matte/slidte gangzoner hvor overfladen er slidt ned</li>
+          <li>Misfarvninger og pletter (fx ved sol/brug)</li>
+          <li>Ujævn glans og et “plettet” udtryk efter ældre behandling</li>
+          <li>Gulve der er svære at holde pæne med almindelig rengøring</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Sådan foregår gulvafslibning (kort og realistisk)</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Vi arbejder trinvis og tilpasser processen til gulvtype, slitage og den finish du ønsker
+          bagefter. Målet er et gulv der føles ens, ser ens ud og er til at leve med.
+        </p>
+        <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>1. Kort afklaring af gulvtype, slitage og ønsker til finish</li>
+          <li>2. Forberedelse: afdækning og praktisk plan (møbler/adgang)</li>
+          <li>3. Trinvis slibning ud fra gulvets stand (uden at slibe mere end nødvendigt)</li>
+          <li>4. Kant- og detaljearbejde, så helhedsindtrykket bliver pænt</li>
+          <li>5. Behandling: olie/lak/sæbe afhængigt af brug og vedligehold</li>
+          <li>6. Aflevering: gennemgang + råd til brug og pleje</li>
+        </ol>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Valg af finish: olie, lak eller sæbe?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Finishvalget betyder meget for både udtryk og hverdagsdrift. Nogle vil have et varmt,
+          naturligt look, andre vil have en overflade der er nem at holde pæn med mindst muligt
+          løbende arbejde. Vi rådgiver ud fra rummets belastning og dine forventninger.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Lak: ofte nem i drift og kræver typisk mindre løbende pleje</li>
+          <li>Olie: naturligt udtryk, men kræver mere vedligehold over tid</li>
+          <li>Sæbe: klassisk look, men kræver korrekt pleje for at holde sig pænt</li>
+          <li>Det rigtige valg afhænger af brug (børn, kæledyr, meget trafik, køkken/entré)</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Pris: hvad påvirker den?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Prisen på gulvafslibning afhænger primært af gulvets stand, antal m² og hvilken behandling
+          du vælger bagefter. Derudover betyder det noget, hvor mange rum der er, om der er mange
+          kanter/overgange, og hvordan adgangen er.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Gulvets stand (hvor meget der skal rettes op)</li>
+          <li>Antal m² og antal rum/overgange</li>
+          <li>Valg af behandling (olie/lak/sæbe)</li>
+          <li>Praktiske forhold: adgang, møbler og planlægning</li>
+        </ul>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se også vores lokale sider for{" "}
+          <Link href="/gulvafslibning-koebenhavn" className="font-medium text-foreground hover:text-primary">
+            København
+          </Link>{" "}
+          og{" "}
+          <Link
+            href="/gulvafslibning-koebenhavn-omegn"
+            className="font-medium text-foreground hover:text-primary"
+          >
+            omegn
+          </Link>
+          , hvis du vil have en mere målrettet beskrivelse.
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Lokale gulv-sider (hurtig vej til dit område)</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Hvis du vil læse en side der matcher dit område, kan du starte her:
+        </p>
+        <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <Link href="/gulvafslibning-koebenhavn" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-koebenhavn
+          </Link>
+          <Link
+            href="/gulvafslibning-koebenhavn-omegn"
+            className="font-medium text-foreground hover:text-primary"
+          >
+            /gulvafslibning-koebenhavn-omegn
+          </Link>
+          <Link href="/gulvafslibning-roskilde" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-roskilde
+          </Link>
+          <Link href="/gulvafslibning-gentofte" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-gentofte
+          </Link>
+          <Link href="/gulvafslibning-slagelse" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-slagelse
+          </Link>
+          <Link href="/gulvafslibning-holbaek" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-holbaek
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Praktisk før vi går i gang (så det bliver nemt for dig)</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Det vigtigste er, at vi afklarer adgang og plan. Nogle vælger at tage ét rum ad gangen,
+          andre tager hele boligen. Vi tilpasser forløbet efter din hverdag og rummenes brug.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Vi aftaler om møbler flyttes, eller om vi arbejder i etaper</li>
+          <li>Du får besked om tørretid og hvornår gulvet kan bruges igen</li>
+          <li>Vi afslutter med en tydelig gennemgang og råd til vedligehold</li>
+        </ul>
       </section>
 
       <ReferenceStrip />
