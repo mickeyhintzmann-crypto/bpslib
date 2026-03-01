@@ -15,7 +15,7 @@ export default function MalerYdelserPage() {
     <PageShell title="Maler ydelser">
       <p>
         Her finder du et kort overblik over maleropgaver vi hjælper med på Sjælland. Vi arbejder som
-        lead-gen i MVP og vender hurtigt tilbage med et uforpligtende tilbud. Læs også om{" "}
+        via tilbudstid og vurderer opgaven manuelt, før vi vender hurtigt tilbage med et uforpligtende tilbud. Læs også om{" "}
         <Link href="/maler-sjaelland" className="font-medium text-foreground hover:text-primary">
           maler på Sjælland
         </Link>

@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Murer på Sjælland",
-  description: "Mureropgaver håndteres som lead-gen i MVP. Send din opgave, så vender vi tilbage med tilbud.",
+  description: "Mureropgaver vurderes manuelt via tilbudstid. Send din opgave, så vender vi tilbage med tilbud.",
   path: "/murer-sjaelland"
 });
 
@@ -14,10 +14,10 @@ export default function MurerPage() {
   return (
     <PageShell title="Murer på Sjælland">
       <p>
-        Vi tager imod mureropgaver som lead-gen. Send en kort beskrivelse, så vender vi tilbage
+        Vi tager imod mureropgaver via tilbudstid. Send en kort beskrivelse, så vender vi tilbage
         med et tilbud.
       </p>
-      <p>Online booking er ikke aktiv for mureropgaver i MVP.</p>
+      <p>Online booking er ikke aktiv for mureropgaver endnu.</p>
       <div className="flex flex-wrap gap-3 pt-2">
         <Button asChild>
           <Link href="/tilbudstid">Få tilbud</Link>

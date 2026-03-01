@@ -461,7 +461,7 @@
   {
     "path": "/gulvafslibning-sjaelland",
     "title": "Gulvafslibning",
-    "description": "Gulvafslibning på Sjælland som lead-gen hub i MVP.",
+    "description": "Gulvafslibning på Sjælland med uforpligtende tilbudstid.",
     "navGroup": "gulv",
     "showInHeader": true,
     "showInFooter": true,

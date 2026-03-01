@@ -15,7 +15,7 @@ export default function ToemrerYdelserPage() {
     <PageShell title="Tømrer ydelser">
       <p>
         Her får du et hurtigt overblik over de tømreropgaver vi hjælper med på Sjælland. Vi arbejder
-        som lead-gen i MVP og vender hurtigt tilbage med et uforpligtende tilbud. Læs også om{" "}
+        via tilbudstid og vurderer opgaven manuelt, før vi vender tilbage med et uforpligtende tilbud. Læs også om{" "}
         <Link href="/toemrer-sjaelland" className="font-medium text-foreground hover:text-primary">
           tømrer på Sjælland
         </Link>

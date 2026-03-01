@@ -15,7 +15,7 @@ export default function MurerYdelserPage() {
     <PageShell title="Murer ydelser">
       <p>
         Her er et kort overblik over mureropgaver vi hjælper med på Sjælland. Vi arbejder som
-        lead-gen i MVP og vender hurtigt tilbage med et uforpligtende tilbud. Læs også om{" "}
+        via tilbudstid og vurderer opgaven manuelt, før vi vender hurtigt tilbage med et uforpligtende tilbud. Læs også om{" "}
         <Link href="/murer-sjaelland" className="font-medium text-foreground hover:text-primary">
           murer på Sjælland
         </Link>

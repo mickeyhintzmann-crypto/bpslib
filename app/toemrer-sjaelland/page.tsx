@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Tømrer på Sjælland",
-  description: "Tømreropgaver håndteres som lead-gen i MVP. Send din opgave, så vender vi tilbage med tilbud.",
+  description: "Tømreropgaver vurderes manuelt via tilbudstid. Send din opgave, så vender vi tilbage med tilbud.",
   path: "/toemrer-sjaelland"
 });
 
@@ -17,7 +17,7 @@ export default function ToemrerPage() {
         Har du en tømreropgave? Vi tager gerne imod din forespørgsel og vender tilbage med et
         konkret tilbud.
       </p>
-      <p>Online booking er ikke aktiv for tømreropgaver i MVP.</p>
+      <p>Online booking er ikke aktiv for tømreropgaver endnu.</p>
       <div className="flex flex-wrap gap-3 pt-2">
         <Button asChild>
           <Link href="/tilbudstid">Få tilbud</Link>

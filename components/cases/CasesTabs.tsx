@@ -29,7 +29,7 @@ const finishLabels: Record<CaseItem["finish"], string> = {
 const emptyMessages: Record<TabKey, string> = {
   bordplade: "Ingen bordplade-cases er tilføjet endnu.",
   gulv: "Gulv-cases publiceres, når vi har samlet de første før/efter eksempler.",
-  andet: "Cases for andre fag kommer senere i MVP. Kontakt os for konkrete eksempler."
+  andet: "Cases for andre fag publiceres løbende. Kontakt os for konkrete eksempler."
 };
 
 export const CasesTabs = ({ cases }: CasesTabsProps) => {

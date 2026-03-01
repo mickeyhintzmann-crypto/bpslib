@@ -10,7 +10,7 @@ const services = [
   },
   {
     title: "Tømrer",
-    text: "Tømreropgaver håndteres som lead-gen i MVP.",
+    text: "Tømreropgaver samles via tilbudstid og vurderes manuelt.",
     href: "/tilbudstid"
   },
   {
@@ -20,7 +20,7 @@ const services = [
   },
   {
     title: "Murer",
-    text: "Mureropgaver behandles som lead-gen i MVP.",
+    text: "Mureropgaver samles via tilbudstid og vurderes manuelt.",
     href: "/tilbudstid"
   }
 ];

@@ -52,7 +52,7 @@ export default function GulvFrederiksbergPage() {
           Gulvafslibning på Frederiksberg
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning på Frederiksberg som lead-gen i MVP. Mange opgaver er i
+          Vi hjælper med gulvafslibning på Frederiksberg . Mange opgaver er i
           etageejendomme med adgangsforhold, hvor planlægning og støvkontrol er vigtigt. Vi tilpasser
           forløbet efter ejendommen og giver et uforpligtende tilbud baseret på gulvtype og ønsket
           behandling. Vi kører også i{" "}
@@ -72,7 +72,7 @@ export default function GulvFrederiksbergPage() {
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Mini-case (placeholder)</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-semibold text-foreground">Problem:</span> Slidt trægulv i lejlighed med matte felter og ridser.

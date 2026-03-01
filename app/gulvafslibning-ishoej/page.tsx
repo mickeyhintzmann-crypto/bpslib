@@ -52,7 +52,7 @@ export default function GulvIshoejPage() {
           Gulvafslibning i Ishøj
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Ishøj som lead-gen i MVP. Området har mange familieboliger,
+          Vi hjælper med gulvafslibning i Ishøj . Området har mange familieboliger,
           og vi planlægger forløbet, så det passer til adgang og praktiske forhold. Du får et
           uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører også i{" "}
           <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">
@@ -71,7 +71,7 @@ export default function GulvIshoejPage() {
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Mini-case (placeholder)</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-semibold text-foreground">Problem:</span> Slidt gulv med ridser og matte felter i bolig.

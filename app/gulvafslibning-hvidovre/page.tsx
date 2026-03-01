@@ -52,7 +52,7 @@ export default function GulvHvidovrePage() {
           Gulvafslibning i Hvidovre
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Hvidovre som lead-gen i MVP. Området har mange familieboliger
+          Vi hjælper med gulvafslibning i Hvidovre . Området har mange familieboliger
           og rækkehuse, hvor adgang og planlægning er vigtige. Vi tilpasser forløbet, så det passer til
           hverdagen, og du får et uforpligtende tilbud baseret på gulvtype og ønsket behandling. Vi
           kører også i{" "}
@@ -72,7 +72,7 @@ export default function GulvHvidovrePage() {
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Mini-case (placeholder)</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-semibold text-foreground">Problem:</span> Slidt gulv med ridser og matte felter i bolig.

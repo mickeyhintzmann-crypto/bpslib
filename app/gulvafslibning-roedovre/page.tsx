@@ -52,7 +52,7 @@ export default function GulvRoedovrePage() {
           Gulvafslibning i Rødovre
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Rødovre som lead-gen i MVP. Området har mange rækkehuse og
+          Vi hjælper med gulvafslibning i Rødovre . Området har mange rækkehuse og
           villaer, og vi tilpasser forløbet efter adgang og praktiske forhold. Du får et
           uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører også i{" "}
           <Link href="/gulvafslibning-koebenhavn-omegn" className="font-medium text-foreground hover:text-primary">
@@ -71,7 +71,7 @@ export default function GulvRoedovrePage() {
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Mini-case (placeholder)</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-semibold text-foreground">Problem:</span> Slidt gulv med ridser og ujævn glans i bolig.

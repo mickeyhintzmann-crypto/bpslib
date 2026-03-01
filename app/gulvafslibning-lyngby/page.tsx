@@ -52,7 +52,7 @@ export default function GulvLyngbyPage() {
           Gulvafslibning i Lyngby
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Lyngby som lead-gen i MVP. I områder med både lejligheder
+          Vi hjælper med gulvafslibning i Lyngby . I områder med både lejligheder
           og villaer er adgang og planlægning vigtige, og vi tilpasser forløbet efter ejendommen. Du
           får et uforpligtende tilbud baseret på gulvtype og ønsket behandling. Vi kører også i{" "}
           <Link href="/gulvafslibning-nordsjaelland" className="font-medium text-foreground hover:text-primary">
@@ -71,7 +71,7 @@ export default function GulvLyngbyPage() {
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Mini-case (placeholder)</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-semibold text-foreground">Problem:</span> Slidt gulv i bolig med ridser og ujævn glans.

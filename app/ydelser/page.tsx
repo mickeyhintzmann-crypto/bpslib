@@ -55,7 +55,7 @@ export default function YdelserPage() {
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6">
         <h2 className="text-2xl font-semibold text-foreground">Tømrer</h2>
         <p className="mt-2 text-sm text-muted-foreground md:text-base">
-          Tømreropgaver håndteres som lead-gen. Læs mere om{" "}
+          Vi hjælper med udvalgte tømreropgaver via tilbudstid og vurderer opgaven manuelt. Læs mere om{" "}
           <Link
             href="/toemrer-sjaelland"
             className="font-medium text-foreground hover:text-primary"
@@ -108,7 +108,7 @@ export default function YdelserPage() {
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6">
         <h2 className="text-2xl font-semibold text-foreground">Murer</h2>
         <p className="mt-2 text-sm text-muted-foreground md:text-base">
-          Mureropgaver håndteres som lead-gen. Læs mere om{" "}
+          Vi hjælper med udvalgte mureropgaver via tilbudstid og vurderer opgaven manuelt. Læs mere om{" "}
           <Link
             href="/murer-sjaelland"
             className="font-medium text-foreground hover:text-primary"

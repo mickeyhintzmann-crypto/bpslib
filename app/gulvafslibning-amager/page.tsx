@@ -53,7 +53,7 @@ export default function GulvAmagerPage() {
           Gulvafslibning på Amager
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning på Amager som lead-gen i MVP. Du får et uforpligtende
+          Vi hjælper med gulvafslibning på Amager . Du får et uforpligtende
           tilbud baseret på opgavens omfang, gulvtype og ønsket behandling. Vi kører på hele{" "}
           <Link href="/gulvafslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
             Sjælland

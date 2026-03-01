@@ -15,7 +15,7 @@ export default function TilbudstidPage() {
         Har du en opgave inden for gulv, maler, murer eller tømrer? Send en kort beskrivelse, så
         vender vi tilbage med et tilbud.
       </p>
-      <p>Online booking er ikke aktiv i MVP, men vi svarer hurtigt på din forespørgsel.</p>
+      <p>Online booking er ikke aktiv endnu, men vi svarer hurtigt på din forespørgsel.</p>
       <OfferTimeForm />
     </PageShell>
   );
