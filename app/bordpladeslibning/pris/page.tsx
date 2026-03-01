@@ -105,6 +105,34 @@ const faqItems = [
   }
 ];
 
+const priceFaqAppendItems = [
+  {
+    question: "Hvorfor kan to ens køkkener koste forskelligt?",
+    answer:
+      "Fordi tilstand og detaljer betyder meget: dybe skjolder, varmepletter, mange udskæringer og tidligere behandling kan øge forarbejdet."
+  },
+  {
+    question: "Kan I give en pris uden billeder?",
+    answer:
+      "Vi kan give et vejledende pejlemærke, men billeder gør vurderingen langt mere præcis og minimerer overraskelser."
+  },
+  {
+    question: "Hvad gør en opgave dyrere end priseksemplerne?",
+    answer:
+      "Typisk ekstra elementer (spisebord/bryggers/vandfald), flere udskæringer, eller skader der kræver ekstra opbygning og finisharbejde."
+  },
+  {
+    question: "Skal bordpladen altid afmonteres?",
+    answer:
+      "Ikke nødvendigvis. Det afhænger af opgaven og de praktiske forhold. Vi afklarer det, når vi har set billeder og mål."
+  },
+  {
+    question: "Hvad hvis jeg er i tvivl om olie eller lak?",
+    answer:
+      "Det er helt normalt. Vi hjælper dig med at vælge ud fra brug og ønsket vedligehold, så du får en løsning der passer til din hverdag."
+  }
+];
+
 const serviceSchema = buildServiceSchema({
   name: "Pris på bordpladeslibning",
   description:
@@ -270,6 +298,104 @@ export default function BordpladePrisPage() {
         items={faqItems}
         intro="Prisspørgsmålene her hjælper dig med at forstå hvad der driver prisen og hvordan du får et sikkert estimat."
       />
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Hvad bestemmer den endelige pris?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Priseksemplerne ovenfor er et godt pejlemærke, men den endelige pris afhænger af bordpladens opbygning, tilstand og den finish du ønsker. To bordplader med samme størrelse kan kræve forskelligt arbejde, hvis der fx er dybe skjolder, varmepletter, mange udskæringer eller en kantprofil der skal respekteres.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Målet er altid det samme: en overflade der føles ens, ser ens ud i lys – og som holder til normal brug.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Dybden af skader (ridser, pletter, varme/brændemærker)</li>
+          <li>Antal udskæringer (vask, kogeplade) og kanter/hjørner</li>
+          <li>Bordpladens opbygning (massiv træ vs. finér/laminat)</li>
+          <li>Valg af finish (udtryk + vedligehold)</li>
+          <li>Praktisk adgang og om bordpladen skal af-/påmonteres</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Massiv træ eller finér — derfor spørger vi altid ind</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Vi arbejder kun med massiv træ, fordi det giver mulighed for at slibe og genopbygge overfladen korrekt. Ved finér kan der være et meget tyndt toplag, som gør det risikabelt at slibe, hvis skaderne sidder dybt.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Hvis du er i tvivl om materialet, kan et billede af kanten (eller endetræ) ofte afklare det hurtigt.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se guide: <Link href="/bordpladeslibning/kan-det-slibes" className="font-medium text-foreground hover:text-primary">Kan din bordplade slibes? → /bordpladeslibning/kan-det-slibes</Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Olie eller lak — hvad betyder det i praksis?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Finishvalget handler både om udtryk og drift. Nogle vil have et mere “naturligt” look, andre prioriterer en overflade der er nem at holde pæn i et travlt køkken.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Vi rådgiver ud fra hvordan bordpladen bruges (madlavning, børn, meget vand, osv.), så du får en løsning der giver mening i hverdagen — ikke bare på dag 1.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Olie kan give et varmt udtryk og kan ofte vedligeholdes løbende</li>
+          <li>Lak kan være mere lukket/robust i daglig drift og kræver typisk mindre løbende pleje</li>
+          <li>Det rigtige valg afhænger af brug, forventninger og hvor “perfekt” du vil holde overfladen</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Sådan får du en præcis vurdering via billeder</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Den hurtigste vej til en præcis vurdering er billeder. Når vi kan se både helheden og problemområderne, kan vi typisk vurdere tilstand, arbejdsomfang og hvilket finishvalg der passer bedst — før du binder dig.
+        </p>
+        <h3 className="mt-4 text-lg font-semibold text-foreground">Send gerne disse 4 ting</h3>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <li>1 billede af hele bordpladen/køkkenet</li>
+          <li>2 nærbilleder af overfladen i godt lys</li>
+          <li>1 billede af de værste områder (skjolder/ridser/varmepletter)</li>
+          <li>1 billede af kanten/enden (for at afklare massiv træ)</li>
+        </ul>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/bordpladeslibning/prisberegner">Få pris via billeder</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/bordpladeslibning/book">Book tid</Link>
+          </Button>
+        </div>
+      </section>
+
+      <FaqSection
+        title="Ofte stillede spørgsmål om pris"
+        items={priceFaqAppendItems}
+      />
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Se også</h2>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>
+            <Link href="/bordpladeslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
+              Bordpladeslibning på Sjælland
+            </Link>
+          </li>
+          <li>
+            <Link href="/bordpladeslibning/kan-det-slibes" className="font-medium text-foreground hover:text-primary">
+              Kan den slibes?
+            </Link>
+          </li>
+          <li>
+            <Link href="/bordpladeslibning/prisberegner" className="font-medium text-foreground hover:text-primary">
+              Prisberegner via billeder
+            </Link>
+          </li>
+          <li>
+            <Link href="/bordpladeslibning/book" className="font-medium text-foreground hover:text-primary">
+              Book tid
+            </Link>
+          </li>
+        </ul>
+      </section>
 
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Klar til næste skridt?</h2>
