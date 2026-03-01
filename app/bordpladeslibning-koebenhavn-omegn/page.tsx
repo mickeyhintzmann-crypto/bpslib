@@ -41,6 +41,31 @@ const faqItems = [
     question: "Hvordan får jeg et hurtigt estimat?",
     answer:
       "Brug prisberegneren og upload 3-6 billeder, herunder kant eller ende hvis du er i tvivl."
+  },
+  {
+    question: "Skal jeg rydde hele køkkenet før I kommer?",
+    answer:
+      "Nej, men vi beder typisk om fri adgang til bordpladen og at de ting, du bruger dagligt, er flyttet væk fra arbejdsområdet. Så kan vi afdække ordentligt og arbejde effektivt."
+  },
+  {
+    question: "Kan I slibe rundt om vask og kogeplade?",
+    answer:
+      "Ofte ja. Det afhænger af udskæringer, adgang og bordpladens opbygning. Vi vurderer det ud fra billeder og afklarer det før vi planlægger tiden."
+  },
+  {
+    question: "Hvor hurtigt kan jeg bruge bordpladen igen?",
+    answer:
+      "Det afhænger af valg af finish og tørretid. Vi giver dig altid en klar forventning, så du kan planlægge madlavning og brug af køkkenet."
+  },
+  {
+    question: "Kan jeg få en vurdering uden at booke først?",
+    answer:
+      "Ja. Start med prisberegneren og upload 3–6 billeder (inkl. kant/ende hvis du er i tvivl om materialet), så vender vi tilbage med næste skridt."
+  },
+  {
+    question: "Kan I tage flere bordplader i samme besøg?",
+    answer:
+      "Ja, ofte kan vi planlægge køkken + fx bryggers/spisebord samlet, hvis du nævner det på forhånd og sender billeder/mål."
   }
 ];
 
@@ -86,6 +111,74 @@ export default function BordpladeKoebenhavnPage() {
           </Link>{" "}
           hvis du vil have en hurtig vurdering.
         </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i København & omegn</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          I København & omegn ser vi mange bordplader, der er blevet slidte på de samme områder: rundt om vasken, foran komfuret og på de flader, der bruges mest i hverdagen. I stedet for at udskifte en ellers god massiv træbordplade, kan slibning og en korrekt finish ofte give et markant løft — både visuelt og praktisk.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Når opgaven ligger i omegnskommunerne, handler et godt forløb typisk om planlægning: adgang, parkering og en tidsplan, der passer til en travl hverdag.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Vi vurderer altid trætype, skader og eksisterende behandling før vi anbefaler løsning</li>
+          <li>Fokus på ensartet udtryk i lys: ingen “lapper” eller synlige overgange</li>
+          <li>Rådgivning om finish ud fra brug (madlavning, vand, varme og slid)</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Mini-case fra København & omegn</h2>
+        <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <p><span className="font-semibold text-foreground">Problem:</span> Tørre, matte zoner ved vask og fine ridser på en massiv bordplade i en familiebolig.</p>
+          <p><span className="font-semibold text-foreground">Løsning:</span> Trinvis slibning, let udjævning af overfladen og ny behandling med fokus på drift og vedligehold.</p>
+          <p><span className="font-semibold text-foreground">Resultat:</span> Mere roligt udtryk, ensartet overflade og en finish der er nemmere at holde pæn i daglig brug.</p>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Hvad vi typisk hjælper med i omegnsområdet</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          De fleste opgaver er en kombination af flere ting. Her er de mest almindelige grunde til, at kunder kontakter os:
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Genopfriskning af bordplader der føles ru, matte eller “udtørrede”</li>
+          <li>Fjernelse af vand-/varmeaftryk og pletter, hvor overfladen ikke længere beskytter</li>
+          <li>Udbedring af ridser og mærker, så bordpladen igen føles jævn</li>
+          <li>Reduktion af brændemærker/varmepletter, når træet er massivt og skaden kan slibes ned</li>
+          <li>Ny finish for at skifte udtryk eller gøre bordpladen mere praktisk i hverdagen</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Pris, tid og planlægning</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Prisen afhænger af mål, tilstand og hvilken finish du vælger bagefter. Mange bordplader kan planlægges i et enkelt besøg, mens større eller mere slidte overflader kan kræve flere slots. Det vigtigste er, at vi afklarer omfang og forventninger før vi låser tid — så du ved, hvad du siger ja til.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler på <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">/bordpladeslibning/pris</Link>, eller få en konkret vurdering via <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">/bordpladeslibning/prisberegner</Link>.
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ — sådan undgår du at spilde tid</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Vi sliber kun massive træbordplader. Hvis bordpladen er finér eller laminat, kan slibning være risikabelt eller umuligt. Den hurtigste afklaring er et billede af kanten eller enden (endetræ). Så kan vi ofte sige med det samme, om bordpladen er egnet.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se også: <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">/bordpladeslibning/kan-det-slibes</Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker i København & omegn</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          “København & omegn” dækker typisk kommuner og områder lige omkring byen. Vi planlægger ruter, så tiderne er stabile og du får et roligt forløb.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Frederiksberg, Gentofte, Lyngby, Gladsaxe, Rødovre, Hvidovre, Ballerup, Greve, Ishøj.</li>
+        </ul>
       </section>
 
       <section className="py-10 md:py-14">
