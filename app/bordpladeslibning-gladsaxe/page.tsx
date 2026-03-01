@@ -40,6 +40,31 @@ const faqItems = [
     question: "Hvordan får jeg et hurtigt estimat?",
     answer:
       "Brug prisberegneren og upload 3-6 billeder, herunder kant eller ende hvis du er i tvivl."
+  },
+  {
+    question: "Kan I gøre bordpladen mere “nem” at holde pæn?",
+    answer:
+      "Ja, ofte afhænger det af finishvalget og de rigtige vedligeholdsrutiner. Vi rådgiver ud fra brug, så du vælger en løsning der passer til din hverdag."
+  },
+  {
+    question: "Hvad hvis der er dybe ridser?",
+    answer:
+      "Dybe ridser kan ofte reduceres, og nogle kan fjernes, afhængigt af hvor dybt de sidder og om bordpladen er massiv træ. Vi vurderer det ud fra billeder."
+  },
+  {
+    question: "Skal bordpladen være helt tør før behandling?",
+    answer:
+      "Ja, overfladen skal være klar. Hvis der er områder med fugtproblemer eller skade omkring vask, afklarer vi det først, så løsningen bliver holdbar."
+  },
+  {
+    question: "Kan I tage opgaven uden at fjerne bordpladen?",
+    answer:
+      "Ofte ja. Det afhænger af adgang og opbygning. Vi afklarer det, når vi har set billeder og praktiske forhold."
+  },
+  {
+    question: "Kan I hjælpe hvis jeg ikke ved om det er massiv træ eller finér?",
+    answer:
+      "Ja. Send et billede af kanten/enden (endetræ) — det er ofte nok til at afklare materialet."
   }
 ];
 
@@ -73,6 +98,113 @@ export default function BordpladeGladsaxePage() {
         title="Bordpladeslibning i Gladsaxe – kun massiv træ"
         intro="Vi hjælper i Gladsaxe med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeslibning i Gladsaxe – fokus på finish, kanter og detaljer
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          I Gladsaxe møder vi ofte bordplader, hvor selve træet er i fin stand, men hvor overfladen
+          er blevet ujævn i udtrykket: små ridser, matte felter og pletter, der gør at bordpladen
+          ser “plettet” ud i lyset. Når bordpladen er massiv træ, kan en trinvis slibning og ny
+          behandling typisk genskabe et roligt, ensartet udtryk — også når man står tæt på og ser
+          kanter og samlinger.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi lægger vægt på detaljer som overgang ved væg, udskæringer og kanter, fordi det ofte er
+          her helhedsindtrykket afgøres.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Ensartet udtryk i dagslys (overfladen skal “læse” ens)</li>
+          <li>Fokus på kanter og udskæringer – der hvor man ser arbejdet tydeligst</li>
+          <li>Rådgivning om finish ud fra brug og ønsket vedligehold</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Typiske opgaver vi udfører i Gladsaxe</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          De fleste kontakter os, når bordpladen er svær at holde pæn – eller når de vil skifte til
+          en finish, der passer bedre til hverdagen.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Genopfriskning af bordplader der er blevet matte og “tørre”</li>
+          <li>Fjernelse/reduktion af skjolder omkring vask og arbejdszoner</li>
+          <li>Udbedring af ridser og små hak, så overfladen bliver jævn igen</li>
+          <li>Håndtering af varmepletter og misfarvninger, hvor træet er massivt</li>
+          <li>Skift af finish for at få en mere praktisk overflade i et travlt køkken</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Kan den slibes? Sådan afklarer vi det hurtigt</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Det første vi afklarer, er om bordpladen er massiv træ. Ved finér kan toplaget være meget
+          tyndt, og så kan slibning være risikabelt, hvis skaderne sidder dybt. Et billede af kanten
+          eller enden (endetræ) sammen med et billede af skaderne er ofte nok til at give et hurtigt
+          svar.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Guide:{" "}
+          <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
+            /bordpladeslibning/kan-det-slibes
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Pris og vurdering – mest præcist via billeder</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Prisen afhænger af bordpladens mål, skadernes dybde og hvilken finish du ønsker. Vi kan
+          typisk give en langt mere præcis vurdering, når vi har set bordpladen i godt lys — både
+          helheden og de værste områder.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler:{" "}
+          <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
+            /bordpladeslibning/pris
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Få vurdering via billeder:{" "}
+          <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
+            /bordpladeslibning/prisberegner
+          </Link>
+        </p>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Praktisk: sådan forbereder du området (hurtigt og nemt)
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Du behøver ikke gøre det “perfekt”. Det vigtigste er fri adgang til bordpladen, så vi kan
+          afdække ordentligt og arbejde effektivt. Vi aftaler på forhånd, hvordan du bedst kan bruge
+          køkkenet undervejs, og hvad du kan forvente efter behandling (tørretid og brug).
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Fjern løse ting fra bordpladen og området omkring</li>
+          <li>Sørg for fri adgang til udskæringer/kanter (vask/kogeplade)</li>
+          <li>
+            Vi fortæller dig præcist hvornår bordpladen kan bruges igen, afhængigt af finish
+          </li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Områder omkring Gladsaxe vi ofte dækker</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi dækker Gladsaxe og nærliggende områder og planlægger ruter, så tiderne er stabile.
+        </p>
+        <ul className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <li>Søborg</li>
+          <li>Buddinge</li>
+          <li>Bagsværd</li>
+          <li>Lyngby</li>
+          <li>Herlev</li>
+          <li>Gentofte</li>
+        </ul>
+      </section>
 
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Gladsaxe</h2>
