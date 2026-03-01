@@ -40,6 +40,31 @@ const faqItems = [
     question: "Hvordan får jeg et hurtigt estimat?",
     answer:
       "Brug prisberegneren og upload 3-6 billeder, herunder kant eller ende hvis du er i tvivl."
+  },
+  {
+    question: "Kan I hjælpe, hvis bordpladen ser pæn ud ét sted men plettet et andet?",
+    answer:
+      "Ja. Det er meget almindeligt. Målet er at få et ensartet udtryk, og derfor vurderer vi ofte hele bordpladen samlet, så du undgår synlige overgange."
+  },
+  {
+    question: "Hvor mange billeder skal jeg sende?",
+    answer:
+      "3–6 billeder er typisk nok: helhed, nærbilleder i godt lys og et billede af kanten/enden hvis du er i tvivl om materialet."
+  },
+  {
+    question: "Kan I slibe tæt på væg og fuge?",
+    answer:
+      "Ofte ja, men det afhænger af bordpladens montering og adgang. Vi vurderer det ud fra billeder og afklarer det før vi går i gang."
+  },
+  {
+    question: "Hvilken finish er bedst til et travlt køkken?",
+    answer:
+      "Det afhænger af dine prioriteter. Nogle vil have minimalt vedligehold, andre prioriterer et naturligt udtryk. Vi rådgiver ud fra brug, så du vælger praktisk."
+  },
+  {
+    question: "Kan I tage flere bordplader på samme dag?",
+    answer:
+      "Ja, ofte kan vi planlægge køkken + fx bryggers/spisebord sammen, hvis du nævner det på forhånd og sender billeder/mål."
   }
 ];
 
@@ -73,6 +98,120 @@ export default function BordpladeKoebenhavnPage() {
         title="Bordpladeslibning i København – kun massiv træ"
         intro="Vi hjælper i København med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeslibning i København – når køkkenbordet skal være pænt i dagslys
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          I København ser vi ofte bordplader, hvor brugsspor bliver ekstra tydelige, fordi køkkener
+          tit har store vinduespartier og meget dagslys. Små ridser og matte zoner kan få en ellers
+          flot massiv træbordplade til at se “ujævn” ud, især omkring vask og på arbejdsfladerne.
+          Med korrekt slibning og en finish, der passer til brugen, kan bordpladen ofte få et mere
+          roligt, ensartet udtryk igen — uden at du skal udskifte hele bordet eller hele
+          køkkenbordet.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>
+            Ensartet udtryk i lys: vi arbejder for en overflade der “læser” ens fra alle vinkler
+          </li>
+          <li>Finishvalg efter hverdagsbrug (vand, varme, madlavning og rengøring)</li>
+          <li>Tydelig forventningsafstemning om tid, tørretid og brug bagefter</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Typiske københavner-problemer: vaskezonen, varme og “grå” overflader
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Når overfladen mister sin beskyttelse, kommer problemerne ofte i de samme zoner. Vi
+          hjælper typisk med:
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>
+            Skjolder og ringe tæt på vasken, hvor vand og sæbe har slidt finishen ned
+          </li>
+          <li>Varmepletter fra gryder/pander og små brændemærker på træets top</li>
+          <li>Fine ridser, der gør bordpladen mat og “grå” i lyset</li>
+          <li>Overflader der føles ru eller ujævne efter mange års brug</li>
+          <li>
+            Bordplader der er svære at rengøre, fordi finishen er slidt og porøs
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Materialet først: massiv træ eller finér?</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Det vigtigste spørgsmål før vi planlægger slibning, er opbygningen. Massive træbordplader
+          kan ofte slibes flere gange over levetiden, mens finér kan have et meget tyndt toplag. Et
+          billede af kanten eller enden (endetræ) er ofte nok til at afklare det hurtigt.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Guide:{" "}
+          <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
+            /bordpladeslibning/kan-det-slibes
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Pris i København – få den mest præcist via billeder</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Prisen afhænger af mål, skader og finishvalg. I København er den hurtigste proces næsten
+          altid at starte med en billedvurdering: så kan vi vurdere opbygning, arbejdsomfang og
+          næste skridt uden at spilde tid. Når vi har set bordpladen i godt lys, kan vi give en
+          langt mere præcis vurdering.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler:{" "}
+          <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
+            /bordpladeslibning/pris
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Få vurdering via billeder:{" "}
+          <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
+            /bordpladeslibning/prisberegner
+          </Link>
+        </p>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Praktisk plan i København: adgang, tid og en pæn aflevering
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi gør det så let som muligt at få arbejdet udført i en travl hverdag. Derfor afklarer vi
+          tidligt adgang, praktiske forhold og hvordan køkkenet kan fungere undervejs. Vi afdækker
+          omkring arbejdsområdet og afslutter med en tydelig gennemgang, så du ved præcis hvordan du
+          bruger og vedligeholder overfladen bagefter.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Afdækning og beskyttelse af området omkring bordpladen</li>
+          <li>Klar plan for tørretid og hvornår bordpladen kan bruges igen</li>
+          <li>Råd til vedligehold, så finishen holder pæn længere</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Vi dækker København og bydele med kort planlægning
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi dækker København og planlægger tider ud fra område og opgavens omfang, så forløbet
+          bliver stabilt.
+        </p>
+        <ul className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <li>Nørrebro</li>
+          <li>Vesterbro</li>
+          <li>Østerbro</li>
+          <li>Amager</li>
+          <li>Valby</li>
+          <li>Vanløse</li>
+        </ul>
+      </section>
 
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i København</h2>
