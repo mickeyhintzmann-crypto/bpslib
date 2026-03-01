@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
@@ -7,40 +8,41 @@ import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
   {
-    question: "Hvad koster gulvafslibning i Slagelse?",
+    question: "Kan I lave en løsning, der passer til en stram tidsplan?",
     answer:
-      "Prisen afhænger af gulvtype, areal og behandling. Send en kort beskrivelse, så får du et tilbud."
+      "Ja - vi planlægger realistisk og afklarer alt tidligt. Fortæl os dine deadlines ved booking."
   },
   {
-    question: "Hvornår vælger man afhøvling?",
+    question: "Hvad hvis der er mange rum eller stort areal?",
     answer:
-      "Afhøvling bruges når gulvet er meget ujævnt eller har dybe skader, der ikke kan slibes væk."
+      "Så planlægger vi arbejdet i etaper og hjælper dig med at vælge finish, der passer til drift og slid."
   },
   {
-    question: "Lak eller olie?",
+    question: "Hvad koster det?",
     answer:
-      "Lak giver en robust overflade, olie giver et mere naturligt udtryk. Vi rådgiver ud fra brug og ønsket finish."
+      "Det afhænger af gulvtype, m², tilstand og efterbehandling. Book tilbudstid, så får du et konkret tilbud."
   },
   {
-    question: "Hvor lang tid tager det?",
+    question: "Hvilken finish anbefaler I til gang/entre?",
     answer:
-      "Tiden afhænger af opgavens størrelse og behandling. Vi giver en realistisk tidsplan i tilbuddet."
+      "Typisk lak pga. slidstyrke. Vi rådgiver ud fra din brug."
   },
   {
     question: "Støver det meget?",
     answer:
-      "Vi bruger støvkontrol og afdækning, men der vil altid være noget støv ved gulvslibning."
+      "Vi bruger støvkontrol og afdækning, men der vil altid være noget støv ved slibning."
   },
   {
-    question: "Hvordan booker jeg tilbudstid?",
+    question: "Dækker I også Korsør/Skælskør/Sorø?",
     answer:
-      "Du booker uforpligtende tilbudstid via formularen, så vender vi hurtigt tilbage."
+      "Ja - vi dækker hele området og planlægger ruter samlet."
   }
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Slagelse | Uforpligtende tilbud | BPSLIB",
-  description: "Gulvafslibning i Slagelse. Book uforpligtende tilbudstid eller kontakt os.",
+  title: "Gulvafslibning i Slagelse | Uforpligtende tilbud | BP Slib",
+  description:
+    "Gulvafslibning i Slagelse, Korsør og Skælskør. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erhvervserfaring fra bl.a. Rigshospitalets Patienthotel og Tivoli. Book tilbudstid.",
   path: "/gulvafslibning-slagelse"
 });
 
@@ -52,12 +54,17 @@ export default function GulvSlagelsePage() {
           Gulvafslibning i Slagelse
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Slagelse. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har både villaer og
-          rækkehuse, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Vi kører også i{" "}
-          <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">
-            Vest- og Sydsjælland
-          </Link>
-          .
+          Vi hjælper med gulvafslibning i Slagelse og omegn - både i villaer, rækkehuse og større
+          arealer, hvor planlægning og tidsplan betyder meget. Vi tilpasser forløbet efter gulvtype,
+          tilstand og praktiske forhold, så du får en tydelig proces og et resultat, der holder.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Du får et uforpligtende tilbud baseret på m², gulvtype og ønsket behandling (lak, olie eller
+          sæbe). Vi afklarer adgang, parkering og tidsplan tidligt, så du undgår overraskelser.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Erfaring fra større kunder: Rigshospitalets Patienthotel, Brdr. Price Tivoli,
+          Skatteministeriet og Boldens Gård.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild>
@@ -69,17 +76,19 @@ export default function GulvSlagelsePage() {
         </div>
       </section>
 
+      <ReferenceStrip />
+
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
-            <span className="font-semibold text-foreground">Problem:</span> Slidt gulv med ridser og ujævn glans i bolig.
+            <span className="font-semibold text-foreground">Udgangspunkt:</span> Slidt gulv i stue/gang med ridser og tydelige slidspor.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Løsning:</span> Slibning i trin og ny finish efter ønsket udtryk.
+            <span className="font-semibold text-foreground">Løsning:</span> Kontrolleret slibning + finishvalg, der passer til brug (ofte lak ved høj trafik).
           </li>
           <li>
-            <span className="font-semibold text-foreground">Resultat:</span> Jævnt gulv med roligt udtryk og bedre holdbarhed.
+            <span className="font-semibold text-foreground">Resultat:</span> Pænere overflade, mere ensartet udtryk og bedre modstand i hverdagen.
           </li>
         </ul>
       </section>

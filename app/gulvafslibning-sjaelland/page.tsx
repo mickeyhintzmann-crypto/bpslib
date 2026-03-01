@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
@@ -39,9 +40,9 @@ const faqItems = [
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning på Sjælland | Slibning & efterbehandling af trægulve",
+  title: "Gulvafslibning på Sjælland | Uforpligtende tilbud | BP Slib",
   description:
-    "Professionel gulvafslibning og efterbehandling på Sjælland. Book uforpligtende tilbudstid eller kontakt os for en vurdering.",
+    "Gulvafslibning på Sjælland med lak, olie eller sæbe. Uforpligtende tilbud og realistisk tidsplan. Erfaring fra bl.a. Rigshospitalets Patienthotel, Brdr. Price Tivoli og Skatteministeriet. Book tilbudstid.",
   path: "/gulvafslibning-sjaelland"
 });
 
@@ -66,6 +67,8 @@ export default function GulvHubPage() {
           </Button>
         </div>
       </section>
+
+      <ReferenceStrip />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2">
         <article className="rounded-3xl border border-border/70 bg-white/70 p-6">

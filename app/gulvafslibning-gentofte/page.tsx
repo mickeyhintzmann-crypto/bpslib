@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
@@ -7,40 +8,41 @@ import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
   {
-    question: "Hvad koster gulvafslibning i Gentofte?",
+    question: "Kan I slibe, hvis vi bor i etageejendom med fælles opgang?",
     answer:
-      "Prisen afhænger af gulvtype, areal og behandling. Send en kort beskrivelse, så får du et tilbud."
+      "Ja - vi planlægger efter adgang, elevator/tidsvinduer og hensyn til naboer. Skriv gerne praktiske forhold ved booking."
   },
   {
-    question: "Hvornår vælger man afhøvling?",
+    question: "Hvad er smartest i hjem med børn/høj trafik?",
     answer:
-      "Afhøvling bruges når gulvet er meget ujævnt eller har dybe skader, der ikke kan slibes væk."
+      "Typisk en slidstærk lak. Olie kan være flot og naturligt, men kræver ofte mere vedligehold - vi rådgiver ud fra jeres hverdag."
   },
   {
-    question: "Lak eller olie?",
+    question: "Kan I fjerne mørke slidspor og matte felter?",
     answer:
-      "Lak giver en robust overflade, olie giver et mere naturligt udtryk. Vi rådgiver ud fra brug og ønsket finish."
+      "Ofte ja, hvis skaden ligger i overfladen. Dybe pletter/ujævnheder kan kræve ekstra forarbejde - det vurderer vi på tilbudstiden."
   },
   {
-    question: "Hvor lang tid tager det?",
+    question: "Hvordan foregår tilbud og tidsplan?",
     answer:
-      "Tiden afhænger af opgavens størrelse og behandling. Vi giver en realistisk tidsplan i tilbuddet."
+      "Du booker tilbudstid -> vi afklarer gulvtype/finish/praktik -> du får et konkret tilbud og realistisk tidsplan."
   },
   {
     question: "Støver det meget?",
     answer:
-      "Vi bruger støvkontrol og afdækning, men der vil altid være noget støv ved gulvslibning."
+      "Vi bruger støvkontrol og afdækning, men der vil altid være noget støv ved slibning."
   },
   {
-    question: "Hvordan booker jeg tilbudstid?",
+    question: "Dækker I også Ordrup/Jægersborg/Vangede?",
     answer:
-      "Du booker uforpligtende tilbudstid via formularen, så vender vi hurtigt tilbage."
+      "Ja - vi dækker hele området og planlægger opgaverne samlet."
   }
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Gentofte | Uforpligtende tilbud | BPSLIB",
-  description: "Gulvafslibning i Gentofte. Book uforpligtende tilbudstid eller kontakt os.",
+  title: "Gulvafslibning i Gentofte | Uforpligtende tilbud | BP Slib",
+  description:
+    "Gulvafslibning i Gentofte, Hellerup og Charlottenlund. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erhvervserfaring fra bl.a. Rigshospitalets Patienthotel og Tivoli. Book tilbudstid.",
   path: "/gulvafslibning-gentofte"
 });
 
@@ -52,12 +54,18 @@ export default function GulvGentoftePage() {
           Gulvafslibning i Gentofte
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Gentofte. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. I villaer og rækkehuse er
-          adgang og planlægning ofte mere enkel, og vi kan tilrettelægge forløbet effektivt. Vi kører også i{" "}
-          <Link href="/gulvafslibning-nordsjaelland" className="font-medium text-foreground hover:text-primary">
-            Nordsjælland
-          </Link>
-          .
+          Vi hjælper med gulvafslibning i Gentofte og nærområder som Hellerup, Charlottenlund og
+          Klampenborg. Her møder vi ofte klassiske parketgulve og plankegulve, hvor finish og
+          detaljegrad betyder meget - især i stuer, gange og rum med høj daglig brug.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Du får et uforpligtende tilbud baseret på gulvtype, m² og ønsket behandling (lak, olie eller
+          sæbe). Vi afklarer adgang, parkering og praktiske forhold på forhånd, så du får en smidig
+          proces og en tydelig tidsplan.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Erfaring fra større kunder: Rigshospitalets Patienthotel, Brdr. Price Tivoli,
+          Skatteministeriet og Boldens Gård.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild>
@@ -69,17 +77,19 @@ export default function GulvGentoftePage() {
         </div>
       </section>
 
+      <ReferenceStrip />
+
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
-            <span className="font-semibold text-foreground">Problem:</span> Slidt gulv i stue med ridser og matte felter.
+            <span className="font-semibold text-foreground">Udgangspunkt:</span> Parketgulv med slidbaner i gang/stue og små ridser fra daglig brug.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Løsning:</span> Kontrolleret slibning og ny overfladebehandling.
+            <span className="font-semibold text-foreground">Løsning:</span> Slibning i trin + valg af finish, der passer til brugsmønster (ofte lak ved høj trafik).
           </li>
           <li>
-            <span className="font-semibold text-foreground">Resultat:</span> Jævnt gulv med roligt udtryk og bedre holdbarhed.
+            <span className="font-semibold text-foreground">Resultat:</span> Mere ensartet glans, pænere overflade og bedre modstand i hverdagen.
           </li>
         </ul>
       </section>
