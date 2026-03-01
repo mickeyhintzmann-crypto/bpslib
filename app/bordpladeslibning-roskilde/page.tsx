@@ -55,6 +55,31 @@ const faqItems = [
     question: "Hvad kan jeg gøre for at undgå nye skjolder bagefter?",
     answer:
       "Det handler især om den rigtige finish og gode rutiner. Vi anbefaler altid en behandling, der passer til brugen (fx vand/varme), og du får konkrete råd til vedligehold ved aflevering."
+  },
+  {
+    question: "Kan I fjerne skjolder omkring vasken?",
+    answer:
+      "Ofte ja. Det afhænger af hvor dybt de sidder, og hvilken behandling bordpladen har fået tidligere. Vi vurderer det ud fra billeder i godt lys."
+  },
+  {
+    question: "Hvad hvis bordpladen er meget ujævn eller ru?",
+    answer:
+      "En ru overflade kan ofte udjævnes med den rigtige slibeproces, men det afhænger af opbygning og tilstand. Vi vurderer omfanget før vi planlægger tid."
+  },
+  {
+    question: "Skal hele bordpladen slibes, hvis problemet kun er ét sted?",
+    answer:
+      "Ofte ja, hvis du vil undgå synlige overgange og få et ensartet udtryk. Vi anbefaler altid den løsning, der giver det pæneste helhedsresultat."
+  },
+  {
+    question: "Kan jeg få en vurdering uden besøg først?",
+    answer:
+      "Ja. Start med prisberegneren og send 3–6 billeder (inkl. kanten/enden hvis du er i tvivl om materiale), så vender vi tilbage med næste skridt."
+  },
+  {
+    question: "Hvordan undgår jeg at bordpladen hurtigt bliver mat igen?",
+    answer:
+      "Det handler især om korrekt finish og vedligehold. Du får konkrete råd ved aflevering, så du ved hvad du skal gøre – og hvad du bør undgå."
   }
 ];
 
@@ -88,6 +113,125 @@ export default function BordpladeRoskildePage() {
         title="Bordpladeslibning i Roskilde – kun massiv træ"
         intro="Vi hjælper i Roskilde med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeslibning i Roskilde – når træet stadig er godt, men overfladen er træt
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          I Roskilde møder vi ofte bordplader, hvor træet i sig selv er sundt, men hvor overfladen
+          har taget imod mange års hverdag: små ridser, pletter og matte zoner, der gør bordpladen
+          ujævn i udtrykket. Når bordpladen er massiv træ, kan slibning og ny behandling ofte
+          bringe den tilbage til et ensartet og mere “rent” look — uden at du behøver udskifte
+          bordpladen.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi starter altid med at vurdere opbygning og skadetyper, så du får en realistisk
+          forventning til både resultat og forløb.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Fokus på ensartethed: samme farveoplevelse og glød på hele fladen</li>
+          <li>Finish vælges ud fra brug og vedligehold (ikke “one size fits all”)</li>
+          <li>Klar plan for tørretid og hvornår bordpladen kan bruges igen</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          De mest almindelige skader vi ser i Roskilde-køkkener
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Nogle skader er kosmetiske, andre fortæller at finishen er slidt væk. Her er de klassiske
+          tegn på at bordpladen trænger til en slibning og ny behandling:
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>
+            Skjolder og ringe omkring vasken, hvor vand har arbejdet sig ind i overfladen
+          </li>
+          <li>Matte felter i arbejdszoner, hvor finishen ikke længere beskytter</li>
+          <li>Fine ridser der gør overfladen “støvet” eller grå i lyset</li>
+          <li>
+            Varmepletter/brændemærker som kan være synlige selv efter rengøring
+          </li>
+          <li>
+            Overflader der føles ru eller ujævne, fordi træet har rejst sig i brug
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Kan den slibes? Hurtig afklaring på materiale
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Før vi planlægger en opgave, skal vi være sikre på at bordpladen er massiv træ. Ved finér
+          kan toplaget være så tyndt, at slibning ikke er forsvarligt, hvis skaderne sidder dybt.
+          Et billede af kanten eller enden (endetræ) sammen med et billede af de værste områder er
+          ofte nok til at give et hurtigt svar.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Guide:{" "}
+          <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
+            /bordpladeslibning/kan-det-slibes
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Pris og vurdering i Roskilde – mest præcist via billeder
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Prisen afhænger af bordpladens mål, tilstand og finishvalg. Den hurtigste vej til et
+          konkret svar er at sende billeder, så vi kan vurdere både helheden og problemzonerne. Når
+          vi kan se bordpladen i godt lys, kan vi typisk give en mere præcis vurdering og anbefale
+          den rigtige finish.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler:{" "}
+          <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
+            /bordpladeslibning/pris
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Få vurdering via billeder:{" "}
+          <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
+            /bordpladeslibning/prisberegner
+          </Link>
+        </p>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Praktisk forløb: sådan gør vi det let for dig
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi planlægger forløbet, så du ved hvad der sker, og hvornår du kan bruge bordpladen igen.
+          Vi afdækker omkring arbejdsområdet, arbejder trinvis og afslutter med en tydelig
+          gennemgang, så du har styr på både brug og vedligehold bagefter.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Afdækning og beskyttelse af flader tæt på bordpladen</li>
+          <li>Tydelig forventningsafstemning om tid og tørretid</li>
+          <li>Aflevering med konkrete råd, så finishen holder pæn længere</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Vi dækker Roskilde og nærområder</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi dækker Roskilde og planlægger efter område og opgavens omfang, så tiderne bliver
+          stabile.
+        </p>
+        <ul className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <li>Hedehusene</li>
+          <li>Trekroner</li>
+          <li>Viby Sjælland</li>
+          <li>Tune</li>
+          <li>Køge</li>
+          <li>Lejre</li>
+        </ul>
+      </section>
 
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Roskilde</h2>
