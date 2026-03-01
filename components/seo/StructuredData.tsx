@@ -47,6 +47,42 @@ export const buildBreadcrumbSchema = (items: BreadcrumbItem[]) => ({
   }))
 });
 
+type WebSiteSchemaInput = {
+  name: string;
+  url: string;
+  description: string;
+};
+
+export const buildWebSiteSchema = ({ name, url, description }: WebSiteSchemaInput) => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name,
+  url,
+  description
+});
+
+export type ItemListSchemaItem = {
+  name: string;
+  url: string;
+  description?: string;
+};
+
+export const buildItemListSchema = (name: string, items: ItemListSchemaItem[]) => ({
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name,
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: {
+      "@type": "CreativeWork",
+      name: item.name,
+      url: item.url,
+      ...(item.description ? { description: item.description } : {})
+    }
+  }))
+});
+
 type ServiceSchemaInput = {
   name: string;
   description: string;

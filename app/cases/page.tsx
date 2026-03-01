@@ -5,10 +5,17 @@ import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Cases | Træsort & olie-farver (massiv træ) | BPSLIB",
+  title: "Cases | Træsort & olie-farver (massiv træ)",
   description:
     "Se eksempler på træsorter og olie-farver på massive træbordplader. Få pris via billeder eller book tid.",
-  path: "/cases"
+  path: "/cases",
+  keywords: [
+    "cases bordpladeslibning",
+    "før efter bordplade",
+    "træsort og olie farver",
+    "massiv træbordplade"
+  ],
+  ogImagePath: "/images/cases/eg-hvid-after.jpg"
 });
 
 export default function CasesPage() {
@@ -27,6 +34,10 @@ export default function CasesPage() {
           , prisguiden på{" "}
           <Link href="/bordpladeslibning/pris" className="font-medium text-foreground hover:text-primary">
             bordpladeslibning/pris
+          </Link>
+          , samt vores side med{" "}
+          <Link href="/referencer" className="font-medium text-foreground hover:text-primary">
+            referencer
           </Link>
           , samt guides til{" "}
           <Link href="/bordpladeslibning/skjolder" className="font-medium text-foreground hover:text-primary">
@@ -51,6 +62,9 @@ export default function CasesPage() {
           </Button>
           <Button asChild variant="secondary">
             <Link href="/bordpladeslibning/pris">Se prisguide</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/referencer">Se referencer</Link>
           </Button>
         </div>
       </section>

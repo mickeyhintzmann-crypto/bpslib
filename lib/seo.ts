@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { brandAssets } from "@/lib/assets";
 import { siteConfig } from "@/lib/site-config";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -22,18 +23,37 @@ type MetadataInput = {
   title: string;
   description: string;
   path: string;
+  keywords?: string[];
+  ogImagePath?: string;
 };
 
-export const buildMetadata = ({ title, description, path }: MetadataInput): Metadata => {
+const resolveImageUrl = (siteUrl: string, ogImagePath?: string) => {
+  const fallbackImage = `${siteUrl}${brandAssets.hero}`;
+  const normalizedPath = ogImagePath?.trim();
+
+  if (!normalizedPath) {
+    return fallbackImage;
+  }
+
+  if (normalizedPath.startsWith("http://") || normalizedPath.startsWith("https://")) {
+    return normalizedPath;
+  }
+
+  return `${siteUrl}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;
+};
+
+export const buildMetadata = ({ title, description, path, keywords, ogImagePath }: MetadataInput): Metadata => {
   const siteUrl = getSiteUrl();
   const noIndex = process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production";
   const normalizedPath = normalizePath(path);
   const canonical = `${siteUrl}${normalizedPath}`;
   const fullTitle = `${title} | ${siteConfig.companyName}`;
+  const imageUrl = resolveImageUrl(siteUrl, ogImagePath);
 
   return {
     title: fullTitle,
     description,
+    keywords,
     robots: noIndex
       ? {
           index: false,
@@ -50,7 +70,21 @@ export const buildMetadata = ({ title, description, path }: MetadataInput): Meta
       url: canonical,
       siteName: siteConfig.companyName,
       locale: "da_DK",
-      type: "website"
+      type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: fullTitle
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description,
+      images: [imageUrl]
     }
   };
 };
