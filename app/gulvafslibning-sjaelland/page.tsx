@@ -76,11 +76,41 @@ const faqItems = [
     question: "Hvad kan jeg gøre for at gulvet holder sig pænt længere?",
     answer:
       "Valg af finish og korrekt vedligehold er afgørende. Du får konkrete råd ved aflevering til rengøring og pleje."
+  },
+  {
+    question: "Hvad er forskellen på gulvslibning og gulvafslibning?",
+    answer:
+      "Det bruges ofte om det samme. Begge dækker slibning af trægulv, hvor den slidte overflade fjernes og gulvet gøres klar til ny efterbehandling."
+  },
+  {
+    question: "Kan man slibe et gulv der allerede er lakeret?",
+    answer:
+      "Ja, i mange tilfælde. Vi fjerner den gamle overflade som del af processen og rådgiver derefter om den bedste nye behandling ud fra rummets brug."
+  },
+  {
+    question: "Hvornår vælger man gulvafhøvling fremfor slibning?",
+    answer:
+      "Typisk når slibning ikke er nok – fx ved store ujævnheder, meget dybe skader eller gamle belægninger. Vi vurderer gulvets stand før vi anbefaler afhøvling."
+  },
+  {
+    question: "Hvilken efterbehandling er bedst til entré eller køkken?",
+    answer:
+      "Det afhænger af brug og vedligehold. Lak er ofte nem i drift, mens olie/sæbe kan give flotte udtryk men kræver mere løbende pleje. Vi rådgiver ud fra din hverdag."
+  },
+  {
+    question: "Hvornår må man gå på gulvet og flytte møbler tilbage?",
+    answer:
+      "Det afhænger af den valgte behandling og tørretid. Du får altid en klar plan for hvornår gulvet kan bruges igen."
+  },
+  {
+    question: "Kan I tage flere rum over flere dage (etaper)?",
+    answer:
+      "Ja. Vi planlægger rækkefølge og etaper, så det fungerer praktisk med adgang og tørretider."
   }
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning på Sjælland | Uforpligtende tilbud | BP Slib",
+  title: "Gulvafslibning på Sjælland | Slibning & efterbehandling af trægulve",
   description:
     "Gulvafslibning på Sjælland med lak, olie eller sæbe. Uforpligtende tilbud og realistisk tidsplan. Erfaring fra bl.a. Rigshospitalets Patienthotel, Brdr. Price Tivoli og Skatteministeriet. Book tilbudstid.",
   path: "/gulvafslibning-sjaelland"
@@ -106,6 +136,78 @@ export default function GulvHubPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Gulvafslibning og gulvslibning på Sjælland – samme behov, forskellige ord
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Mange søger på “gulvafslibning Sjælland”, mens andre skriver “gulvslibning Sjælland”
+          eller “slibning af trægulv”. Det dækker i praksis det samme: at fjerne den slidte
+          overflade, udjævne udtrykket og gøre gulvet klar til ny behandling.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Vi starter altid med at vurdere gulvtype, slid og forventninger, så afslibning af gulv
+          bliver planlagt rigtigt fra første dag – både ift. finish og tørretid.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Afslibning af gulv: fornyer overfladen og gør gulvet ensartet igen</li>
+          <li>Slibning af trægulv: fjerner slidte zoner og reducerer ridser og ujævn glans</li>
+          <li>Efterbehandling af gulv: afgør hvor nemt gulvet bliver at holde pænt i hverdagen</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Afslibning eller gulvafhøvling? (kort teaser der afklarer)</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Gulvafhøvling er typisk først relevant, når almindelig slibning ikke er nok – fx ved
+          store niveauforskelle, meget dybe skader eller gamle belægninger der kræver en grovere
+          proces. Derfor ser vi altid på gulvets stand før vi anbefaler afhøvling, så du ikke ender
+          med en unødigt hård behandling.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I mange tilfælde kan en korrekt, trinvis slibning give et flot resultat med mindre indgreb
+          i træet.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Afhøvling kan være relevant ved meget dybe skader eller store ujævnheder</li>
+          <li>Slibning er ofte nok ved almindeligt slid, ridser og ujævn glans</li>
+          <li>Vi anbefaler processen ud fra resultat + holdbarhed, ikke bare “mest muligt”</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Efterbehandling af gulv – det der bestemmer drift og vedligehold</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Efterbehandlingen er det, der afgør om gulvet bliver “nemt” eller “krævende” i daglig
+          drift. Nogle ønsker et varmt, naturligt udtryk og accepterer mere løbende pleje, mens
+          andre vil have en overflade der kræver mindst muligt i hverdagen.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Vi rådgiver ud fra rummets brug (entré, køkken, stue, børn/kæledyr), så du vælger en
+          løsning der giver mening på dag 30 – ikke kun på dag 1.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Lak: ofte nem i drift og typisk mindre løbende pleje</li>
+          <li>Olie: naturligt udtryk, men kræver mere vedligehold over tid</li>
+          <li>Sæbe: klassisk, lyst look – kræver korrekt rutine for at holde sig pænt</li>
+        </ul>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Hvornår giver gulvafslibning mest værdi?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Gulvafslibning giver typisk mest værdi, når gulvet stadig er solidt, men overfladen er
+          slidt. Målet er ikke “perfektion i laboratorielys”, men et gulv der ser roligt ud i
+          hverdagen og er realistisk at vedligeholde.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Når gangzoner er slidte og gulvet ser mat og ujævnt ud</li>
+          <li>Når ridser og mærker gør overfladen urolig i dagslys</li>
+          <li>Når du vil skifte finish for at få en mere praktisk hverdag</li>
+          <li>Når du vil løfte helhedsindtrykket uden at udskifte gulvet</li>
+        </ul>
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
