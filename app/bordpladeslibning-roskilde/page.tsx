@@ -40,6 +40,21 @@ const faqItems = [
     question: "Hvordan får jeg et hurtigt estimat?",
     answer:
       "Brug prisberegneren og upload 3-6 billeder, herunder kant eller ende hvis du er i tvivl."
+  },
+  {
+    question: "Hvor hurtigt kan jeg få en vurdering i Roskilde?",
+    answer:
+      "Den hurtigste vej er at sende 3–6 billeder (inkl. et billede af kanten/enden hvis du er i tvivl om materialet). Så kan vi typisk vurdere omfang og næste skridt hurtigt."
+  },
+  {
+    question: "Skal hele bordpladen slibes, hvis der kun er én skade?",
+    answer:
+      "Ofte ja, hvis man vil undgå synlige overgange og få et ensartet udtryk. I nogle tilfælde kan lokale skader håndteres som del af en samlet slibning og ny finish."
+  },
+  {
+    question: "Hvad kan jeg gøre for at undgå nye skjolder bagefter?",
+    answer:
+      "Det handler især om den rigtige finish og gode rutiner. Vi anbefaler altid en behandling, der passer til brugen (fx vand/varme), og du får konkrete råd til vedligehold ved aflevering."
   }
 ];
 
@@ -180,6 +195,33 @@ export default function BordpladeRoskildePage() {
         <p className="mt-4 text-sm text-muted-foreground">
           Roskilde, Trekroner, Svogerslev, Veddelev, Viby Sjælland, Gadstrup, Jyllinge, Lejre (nært).
         </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt: bordplader i Roskilde</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          I Roskilde ser vi ofte bordplader, der er blevet “trætte” af helt almindelig daglig brug: matte felter ved vask og komfur, små ridser fra køkkenarbejde og skjolder efter vand og varme. Når bordpladen er massiv træ, kan den i mange tilfælde bringes tilbage til et ensartet udtryk med korrekt slibning og en finish, der passer til brugen.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Vi starter altid med at vurdere materiale og skadetyper, så du ved, hvad der realistisk kan reddes — og hvad der kræver en anden løsning.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Typiske udfordringer: skjolder, matte zoner, ridser og varmepletter</li>
+          <li>Vi vurderer altid dybde og nuværende behandling før vi anbefaler finish</li>
+          <li>Målet er en overflade der føles ens og ser ens ud i lys</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Praktisk forløb i Roskilde: rolig plan og pæn aflevering</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          For at forløbet bliver let for dig, afklarer vi de praktiske rammer tidligt: adgang, parkering og om bordpladen behandles på stedet. Vi beskytter området omkring bordpladen, arbejder struktureret og afslutter med en tydelig gennemgang, så du ved hvordan overfladen skal bruges og vedligeholdes bagefter.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>Afdækning af gulve og flader omkring arbejdsområdet</li>
+          <li>Klar forventningsafstemning om tid, tørretid og brug efter behandling</li>
+          <li>Rådgivning om olie vs. lak ud fra dit køkkens brug og din hverdag</li>
+        </ul>
       </section>
 
       <section className="py-10 md:py-14">
