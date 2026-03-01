@@ -36,6 +36,21 @@ const faqItems = [
     question: "Dækker I også Korsør/Skælskør/Sorø?",
     answer:
       "Ja - vi dækker hele området og planlægger ruter samlet."
+  },
+  {
+    question: "Kan I planlægge efter en stram tidsplan eller deadline?",
+    answer:
+      "Ja. Fortæl os dine deadlines ved booking, så planlægger vi forløbet så realistisk som muligt – evt. i etaper ved større arealer."
+  },
+  {
+    question: "Hvad hvis der er mange rum eller et stort areal?",
+    answer:
+      "Så planlægger vi rækkefølge og etaper, så det fungerer praktisk med adgang og tørretider. Du får en klar plan og forventningsafstemning."
+  },
+  {
+    question: "Hvilken finish anbefaler I til gang og rum med høj trafik?",
+    answer:
+      "Typisk lak pga. slidstyrke og nem vedligehold. Olie og sæbe kan være flotte valg, men kræver mere pleje."
   }
 ];
 
@@ -74,6 +89,15 @@ export default function GulvSlagelsePage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Sådan planlægger vi gulvafslibning i Slagelse
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I Slagelse og omegn ser vi ofte opgaver med flere rum eller større opholdsarealer, hvor en tydelig plan gør hele processen lettere. Vi starter med at vurdere gulvtype (parket, plank eller sildeben), tilstand og hvor de mest slidte zoner er – typisk i gang, stue og alrum. Derefter planlægger vi rækkefølge, adgang og tidsplan, så du ved hvad der sker hvornår, og så det fungerer praktisk med tørretider og hverdagen. Målet er en proces uden overraskelser og et ensartet resultat med en finish der passer til brugen.
+        </p>
       </section>
 
       <ReferenceStrip />
@@ -135,6 +159,15 @@ export default function GulvSlagelsePage() {
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Slagelse, Korsør, Skælskør, Sorø (nært), Dianalund (nært), Fuglebjerg (nært), Dalmose.
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Finishvalg i praksis: lak, olie eller sæbe
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Finish handler ikke kun om udseende – det handler om drift i hverdagen. Lak er typisk det mest slidstærke valg og ofte det mest praktiske i rum med høj trafik som gang og opholdsrum. Olie giver et mere naturligt udtryk og kan være en flot løsning, men kræver typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller højere krav til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dine rum og dit brug, så du vælger en løsning der både ser godt ud og fungerer i praksis.
         </p>
       </section>
 
