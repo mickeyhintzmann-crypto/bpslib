@@ -40,6 +40,31 @@ const faqItems = [
     question: "Hvordan får jeg et hurtigt estimat?",
     answer:
       "Brug prisberegneren og upload 3-6 billeder, herunder kant eller ende hvis du er i tvivl."
+  },
+  {
+    question: "Kan I fjerne både ridser og skjolder i samme omgang?",
+    answer:
+      "Ofte ja. Slibningen udjævner overfladen og kan fjerne eller reducere flere typer brugsspor, men resultatet afhænger af skadernes dybde og tidligere behandling."
+  },
+  {
+    question: "Hvad hvis jeg er i tvivl om bordpladen er massiv træ?",
+    answer:
+      "Send et billede af kanten/enden (endetræ). Det er ofte nok til at afklare opbygningen hurtigt."
+  },
+  {
+    question: "Skal jeg vælge finish nu?",
+    answer:
+      "Nej. Du kan skrive “i tvivl”, så rådgiver vi ud fra brug og ønsket vedligehold, før vi lægger os fast."
+  },
+  {
+    question: "Kan jeg få en vurdering uden at I kommer ud først?",
+    answer:
+      "Ja. Start med prisberegneren og send billeder/mål, så vender vi tilbage med næste skridt."
+  },
+  {
+    question: "Hvordan passer jeg bedst på bordpladen bagefter?",
+    answer:
+      "Det afhænger af finish. Du får konkrete råd ved aflevering, så du ved præcis hvad du skal gøre (og hvad du bør undgå)."
   }
 ];
 
@@ -73,6 +98,116 @@ export default function BordpladeSlagelsePage() {
         title="Bordpladeslibning i Slagelse – kun massiv træ"
         intro="Vi hjælper i Slagelse med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeslibning i Slagelse – når køkkenet skal føles “nyt” igen
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          I Slagelse hjælper vi ofte kunder, hvor bordpladen egentlig er sund nok, men overfladen er
+          blevet trist: den føles ru, ser mat ud og har pletter eller ridser der gør hele køkkenet
+          mindre pænt. Hvis bordpladen er massiv træ, kan en korrekt slibning og ny finish typisk
+          genskabe et ensartet udtryk og gøre bordpladen mere praktisk i drift.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi starter altid med at afklare opbygning og skadetyper, så du får et realistisk billede
+          af mulighederne — før vi planlægger tid.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>
+            Fokus på ensartet overflade, så lyset ikke afslører “skygger” og skjolder
+          </li>
+          <li>Rådgivning om finish ud fra brug (madlavning, vand, varme og slid)</li>
+          <li>Klar plan for tørretid og hvornår bordpladen kan bruges igen</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Det vi oftest bliver kontaktet om i Slagelse
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          De fleste opgaver handler om at fjerne synlige brugsspor og skabe en overflade, der er
+          behagelig at arbejde på igen.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Skjolder ved vasken og matte zoner i arbejdsområdet</li>
+          <li>Fine ridser, der gør overfladen “grå” i lys</li>
+          <li>Varmepletter fra gryder/pander og små brændemærker</li>
+          <li>Bordplader der føles tørre og ujævne efter mange års brug</li>
+          <li>
+            Ønske om ny behandling fordi bordpladen er svær at holde pæn som den er nu
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Sådan vurderer vi om din bordplade kan slibes
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Det vigtigste er materialet. Massive træbordplader kan ofte slibes, mens finér kan være
+          begrænset. Den hurtigste afklaring er et billede af kanten eller enden af bordpladen
+          (endetræ) sammen med et billede af skaderne. Så kan vi typisk sige hurtigt, om slibning
+          er realistisk — og hvilken løsning der passer bedst.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Guide:{" "}
+          <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
+            /bordpladeslibning/kan-det-slibes
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Pris og tilbud i Slagelse – hurtigst via billeder</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Prisen afhænger af mål, tilstand og finish. Vi kan give et langt mere præcist svar, når
+          vi har set bordpladen i godt lys. Derfor anbefaler vi at starte med billeder — så sparer
+          du tid, og du får et konkret forslag til næste skridt.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler:{" "}
+          <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
+            /bordpladeslibning/pris
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Få vurdering via billeder:{" "}
+          <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
+            /bordpladeslibning/prisberegner
+          </Link>
+        </p>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Praktisk forløb: hvad du kan forvente</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi gør forløbet så enkelt som muligt. Du får at vide, hvad der skal være ryddet, hvordan
+          vi beskytter området, og hvad du kan forvente undervejs. Ved aflevering gennemgår vi
+          finish og giver konkrete råd til vedligehold, så resultatet holder pænt længere.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Afdækning og beskyttelse omkring arbejdsområdet</li>
+          <li>Tydelig forventningsafstemning om tid og tørretid</li>
+          <li>Aflevering med vedligeholdsråd der passer til din finish</li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Områder omkring Slagelse vi ofte dækker</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi dækker Slagelse og nærliggende byer/områder og planlægger ruter, så tiderne er stabile.
+        </p>
+        <ul className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <li>Korsør</li>
+          <li>Skælskør</li>
+          <li>Sorø</li>
+          <li>Dianalund</li>
+          <li>Kalundborg</li>
+          <li>Holbæk</li>
+        </ul>
+      </section>
 
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Slagelse</h2>
