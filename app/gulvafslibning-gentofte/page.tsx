@@ -36,6 +36,21 @@ const faqItems = [
     question: "Dækker I også Ordrup/Jægersborg/Vangede?",
     answer:
       "Ja - vi dækker hele området og planlægger opgaverne samlet."
+  },
+  {
+    question: "Hvilken finish anbefaler I til hjem med børn eller høj trafik?",
+    answer:
+      "Ofte lak, fordi det er mest slidstærkt og typisk nemmest i drift. Olie og sæbe kan være flotte valg, men kræver mere løbende pleje."
+  },
+  {
+    question: "Kan matte felter og slidbaner blive ens igen?",
+    answer:
+      "Ofte ja. Slibning og en ny finish giver typisk et mere ensartet udtryk. Dybere pletter eller ujævnheder vurderes på tilbudstiden."
+  },
+  {
+    question: "Dækker I også Hellerup og Charlottenlund?",
+    answer:
+      "Ja, vi dækker hele området omkring Gentofte og planlægger ruter og opgaver samlet."
   }
 ];
 
@@ -75,6 +90,18 @@ export default function GulvGentoftePage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Sådan planlægger vi gulvafslibning i Gentofte</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I Gentofte ser vi ofte parket- og plankegulve, hvor finish og detaljegrad betyder meget for
+          helhedsindtrykket – især i stue, gang og rum med høj daglig brug. Vi starter med at vurdere
+          gulvtype og tilstand og ser særligt på slidzoner, ujævn glans og ridser i de mest
+          trafikerede områder. Derefter planlægger vi forløbet efter adgang, parkering og
+          rumfordeling, så du får en realistisk tidsplan og et resultat der bliver ensartet på tværs
+          af rummene. Målet er en proces uden overraskelser og en løsning, der holder i hverdagen.
+        </p>
       </section>
 
       <ReferenceStrip />
@@ -137,6 +164,19 @@ export default function GulvGentoftePage() {
         <p className="mt-3 text-sm text-muted-foreground">
           Hellerup, Charlottenlund, Klampenborg, Ordrup, Jægersborg, Dyssegård, Vangede, Gentofte,
           Lyngby (nært).
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Finishvalg i praksis: lak, olie eller sæbe</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Finish handler ikke kun om udseende, men om hvordan gulvet fungerer i drift. Lak er typisk
+          det mest slidstærke valg og ofte det mest praktiske i travle hjem – især i gangarealer og
+          opholdsrum med høj trafik. Olie giver et mere naturligt udtryk og kan være en flot løsning,
+          men kræver typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller
+          højere krav til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dine
+          rum og dit brug, så du vælger en løsning der både ser godt ud og er realistisk at
+          vedligeholde.
         </p>
       </section>
 
