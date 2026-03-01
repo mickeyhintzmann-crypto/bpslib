@@ -94,6 +94,36 @@ const faqItems = [
     question: "Hvordan får jeg den hurtigste prisvurdering?",
     answer:
       "Brug prisberegneren og upload 3–6 billeder (helhed, nærbilleder og kant/ende). Så kan vi typisk vurdere opgaven hurtigt og præcist."
+  },
+  {
+    question: "Er bordpladeslibning det samme som afslibning af bordplade?",
+    answer:
+      "Ja, det bruges ofte om det samme. Det handler om at slibe den slidte overflade ned og gøre bordpladen klar til en ny behandling."
+  },
+  {
+    question: "Kan man slibe en køkkenbordplade med skjolder og ridser?",
+    answer:
+      "Ofte ja, hvis bordpladen er massiv træ. Resultatet afhænger af dybde og tidligere behandling, så vi vurderer det ud fra billeder."
+  },
+  {
+    question: "Hvad menes der med renovering af køkkenbordplade?",
+    answer:
+      "Typisk slibning af bordpladen kombineret med en ny behandling (fx olie eller lak) og rådgivning om vedligehold."
+  },
+  {
+    question: "Kan I slibe alle træbordplader?",
+    answer:
+      "Vi sliber kun massive træbordplader. Ved finér/laminat kan slibning være begrænset eller risikabelt. Send et billede af kanten/enden, så afklarer vi det hurtigt."
+  },
+  {
+    question: "Hvilken behandling er mest praktisk efter slibning?",
+    answer:
+      "Det afhænger af brug og vedligehold. Lak er ofte nem i drift, mens olie kan give et varmt udtryk men kræver mere løbende pleje."
+  },
+  {
+    question: "Hvordan får jeg hurtigst en vurdering?",
+    answer:
+      "Upload 3–6 billeder via prisberegneren (helhed + nærbilleder + kant/ende). Så kan vi typisk vurdere opgaven hurtigt og præcist."
   }
 ];
 
@@ -113,7 +143,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
 ]);
 
 export const metadata = buildMetadata({
-  title: "Bordpladeslibning på Sjælland",
+  title: "Bordpladeslibning på Sjælland | Slibning & behandling af bordplader",
   description:
     "Bordpladeslibning i massiv træ på hele Sjælland. Få pris via billeder, book tid eller se akutte tider.",
   path: "/bordpladeslibning-sjaelland"
@@ -130,6 +160,63 @@ export default function BordpladePillarPage() {
       />
 
       <ProcessSteps />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeslibning på Sjælland – når en slibning kan erstatte en udskiftning
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Mange søger efter “bordpladeslibning Sjælland”, når køkkenbordet er blevet slidt af
+          daglig brug. Det kan være skjolder ved vasken, ridser i arbejdsområdet eller et generelt
+          mat og ujævnt udtryk. Hvis bordpladen er massiv træ, kan slibning af bordplade og den
+          rigtige behandling ofte give en bordplade, der føles og ser væsentligt nyere ud — uden at
+          du skal udskifte den.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Slibning af køkkenbordplade: udjævner overfladen og reducerer ridser og ujævn glans</li>
+          <li>Afslibning af bordplade: fjerner slidte zoner og gør bordpladen klar til ny finish</li>
+          <li>
+            Renovering af køkkenbordplade: kombinationen af slibning + korrekt behandling til din
+            hverdag
+          </li>
+          <li>
+            Slibning af træbordplade: relevant når bordpladen er massiv træ og egnet til processen
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Hvad betyder “behandling” efter slibning?</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Når bordpladen er slebet, er den klar til behandling. Behandlingen er det, der bestemmer
+          både udtryk og hvor nem bordpladen bliver at leve med. Nogle vil have et mere naturligt
+          look, andre vil have en overflade der kræver mindst muligt i daglig drift. Vi rådgiver ud
+          fra brug, så løsningen passer til køkkenets virkelighed.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Olie: naturligt udtryk, typisk mere løbende pleje</li>
+          <li>Lak: mere lukket/robust overflade, ofte nemmere i drift</li>
+          <li>
+            Det bedste valg afhænger af vand, varme, madlavning og hvor “perfekt” du vil holde
+            bordpladen
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Hvornår giver bordpladeslibning mest værdi?</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Bordpladeslibning giver typisk mest værdi, når bordpladen er stabil og massiv, men
+          overfladen er slidt. Målet er et ensartet udtryk og en finish, der passer til hvordan du
+          bruger køkkenet.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Når bordpladen er mat, ru eller “plettet” i lyset</li>
+          <li>Når skjolder og ringe ikke længere kan rengøres væk</li>
+          <li>Når ridser og mærker gør overfladen urolig</li>
+          <li>Når du vil skifte finish for at få en mere praktisk hverdag</li>
+        </ul>
+      </section>
 
       <section className="py-10 md:py-14">
         <h2 className="text-2xl font-semibold text-foreground">
