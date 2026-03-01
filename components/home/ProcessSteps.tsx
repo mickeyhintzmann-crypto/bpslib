@@ -1,3 +1,5 @@
+import { Section } from "@/components/ui/Section";
+
 const steps = [
   {
     title: "Upload",
@@ -17,7 +19,7 @@ const trustNotes = ["Afdækning af arbejdsområde", "Støvkontrol under slibning
 
 export const ProcessSteps = () => {
   return (
-    <section className="py-10 md:py-16">
+    <Section className="py-10 md:py-16" innerClassName="px-0">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">Sådan foregår det</h2>
         <p className="text-sm text-muted-foreground">
@@ -46,6 +48,6 @@ export const ProcessSteps = () => {
           </span>
         ))}
       </div>
-    </section>
+    </Section>
   );
 };

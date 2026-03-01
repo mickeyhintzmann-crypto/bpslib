@@ -6,7 +6,7 @@ import { cookies, headers } from "next/headers";
 
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { MobileStickyCta } from "@/components/MobileStickyCta";
+import { StickyContactBar } from "@/components/contact/StickyContactBar";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { AnalyticsBootstrap } from "@/components/AnalyticsBootstrap";
 import { brandAssets } from "@/lib/assets";
@@ -57,7 +57,7 @@ export default async function RootLayout({
         {isAdminShell ? null : <Header />}
         <div className={`flex-1 ${isAdminShell ? "" : "pb-20 md:pb-0"}`}>{children}</div>
         {isAdminShell ? null : <Footer />}
-        {isAdminShell ? null : <MobileStickyCta />}
+        {isAdminShell ? null : <StickyContactBar />}
         {isAdminShell ? null : <CookieConsentBanner />}
         {isAdminShell ? null : <AnalyticsBootstrap />}
         {!isAdminShell && gaId && hasConsent ? (

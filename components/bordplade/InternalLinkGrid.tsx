@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Section } from "@/components/ui/Section";
+
 type LinkItem = {
   href: string;
   label: string;
@@ -17,7 +19,7 @@ export const InternalLinkGrid = ({
   links
 }: InternalLinkGridProps) => {
   return (
-    <section className="py-8">
+    <Section className="py-8 md:py-12">
       <div className="rounded-3xl border border-border/70 bg-white/70 px-6 py-8 md:px-10">
         <h2 className="text-xl font-semibold text-foreground">{title}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{intro}</p>
@@ -29,6 +31,6 @@ export const InternalLinkGrid = ({
           ))}
         </div>
       </div>
-    </section>
+    </Section>
   );
 };

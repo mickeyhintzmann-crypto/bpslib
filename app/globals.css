@@ -25,6 +25,7 @@ body {
   @apply bg-background text-foreground antialiased;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
     "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  line-height: 1.6;
   background-image: radial-gradient(
       900px 520px at 12% -12%,
       hsl(var(--primary) / 0.1),
@@ -35,4 +36,24 @@ body {
 
 a {
   @apply transition-colors;
+}
+
+@layer base {
+  main :where(h1, h2, h3) {
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  main :where(h1, h2, h3) + :where(p) {
+    margin-top: 0.75rem;
+  }
+
+  main :where(p) {
+    line-height: 1.72;
+  }
+
+  main section > :where(p),
+  main article > :where(p) {
+    max-width: 72ch;
+  }
 }
