@@ -59,6 +59,41 @@ const faqItems = [
     question: "Skal jeg booke med det samme?",
     answer:
       "Du kan enten starte med prisberegneren eller booke direkte, hvis du allerede kender omfanget."
+  },
+  {
+    question: "Kan I slibe en bordplade med udskæring til vask og kogeplade?",
+    answer:
+      "Ofte ja. Udskæringer og kanter kræver bare at vi afklarer adgang og opbygning på forhånd, så vi planlægger det korrekt."
+  },
+  {
+    question: "Kan I fjerne skjolder helt?",
+    answer:
+      "Mange skjolder kan fjernes eller reduceres markant, men resultatet afhænger af dybde, trætype og tidligere behandling. Vi vurderer det ud fra billeder."
+  },
+  {
+    question: "Hvor lang tid tager det?",
+    answer:
+      "Det afhænger af bordpladens størrelse, skader og valg af finish/tørretid. Vi giver en realistisk plan, når vi har set opgaven."
+  },
+  {
+    question: "Skal bordpladen afmonteres?",
+    answer:
+      "Ikke altid. Det afhænger af opgaven og praktiske forhold. Vi afklarer det, når vi vurderer bordpladen."
+  },
+  {
+    question: "Hvilken finish er mest praktisk i et køkken?",
+    answer:
+      "Det afhænger af brug og vedligehold. Lak er ofte nem i drift, mens olie kan give et varmt udtryk men kræver mere løbende pleje. Vi rådgiver ud fra din hverdag."
+  },
+  {
+    question: "Kan I hjælpe hvis jeg ikke ved om den er massiv træ?",
+    answer:
+      "Ja. Send et billede af kanten/enden (endetræ), så kan vi ofte afklare det hurtigt."
+  },
+  {
+    question: "Hvordan får jeg den hurtigste prisvurdering?",
+    answer:
+      "Brug prisberegneren og upload 3–6 billeder (helhed, nærbilleder og kant/ende). Så kan vi typisk vurdere opgaven hurtigt og præcist."
   }
 ];
 
@@ -95,6 +130,130 @@ export default function BordpladePillarPage() {
       />
 
       <ProcessSteps />
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Bordpladeafslibning på Sjælland – når du vil bevare det du allerede har
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          En massiv træbordplade kan ofte have mange gode år tilbage, selvom den ser slidt ud.
+          Formålet med bordpladeslibning er at genskabe en ensartet overflade og vælge en
+          behandling, der passer til din hverdag. Det er især relevant, hvis du har pletter,
+          ridser, matte zoner eller varmeaftryk, men stadig har en bordplade i massiv træ.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Genskaber et roligt udtryk ved at udjævne overfladen trinvis</li>
+          <li>Gør bordpladen mere praktisk ved at vælge den rigtige finish til brugen</li>
+          <li>Kan være et stærkt alternativ til udskiftning, hvis materialet er egnet</li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Hvad vi typisk hjælper med</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Bordplader slides forskelligt alt efter brug og tidligere behandling. Her er de mest
+          almindelige årsager til at kunder kontakter os:
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Skjolder og ringe fra vand, varme og daglig brug</li>
+          <li>Ridser og mærker der gør overfladen ujævn i lys</li>
+          <li>Matte felter og “tørre” zoner, hvor finishen er slidt væk</li>
+          <li>Varmepletter og små brændemærker (afhænger af dybde og trætype)</li>
+          <li>
+            Bordplader der er svære at holde pæne, fordi overfladen er porøs eller ujævn
+          </li>
+        </ul>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Massiv træ eller finér? Det afklarer alt</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi arbejder med massive træbordplader. Hvis bordpladen er finér eller laminat, kan klassisk
+          slibning være begrænset eller risikabel. Derfor starter vi altid med at afklare opbygningen
+          — ofte kan et billede af kanten eller enden (endetræ) give svaret med det samme.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Læs guiden:{" "}
+          <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
+            /bordpladeslibning/kan-det-slibes
+          </Link>
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Sådan foregår bordpladeslibning (kort og realistisk)</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Vi arbejder struktureret og trinvis, så vi ikke fjerner mere materiale end nødvendigt.
+          Målet er en overflade der føles ens og ser ens ud, og som er klar til den finish du
+          vælger.
+        </p>
+        <ol className="mt-4 grid gap-2 text-sm text-muted-foreground">
+          <li>1. Materiale og tilstand afklares (ofte via billeder)</li>
+          <li>
+            2. Overfladen slibes trinvis ud fra skader og eksisterende behandling
+          </li>
+          <li>3. Kanter og udskæringer gennemgås, så helhedsindtrykket bliver pænt</li>
+          <li>
+            4. Finish påføres ud fra brug og ønsket vedligehold (olie/lak m.m.)
+          </li>
+          <li>5. Aflevering med råd til brug, tørretid og vedligehold</li>
+        </ol>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Pris: få et konkret svar uden at gætte</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Prisen afhænger af mål, skader og finishvalg. Den hurtigste vej til en præcis vurdering
+          er at starte med billeder, så vi kan se både helheden og de værste områder. På den måde
+          kan vi anbefale den rigtige løsning og undgå overraskelser.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Se priseksempler:{" "}
+          <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
+            /bordpladeslibning/pris
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Få vurdering via billeder:{" "}
+          <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
+            /bordpladeslibning/prisberegner
+          </Link>
+        </p>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <h2 className="text-2xl font-semibold text-foreground">Olie eller lak – hvad betyder det for dig?</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Valg af finish handler om både udtryk og drift. Nogle ønsker et mere naturligt look og
+          accepterer løbende pleje, mens andre vil have en overflade der kræver mindst muligt i
+          hverdagen. Vi rådgiver ud fra hvordan bordpladen bruges, så finishvalget passer til din
+          hverdag.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Olie kan give et varmt udtryk og kræver typisk mere løbende vedligehold</li>
+          <li>Lak kan være mere lukket/robust og ofte nemmere i daglig drift</li>
+          <li>
+            Det bedste valg afhænger af brug, forventninger og hvor “perfekt” du vil holde
+            overfladen
+          </li>
+        </ul>
+      </section>
+
+      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Derfor vælger mange bordpladeslibning fremfor udskiftning
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Hvis bordpladen er massiv træ og ellers er stabil, kan slibning være en effektiv måde at
+          løfte køkkenet på uden at starte forfra. Du bevarer materialet, får en ny overflade og kan
+          vælge en finish der passer bedre til din brug i dag end den oprindelige gjorde.
+        </p>
+        <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+          <li>Du bevarer træets udtryk og kvalitet</li>
+          <li>Du kan ændre finish og vedligeholdsniveau</li>
+          <li>Du får et synligt resultat uden at udskifte hele bordpladen</li>
+        </ul>
+      </section>
 
       <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
         <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
