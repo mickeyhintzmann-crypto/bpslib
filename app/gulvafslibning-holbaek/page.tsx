@@ -36,6 +36,21 @@ const faqItems = [
     question: "Hvilken finish er mest \"nem\"?",
     answer:
       "Lak er typisk nemmest i drift. Olie og sæbe giver flotte udtryk, men kræver mere løbende pleje."
+  },
+  {
+    question: "Kan I slibe flere rum på én gang?",
+    answer:
+      "Ja. Det er ofte smartest at tage flere rum samlet, men vi kan også planlægge i etaper hvis det passer bedre til din hverdag og tørretider."
+  },
+  {
+    question: "Hvad hvis gulvet er meget ujævnt eller har dybe hak?",
+    answer:
+      "Så kan der være behov for ekstra forarbejde eller afhøvling. Det vurderer vi på tilbudstiden, når vi har set gulvtype og tilstand."
+  },
+  {
+    question: "Hvilken finish er lettest at vedligeholde?",
+    answer:
+      "Lak er typisk lettest i drift. Olie og sæbe kan give flotte udtryk, men kræver mere løbende pleje."
   }
 ];
 
@@ -75,6 +90,21 @@ export default function GulvHolbaekPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Sådan planlægger vi gulvafslibning i Holbæk
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I Holbæk og omegn ser vi ofte opgaver, hvor gulvet har taget imod mange års hverdagsbrug
+          – især i stue, gang og rum med høj trafik. Vi starter med at vurdere gulvtype (parket,
+          plank eller sildeben), tilstand og slidlag, så vi kan vælge den rigtige proces uden
+          overraskelser. Derefter planlægger vi rækkefølge og tidsplan, så det passer til din
+          hverdag – og vi afklarer praktiske forhold som adgang, parkering og om opgaven med fordel
+          kan tages i etaper ved flere rum. Målet er et ensartet resultat og en finish der holder i
+          praksis.
+        </p>
       </section>
 
       <ReferenceStrip />
@@ -136,6 +166,20 @@ export default function GulvHolbaekPage() {
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Holbæk, Tuse, Vipperød, Svinninge, Jyderup, Mørkøv, Kalundborg (nært).
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Finishvalg i praksis: lak, olie eller sæbe
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Finish handler ikke kun om udseende – det handler om drift i hverdagen. Lak er typisk det
+          mest slidstærke valg og ofte det mest praktiske i rum med høj trafik som gang og
+          opholdsrum. Olie giver et mere naturligt udtryk og kan være en flot løsning, men kræver
+          typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller højere krav
+          til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dine rum og dit
+          brug, så du vælger en løsning der både ser godt ud og fungerer i praksis.
         </p>
       </section>
 
