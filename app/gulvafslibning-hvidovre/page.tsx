@@ -52,9 +52,9 @@ export default function GulvHvidovrePage() {
           Gulvafslibning i Hvidovre
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Hvidovre . Området har mange familieboliger
+          Vi hjælper med gulvafslibning i Hvidovre. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har mange familieboliger
           og rækkehuse, hvor adgang og planlægning er vigtige. Vi tilpasser forløbet, så det passer til
-          hverdagen, og du får et uforpligtende tilbud baseret på gulvtype og ønsket behandling. Vi
+          hverdagen. Vi
           kører også i{" "}
           <Link href="/gulvafslibning-koebenhavn-omegn" className="font-medium text-foreground hover:text-primary">
             København og omegn

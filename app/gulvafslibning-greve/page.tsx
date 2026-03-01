@@ -52,7 +52,7 @@ export default function GulvGrevePage() {
           Gulvafslibning i Greve
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Greve . Området har mange familieboliger,
+          Vi hjælper med gulvafslibning i Greve. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har mange familieboliger,
           hvor planlægning og adgang er vigtige. Vi tilpasser forløbet efter gulvtype og ønsker til
           behandling, så du får et uforpligtende tilbud, der passer til opgaven. Vi kører også i{" "}
           <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">

@@ -52,10 +52,9 @@ export default function GulvFrederiksbergPage() {
           Gulvafslibning på Frederiksberg
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning på Frederiksberg . Mange opgaver er i
+          Vi hjælper med gulvafslibning på Frederiksberg. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Mange opgaver er i
           etageejendomme med adgangsforhold, hvor planlægning og støvkontrol er vigtigt. Vi tilpasser
-          forløbet efter ejendommen og giver et uforpligtende tilbud baseret på gulvtype og ønsket
-          behandling. Vi kører også i{" "}
+          forløbet efter ejendommen. Vi kører også i{" "}
           <Link href="/gulvafslibning-koebenhavn-omegn" className="font-medium text-foreground hover:text-primary">
             København og omegn
           </Link>

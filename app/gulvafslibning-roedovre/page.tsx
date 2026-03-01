@@ -52,9 +52,8 @@ export default function GulvRoedovrePage() {
           Gulvafslibning i Rødovre
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Rødovre . Området har mange rækkehuse og
-          villaer, og vi tilpasser forløbet efter adgang og praktiske forhold. Du får et
-          uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Rødovre. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har mange rækkehuse og
+          villaer, og vi tilpasser forløbet efter adgang og praktiske forhold. Vi kører også i{" "}
           <Link href="/gulvafslibning-koebenhavn-omegn" className="font-medium text-foreground hover:text-primary">
             København og omegn
           </Link>

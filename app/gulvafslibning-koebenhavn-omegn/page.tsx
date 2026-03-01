@@ -53,9 +53,7 @@ export default function GulvKoebenhavnOmegnPage() {
           Gulvafslibning i København & omegn
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i København og omegn . Du får et
-          uforpligtende tilbud baseret på opgavens omfang, gulvtype og ønsket behandling. Vi
-          planlægger stabilt og kører på hele{" "}
+          Vi hjælper med gulvafslibning i København og omegn. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi planlægger stabilt og kører på hele{" "}
           <Link href="/gulvafslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
             Sjælland
           </Link>

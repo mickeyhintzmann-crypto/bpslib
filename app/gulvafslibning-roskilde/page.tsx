@@ -52,9 +52,8 @@ export default function GulvRoskildePage() {
           Gulvafslibning i Roskilde
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Roskilde . Området har både ældre boliger
-          og nyere huse, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Du får et
-          uforpligtende tilbud baseret på areal og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Roskilde. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har både ældre boliger
+          og nyere huse, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Vi kører også i{" "}
           <Link href="/gulvafslibning-midtsjaelland" className="font-medium text-foreground hover:text-primary">
             Midtsjælland
           </Link>

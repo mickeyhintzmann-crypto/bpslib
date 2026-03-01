@@ -53,9 +53,9 @@ export default function GulvKoebenhavnPage() {
           Gulvafslibning i København
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i København . I lejligheder og etageejendomme
+          Vi hjælper med gulvafslibning i København. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. I lejligheder og etageejendomme
           er adgang, støvkontrol og planlægning vigtige, og vi tilrettelægger opgaven så det passer til
-          hverdagen. Du får et uforpligtende tilbud baseret på gulvtype og ønsket behandling. Vi kører
+          hverdagen. Vi kører
           også i{" "}
           <Link href="/gulvafslibning-koebenhavn-omegn" className="font-medium text-foreground hover:text-primary">
             København og omegn

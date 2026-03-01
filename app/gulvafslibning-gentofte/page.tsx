@@ -52,9 +52,8 @@ export default function GulvGentoftePage() {
           Gulvafslibning i Gentofte
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Gentofte . I villaer og rækkehuse er
-          adgang og planlægning ofte mere enkel, og vi kan tilrettelægge forløbet effektivt. Du får
-          et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Gentofte. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. I villaer og rækkehuse er
+          adgang og planlægning ofte mere enkel, og vi kan tilrettelægge forløbet effektivt. Vi kører også i{" "}
           <Link href="/gulvafslibning-nordsjaelland" className="font-medium text-foreground hover:text-primary">
             Nordsjælland
           </Link>

@@ -52,9 +52,8 @@ export default function GulvIshoejPage() {
           Gulvafslibning i Ishøj
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Ishøj . Området har mange familieboliger,
-          og vi planlægger forløbet, så det passer til adgang og praktiske forhold. Du får et
-          uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Ishøj. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har mange familieboliger,
+          og vi planlægger forløbet, så det passer til adgang og praktiske forhold. Vi kører også i{" "}
           <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">
             Vest- og Sydsjælland
           </Link>

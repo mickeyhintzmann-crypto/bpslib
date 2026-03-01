@@ -53,8 +53,7 @@ export default function GulvVestSydsjaellandPage() {
           Gulvafslibning i Vest- & Sydsjælland
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Vest- og Sydsjælland . Du får et
-          uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører på hele{" "}
+          Vi hjælper med gulvafslibning i Vest- og Sydsjælland. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Vi kører på hele{" "}
           <Link href="/gulvafslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
             Sjælland
           </Link>

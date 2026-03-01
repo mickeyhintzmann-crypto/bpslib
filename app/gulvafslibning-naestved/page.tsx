@@ -52,9 +52,8 @@ export default function GulvNaestvedPage() {
           Gulvafslibning i Næstved
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Næstved . Området har både ældre huse og
-          nyere boliger, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Du får et
-          uforpligtende tilbud baseret på areal og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Næstved. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har både ældre huse og
+          nyere boliger, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Vi kører også i{" "}
           <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">
             Vest- og Sydsjælland
           </Link>

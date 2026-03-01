@@ -52,9 +52,8 @@ export default function GulvLyngbyPage() {
           Gulvafslibning i Lyngby
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Lyngby . I områder med både lejligheder
-          og villaer er adgang og planlægning vigtige, og vi tilpasser forløbet efter ejendommen. Du
-          får et uforpligtende tilbud baseret på gulvtype og ønsket behandling. Vi kører også i{" "}
+          Vi hjælper med gulvafslibning i Lyngby. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. I områder med både lejligheder
+          og villaer er adgang og planlægning vigtige, og vi tilpasser forløbet efter ejendommen. Vi kører også i{" "}
           <Link href="/gulvafslibning-nordsjaelland" className="font-medium text-foreground hover:text-primary">
             Nordsjælland
           </Link>

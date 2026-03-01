@@ -52,7 +52,7 @@ export default function GulvKoegePage() {
           Gulvafslibning i Køge
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning i Køge . Området har både ældre huse og nyere
+          Vi hjælper med gulvafslibning i Køge. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket behandling. Området har både ældre huse og nyere
           boliger, og vi tilpasser forløbet efter gulvtype og adgangsforhold. Du får et uforpligtende
           tilbud baseret på areal og ønsket behandling. Vi kører også i{" "}
           <Link href="/gulvafslibning-vest-sydsjaelland" className="font-medium text-foreground hover:text-primary">
