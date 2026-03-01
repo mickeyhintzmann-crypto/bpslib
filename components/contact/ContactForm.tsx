@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { trackEvent } from "@/lib/tracking";
+import { getStoredUtm, track } from "@/lib/analytics";
 
 type SubmitState = {
   status: "idle" | "loading" | "error";
@@ -44,7 +44,8 @@ export const ContactForm = () => {
           email: formData.email,
           message: formData.besked,
           postalCode: formData.postnr,
-          website: formData.website
+          website: formData.website,
+          utm: getStoredUtm() || undefined
         })
       });
 
@@ -58,7 +59,7 @@ export const ContactForm = () => {
         return;
       }
 
-      trackEvent("contact_submit", {
+      track("contact_form_submit", {
         has_email: Boolean(formData.email.trim()),
         has_postal_code: Boolean(formData.postnr.trim())
       });

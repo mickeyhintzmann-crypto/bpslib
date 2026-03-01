@@ -4,6 +4,7 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
+import { sanitizeUtm, type UtmPayload } from "@/lib/utm";
 
 type TilbudstidPayload = {
   name?: unknown;
@@ -11,10 +12,13 @@ type TilbudstidPayload = {
   postalCode?: unknown;
   service?: unknown;
   note?: unknown;
+  utm?: unknown;
 };
 
 const SERVICE_VALUES = ["gulv", "toemrer", "maler", "murer", "andet"] as const;
 type ServiceValue = (typeof SERVICE_VALUES)[number];
+
+const UTM_JSONB_COLUMNS = ["meta", "metadata", "tracking", "utm", "fields"] as const;
 
 const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
@@ -31,6 +35,23 @@ const isMissingLeadsTable = (message: string | undefined) => {
 const isMissingColumn = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return normalized.includes("column") && normalized.includes("does not exist");
+};
+
+const formatUtmLine = (utm: UtmPayload | null) => {
+  if (!utm) {
+    return "";
+  }
+  return `UTM: ${JSON.stringify(utm)}`;
+};
+
+const withAppendedUtm = (text: string, utm: UtmPayload | null) => {
+  if (!utm) {
+    return text || null;
+  }
+
+  const line = formatUtmLine(utm);
+  const clean = text.trim();
+  return clean ? `${clean}\n\n${line}` : line;
 };
 
 export async function POST(request: Request) {
@@ -62,6 +83,7 @@ export async function POST(request: Request) {
     const postalCode = asString(payload.postalCode);
     const service = asString(payload.service);
     const note = asString(payload.note);
+    const utm = sanitizeUtm(payload.utm);
 
     if (!name || name.length < 2) {
       return NextResponse.json({ message: "Skriv venligst dit navn." }, { status: 400 });
@@ -86,19 +108,57 @@ export async function POST(request: Request) {
 
     const supabase = createSupabaseServiceClient();
 
-    const { data, error } = await supabase
-      .from("leads")
-      .insert({
-        source: "tilbudstid",
-        service,
-        name,
-        phone,
-        postal_code: postalCode,
-        note: note || null,
-        status: "new"
-      })
-      .select("id")
-      .single();
+    const baseLead = {
+      source: "tilbudstid",
+      service,
+      name,
+      phone,
+      postal_code: postalCode,
+      note: withAppendedUtm(note, null),
+      status: "new"
+    };
+
+    let data: { id: string } | null = null;
+    let error: { message?: string } | null = null;
+
+    if (utm) {
+      for (const column of UTM_JSONB_COLUMNS) {
+        const attempt = await supabase
+          .from("leads")
+          .insert({
+            ...baseLead,
+            [column]: { utm }
+          })
+          .select("id")
+          .single();
+
+        if (!attempt.error && attempt.data) {
+          data = attempt.data;
+          error = null;
+          break;
+        }
+
+        if (isMissingColumn(attempt.error?.message)) {
+          continue;
+        }
+
+        error = attempt.error;
+        break;
+      }
+    }
+
+    if (!data && !error) {
+      const fallback = await supabase
+        .from("leads")
+        .insert({
+          ...baseLead,
+          note: withAppendedUtm(note, utm)
+        })
+        .select("id")
+        .single();
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error || !data) {
       if (isMissingLeadsTable(error?.message) || isMissingColumn(error?.message)) {
@@ -122,7 +182,8 @@ export async function POST(request: Request) {
         `Navn: ${name}`,
         `Telefon: ${phone}`,
         `Postnr: ${postalCode}`,
-        note ? `Note: ${note}` : ""
+        note ? `Note: ${note}` : "",
+        formatUtmLine(utm)
       ]
         .filter(Boolean)
         .join("\n");

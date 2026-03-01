@@ -469,6 +469,26 @@
     "noIndex": false
   },
   {
+    "path": "/gulvlaegning-sjaelland",
+    "title": "Gulvlægning",
+    "description": "Gulvlægning på Sjælland med trægulv, laminat og vinyl.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 121,
+    "noIndex": false
+  },
+  {
+    "path": "/microcement-sjaelland",
+    "title": "Microcement",
+    "description": "Microcement på Sjælland til gulv, bad og køkken.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 122,
+    "noIndex": false
+  },
+  {
     "path": "/gulvafslibning-koebenhavn-omegn",
     "title": "København & omegn",
     "description": "Region-hub for gulvafslibning i København og omegn.",
@@ -856,6 +876,16 @@
     "showInHeader": true,
     "showInFooter": true,
     "priority": 180,
+    "noIndex": false
+  },
+  {
+    "path": "/referencer",
+    "title": "Referencer",
+    "description": "Tidligere projekter og referencer på bordpladeslibning.",
+    "navGroup": "core",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 181,
     "noIndex": false
   },
   {

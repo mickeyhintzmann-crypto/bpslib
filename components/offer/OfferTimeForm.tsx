@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { trackEvent } from "@/lib/tracking";
+import { getStoredUtm, track } from "@/lib/analytics";
 
 const SERVICE_OPTIONS = [
   { value: "gulv", label: "Gulvafslibning" },
@@ -45,7 +45,8 @@ export const OfferTimeForm = () => {
           phone: phone.trim(),
           postalCode: postalCode.trim(),
           service,
-          note: note.trim() || undefined
+          note: note.trim() || undefined,
+          utm: getStoredUtm() || undefined
         })
       });
 
@@ -56,7 +57,7 @@ export const OfferTimeForm = () => {
         return;
       }
 
-      trackEvent("tilbudstid_submit", {
+      track("tilbudstid_submit", {
         service,
         has_note: Boolean(note.trim())
       });

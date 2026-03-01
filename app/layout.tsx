@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MobileStickyCta } from "@/components/MobileStickyCta";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { AnalyticsBootstrap } from "@/components/AnalyticsBootstrap";
 import { brandAssets } from "@/lib/assets";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -58,6 +59,7 @@ export default async function RootLayout({
         {isAdminShell ? null : <Footer />}
         {isAdminShell ? null : <MobileStickyCta />}
         {isAdminShell ? null : <CookieConsentBanner />}
+        {isAdminShell ? null : <AnalyticsBootstrap />}
         {!isAdminShell && gaId && hasConsent ? (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
