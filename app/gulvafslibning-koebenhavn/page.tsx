@@ -35,6 +35,21 @@ const faqItems = [
     question: "Hvordan booker jeg tilbudstid?",
     answer:
       "Du booker uforpligtende tilbudstid via formularen, så vender vi hurtigt tilbage."
+  },
+  {
+    question: "Kan I planlægge efter ejerforeningens regler og tidsrum?",
+    answer:
+      "Ja. Fortæl os regler for støj/tidsvinduer og adgang, så tilpasser vi forløbet og planlægger realistisk."
+  },
+  {
+    question: "Hvilken finish anbefaler I til gang og høj trafik?",
+    answer:
+      "Typisk lak pga. slidstyrke og nem vedligehold. Olie og sæbe kan være flotte valg, men kræver mere pleje."
+  },
+  {
+    question: "Skal vi flytte alle møbler ud af rummet?",
+    answer:
+      "Som udgangspunkt ja i slibeområdet. Tunge møbler aftales, så vi kan planlægge korrekt og undgå overraskelser."
   }
 ];
 
@@ -70,6 +85,15 @@ export default function GulvKoebenhavnPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Sådan planlægger vi gulvafslibning i København
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I København er planlægning ofte nøglen til et smidigt forløb – især i lejligheder og etageejendomme. Vi afklarer adgang via opgang/elevator, tidsvinduer og parkering, før vi går i gang, så du får en realistisk plan og færre overraskelser. Vi vurderer gulvtype (parket, plank eller sildeben), slidlag og hvor slidt gulvet er i gang- og opholdsrum, så vi kan anbefale en proces og finish der passer til din hverdag. Målet er en effektiv udførelse, tydelig tidsplan og et ensartet resultat.
+        </p>
       </section>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
@@ -130,6 +154,15 @@ export default function GulvKoebenhavnPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           Indre By, Østerbro, Nørrebro, Vesterbro, Valby, Vanløse, Brønshøj, Amagerbro, Sydhavn,
           Nordhavn, Christianshavn.
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Finishvalg i praksis: lak, olie eller sæbe
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I København vælger mange lak i gangarealer og køkken/alrum, fordi det typisk er den mest slidstærke løsning og nemmest i daglig drift. Olie giver et mere naturligt udtryk og kan være en flot løsning i stuer, men kræver typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller højere krav til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dine rum og dit brug, så du vælger en løsning der både ser godt ud og fungerer i praksis.
         </p>
       </section>
 
