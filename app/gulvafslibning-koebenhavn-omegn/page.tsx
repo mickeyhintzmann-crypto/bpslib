@@ -35,6 +35,21 @@ const faqItems = [
     question: "Kører I i hele København og omegn?",
     answer:
       "Ja, vi dækker København og omegn og planlægger ruter, så tiderne er stabile."
+  },
+  {
+    question: "Dækker I både lejligheder og villaer i København og omegn?",
+    answer:
+      "Ja. Vi planlægger efter adgang og praktiske forhold og tilpasser forløbet efter boligen og rummenes brug."
+  },
+  {
+    question: "Kan I tage flere rum i samme opgave?",
+    answer:
+      "Ja. Vi planlægger rækkefølge og eventuelle etaper, så det fungerer praktisk med adgang og tørretider."
+  },
+  {
+    question: "Hvilken finish er mest vedligeholdelsesnem?",
+    answer:
+      "Lak er typisk nemmest i drift. Olie og sæbe kan give flotte udtryk, men kræver mere løbende pleje."
   }
 ];
 
@@ -67,6 +82,13 @@ export default function GulvKoebenhavnOmegnPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Planlægning og proces i København og omegn</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          I København og omegn varierer opgaverne fra lejligheder med opgang/elevator til villaer, hvor adgang ofte er enklere – og derfor starter vi altid med planlægningen. Vi afklarer gulvtype (parket, plank eller sildeben), tilstand og hvilke rum der er mest belastede, så proces og finish passer til brugen. Samtidig afklarer vi adgang, parkering og tidsvinduer, så du får en realistisk plan og en proces uden overraskelser. Målet er et ensartet resultat og en tidsplan der holder, uanset om opgaven er én stue eller flere rum.
+        </p>
       </section>
 
       <section className="mt-8 grid gap-6 md:grid-cols-2">
@@ -121,6 +143,13 @@ export default function GulvKoebenhavnOmegnPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           København, Frederiksberg, Østerbro, Nørrebro, Vesterbro, Valby, Vanløse, Amager, Hvidovre,
           Rødovre, Gentofte, Lyngby.
+        </p>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Efterbehandling der passer til brug</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+          Lak er typisk det mest slidstærke valg og ofte det mest praktiske i drift – især i gangarealer og travle hjem. Olie giver et mere naturligt udtryk og kan være en flot løsning, men kræver typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller højere krav til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dit gulv og din hverdag, så du vælger en løsning der både ser godt ud og fungerer i praksis.
         </p>
       </section>
 
