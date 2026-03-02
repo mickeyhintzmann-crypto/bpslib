@@ -7,6 +7,7 @@ import { Callout } from "@/components/ui/Callout";
 import { CTABox } from "@/components/ui/CTABox";
 import { FeatureList } from "@/components/ui/FeatureList";
 import { Button } from "@/components/ui/button";
+import { ClientLogoWall } from "@/components/trust/ClientLogoWall";
 
 type CtaAction = {
   label: string;
@@ -64,6 +65,8 @@ export const ServicePageLayout = ({
           </div>
         </section>
       </Section>
+
+      <ClientLogoWall />
 
       <Section className="py-6 md:py-8">
         <div className="space-y-8">{children}</div>

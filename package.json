@@ -10,13 +10,13 @@
     "check:live": "node scripts/check_live.mjs",
     "cleanup:estimator": "node scripts/cleanup-estimator.mjs",
     "import:ai-training": "node scripts/import-ai-training.mjs",
-    "prebuild": "node scripts/generate-media-manifest.mjs",
+    "prebuild": "node scripts/generate-media-manifest.mjs && node scripts/generate-client-logos.mjs",
     "build": "node scripts/generate-media-manifest.mjs && next build",
     "start": "next start",
     "lint": "eslint \"app/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\" \"lib/**/*.{js,jsx,ts,tsx}\" \"scripts/**/*.{js,jsx,ts,tsx,mjs}\"",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
-    "predev": "node scripts/generate-media-manifest.mjs"
+    "predev": "node scripts/generate-media-manifest.mjs && node scripts/generate-client-logos.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

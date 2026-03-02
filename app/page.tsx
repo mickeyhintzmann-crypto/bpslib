@@ -9,6 +9,7 @@ import { PriceEstimatorPromo } from "@/components/home/PriceEstimatorPromo";
 import { PriceTeaser } from "@/components/home/PriceTeaser";
 import { ProcessSteps } from "@/components/home/ProcessSteps";
 import { ReferenceStrip } from "@/components/ReferenceStrip";
+import { ClientLogoWall } from "@/components/trust/ClientLogoWall";
 import { SecondaryServices } from "@/components/home/SecondaryServices";
 import { ServiceArea } from "@/components/home/ServiceArea";
 import { SpecialistSection } from "@/components/home/SpecialistSection";
@@ -70,6 +71,7 @@ export default function HomePage() {
       <StructuredData data={serviceSchema} />
       <StructuredData data={webSiteSchema} />
       <Hero />
+      <ClientLogoWall />
       <ReferenceStrip compact />
       <TrustHighlights />
       <SpecialistSection />
