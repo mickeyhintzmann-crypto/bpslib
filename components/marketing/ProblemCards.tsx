@@ -39,7 +39,7 @@ export const ProblemCards = ({ title, subtitle, items }: ProblemCardsProps) => {
   }
 
   return (
-    <Section className="py-6 md:py-8">
+    <Section className="py-7 md:py-9">
       <section>
         <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
         {subtitle ? (
@@ -48,17 +48,23 @@ export const ProblemCards = ({ title, subtitle, items }: ProblemCardsProps) => {
           </p>
         ) : null}
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
           {items.map((item, index) => (
             <article
               key={item.title}
-              className="rounded-3xl border border-border/70 bg-white/80 p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-sm"
+              className="group surface-subtle relative overflow-hidden rounded-[26px] p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_hsl(20_30%_20%/0.12)] md:p-6"
             >
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background/80 text-muted-foreground">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10 blur-xl transition group-hover:bg-primary/20"
+              />
+              <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-white/80 text-muted-foreground">
                 {icons[index % icons.length]}
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-foreground">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+              <h3 className="relative mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
+              <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
+                {item.description}
+              </p>
             </article>
           ))}
         </div>

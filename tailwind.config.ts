@@ -7,18 +7,24 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: [
+          "var(--font-sans)",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
           "Segoe UI",
-          "Roboto",
           "Helvetica",
           "Arial",
-          "Apple Color Emoji",
-          "Segoe UI Emoji",
           "sans-serif"
         ],
-        display: ["ui-serif", "Georgia", "Cambria", "Times New Roman", "Times", "serif"]
+        display: [
+          "var(--font-display)",
+          "ui-serif",
+          "Georgia",
+          "Cambria",
+          "Times New Roman",
+          "Times",
+          "serif"
+        ]
       },
       colors: {
         background: "hsl(var(--background))",

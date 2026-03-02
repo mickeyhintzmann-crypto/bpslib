@@ -53,7 +53,7 @@ export default async function RootLayout({
 
   return (
     <html lang="da">
-      <body className="flex min-h-screen flex-col font-sans">
+      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground">
         {isAdminShell ? null : <Header />}
         <div className={`flex-1 ${isAdminShell ? "" : "pb-20 md:pb-0"}`}>{children}</div>
         {isAdminShell ? null : <Footer />}

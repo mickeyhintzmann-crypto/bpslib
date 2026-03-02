@@ -53,7 +53,7 @@ export const EnterpriseCaseShowcase = ({
             <li key={caseItem.id}>
               <button
                 type="button"
-                className="group w-full overflow-hidden rounded-2xl border border-border/70 bg-background text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+                className="group surface-subtle w-full overflow-hidden rounded-[24px] text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_36px_hsl(20_30%_20%/0.14)]"
                 onClick={() => setOpenCaseId(caseItem.id)}
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted/30">
@@ -79,7 +79,9 @@ export const EnterpriseCaseShowcase = ({
                 </div>
 
                 <div className="p-4">
-                  <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{caseItem.clientName}</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {caseItem.clientName}
+                  </p>
                   <h3 className="mt-2 text-base font-semibold text-foreground md:text-lg">{caseItem.title}</h3>
                 </div>
               </button>

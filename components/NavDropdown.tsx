@@ -28,7 +28,7 @@ export const NavDropdown = ({
 
   if (variant === "mobile") {
     return (
-      <details className="rounded-xl border border-border/70 bg-white/70 px-4 py-3">
+      <details className="rounded-2xl border border-border/75 bg-white/80 px-4 py-3.5 shadow-[0_10px_24px_hsl(20_30%_20%/0.06)]">
         <summary
           className={`cursor-pointer list-none text-base font-semibold text-foreground ${
             emphasis ? "text-foreground" : "text-foreground"
@@ -65,22 +65,22 @@ export const NavDropdown = ({
     <div className="relative group">
       <button
         type="button"
-        className={`inline-flex items-center gap-2 text-sm font-medium ${
+        className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold transition ${
           emphasis ? "text-foreground" : "text-muted-foreground"
-        } hover:text-foreground`}
+        } hover:bg-white/70 hover:text-foreground`}
         aria-haspopup="menu"
       >
         {label}
-        <span className="text-xs">▾</span>
+        <span className="text-[11px]">▾</span>
       </button>
       <div className="absolute left-0 top-full z-20 hidden min-w-[240px] pt-3 group-hover:block group-focus-within:block">
-        <div className="rounded-xl border border-border/80 bg-white p-4 shadow-lg">
+        <div className="rounded-2xl border border-border/80 bg-white/95 p-4 shadow-[0_18px_38px_hsl(20_30%_20%/0.16)] backdrop-blur">
           <div className="grid gap-2">
             {visibleItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="rounded-lg px-2 py-1 text-sm text-muted-foreground transition hover:bg-secondary/55 hover:text-foreground"
               >
                 {item.label}
               </Link>

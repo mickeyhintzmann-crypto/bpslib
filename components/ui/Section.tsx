@@ -11,10 +11,10 @@ type SectionProps = {
 
 export const Section = ({ children, className, innerClassName, eyebrow }: SectionProps) => {
   return (
-    <section className={cn("py-12 md:py-16", className)}>
-      <div className={cn("mx-auto w-full max-w-6xl px-4", innerClassName)}>
+    <section className={cn("py-14 md:py-20", className)}>
+      <div className={cn("mx-auto w-full max-w-[1180px] px-4 md:px-6", innerClassName)}>
         {eyebrow ? (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             {eyebrow}
           </p>
         ) : null}

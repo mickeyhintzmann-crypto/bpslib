@@ -28,8 +28,17 @@ export const ProcessSteps = () => {
       </div>
       <div className="mt-6 grid gap-6 md:grid-cols-3">
         {steps.map((step, index) => (
-          <div key={step.title} className="rounded-2xl border border-border/70 bg-white/70 p-5">
-            <p className="text-xs font-semibold text-muted-foreground">Trin {index + 1}</p>
+          <div
+            key={step.title}
+            className="surface-subtle group relative overflow-hidden rounded-[24px] p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_32px_hsl(20_30%_20%/0.1)]"
+          >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-primary/10 blur-xl transition group-hover:bg-primary/20"
+            />
+            <p className="relative text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              Trin {index + 1}
+            </p>
             <h3 className="mt-2 text-lg font-semibold text-foreground">{step.title}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{step.text}</p>
           </div>
@@ -43,7 +52,7 @@ export const ProcessSteps = () => {
       </p>
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted-foreground">
         {trustNotes.map((note) => (
-          <span key={note} className="rounded-full border border-border/70 px-3 py-1">
+          <span key={note} className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">
             {note}
           </span>
         ))}

@@ -16,9 +16,13 @@ export const FeatureList = ({ items, className }: FeatureListProps) => {
         <li key={item} className="flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="mt-1.5 inline-flex h-2 w-2 shrink-0 rounded-full bg-primary/80"
-          />
-          <span>{item}</span>
+            className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary"
+          >
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 12l4 4 8-8" />
+            </svg>
+          </span>
+          <span className="pt-0.5">{item}</span>
         </li>
       ))}
     </ul>

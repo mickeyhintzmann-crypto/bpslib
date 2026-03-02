@@ -20,19 +20,19 @@ export const BeforeAfterGrid = ({ title, items }: BeforeAfterGridProps) => {
   }
 
   return (
-    <Section className="py-6 md:py-8">
+    <Section className="py-7 md:py-9">
       <section>
         <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
           {items.map((item, index) => (
             <article
               key={`${item.beforeSrc}-${item.afterSrc}-${index}`}
-              className="rounded-3xl border border-border/70 bg-white/80 p-4 md:p-5"
+              className="surface-subtle rounded-[26px] p-4 md:p-5"
             >
               <div className="grid gap-3 sm:grid-cols-2">
                 <figure>
-                  <figcaption className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <figcaption className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                     Før
                   </figcaption>
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/70 bg-muted/20">
@@ -48,7 +48,7 @@ export const BeforeAfterGrid = ({ title, items }: BeforeAfterGridProps) => {
                 </figure>
 
                 <figure>
-                  <figcaption className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <figcaption className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                     Efter
                   </figcaption>
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/70 bg-muted/20">

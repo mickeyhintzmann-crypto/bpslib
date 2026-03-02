@@ -19,13 +19,13 @@ export const Header = () => {
   const bookingCta = bookingRoute ? { href: bookingRoute.path, label: "Book nu" } : undefined;
 
   return (
-    <header className="border-b border-border/70 bg-background/80 backdrop-blur">
-      <div className="hidden border-b border-border/70 bg-white/60 md:block">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-2 text-xs text-muted-foreground">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/78 backdrop-blur-xl">
+      <div className="hidden border-b border-border/60 bg-white/50 md:block">
+        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-6 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <a
               href={`tel:${siteConfig.phone}`}
-              className="hover:text-foreground"
+              className="rounded-full px-2 py-1 transition hover:bg-white/70 hover:text-foreground"
               onClick={() => trackEvent("call_click", { source: "header_topbar" })}
             >
               Tlf. {siteConfig.phoneDisplay}
@@ -36,9 +36,12 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
+      <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-lg font-semibold tracking-tight text-foreground">
+          <Link
+            href="/"
+            className="rounded-xl bg-white/80 px-3 py-2 text-lg font-semibold tracking-tight text-foreground shadow-[0_8px_22px_hsl(20_30%_20%/0.08)] transition hover:-translate-y-0.5"
+          >
             BP Slib
             <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
@@ -63,17 +66,17 @@ export const Header = () => {
               <Link
                 key={route.href}
                 href={route.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground"
+                className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
               >
                 {route.label}
               </Link>
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <a
             href={`tel:${siteConfig.phone}`}
-            className="hidden text-sm text-muted-foreground lg:inline"
+            className="hidden rounded-lg px-3 py-2 text-sm text-muted-foreground transition hover:bg-white/70 hover:text-foreground lg:inline"
             onClick={() => trackEvent("call_click", { source: "header_main" })}
           >
             Tlf. {siteConfig.phoneDisplay}
@@ -91,7 +94,7 @@ export const Header = () => {
           </Button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground md:hidden"
+            className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-white/80 px-3.5 py-2.5 text-sm font-semibold text-foreground shadow-sm md:hidden"
             onClick={() => setIsOpen((prev) => !prev)}
             aria-expanded={isOpen}
             aria-controls="mobilmenu"
@@ -102,8 +105,8 @@ export const Header = () => {
       </div>
 
       {isOpen ? (
-        <div id="mobilmenu" className="border-t border-border/70 bg-white/80 md:hidden">
-          <div className="mx-auto grid w-full max-w-6xl gap-4 px-6 py-6">
+        <div id="mobilmenu" className="border-t border-border/70 bg-white/90 backdrop-blur-xl md:hidden">
+          <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-6 py-6">
             <NavDropdown
               label="Bordplade"
               items={headerRegistry.bordplade.map((route) => ({ href: route.href, label: route.label }))}

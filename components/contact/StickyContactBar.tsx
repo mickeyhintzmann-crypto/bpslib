@@ -16,8 +16,8 @@ const ctaLabel = tilbudRoute ? "Få tilbud" : "Book";
 
 export const StickyContactBar = () => {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur md:hidden">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/75 bg-background/92 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-3.5 shadow-[0_-10px_28px_hsl(20_30%_20%/0.14)] backdrop-blur-xl md:hidden">
+      <div className="mx-auto flex w-full max-w-[1180px] items-center gap-2 px-4">
         <Button asChild variant="secondary" className="flex-1">
           <a href={CONTACT_TEL_HREF} onClick={() => trackEvent("call_click", { source: "sticky_contact_bar" })}>
             Ring

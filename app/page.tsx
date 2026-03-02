@@ -70,7 +70,7 @@ export default function HomePage() {
   });
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-20">
+    <main className="mx-auto w-full max-w-[1180px] px-4 pb-20 md:px-6">
       <StructuredData data={localBusinessSchema} />
       <StructuredData data={serviceSchema} />
       <StructuredData data={webSiteSchema} />

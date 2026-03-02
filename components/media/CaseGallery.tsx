@@ -30,7 +30,7 @@ export const CaseGallery = ({ title, subtitle, items, cta }: CaseGalleryProps) =
   }
 
   return (
-    <Section className="py-6 md:py-8">
+    <Section className="py-7 md:py-9">
       <section>
         <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
         {subtitle ? (
@@ -39,11 +39,11 @@ export const CaseGallery = ({ title, subtitle, items, cta }: CaseGalleryProps) =
           </p>
         ) : null}
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
           {items.map((item) => (
             <article
               key={`${item.title}-${item.location ?? "default"}`}
-              className="group rounded-3xl border border-border/70 bg-white/80 p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-sm md:p-5"
+              className="group surface-subtle overflow-hidden rounded-[26px] p-4 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_34px_hsl(20_30%_20%/0.12)] md:p-5"
             >
               {item.image ? (
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/70 bg-muted/20">
@@ -51,7 +51,7 @@ export const CaseGallery = ({ title, subtitle, items, cta }: CaseGalleryProps) =
                     src={item.image.src}
                     alt={item.image.alt}
                     fill
-                    className="object-cover"
+                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 768px) 100vw, 50vw"
                     unoptimized
                   />
@@ -96,7 +96,7 @@ export const CaseGallery = ({ title, subtitle, items, cta }: CaseGalleryProps) =
 
         {cta ? (
           <div className="mt-6">
-            <Button asChild size="lg" className="h-11 px-6">
+            <Button asChild size="lg" className="h-12 px-6">
               <Link href={cta.href}>{cta.label}</Link>
             </Button>
           </div>

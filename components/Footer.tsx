@@ -64,10 +64,10 @@ export const Footer = () => {
   ).links;
 
   return (
-    <footer className="border-t border-border/70 bg-background/90">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 md:grid-cols-4">
+    <footer className="border-t border-border/70 bg-[linear-gradient(180deg,hsl(34_18%_95%),hsl(34_14%_92%))]">
+      <div className="mx-auto grid w-full max-w-[1180px] gap-10 px-6 py-14 md:grid-cols-4">
         <div className="space-y-4">
-          <div>
+          <div className="rounded-2xl border border-border/70 bg-white/65 p-4">
             <BpsImage
               src={brandAssets.logo}
               alt={`${siteConfig.companyName} logo`}
@@ -113,7 +113,7 @@ export const Footer = () => {
           <p className="font-medium text-foreground">Bordplade</p>
           <div className="grid gap-2 text-muted-foreground">
             {bordpladeLinks.map((route) => (
-              <Link key={route.href} href={route.href} className="hover:text-foreground">
+              <Link key={route.href} href={route.href} className="transition hover:text-foreground">
                 {isBordpladeCity(route.href) ? `Bordpladeslibning i ${route.label}` : route.label}
               </Link>
             ))}
@@ -127,7 +127,7 @@ export const Footer = () => {
           <p className="font-medium text-foreground">Gulv og øvrige fag</p>
           <div className="grid gap-2 text-muted-foreground">
             {gulvLinks.map((route) => (
-              <Link key={route.href} href={route.href} className="hover:text-foreground">
+              <Link key={route.href} href={route.href} className="transition hover:text-foreground">
                 {isGulvCity(route.href) ? `Gulvafslibning i ${route.label}` : route.label}
               </Link>
             ))}
@@ -141,12 +141,12 @@ export const Footer = () => {
           <p className="font-medium text-foreground">Virksomhed og juridisk</p>
           <div className="grid gap-2 text-muted-foreground">
             {footerRegistry.core.map((route) => (
-              <Link key={route.href} href={route.href} className="hover:text-foreground">
+              <Link key={route.href} href={route.href} className="transition hover:text-foreground">
                 {route.label}
               </Link>
             ))}
             {footerRegistry.legal.map((route) => (
-              <Link key={route.href} href={route.href} className="hover:text-foreground">
+              <Link key={route.href} href={route.href} className="transition hover:text-foreground">
                 {route.label}
               </Link>
             ))}
