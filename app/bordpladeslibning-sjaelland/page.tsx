@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { InternalLinkGrid } from "@/components/bordplade/InternalLinkGrid";
-import { PageHero } from "@/components/bordplade/PageHero";
+import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
 import { ServiceAreaGrid } from "@/components/bordplade/ServiceAreaGrid";
 import {
   StructuredData,
@@ -151,14 +151,17 @@ export const metadata = buildMetadata({
 
 export default function BordpladePillarPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
-      <PageHero
-        eyebrow="Pillar-side"
-        title="Bordpladeslibning på Sjælland"
-        intro="Vi hjælper med slibning, genopbygning og finish af massiv træbordplader. Du får tydelig rådgivning, realistiske priser og et forløb der er let at forstå fra første kontakt."
-        showAkutteTider
-      />
-
+    <ServicePageLayout
+      title="Bordpladeslibning på Sjælland"
+      subtitle="Vi hjælper med slibning, genopbygning og finish af massiv træbordplader. Du får tydelig rådgivning, realistiske priser og et forløb der er let at forstå fra første kontakt."
+      bullets={[
+        "Slibning & behandling af massive træbordplader",
+        "Få vurdering via billeder – hurtigt og konkret",
+        "Dækker hele Sjælland + lokale områder"
+      ]}
+      primaryCta={{ label: "Book tid", href: "/bordpladeslibning/book" }}
+      secondaryCta={{ label: "Få pris via billeder", href: "/bordpladeslibning/prisberegner" }}
+    >
       <ProcessSteps />
 
       <section className="py-10 md:py-14">
@@ -409,6 +412,6 @@ export default function BordpladePillarPage() {
       <StructuredData data={serviceSchema} />
       <StructuredData data={buildFaqSchema(faqItems)} />
       <StructuredData data={breadcrumbSchema} />
-    </main>
+    </ServicePageLayout>
   );
 }
