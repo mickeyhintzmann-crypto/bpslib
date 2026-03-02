@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { JobFormModal, type JobDraft } from "@/components/admin/JobFormModal";
 
 const STATUS_OPTIONS = [
   { value: "alle", label: "Alle status" },
@@ -73,6 +74,20 @@ type LeadDetailResponse = {
   message?: string;
 };
 
+type LeadPrefillJobResponse = {
+  lead?: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    location: string | null;
+    message: string | null;
+    service: string | null;
+  };
+  jobDraft?: JobDraft;
+  message?: string;
+};
+
 const formatDate = (iso: string) => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
@@ -129,6 +144,10 @@ export const LeadsInbox = () => {
 
   const [noteDraft, setNoteDraft] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [jobPrefillBusy, setJobPrefillBusy] = useState(false);
+  const [jobModalOpen, setJobModalOpen] = useState(false);
+  const [jobDraft, setJobDraft] = useState<JobDraft | null>(null);
+  const [jobSuccessMessage, setJobSuccessMessage] = useState("");
 
   const hasItems = items.length > 0;
 
@@ -292,6 +311,33 @@ export const LeadsInbox = () => {
       setDetailError("Netværksfejl ved oprettelse af note.");
     } finally {
       setSavingNote(false);
+    }
+  };
+
+  const openCreateJobModal = async () => {
+    if (!detail) {
+      return;
+    }
+
+    setJobPrefillBusy(true);
+    setDetailError("");
+    setJobSuccessMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/leads/${detail.id}/prefill-job`, { cache: "no-store" });
+      const payload = (await response.json()) as LeadPrefillJobResponse;
+      if (!response.ok || !payload.jobDraft) {
+        setDetailError(payload.message || "Kunne ikke hente job-prefill.");
+        return;
+      }
+
+      setJobDraft(payload.jobDraft);
+      setJobModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved hentning af job-prefill.");
+    } finally {
+      setJobPrefillBusy(false);
     }
   };
 
@@ -461,13 +507,14 @@ export const LeadsInbox = () => {
                   <Button size="sm" variant="outline" onClick={() => copyText(detail.email)}>
                     Copy email
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => window.alert("Booking-flow kobles i næste modul")}> 
-                    Create booking
+                  <Button size="sm" variant="outline" onClick={openCreateJobModal} disabled={jobPrefillBusy}>
+                    {jobPrefillBusy ? "Henter..." : "Opret job"}
                   </Button>
                 </div>
               </div>
 
               {detailError ? <p className="text-sm font-medium text-red-700">{detailError}</p> : null}
+              {jobSuccessMessage ? <p className="text-sm font-medium text-emerald-700">{jobSuccessMessage}</p> : null}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-medium text-muted-foreground">
@@ -585,6 +632,18 @@ export const LeadsInbox = () => {
       {selectedSummary && !detail ? (
         <p className="text-xs text-muted-foreground">Valgt lead: {selectedSummary.name || selectedSummary.id}</p>
       ) : null}
+
+      <JobFormModal
+        isOpen={jobModalOpen}
+        draft={jobDraft}
+        title="Opret job fra lead"
+        subtitle="Klargjort fra lead-data. Justér felter og gem."
+        onClose={() => setJobModalOpen(false)}
+        onCreated={(jobId) => {
+          setJobSuccessMessage(`Job oprettet (${jobId}).`);
+          setJobModalOpen(false);
+        }}
+      />
     </section>
   );
 };

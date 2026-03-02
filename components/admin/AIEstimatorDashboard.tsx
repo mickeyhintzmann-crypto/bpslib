@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { JobFormModal, type JobDraft } from "@/components/admin/JobFormModal";
 import { Button } from "@/components/ui/button";
 import {
   AI_REVIEW_STATUS_VALUES,
@@ -96,6 +97,11 @@ type PromptListResponse = {
   message?: string;
 };
 
+type LeadPrefillJobResponse = {
+  jobDraft?: JobDraft;
+  message?: string;
+};
+
 const serviceOptions = ["alle", ...AI_SERVICES] as const;
 const reviewStatusOptions = ["alle", ...AI_REVIEW_STATUS_VALUES] as const;
 const DEFAULT_RULES_TEXT = `{
@@ -162,6 +168,30 @@ const statusClasses: Record<string, string> = {
   rejected: "bg-rose-100 text-rose-900"
 };
 
+const summarizeQuoteOutput = (output: Record<string, unknown>) => {
+  const textCandidate =
+    (typeof output.text === "string" ? output.text.trim() : "") ||
+    (typeof output.summary === "string" ? output.summary.trim() : "") ||
+    (typeof output.explanation === "string" ? output.explanation.trim() : "");
+
+  if (textCandidate) {
+    return textCandidate;
+  }
+
+  const priceRange =
+    output.price_range && typeof output.price_range === "object"
+      ? (output.price_range as Record<string, unknown>)
+      : {};
+  const min = priceRange.min ?? output.price_min;
+  const max = priceRange.max ?? output.price_max;
+
+  if (min || max) {
+    return `Prisinterval: ${min ?? "?"} - ${max ?? "?"}`;
+  }
+
+  return "Ingen tekst-output fra AI.";
+};
+
 export const AIEstimatorDashboard = () => {
   const [tab, setTab] = useState<TabKey>("queue");
   const [serviceFilter, setServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
@@ -196,6 +226,10 @@ export const AIEstimatorDashboard = () => {
   const [promptTextDraft, setPromptTextDraft] = useState("");
   const [promptRulesDraft, setPromptRulesDraft] = useState(DEFAULT_RULES_TEXT);
   const [promptSaving, setPromptSaving] = useState(false);
+  const [jobModalOpen, setJobModalOpen] = useState(false);
+  const [jobPrefillBusy, setJobPrefillBusy] = useState(false);
+  const [jobDraft, setJobDraft] = useState<JobDraft | null>(null);
+  const [jobMessage, setJobMessage] = useState("");
 
   const isQueueTab = tab === "queue";
   const isHistoryTab = tab === "history";
@@ -207,6 +241,7 @@ export const AIEstimatorDashboard = () => {
     setDetailMessage("");
     setPromptsError("");
     setPromptsMessage("");
+    setJobMessage("");
   };
 
   const applyDetail = (payload: QuoteDetailPayload) => {
@@ -506,6 +541,57 @@ export const AIEstimatorDashboard = () => {
     );
   };
 
+  const openCreateJobFromQuote = async () => {
+    if (!detail?.lead?.id) {
+      setDetailError("Mangler lead – åbn lead først.");
+      return;
+    }
+
+    setJobPrefillBusy(true);
+    setDetailError("");
+    setJobMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/leads/${detail.lead.id}/prefill-job`, { cache: "no-store" });
+      const payload = (await response.json()) as LeadPrefillJobResponse;
+      if (!response.ok || !payload.jobDraft) {
+        setDetailError(payload.message || "Kunne ikke hente job-prefill.");
+        return;
+      }
+
+      const quoteSummary = summarizeQuoteOutput(detail.result.output || {});
+      const confidenceLine =
+        typeof detail.result.confidence === "number"
+          ? detail.result.confidence.toFixed(2)
+          : "n/a";
+
+      const draftWithQuote: JobDraft = {
+        ...payload.jobDraft,
+        notes: [
+          payload.jobDraft.notes || "",
+          "",
+          "---",
+          "AI quote",
+          `Confidence: ${confidenceLine}`,
+          `Summary: ${quoteSummary}`,
+          "",
+          "Key inputs:",
+          prettyJson(detail.request?.inputs || {})
+        ]
+          .filter(Boolean)
+          .join("\n")
+      };
+
+      setJobDraft(draftWithQuote);
+      setJobModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved hentning af job-prefill.");
+    } finally {
+      setJobPrefillBusy(false);
+    }
+  };
+
   const openLeadHref = detail?.lead?.id ? `/admin/leads?open=${detail.lead.id}` : null;
   const detailImages = useMemo(
     () => extractImageUrls(Array.isArray(detail?.request?.images) ? detail?.request?.images : []),
@@ -569,6 +655,7 @@ export const AIEstimatorDashboard = () => {
 
       {listError ? <p className="text-sm font-medium text-red-700">{listError}</p> : null}
       {listMessage ? <p className="text-sm font-medium text-emerald-700">{listMessage}</p> : null}
+      {jobMessage ? <p className="text-sm font-medium text-emerald-700">{jobMessage}</p> : null}
 
       {tab === "prompts" ? (
         <div className="space-y-4">
@@ -872,18 +959,30 @@ export const AIEstimatorDashboard = () => {
 
             <div className="mt-4 space-y-4">
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">Lead</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">Lead</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={openCreateJobFromQuote}
+                    disabled={jobPrefillBusy || detailSaving}
+                  >
+                    {jobPrefillBusy ? "Henter..." : "Opret job fra quote"}
+                  </Button>
+                </div>
                 {detail.lead ? (
                   <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">{short(detail.lead.name, "Ukendt")}</p>
                     <p>{short(detail.lead.phone)}</p>
                     <p>{short(detail.lead.email)}</p>
                     <p>{short(detail.lead.location)}</p>
-                    {openLeadHref ? (
-                      <Link href={openLeadHref} className="inline-flex text-primary underline underline-offset-2">
-                        Open lead
-                      </Link>
-                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {openLeadHref ? (
+                        <Link href={openLeadHref} className="inline-flex text-primary underline underline-offset-2">
+                          Open lead
+                        </Link>
+                      ) : null}
+                    </div>
                   </div>
                 ) : (
                   <p className="mt-2 text-sm text-muted-foreground">Intet lead linked endnu.</p>
@@ -996,6 +1095,18 @@ export const AIEstimatorDashboard = () => {
           </div>
         </div>
       ) : null}
+
+      <JobFormModal
+        isOpen={jobModalOpen}
+        draft={jobDraft}
+        title="Opret job fra AI quote"
+        subtitle="Prefill fra lead + quote. Justér felter og gem."
+        onClose={() => setJobModalOpen(false)}
+        onCreated={(jobId) => {
+          setJobMessage(`Job oprettet (${jobId}).`);
+          setJobModalOpen(false);
+        }}
+      />
     </section>
   );
 };
