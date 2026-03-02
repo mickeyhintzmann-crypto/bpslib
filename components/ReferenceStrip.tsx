@@ -8,6 +8,7 @@ export const ReferenceStrip = ({ compact = false }: ReferenceStripProps) => {
   return (
     <section
       className={[
+        "reference-strip",
         "rounded-3xl border border-border/70 bg-white/70",
         compact ? "mt-6 p-4 md:p-5" : "mt-8 p-6 md:p-8"
       ].join(" ")}

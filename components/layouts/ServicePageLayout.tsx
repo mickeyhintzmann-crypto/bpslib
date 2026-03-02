@@ -69,7 +69,7 @@ export const ServicePageLayout = ({
       <ClientLogoWall />
 
       <Section className="py-6 md:py-8">
-        <div className="space-y-8">{children}</div>
+        <div className="space-y-8 [&_.reference-strip]:hidden">{children}</div>
       </Section>
 
       {showInternalLinks ? (
