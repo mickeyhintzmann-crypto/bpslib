@@ -6,7 +6,9 @@ import {
   buildItemListSchema,
   buildServiceSchema
 } from "@/components/seo/StructuredData";
+import { EnterpriseCaseShowcase } from "@/components/references/EnterpriseCaseShowcase";
 import { ReferencesGrid } from "@/components/references/ReferencesGrid";
+import { ClientLogoWall } from "@/components/trust/ClientLogoWall";
 import { Button } from "@/components/ui/button";
 import { referenceProjects } from "@/lib/references-data";
 import { buildMetadata } from "@/lib/seo";
@@ -60,6 +62,9 @@ export default function ReferencerPage() {
           Her finder du et udvalg af tidligere projekter. Siden er lavet, så både brugere og
           søgemaskiner hurtigt kan se vores dokumenterede arbejde med massiv træbordplade.
         </p>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+          Klik på en reference nedenfor for at åbne hele billedserien i lightbox.
+        </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild>
             <Link href="/bordpladeslibning/prisberegner">Få pris via billeder</Link>
@@ -72,6 +77,13 @@ export default function ReferencerPage() {
           </Button>
         </div>
       </section>
+
+      <ClientLogoWall />
+
+      <EnterpriseCaseShowcase
+        title="Udvalgte opgaver for store kunder"
+        subtitle="Klik på en opgave for at se billedserien."
+      />
 
       <section className="mt-8">
         <ReferencesGrid projects={referenceProjects} />

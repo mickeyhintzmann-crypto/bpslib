@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AcutePromo } from "@/components/home/AcutePromo";
 import { BeforeAfterGallery } from "@/components/home/BeforeAfterGallery";
 import { FeaturedReferences } from "@/components/home/FeaturedReferences";
@@ -9,7 +11,9 @@ import { PriceEstimatorPromo } from "@/components/home/PriceEstimatorPromo";
 import { PriceTeaser } from "@/components/home/PriceTeaser";
 import { ProcessSteps } from "@/components/home/ProcessSteps";
 import { ReferenceStrip } from "@/components/ReferenceStrip";
+import { EnterpriseCaseShowcase } from "@/components/references/EnterpriseCaseShowcase";
 import { ClientLogoWall } from "@/components/trust/ClientLogoWall";
+import { Button } from "@/components/ui/button";
 import { SecondaryServices } from "@/components/home/SecondaryServices";
 import { ServiceArea } from "@/components/home/ServiceArea";
 import { SpecialistSection } from "@/components/home/SpecialistSection";
@@ -72,6 +76,21 @@ export default function HomePage() {
       <StructuredData data={webSiteSchema} />
       <Hero />
       <ClientLogoWall />
+      <EnterpriseCaseShowcase
+        title="Udvalgte referencer"
+        subtitle="Et udvalg af opgaver vi har udført – klik for at se billedserier."
+        limit={6}
+      />
+      <section className="pb-4">
+        <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/referencer">Se alle referencer</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/cases">Se cases</Link>
+          </Button>
+        </div>
+      </section>
       <ReferenceStrip compact />
       <TrustHighlights />
       <SpecialistSection />
