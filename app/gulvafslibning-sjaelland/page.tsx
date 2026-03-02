@@ -4,9 +4,11 @@ import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
+import { BeforeAfterGrid } from "@/components/media/BeforeAfterGrid";
 import { CaseGallery } from "@/components/media/CaseGallery";
 import { MidPageCTA } from "@/components/marketing/MidPageCTA";
 import { ProblemCards } from "@/components/marketing/ProblemCards";
+import { beforeAfterGulv, galleryGulv } from "@/lib/mediaManifest";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -162,6 +164,22 @@ const caseGalleryItems = [
   }
 ];
 
+const caseGalleryItemsWithImages = caseGalleryItems.map((item, index) => ({
+  ...item,
+  image: galleryGulv[index]
+    ? {
+        src: galleryGulv[index],
+        alt: "Trægulv efter afslibning og efterbehandling"
+      }
+    : undefined
+}));
+
+const beforeAfterGulvPreview = beforeAfterGulv.slice(0, 4).map((item) => ({
+  ...item,
+  beforeAlt: "Trægulv før afslibning",
+  afterAlt: "Trægulv efter afslibning og efterbehandling"
+}));
+
 export const metadata = buildMetadata({
   title: "Gulvafslibning på Sjælland | Slibning & efterbehandling af trægulve",
   description:
@@ -191,8 +209,13 @@ export default function GulvHubPage() {
       <CaseGallery
         title="Eksempler på typiske gulvopgaver"
         subtitle="Et hurtigt overblik over opgavetyper vi ofte planlægger, før vi aftaler proces, efterbehandling og tidsplan."
-        items={caseGalleryItems}
+        items={caseGalleryItemsWithImages}
         cta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+      />
+
+      <BeforeAfterGrid
+        title="Før & efter: trægulve"
+        items={beforeAfterGulvPreview}
       />
 
       <MidPageCTA

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { InternalLinkGrid } from "@/components/bordplade/InternalLinkGrid";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
+import { BeforeAfterGrid } from "@/components/media/BeforeAfterGrid";
 import { CaseGallery } from "@/components/media/CaseGallery";
 import { MidPageCTA } from "@/components/marketing/MidPageCTA";
 import { ProblemCards } from "@/components/marketing/ProblemCards";
@@ -15,6 +16,7 @@ import {
 } from "@/components/seo/StructuredData";
 import { ProcessSteps } from "@/components/home/ProcessSteps";
 import { Button } from "@/components/ui/button";
+import { beforeAfterBordplade, galleryBordplade } from "@/lib/mediaManifest";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -180,6 +182,22 @@ const caseGalleryItems = [
   }
 ];
 
+const caseGalleryItemsWithImages = caseGalleryItems.map((item, index) => ({
+  ...item,
+  image: galleryBordplade[index]
+    ? {
+        src: galleryBordplade[index],
+        alt: "Massiv træbordplade efter slibning og behandling"
+      }
+    : undefined
+}));
+
+const beforeAfterBordpladePreview = beforeAfterBordplade.slice(0, 4).map((item) => ({
+  ...item,
+  beforeAlt: "Massiv træbordplade før slibning",
+  afterAlt: "Massiv træbordplade efter slibning og behandling"
+}));
+
 const serviceSchema = buildServiceSchema({
   name: "Bordpladeslibning på Sjælland",
   description:
@@ -226,8 +244,13 @@ export default function BordpladePillarPage() {
       <CaseGallery
         title="Eksempler på typiske bordplade-opgaver"
         subtitle="Et hurtigt overblik over opgavetyper vi ofte vurderer via billeder, før vi planlægger næste skridt."
-        items={caseGalleryItems}
+        items={caseGalleryItemsWithImages}
         cta={{ label: "Få vurdering via billeder", href: "/bordpladeslibning/prisberegner" }}
+      />
+
+      <BeforeAfterGrid
+        title="Før & efter: bordplader"
+        items={beforeAfterBordpladePreview}
       />
 
       <MidPageCTA
