@@ -19,13 +19,13 @@ export const Header = () => {
   const bookingCta = bookingRoute ? { href: bookingRoute.path, label: "Book nu" } : undefined;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/78 backdrop-blur-xl">
-      <div className="hidden border-b border-border/60 bg-white/50 md:block">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background">
+      <div className="hidden border-b border-border/60 bg-background md:block">
         <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-6 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <a
               href={`tel:${siteConfig.phone}`}
-              className="rounded-full px-2 py-1 transition hover:bg-white/70 hover:text-foreground"
+              className="rounded-full px-2 py-1 transition hover:text-foreground"
               onClick={() => trackEvent("call_click", { source: "header_topbar" })}
             >
               Tlf. {siteConfig.phoneDisplay}
@@ -40,7 +40,7 @@ export const Header = () => {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="rounded-xl bg-white/80 px-3 py-2 text-lg font-semibold tracking-tight text-foreground shadow-[0_8px_22px_hsl(20_30%_20%/0.08)] transition hover:-translate-y-0.5"
+            className="rounded-xl border border-border/70 bg-white px-3 py-2 text-lg font-semibold tracking-tight text-foreground shadow-sm transition hover:bg-secondary/35"
           >
             BP Slib
             <span className="sr-only">{siteConfig.companyName}</span>
@@ -76,7 +76,7 @@ export const Header = () => {
         <div className="flex items-center gap-2.5">
           <a
             href={`tel:${siteConfig.phone}`}
-            className="hidden rounded-lg px-3 py-2 text-sm text-muted-foreground transition hover:bg-white/70 hover:text-foreground lg:inline"
+            className="hidden rounded-lg px-3 py-2 text-sm text-muted-foreground transition hover:text-foreground lg:inline"
             onClick={() => trackEvent("call_click", { source: "header_main" })}
           >
             Tlf. {siteConfig.phoneDisplay}
@@ -105,7 +105,7 @@ export const Header = () => {
       </div>
 
       {isOpen ? (
-        <div id="mobilmenu" className="border-t border-border/70 bg-white/90 backdrop-blur-xl md:hidden">
+        <div id="mobilmenu" className="border-t border-border/70 bg-background md:hidden">
           <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-6 py-6">
             <NavDropdown
               label="Bordplade"

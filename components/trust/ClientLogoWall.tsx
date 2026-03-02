@@ -7,84 +7,81 @@ import { Button } from "@/components/ui/button";
 import { Section } from "@/components/ui/Section";
 import { clientLogos } from "@/lib/clientLogos";
 
-const LogoItem = ({ src, alt }: { src: string; alt: string }) => {
+type ClientLogoWallProps = {
+  variant?: "prominent" | "compact";
+};
+
+const LogoCard = ({ src, alt, compact }: { src: string; alt: string; compact: boolean }) => {
   return (
-    <li className="group flex h-16 w-[170px] shrink-0 items-center justify-center px-3 sm:w-[190px] md:h-[78px] md:w-[220px]">
+    <li
+      className={`group flex items-center justify-center rounded-2xl border border-border/70 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        compact ? "h-[92px] px-4" : "h-[112px] px-5 md:h-[126px]"
+      }`}
+    >
       <Image
         src={src}
         alt={alt}
-        width={220}
-        height={110}
-        sizes="(max-width: 767px) 170px, (max-width: 1023px) 190px, 220px"
-        className="h-auto max-h-[36px] w-auto object-contain opacity-70 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0 md:max-h-[46px]"
+        width={320}
+        height={150}
+        sizes={compact ? "(max-width: 767px) 42vw, 22vw" : "(max-width: 767px) 42vw, 16vw"}
+        className={`h-auto w-auto object-contain transition duration-200 group-hover:scale-[1.02] ${
+          compact ? "max-h-[44px] md:max-h-[50px]" : "max-h-[52px] md:max-h-[60px]"
+        }`}
       />
     </li>
   );
 };
 
-export const ClientLogoWall = () => {
+export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) => {
   if (!clientLogos.length) {
     return null;
   }
 
-  const marqueeLogos = [...clientLogos, ...clientLogos];
+  const compact = variant === "compact";
 
   return (
-    <Section className="py-7 md:py-10" eyebrow="Udvalgte referencer">
-      <div className="rounded-[28px] border border-border/70 bg-[linear-gradient(180deg,hsl(0_0%_100%/0.86),hsl(36_48%_96%/0.66))] p-5 md:p-7">
-        <h2 className="text-2xl font-semibold text-foreground md:text-3xl">
-          Dokumenteret arbejde for professionelle kunder
-        </h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
-          Et udvalg af virksomheder og institutioner vi har udført opgaver for.
-        </p>
+    <Section
+      className={compact ? "py-6 md:py-8" : "py-10 md:py-12"}
+      eyebrow={compact ? "Udvalgte referencer" : "Store kunder vi arbejder for"}
+    >
+      <div className={`surface-panel rounded-[30px] ${compact ? "p-5 md:p-7" : "p-6 md:p-10"}`}>
+        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <h2 className={compact ? "text-2xl font-semibold text-foreground md:text-3xl" : "text-3xl font-semibold text-foreground md:text-4xl"}>
+              Dokumenteret arbejde for professionelle kunder
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+              Et udvalg af virksomheder og institutioner vi har udført opgaver for.
+            </p>
+          </div>
 
-        <div className="marquee mt-7 overflow-hidden motion-reduce:hidden">
-          <ul className="marquee-track flex min-w-max items-center gap-3 md:gap-5">
-            {marqueeLogos.map((logo, index) => (
-              <li key={`${logo.src}-${index}`}>
-                <LogoItem src={logo.src} alt={logo.alt} />
-              </li>
-            ))}
-          </ul>
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="rounded-full border border-border/70 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {clientLogos.length} enterprise referencer
+            </span>
+          </div>
         </div>
 
-        <ul className="mt-7 hidden grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 md:gap-3 lg:grid-cols-8 motion-reduce:grid">
+        <ul className={`mt-7 grid ${compact ? "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6" : "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4"}`}>
           {clientLogos.map((logo) => (
-            <LogoItem key={logo.src} src={logo.src} alt={logo.alt} />
+            <LogoCard key={logo.src} src={logo.src} alt={logo.alt} compact={compact} />
           ))}
         </ul>
 
         <div className="mt-7 flex flex-wrap gap-3">
-          <Button asChild size="sm" className="h-10 px-5">
+          <Button asChild size={compact ? "sm" : "lg"} className={compact ? "h-10 px-5" : "h-12 px-6"}>
             <Link href="/referencer">Se alle referencer</Link>
           </Button>
-          <Button asChild size="sm" variant="secondary" className="h-10 px-5">
+          <Button
+            asChild
+            size={compact ? "sm" : "lg"}
+            variant="secondary"
+            className={compact ? "h-10 px-5" : "h-12 px-6"}
+          >
             <Link href="/cases">Se cases</Link>
           </Button>
         </div>
       </div>
-      <style jsx>{`
-        .marquee-track {
-          animation: client-logo-marquee 30s linear infinite;
-          will-change: transform;
-        }
-
-        @keyframes client-logo-marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-
-        @media (hover: hover) {
-          .marquee:hover .marquee-track {
-            animation-play-state: paused;
-          }
-        }
-      `}</style>
     </Section>
   );
 };

@@ -109,7 +109,7 @@ export const ServicePageLayout = ({
         </div>
       </Section>
 
-      <ClientLogoWall />
+      <ClientLogoWall variant="compact" />
 
       <Section className="py-7 md:py-9">
         <div className="space-y-9 [&_.reference-strip]:hidden">{children}</div>

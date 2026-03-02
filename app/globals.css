@@ -31,13 +31,7 @@ body {
   @apply bg-background text-foreground antialiased;
   font-family: var(--font-sans), "Segoe UI", Helvetica, Arial, sans-serif;
   line-height: 1.68;
-  background-image: radial-gradient(
-      1020px 640px at 12% -10%,
-      hsl(var(--primary) / 0.13),
-      transparent
-    ),
-    radial-gradient(960px 520px at 88% -16%, hsl(var(--secondary) / 0.78), transparent),
-    linear-gradient(180deg, hsl(34 36% 98%), hsl(34 24% 96%));
+  background: linear-gradient(180deg, hsl(34 22% 98%), hsl(34 16% 96%));
 }
 
 a {
@@ -110,7 +104,7 @@ a {
   }
 
   .surface-subtle {
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.72), hsl(36 48% 96% / 0.52));
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.78), hsl(36 48% 96% / 0.58));
     border: 1px solid hsl(var(--border) / 0.72);
   }
 
@@ -133,5 +127,9 @@ a {
     opacity: 0.16;
     background-image: radial-gradient(hsl(var(--foreground) / 0.22) 0.45px, transparent 0.45px);
     background-size: 3px 3px;
+  }
+
+  .section-divider {
+    border-top: 1px solid hsl(var(--border) / 0.62);
   }
 }
