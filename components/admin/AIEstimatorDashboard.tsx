@@ -1,79 +1,68 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   AI_REVIEW_STATUS_VALUES,
   AI_SERVICES,
-  type AiReviewStatus,
-  type AiService
+  type AiReviewStatus
 } from "@/lib/ai-estimator-control-room";
 
-type TabKey = "queue" | "prompts" | "history";
+type TabKey = "queue" | "history" | "prompts";
 
-type QueueItem = {
-  id: string;
-  createdAt: string;
-  requestId: string;
-  promptVersionId: string | null;
+type QuoteListItem = {
+  result_id: string;
+  created_at: string;
   service: string;
-  reviewStatus: string;
-  needsReview: boolean;
+  needs_review: boolean;
+  review_status: string;
   confidence: number | null;
-  summary: string;
+  lead_id: string | null;
   lead: {
-    id: string;
     name: string | null;
     email: string | null;
     phone: string | null;
     location: string | null;
   } | null;
-};
-
-type PromptItem = {
-  id: string;
-  createdAt: string;
-  name: string;
-  service: string;
-  prompt: string;
-  rules: Record<string, unknown>;
-  isActive: boolean;
-};
-
-type HistoryItem = {
-  id: string;
-  createdAt: string;
-  requestId: string;
-  promptVersionId: string | null;
-  service: string;
-  reviewStatus: string;
-  needsReview: boolean;
-  confidence: number | null;
   summary: string;
 };
 
-type DetailItem = {
-  id: string;
-  createdAt: string;
-  requestId: string;
-  promptVersionId: string | null;
-  output: Record<string, unknown>;
-  confidence: number | null;
-  needsReview: boolean;
-  reviewStatus: string;
-  adminFeedback: string | null;
-  adminOverride: Record<string, unknown>;
+type QuoteListResponse = {
+  items?: QuoteListItem[];
+  total?: number;
+  message?: string;
+};
+
+type QuoteDetailPayload = {
+  result: {
+    id: string;
+    created_at: string;
+    request_id: string;
+    prompt_version_id: string | null;
+    output: Record<string, unknown>;
+    confidence: number | null;
+    needs_review: boolean;
+    review_status: string;
+    admin_feedback: string | null;
+    admin_override: Record<string, unknown>;
+  };
   request: {
     id: string;
-    createdAt: string;
+    created_at: string;
     service: string;
-    leadId: string | null;
-    pageUrl: string | null;
+    lead_id: string | null;
+    page_url: string | null;
+    utm: Record<string, unknown>;
     inputs: Record<string, unknown>;
     images: unknown[];
-    clientMeta: Record<string, unknown>;
-    utm: Record<string, unknown>;
+    client_meta: Record<string, unknown>;
+  } | null;
+  promptVersion: {
+    id: string;
+    name: string;
+    service: string;
   } | null;
   lead: {
     id: string;
@@ -82,15 +71,20 @@ type DetailItem = {
     phone: string | null;
     location: string | null;
     message: string | null;
+    page_url: string | null;
   } | null;
-  promptVersion: {
-    id: string;
-    name: string;
-    service: string;
-    prompt: string;
-    rules: Record<string, unknown>;
-    isActive: boolean;
-  } | null;
+};
+
+type QuoteDetailResponse = QuoteDetailPayload & {
+  message?: string;
+};
+
+const serviceOptions = ["alle", ...AI_SERVICES] as const;
+const reviewStatusOptions = ["alle", ...AI_REVIEW_STATUS_VALUES] as const;
+
+const short = (value: string | null | undefined, fallback = "-") => {
+  const cleaned = (value || "").trim();
+  return cleaned || fallback;
 };
 
 const formatDateTime = (value: string) => {
@@ -103,299 +97,258 @@ const formatDateTime = (value: string) => {
 
 const prettyJson = (value: unknown) => JSON.stringify(value || {}, null, 2);
 
-const parseJsonText = (raw: string, fallback: Record<string, unknown>) => {
-  if (!raw.trim()) {
-    return fallback;
+const parseJsonObject = (raw: string) => {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return {};
   }
-  const parsed = JSON.parse(raw);
+  const parsed = JSON.parse(trimmed);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("JSON skal være et objekt.");
   }
   return parsed as Record<string, unknown>;
 };
 
-const serviceOptions = ["alle", ...AI_SERVICES] as const;
-const reviewOptions = ["alle", ...AI_REVIEW_STATUS_VALUES] as const;
+const extractImageUrls = (images: unknown[]) => {
+  const urls: string[] = [];
+
+  for (const item of images) {
+    if (typeof item === "string" && item.trim()) {
+      urls.push(item.trim());
+      continue;
+    }
+
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const obj = item as Record<string, unknown>;
+    const candidates = [obj.url, obj.src, obj.href, obj.publicUrl];
+    const match = candidates.find((value) => typeof value === "string" && value.trim()) as string | undefined;
+    if (match) {
+      urls.push(match.trim());
+    }
+  }
+
+  return Array.from(new Set(urls));
+};
+
+const statusClasses: Record<string, string> = {
+  unreviewed: "bg-amber-100 text-amber-900",
+  approved: "bg-emerald-100 text-emerald-900",
+  edited: "bg-blue-100 text-blue-900",
+  rejected: "bg-rose-100 text-rose-900"
+};
 
 export const AIEstimatorDashboard = () => {
   const [tab, setTab] = useState<TabKey>("queue");
+  const [serviceFilter, setServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
+  const [needsReviewOnly, setNeedsReviewOnly] = useState(true);
+  const [historyStatusFilter, setHistoryStatusFilter] =
+    useState<(typeof reviewStatusOptions)[number]>("alle");
+  const [query, setQuery] = useState("");
 
-  const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
-  const [promptItems, setPromptItems] = useState<PromptItem[]>([]);
-  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
-
-  const [queueServiceFilter, setQueueServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
-  const [promptServiceFilter, setPromptServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
-  const [historyServiceFilter, setHistoryServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
-  const [historyStatusFilter, setHistoryStatusFilter] = useState<(typeof reviewOptions)[number]>("alle");
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [items, setItems] = useState<QuoteListItem[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [loadingList, setLoadingList] = useState(false);
+  const [listError, setListError] = useState("");
+  const [listMessage, setListMessage] = useState("");
 
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detail, setDetail] = useState<DetailItem | null>(null);
-  const [detailBusy, setDetailBusy] = useState(false);
-  const [detailReviewStatus, setDetailReviewStatus] = useState<AiReviewStatus>("unreviewed");
-  const [detailNeedsReview, setDetailNeedsReview] = useState(true);
-  const [detailFeedback, setDetailFeedback] = useState("");
-  const [detailOutputText, setDetailOutputText] = useState("{}");
-  const [detailOverrideText, setDetailOverrideText] = useState("{}");
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailSaving, setDetailSaving] = useState(false);
+  const [detailError, setDetailError] = useState("");
+  const [detailMessage, setDetailMessage] = useState("");
+  const [detail, setDetail] = useState<QuoteDetailPayload | null>(null);
 
-  const [newPromptName, setNewPromptName] = useState("");
-  const [newPromptService, setNewPromptService] = useState<AiService>("bordplade");
-  const [newPromptText, setNewPromptText] = useState("");
-  const [newPromptRulesText, setNewPromptRulesText] = useState("{\n  \"min_confidence\": 0.65,\n  \"min_images\": 1\n}");
-  const [newPromptActive, setNewPromptActive] = useState(false);
+  const [feedbackDraft, setFeedbackDraft] = useState("");
+  const [overrideDraft, setOverrideDraft] = useState("{}");
 
-  const loadQueue = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params = new URLSearchParams();
-      if (queueServiceFilter !== "alle") {
-        params.set("service", queueServiceFilter);
-      }
-      const response = await fetch(`/api/admin/ai-estimator/queue?${params.toString()}`, { cache: "no-store" });
-      const payload = (await response.json()) as { items?: QueueItem[]; message?: string };
-      if (!response.ok || !payload.items) {
-        setQueueItems([]);
-        setError(payload.message || "Kunne ikke hente queue.");
-        return;
-      }
-      setQueueItems(payload.items);
-    } catch (fetchError) {
-      console.error(fetchError);
-      setQueueItems([]);
-      setError("Netværksfejl ved hentning af queue.");
-    } finally {
-      setLoading(false);
-    }
+  const isQueueTab = tab === "queue";
+  const isHistoryTab = tab === "history";
+
+  const clearMessages = () => {
+    setListError("");
+    setListMessage("");
+    setDetailError("");
+    setDetailMessage("");
   };
 
-  const loadPrompts = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params = new URLSearchParams();
-      if (promptServiceFilter !== "alle") {
-        params.set("service", promptServiceFilter);
-      }
-      const response = await fetch(`/api/admin/ai-estimator/prompts?${params.toString()}`, { cache: "no-store" });
-      const payload = (await response.json()) as { items?: PromptItem[]; message?: string };
-      if (!response.ok || !payload.items) {
-        setPromptItems([]);
-        setError(payload.message || "Kunne ikke hente prompt versions.");
-        return;
-      }
-      setPromptItems(payload.items);
-    } catch (fetchError) {
-      console.error(fetchError);
-      setPromptItems([]);
-      setError("Netværksfejl ved hentning af prompt versions.");
-    } finally {
-      setLoading(false);
-    }
+  const applyDetail = (payload: QuoteDetailPayload) => {
+    setDetail(payload);
+    setFeedbackDraft(payload.result.admin_feedback || "");
+    setOverrideDraft(prettyJson(payload.result.admin_override || {}));
   };
 
-  const loadHistory = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params = new URLSearchParams();
-      if (historyServiceFilter !== "alle") {
-        params.set("service", historyServiceFilter);
-      }
-      if (historyStatusFilter !== "alle") {
-        params.set("status", historyStatusFilter);
-      }
-      params.set("limit", "100");
+  const loadQuotes = async () => {
+    setLoadingList(true);
+    setListError("");
 
-      const response = await fetch(`/api/admin/ai-estimator/history?${params.toString()}`, { cache: "no-store" });
-      const payload = (await response.json()) as { items?: HistoryItem[]; message?: string };
+    try {
+      const params = new URLSearchParams({
+        page: "1",
+        pageSize: isQueueTab ? "25" : "100"
+      });
+
+      if (serviceFilter !== "alle") {
+        params.set("service", serviceFilter);
+      }
+      if (query.trim()) {
+        params.set("q", query.trim());
+      }
+
+      if (isQueueTab) {
+        if (needsReviewOnly) {
+          params.set("needs_review", "true");
+        }
+      } else if (isHistoryTab) {
+        params.set("needs_review", "false");
+        if (historyStatusFilter !== "alle") {
+          params.set("review_status", historyStatusFilter);
+        }
+      }
+
+      const response = await fetch(`/api/admin/ai/quotes?${params.toString()}`, { cache: "no-store" });
+      const payload = (await response.json()) as QuoteListResponse;
+
       if (!response.ok || !payload.items) {
-        setHistoryItems([]);
-        setError(payload.message || "Kunne ikke hente history.");
+        setItems([]);
+        setTotal(0);
+        setListError(payload.message || "Kunne ikke hente AI quotes.");
         return;
       }
-      setHistoryItems(payload.items);
-    } catch (fetchError) {
-      console.error(fetchError);
-      setHistoryItems([]);
-      setError("Netværksfejl ved hentning af history.");
+
+      setItems(payload.items);
+      setTotal(payload.total ?? payload.items.length);
+    } catch (error) {
+      console.error(error);
+      setItems([]);
+      setTotal(0);
+      setListError("Netværksfejl ved hentning af AI quotes.");
     } finally {
-      setLoading(false);
+      setLoadingList(false);
     }
   };
 
   useEffect(() => {
-    if (tab === "queue") {
-      loadQueue();
-    } else if (tab === "prompts") {
-      loadPrompts();
-    } else {
-      loadHistory();
+    if (tab === "prompts") {
+      return;
     }
-  }, [tab, queueServiceFilter, promptServiceFilter, historyServiceFilter, historyStatusFilter]);
+    loadQuotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, serviceFilter, needsReviewOnly, historyStatusFilter]);
 
   const openDetail = async (resultId: string) => {
-    setDetailBusy(true);
-    setError("");
+    setDetailLoading(true);
+    setDetailError("");
+    setDetailMessage("");
+
     try {
-      const response = await fetch(`/api/admin/ai-estimator/results/${resultId}`, { cache: "no-store" });
-      const payload = (await response.json()) as { item?: DetailItem; message?: string };
-      if (!response.ok || !payload.item) {
-        setError(payload.message || "Kunne ikke hente detaljer.");
+      const response = await fetch(`/api/admin/ai/quotes/${resultId}`, { cache: "no-store" });
+      const payload = (await response.json()) as QuoteDetailResponse;
+
+      if (!response.ok || !payload.result) {
+        setDetailError(payload.message || "Kunne ikke hente quote detalje.");
         return;
       }
-      const item = payload.item;
-      setDetail(item);
-      setDetailReviewStatus((item.reviewStatus as AiReviewStatus) || "unreviewed");
-      setDetailNeedsReview(Boolean(item.needsReview));
-      setDetailFeedback(item.adminFeedback || "");
-      setDetailOutputText(prettyJson(item.output));
-      setDetailOverrideText(prettyJson(item.adminOverride));
+
+      applyDetail(payload);
       setDetailOpen(true);
-    } catch (detailError) {
-      console.error(detailError);
-      setError("Netværksfejl ved hentning af detalje.");
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved hentning af detalje.");
     } finally {
-      setDetailBusy(false);
+      setDetailLoading(false);
     }
   };
 
-  const patchResult = async (resultId: string, body: Record<string, unknown>) => {
-    const response = await fetch(`/api/admin/ai-estimator/results/${resultId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    const payload = (await response.json()) as { item?: DetailItem; message?: string };
-    if (!response.ok) {
-      throw new Error(payload.message || "Kunne ikke opdatere AI resultat.");
-    }
-    if (payload.item) {
-      setDetail(payload.item);
-    }
-  };
-
-  const quickAction = async (resultId: string, action: "approved" | "rejected") => {
-    setMessage("");
-    setError("");
-    try {
-      await patchResult(resultId, {
-        review_status: action,
-        needs_review: false
-      });
-      setMessage(action === "approved" ? "Resultat godkendt." : "Resultat afvist.");
-      await loadQueue();
-      await loadHistory();
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Kunne ikke opdatere status.");
-    }
-  };
-
-  const saveDetail = async () => {
+  const patchDetail = async (body: Record<string, unknown>, successMessage: string) => {
     if (!detail) {
       return;
     }
-    setMessage("");
-    setError("");
-    try {
-      const output = parseJsonText(detailOutputText, detail.output || {});
-      const override = parseJsonText(detailOverrideText, detail.adminOverride || {});
-      await patchResult(detail.id, {
-        review_status: detailReviewStatus,
-        needs_review: detailNeedsReview,
-        admin_feedback: detailFeedback,
-        output,
-        admin_override: override
-      });
-      setMessage("Detalje gemt.");
-      await loadQueue();
-      await loadHistory();
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Kunne ikke gemme detalje.");
-    }
-  };
 
-  const createPromptVersion = async () => {
-    setMessage("");
-    setError("");
-    try {
-      const parsedRules = parseJsonText(newPromptRulesText, {});
-      const response = await fetch("/api/admin/ai-estimator/prompts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newPromptName,
-          service: newPromptService,
-          prompt: newPromptText,
-          rules: parsedRules,
-          is_active: newPromptActive
-        })
-      });
-      const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setError(payload.message || "Kunne ikke oprette prompt version.");
-        return;
-      }
-      setMessage("Prompt version oprettet.");
-      setNewPromptName("");
-      setNewPromptText("");
-      setNewPromptActive(false);
-      await loadPrompts();
-    } catch (promptError) {
-      setError(promptError instanceof Error ? promptError.message : "Kunne ikke oprette prompt version.");
-    }
-  };
+    setDetailSaving(true);
+    setDetailError("");
+    setDetailMessage("");
 
-  const activatePrompt = async (promptId: string) => {
-    setMessage("");
-    setError("");
     try {
-      const response = await fetch(`/api/admin/ai-estimator/prompts/${promptId}`, {
+      const response = await fetch(`/api/admin/ai/quotes/${detail.result.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: true })
+        body: JSON.stringify(body)
       });
-      const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setError(payload.message || "Kunne ikke aktivere prompt.");
+      const payload = (await response.json()) as QuoteDetailResponse;
+
+      if (!response.ok || !payload.result) {
+        setDetailError(payload.message || "Kunne ikke opdatere quote.");
         return;
       }
-      setMessage("Prompt sat som aktiv.");
-      await loadPrompts();
-    } catch (activateError) {
-      console.error(activateError);
-      setError("Netværksfejl ved aktivering af prompt.");
+
+      applyDetail(payload);
+      setDetailMessage(successMessage);
+      setListMessage(successMessage);
+      await loadQuotes();
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved opdatering af quote.");
+    } finally {
+      setDetailSaving(false);
     }
   };
 
-  const groupedPrompts = useMemo(() => {
-    const map = new Map<string, PromptItem[]>();
-    promptItems.forEach((item) => {
-      const key = item.service;
-      const current = map.get(key) || [];
-      current.push(item);
-      map.set(key, current);
-    });
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [promptItems]);
+  const saveOverride = async () => {
+    try {
+      const parsed = parseJsonObject(overrideDraft);
+      await patchDetail({ admin_override: parsed }, "Override gemt.");
+    } catch (error) {
+      setDetailError(error instanceof Error ? error.message : "Ugyldig JSON i override.");
+    }
+  };
+
+  const clearOverride = async () => {
+    await patchDetail({ admin_override: {} }, "Override nulstillet.");
+  };
+
+  const saveFeedback = async () => {
+    await patchDetail({ admin_feedback: feedbackDraft }, "Feedback gemt.");
+  };
+
+  const updateNeedsReview = async (value: boolean) => {
+    await patchDetail({ needs_review: value }, "Needs-review opdateret.");
+  };
+
+  const reviewAction = async (status: AiReviewStatus) => {
+    await patchDetail(
+      {
+        review_status: status,
+        needs_review: false
+      },
+      `Status sat til ${status}.`
+    );
+  };
+
+  const openLeadHref = detail?.lead?.id ? `/admin/leads?open=${detail.lead.id}` : null;
+  const detailImages = useMemo(
+    () => extractImageUrls(Array.isArray(detail?.request?.images) ? detail?.request?.images : []),
+    [detail?.request?.images]
+  );
 
   return (
     <section className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="font-display text-3xl font-semibold text-foreground">AI Prisberegner Control Room</h1>
+      <header className="space-y-1">
+        <h1 className="font-display text-4xl font-semibold text-foreground">AI Prisberegner</h1>
         <p className="text-sm text-muted-foreground">
-          Styr prompt-versioner, review queue og historik for AI-estimator output.
+          Queue og historik for AI-estimater med review, feedback og admin overrides.
         </p>
-      </div>
+      </header>
 
       <div className="inline-flex rounded-xl border border-border bg-muted/20 p-1">
         <button
           type="button"
-          onClick={() => setTab("queue")}
+          onClick={() => {
+            clearMessages();
+            setTab("queue");
+          }}
           className={`rounded-lg px-3 py-2 text-sm ${
             tab === "queue" ? "bg-primary text-white" : "text-foreground"
           }`}
@@ -404,35 +357,50 @@ export const AIEstimatorDashboard = () => {
         </button>
         <button
           type="button"
-          onClick={() => setTab("prompts")}
-          className={`rounded-lg px-3 py-2 text-sm ${
-            tab === "prompts" ? "bg-primary text-white" : "text-foreground"
-          }`}
-        >
-          Prompt & rules
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("history")}
+          onClick={() => {
+            clearMessages();
+            setTab("history");
+          }}
           className={`rounded-lg px-3 py-2 text-sm ${
             tab === "history" ? "bg-primary text-white" : "text-foreground"
           }`}
         >
           History
         </button>
+        <button
+          type="button"
+          onClick={() => {
+            clearMessages();
+            setTab("prompts");
+          }}
+          className={`rounded-lg px-3 py-2 text-sm ${
+            tab === "prompts" ? "bg-primary text-white" : "text-foreground"
+          }`}
+        >
+          Prompts
+        </button>
       </div>
 
-      {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
-      {message ? <p className="text-sm font-medium text-emerald-700">{message}</p> : null}
+      {listError ? <p className="text-sm font-medium text-red-700">{listError}</p> : null}
+      {listMessage ? <p className="text-sm font-medium text-emerald-700">{listMessage}</p> : null}
 
-      {tab === "queue" ? (
+      {tab === "prompts" ? (
+        <div className="rounded-2xl border border-border bg-muted/20 p-5">
+          <p className="text-sm font-medium text-foreground">Prompts-tab kommer i næste iteration.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Brug “Queue” og “History” til review + overrides i denne version.
+          </p>
+        </div>
+      ) : null}
+
+      {tab !== "prompts" ? (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <label className="text-sm text-muted-foreground">
               Service
               <select
-                value={queueServiceFilter}
-                onChange={(event) => setQueueServiceFilter(event.target.value as (typeof serviceOptions)[number])}
+                value={serviceFilter}
+                onChange={(event) => setServiceFilter(event.target.value as (typeof serviceOptions)[number])}
                 className="ml-2 h-10 rounded-md border border-border bg-white px-3"
               >
                 {serviceOptions.map((service) => (
@@ -442,327 +410,255 @@ export const AIEstimatorDashboard = () => {
                 ))}
               </select>
             </label>
-            <Button variant="outline" onClick={loadQueue} disabled={loading}>
-              {loading ? "Henter..." : "Opdater"}
-            </Button>
-          </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border bg-white">
-            <div className="grid grid-cols-[150px_120px_1fr_220px_220px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <span>Tid</span>
-              <span>Service</span>
-              <span>Summary</span>
-              <span>Lead</span>
-              <span>Actions</span>
-            </div>
-            <div className="divide-y divide-border/60">
-              {queueItems.length === 0 ? (
-                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen items i queue.</p>
-              ) : (
-                queueItems.map((item) => (
-                  <div key={item.id} className="grid grid-cols-[150px_120px_1fr_220px_220px] items-start gap-3 px-4 py-3 text-sm">
-                    <span className="text-muted-foreground">{formatDateTime(item.createdAt)}</span>
-                    <span className="text-muted-foreground">{item.service}</span>
-                    <div className="space-y-1">
-                      <p className="text-foreground">{item.summary}</p>
-                      <p className="text-xs text-muted-foreground">
-                        status: {item.reviewStatus} · confidence:{" "}
-                        {typeof item.confidence === "number" ? item.confidence.toFixed(2) : "n/a"}
-                      </p>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      <p>{item.lead?.name || "Ukendt"}</p>
-                      <p>{item.lead?.phone || "-"}</p>
-                      <p>{item.lead?.email || "-"}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" onClick={() => openDetail(item.id)} disabled={detailBusy}>
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => quickAction(item.id, "approved")}>
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => quickAction(item.id, "rejected")}>
-                        Reject
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {tab === "prompts" ? (
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-border bg-white p-4">
-            <h2 className="text-lg font-semibold text-foreground">Ny prompt version</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <label className="text-sm text-muted-foreground">
-                Name
-                <input
-                  value={newPromptName}
-                  onChange={(event) => setNewPromptName(event.target.value)}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
-              </label>
-              <label className="text-sm text-muted-foreground">
-                Service
-                <select
-                  value={newPromptService}
-                  onChange={(event) => setNewPromptService(event.target.value as AiService)}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                >
-                  {AI_SERVICES.map((service) => (
-                    <option key={service} value={service}>
-                      {service}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm text-muted-foreground md:col-span-2">
-                Prompt
-                <textarea
-                  value={newPromptText}
-                  onChange={(event) => setNewPromptText(event.target.value)}
-                  rows={6}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2"
-                />
-              </label>
-              <label className="text-sm text-muted-foreground md:col-span-2">
-                Rules (JSON)
-                <textarea
-                  value={newPromptRulesText}
-                  onChange={(event) => setNewPromptRulesText(event.target.value)}
-                  rows={6}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs"
-                />
-              </label>
+            {isQueueTab ? (
               <label className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <input
                   type="checkbox"
-                  checked={newPromptActive}
-                  onChange={(event) => setNewPromptActive(event.target.checked)}
+                  checked={needsReviewOnly}
+                  onChange={(event) => setNeedsReviewOnly(event.target.checked)}
                 />
-                Activate med det samme
+                Needs review only
               </label>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <Button onClick={createPromptVersion}>Opret version</Button>
-              <Button variant="outline" onClick={loadPrompts} disabled={loading}>
-                {loading ? "Henter..." : "Opdater liste"}
-              </Button>
-            </div>
-          </div>
+            ) : null}
 
-          <label className="text-sm text-muted-foreground">
-            Service filter
-            <select
-              value={promptServiceFilter}
-              onChange={(event) => setPromptServiceFilter(event.target.value as (typeof serviceOptions)[number])}
-              className="ml-2 h-10 rounded-md border border-border bg-white px-3"
-            >
-              {serviceOptions.map((service) => (
-                <option key={service} value={service}>
-                  {service}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="space-y-4">
-            {groupedPrompts.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Ingen prompt versions endnu.</p>
-            ) : (
-              groupedPrompts.map(([service, items]) => (
-                <div key={service} className="rounded-2xl border border-border bg-white p-4">
-                  <h3 className="text-base font-semibold text-foreground">{service}</h3>
-                  <div className="mt-3 space-y-3">
-                    {items.map((item) => (
-                      <div key={item.id} className="rounded-xl border border-border/70 p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {item.name} {item.isActive ? "(active)" : ""}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{formatDateTime(item.createdAt)}</p>
-                          </div>
-                          {!item.isActive ? (
-                            <Button size="sm" variant="outline" onClick={() => activatePrompt(item.id)}>
-                              Activate
-                            </Button>
-                          ) : null}
-                        </div>
-                        <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{item.prompt}</pre>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      ) : null}
-
-      {tab === "history" ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="text-sm text-muted-foreground">
-              Service
-              <select
-                value={historyServiceFilter}
-                onChange={(event) => setHistoryServiceFilter(event.target.value as (typeof serviceOptions)[number])}
-                className="ml-2 h-10 rounded-md border border-border bg-white px-3"
-              >
-                {serviceOptions.map((service) => (
-                  <option key={service} value={service}>
-                    {service}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm text-muted-foreground">
-              Status
-              <select
-                value={historyStatusFilter}
-                onChange={(event) => setHistoryStatusFilter(event.target.value as (typeof reviewOptions)[number])}
-                className="ml-2 h-10 rounded-md border border-border bg-white px-3"
-              >
-                {reviewOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button variant="outline" onClick={loadHistory} disabled={loading}>
-              {loading ? "Henter..." : "Opdater"}
-            </Button>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-border bg-white">
-            <div className="grid grid-cols-[160px_120px_140px_1fr_120px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <span>Tid</span>
-              <span>Service</span>
-              <span>Status</span>
-              <span>Summary</span>
-              <span>Handling</span>
-            </div>
-            <div className="divide-y divide-border/60">
-              {historyItems.length === 0 ? (
-                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen resultater i history.</p>
-              ) : (
-                historyItems.map((item) => (
-                  <div key={item.id} className="grid grid-cols-[160px_120px_140px_1fr_120px] items-start gap-3 px-4 py-3 text-sm">
-                    <span className="text-muted-foreground">{formatDateTime(item.createdAt)}</span>
-                    <span className="text-muted-foreground">{item.service}</span>
-                    <span className="text-muted-foreground">{item.reviewStatus}</span>
-                    <span className="text-foreground">{item.summary}</span>
-                    <Button size="sm" variant="outline" onClick={() => openDetail(item.id)} disabled={detailBusy}>
-                      Åbn
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {detailOpen && detail ? (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
-          <div className="h-full w-full max-w-2xl overflow-y-auto bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground">Quote detail</h2>
-                <p className="text-xs text-muted-foreground">
-                  {detail.request?.service || "-"} · {formatDateTime(detail.createdAt)}
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => setDetailOpen(false)}>
-                Luk
-              </Button>
-            </div>
-
-            <div className="mt-4 space-y-4">
-              <div className="rounded-xl border border-border bg-muted/20 p-3 text-sm">
-                <p className="font-medium text-foreground">Lead</p>
-                <p className="text-muted-foreground">{detail.lead?.name || "Ukendt"}</p>
-                <p className="text-muted-foreground">{detail.lead?.phone || "-"}</p>
-                <p className="text-muted-foreground">{detail.lead?.email || "-"}</p>
-              </div>
-
-              <div className="rounded-xl border border-border bg-muted/20 p-3 text-sm">
-                <p className="font-medium text-foreground">Request inputs</p>
-                <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">
-                  {prettyJson(detail.request?.inputs || {})}
-                </pre>
-              </div>
-
+            {isHistoryTab ? (
               <label className="text-sm text-muted-foreground">
                 Review status
                 <select
-                  value={detailReviewStatus}
-                  onChange={(event) => setDetailReviewStatus(event.target.value as AiReviewStatus)}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                  value={historyStatusFilter}
+                  onChange={(event) =>
+                    setHistoryStatusFilter(event.target.value as (typeof reviewStatusOptions)[number])
+                  }
+                  className="ml-2 h-10 rounded-md border border-border bg-white px-3"
                 >
-                  {AI_REVIEW_STATUS_VALUES.map((status) => (
+                  {reviewStatusOptions.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>
                   ))}
                 </select>
               </label>
+            ) : null}
 
-              <label className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={detailNeedsReview}
-                  onChange={(event) => setDetailNeedsReview(event.target.checked)}
-                />
-                needs_review
-              </label>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Søg i lead/inputs/output..."
+              className="h-10 min-w-[220px] rounded-md border border-border bg-white px-3 text-sm"
+            />
 
-              <label className="text-sm text-muted-foreground">
-                Admin feedback
-                <textarea
-                  value={detailFeedback}
-                  onChange={(event) => setDetailFeedback(event.target.value)}
-                  rows={3}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2"
-                />
-              </label>
+            <Button variant="outline" onClick={loadQuotes} disabled={loadingList}>
+              {loadingList ? "Henter..." : "Opdater"}
+            </Button>
+          </div>
 
-              <label className="text-sm text-muted-foreground">
-                Output (JSON)
-                <textarea
-                  value={detailOutputText}
-                  onChange={(event) => setDetailOutputText(event.target.value)}
-                  rows={8}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs"
-                />
-              </label>
+          <div className="overflow-hidden rounded-2xl border border-border bg-white">
+            <div className="grid grid-cols-[160px_130px_220px_120px_120px_1fr_100px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <span>Tid</span>
+              <span>Service</span>
+              <span>Lead</span>
+              <span>Confidence</span>
+              <span>Status</span>
+              <span>Summary</span>
+              <span>Detalje</span>
+            </div>
+            <div className="divide-y divide-border/60">
+              {items.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen quotes fundet.</p>
+              ) : (
+                items.map((item) => (
+                  <div
+                    key={item.result_id}
+                    className="grid grid-cols-[160px_130px_220px_120px_120px_1fr_100px] items-start gap-3 px-4 py-3 text-sm"
+                  >
+                    <span className="text-muted-foreground">{formatDateTime(item.created_at)}</span>
+                    <span className="text-muted-foreground">{item.service}</span>
+                    <div className="text-xs text-muted-foreground">
+                      <p className="font-medium text-foreground">{short(item.lead?.name, "Ukendt")}</p>
+                      <p>{short(item.lead?.phone)}</p>
+                      <p>{short(item.lead?.email)}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {typeof item.confidence === "number" ? item.confidence.toFixed(2) : "n/a"}
+                    </span>
+                    <span
+                      className={`inline-flex w-fit rounded-full px-2 py-1 text-xs ${
+                        statusClasses[item.review_status] || "bg-muted text-foreground"
+                      }`}
+                    >
+                      {item.review_status}
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-foreground">{item.summary}</p>
+                      {item.needs_review ? (
+                        <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">
+                          needs review
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-900">
+                          reviewed
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openDetail(item.result_id)}
+                      disabled={detailLoading}
+                    >
+                      Open
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
-              <label className="text-sm text-muted-foreground">
-                Admin override (JSON)
-                <textarea
-                  value={detailOverrideText}
-                  onChange={(event) => setDetailOverrideText(event.target.value)}
-                  rows={6}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs"
-                />
-              </label>
+          <p className="text-xs text-muted-foreground">Viser {items.length} af {total} resultater.</p>
+        </div>
+      ) : null}
+
+      {detailOpen && detail ? (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/45">
+          <div className="h-full w-full max-w-3xl overflow-y-auto bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-foreground">Quote detail</h2>
+                <p className="text-xs text-muted-foreground">
+                  {detail.request?.service || "-"} · {formatDateTime(detail.result.created_at)}
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setDetailOpen(false)} disabled={detailSaving}>
+                Luk
+              </Button>
             </div>
 
-            <div className="mt-6 flex gap-2">
-              <Button onClick={saveDetail}>Gem ændringer</Button>
-              <Button variant="outline" onClick={() => quickAction(detail.id, "approved")}>
-                Approve
-              </Button>
-              <Button variant="outline" onClick={() => quickAction(detail.id, "rejected")}>
-                Reject
-              </Button>
+            {detailError ? <p className="mt-4 text-sm font-medium text-red-700">{detailError}</p> : null}
+            {detailMessage ? <p className="mt-4 text-sm font-medium text-emerald-700">{detailMessage}</p> : null}
+
+            <div className="mt-4 space-y-4">
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Lead</p>
+                {detail.lead ? (
+                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">{short(detail.lead.name, "Ukendt")}</p>
+                    <p>{short(detail.lead.phone)}</p>
+                    <p>{short(detail.lead.email)}</p>
+                    <p>{short(detail.lead.location)}</p>
+                    {openLeadHref ? (
+                      <Link href={openLeadHref} className="inline-flex text-primary underline underline-offset-2">
+                        Open lead
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">Intet lead linked endnu.</p>
+                )}
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Request</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Oprettet: {detail.request ? formatDateTime(detail.request.created_at) : "-"}
+                </p>
+                <p className="text-xs text-muted-foreground">Page: {short(detail.request?.page_url)}</p>
+                <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-md border border-border/70 bg-white p-3 text-xs text-muted-foreground">
+                  {prettyJson(detail.request?.inputs || {})}
+                </pre>
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Images</p>
+                {detailImages.length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">No images provided.</p>
+                ) : (
+                  <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {detailImages.map((url) => (
+                      <a
+                        key={url}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group overflow-hidden rounded-lg border border-border bg-white"
+                      >
+                        <img
+                          src={url}
+                          alt="AI quote input"
+                          className="h-28 w-full object-cover transition group-hover:scale-[1.02]"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">AI output</p>
+                {typeof detail.result.output?.text === "string" && detail.result.output.text.trim() ? (
+                  <p className="mt-2 text-sm text-foreground">{detail.result.output.text.trim()}</p>
+                ) : null}
+                <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-md border border-border/70 bg-white p-3 text-xs text-muted-foreground">
+                  {prettyJson(detail.result.output || {})}
+                </pre>
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Review actions</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("approved")}>
+                    Approve
+                  </Button>
+                  <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("edited")}>
+                    Mark edited
+                  </Button>
+                  <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("rejected")}>
+                    Reject
+                  </Button>
+                </div>
+                <label className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={detail.result.needs_review}
+                    onChange={(event) => updateNeedsReview(event.target.checked)}
+                    disabled={detailSaving}
+                  />
+                  needs_review
+                </label>
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Admin feedback</p>
+                <textarea
+                  value={feedbackDraft}
+                  onChange={(event) => setFeedbackDraft(event.target.value)}
+                  rows={4}
+                  className="mt-2 w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
+                />
+                <div className="mt-3">
+                  <Button variant="outline" disabled={detailSaving} onClick={saveFeedback}>
+                    Save feedback
+                  </Button>
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Admin override (JSON)</p>
+                <textarea
+                  value={overrideDraft}
+                  onChange={(event) => setOverrideDraft(event.target.value)}
+                  rows={10}
+                  className="mt-2 w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs"
+                />
+                <div className="mt-3 flex gap-2">
+                  <Button variant="outline" disabled={detailSaving} onClick={saveOverride}>
+                    Save override
+                  </Button>
+                  <Button variant="outline" disabled={detailSaving} onClick={clearOverride}>
+                    Clear override
+                  </Button>
+                </div>
+              </section>
             </div>
           </div>
         </div>
