@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { InternalLinkGrid } from "@/components/bordplade/InternalLinkGrid";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
+import { CaseGallery } from "@/components/media/CaseGallery";
 import { ServiceAreaGrid } from "@/components/bordplade/ServiceAreaGrid";
 import {
   StructuredData,
@@ -127,6 +128,33 @@ const faqItems = [
   }
 ];
 
+const caseGalleryItems = [
+  {
+    title: "Køkkenbord – skjolder ved vask og matte zoner",
+    location: "Sjælland",
+    summary:
+      "Typisk opgave hvor overfladen er slidt ned i arbejdszoner. Vi vurderer materiale, sliber trinvis og anbefaler finish der passer til hverdagen."
+  },
+  {
+    title: "Træbordplade – fine ridser og ujævn glans",
+    location: "København & omegn",
+    summary:
+      "Når lyset afslører ridser og ‘grå’ felter, er målet et roligt, ensartet udtryk og en behandling der er realistisk at vedligeholde."
+  },
+  {
+    title: "Massiv bordplade – varmepletter og misfarvning",
+    location: "Roskilde",
+    summary:
+      "Varmeaftryk kan ofte reduceres afhængigt af dybde og trætype. Vi starter med en billedvurdering, så forventninger og plan er klare."
+  },
+  {
+    title: "Køkken + bryggers – samlet vurdering via billeder",
+    location: "Sjælland",
+    summary:
+      "Flere bordplader kan ofte vurderes samlet. Du sender billeder og mål, og vi vender tilbage med et konkret forslag til næste skridt."
+  }
+];
+
 const serviceSchema = buildServiceSchema({
   name: "Bordpladeslibning på Sjælland",
   description:
@@ -163,6 +191,13 @@ export default function BordpladePillarPage() {
       secondaryCta={{ label: "Få pris via billeder", href: "/bordpladeslibning/prisberegner" }}
     >
       <ProcessSteps />
+
+      <CaseGallery
+        title="Eksempler på typiske bordplade-opgaver"
+        subtitle="Et hurtigt overblik over opgavetyper vi ofte vurderer via billeder, før vi planlægger næste skridt."
+        items={caseGalleryItems}
+        cta={{ label: "Få vurdering via billeder", href: "/bordpladeslibning/prisberegner" }}
+      />
 
       <section className="py-10 md:py-14">
         <h2 className="text-2xl font-semibold text-foreground">

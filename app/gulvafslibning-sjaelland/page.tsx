@@ -4,6 +4,7 @@ import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
+import { CaseGallery } from "@/components/media/CaseGallery";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -109,6 +110,33 @@ const faqItems = [
   }
 ];
 
+const caseGalleryItems = [
+  {
+    title: "Trægulv – slidte gangzoner og ujævn glans",
+    location: "Sjælland",
+    summary:
+      "Når overfladen er slidt i ganglinjer, kan en trinvis slibning og korrekt efterbehandling give et roligere udtryk."
+  },
+  {
+    title: "Lejlighedsgulv – ridser og mat overflade i dagslys",
+    location: "København",
+    summary:
+      "Vi planlægger forløb og tørretid, så det fungerer i en travl hverdag og med adgang/møbler."
+  },
+  {
+    title: "Gulv med behov for ny efterbehandling",
+    location: "Sjælland",
+    summary:
+      "Valg af lak/olie/sæbe handler om drift og vedligehold. Vi rådgiver ud fra rummets brug og forventninger."
+  },
+  {
+    title: "Flere rum – planlagt i etaper",
+    location: "Sjælland",
+    summary:
+      "Det er ofte muligt at tage flere rum i etaper, så boligen stadig kan fungere undervejs."
+  }
+];
+
 export const metadata = buildMetadata({
   title: "Gulvafslibning på Sjælland | Slibning & efterbehandling af trægulve",
   description:
@@ -129,6 +157,12 @@ export default function GulvHubPage() {
       primaryCta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
       secondaryCta={{ label: "Kontakt os", href: "/kontakt" }}
     >
+      <CaseGallery
+        title="Eksempler på typiske gulvopgaver"
+        subtitle="Et hurtigt overblik over opgavetyper vi ofte planlægger, før vi aftaler proces, efterbehandling og tidsplan."
+        items={caseGalleryItems}
+        cta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+      />
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
