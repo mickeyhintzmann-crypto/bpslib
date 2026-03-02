@@ -7,7 +7,6 @@ const publicRoot = path.join(repoRoot, "public");
 const manifestOut = path.join(repoRoot, "lib", "mediaManifest.ts");
 
 const WEB_IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-const FALLBACK_IMAGE_EXTENSIONS = new Set([".heic", ".heif", ".avif"]);
 
 const roots = {
   gulv: [
@@ -60,14 +59,6 @@ function pickByPrefix(files, prefix, extensionSet) {
 function pickBeforeAfter(files) {
   let before = pickByPrefix(files, "before", WEB_IMAGE_EXTENSIONS);
   let after = pickByPrefix(files, "after", WEB_IMAGE_EXTENSIONS);
-
-  // Fallback for legacy uploads that are not web-optimized yet.
-  if (!before) {
-    before = pickByPrefix(files, "before", FALLBACK_IMAGE_EXTENSIONS);
-  }
-  if (!after) {
-    after = pickByPrefix(files, "after", FALLBACK_IMAGE_EXTENSIONS);
-  }
 
   if (!before || !after) {
     return null;

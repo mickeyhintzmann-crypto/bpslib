@@ -48,14 +48,14 @@ export const beforeAfterGulv: BeforeAfterItem[] = [
 
 export const beforeAfterBordplade: BeforeAfterItem[] = [
   {
-    "caseId": "case-006_koekken..",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken../before.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken../after.HEIC"
+    "caseId": "case-006_koekken",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg"
   },
   {
     "caseId": "case-008_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.HEIC"
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
   }
 ];
 
@@ -70,7 +70,7 @@ export const galleryGulv: string[] = [
 ];
 
 export const galleryBordplade: string[] = [
-  "/media/galleries:bordplade:before-after/case-006_koekken../after.HEIC",
-  "/media/galleries:bordplade:before-after/case-008_koekken/after.HEIC"
+  "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+  "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
 ];
 
