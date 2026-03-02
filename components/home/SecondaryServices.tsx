@@ -27,7 +27,7 @@ const services = [
 
 export const SecondaryServices = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-10 md:py-12">
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-foreground">Andre ydelser</h2>
         <p className="text-sm text-muted-foreground">
@@ -36,7 +36,7 @@ export const SecondaryServices = () => {
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
-          <div key={service.title} className="rounded-2xl border border-border/70 bg-white/70 p-5">
+          <div key={service.title} className="surface-subtle rounded-2xl p-5">
             <h3 className="text-base font-semibold text-foreground">{service.title}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{service.text}</p>
             <Button asChild variant="outline" className="mt-4 w-full">

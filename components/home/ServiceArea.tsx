@@ -17,7 +17,7 @@ const areas = [
 
 export const ServiceArea = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-9 md:py-12">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">Serviceområde på Sjælland</h2>
         <p className="max-w-3xl text-sm text-muted-foreground">
@@ -38,7 +38,7 @@ export const ServiceArea = () => {
           <Link
             key={area.href}
             href={area.href}
-            className="rounded-full border border-border/70 px-3 py-2 text-center hover:text-foreground"
+            className="rounded-full border border-border/70 bg-white px-3 py-2 text-center transition hover:-translate-y-0.5 hover:text-foreground"
           >
             {area.label}
           </Link>

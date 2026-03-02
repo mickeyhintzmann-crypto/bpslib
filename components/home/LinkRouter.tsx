@@ -6,7 +6,7 @@ export const LinkRouter = () => {
   const links = featuredRoutes;
 
   return (
-    <section className="rounded-3xl border border-border/70 bg-white/70 px-6 py-8 md:px-10">
+    <section className="surface-panel rounded-[30px] px-6 py-8 md:px-10">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Fortsæt i bordplade‑universet</h2>
@@ -16,7 +16,7 @@ export const LinkRouter = () => {
         </div>
         <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
           {links.map((item) => (
-            <Link key={item.href} href={item.href} className="hover:text-foreground">
+            <Link key={item.href} href={item.href} className="transition hover:text-foreground">
               {item.label}
             </Link>
           ))}

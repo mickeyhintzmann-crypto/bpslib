@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const SurfaceGuide = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-9 md:py-12">
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold text-foreground">Hvad kan reddes på en massiv træbordplade?</h2>
@@ -23,7 +23,7 @@ export const SurfaceGuide = () => {
             <li>• Slidte, matte felter hvor finishen er forsvundet</li>
           </ul>
         </div>
-        <div className="space-y-4 rounded-3xl border border-border/70 bg-white/70 p-6">
+        <div className="surface-panel space-y-4 rounded-[26px] p-6">
           <h3 className="text-xl font-semibold text-foreground">Finish og vedligehold</h3>
           <p className="text-sm text-muted-foreground">
             Efter slibning vælger vi den finish, der passer til din hverdag. Olie giver et naturligt

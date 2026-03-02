@@ -75,36 +75,38 @@ export default function HomePage() {
       <StructuredData data={serviceSchema} />
       <StructuredData data={webSiteSchema} />
       <Hero />
+      <TrustHighlights />
       <ClientLogoWall />
       <EnterpriseCaseShowcase
         title="Udvalgte referencer"
         subtitle="Et udvalg af opgaver vi har udført – klik for at se billedserier."
         limit={6}
       />
-      <section className="pb-4">
+      <section className="pb-6">
         <div className="flex flex-wrap gap-3">
-          <Button asChild>
+          <Button asChild size="lg">
             <Link href="/referencer">Se alle referencer</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild size="lg" variant="outline">
             <Link href="/cases">Se cases</Link>
           </Button>
         </div>
       </section>
       <ReferenceStrip compact />
-      <TrustHighlights />
+      <div className="section-divider my-4" />
+
       <SpecialistSection />
-      <PriceTeaser />
+      <WhyChoose />
+      <PriceEstimatorPromo />
+      <AcutePromo />
+      <FeaturedReferences />
+      <TypicalResults />
       <ProcessSteps />
       <SurfaceGuide />
       <BeforeAfterGallery />
+      <PriceTeaser />
       <MassivTraeCallout />
       <WoodTypes />
-      <WhyChoose />
-      <FeaturedReferences />
-      <TypicalResults />
-      <PriceEstimatorPromo />
-      <AcutePromo />
       <ServiceArea />
       <LinkRouter />
       <FaqSchema />

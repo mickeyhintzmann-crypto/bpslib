@@ -34,7 +34,7 @@ const checklist = [
 
 export const WhyChoose = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-8 md:py-12">
       <div className="space-y-3 text-center">
         <h2 className="text-2xl font-semibold text-foreground">Derfor vælger kunder os</h2>
         <p className="text-sm text-muted-foreground">
@@ -43,7 +43,10 @@ export const WhyChoose = () => {
       </div>
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-3xl border border-border/70 bg-white/80 p-6 shadow-sm">
+          <div
+            key={stat.label}
+            className="surface-subtle rounded-[24px] p-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_hsl(20_30%_20%/0.11)]"
+          >
             <div className="text-2xl font-semibold text-primary">{stat.title}</div>
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {stat.label}
@@ -54,8 +57,11 @@ export const WhyChoose = () => {
       </div>
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {checklist.map((item) => (
-          <div key={item} className="flex items-center gap-3 rounded-2xl border border-border/70 bg-white/70 p-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-primary">
+          <div
+            key={item}
+            className="surface-subtle flex items-center gap-3 rounded-2xl p-4 transition hover:shadow-[0_12px_24px_hsl(20_30%_20%/0.08)]"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-white text-primary">
               <CheckIcon className="h-5 w-5" />
             </span>
             <p className="text-sm font-medium text-foreground">{item}</p>

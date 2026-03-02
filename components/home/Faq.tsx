@@ -61,7 +61,7 @@ export const FaqSchema = () => {
 
 export const FaqSection = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-9 md:py-12">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">FAQ</h2>
         <p className="text-sm text-muted-foreground">
@@ -70,7 +70,10 @@ export const FaqSection = () => {
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {faqItems.map((item) => (
-          <div key={item.question} className="rounded-2xl border border-border/70 bg-white/70 p-5">
+          <div
+            key={item.question}
+            className="surface-subtle rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_24px_hsl(20_30%_20%/0.08)]"
+          >
             <h3 className="text-base font-semibold text-foreground">{item.question}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{item.answer}</p>
           </div>

@@ -15,7 +15,7 @@ export const BeforeAfterGallery = async () => {
     return null;
   }
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-9 md:py-12">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">Før og efter (træsort &amp; olie)</h2>
         <p className="text-sm text-muted-foreground">
@@ -25,7 +25,7 @@ export const BeforeAfterGallery = async () => {
       </div>
       <div className="mt-6 grid gap-6 md:grid-cols-3">
         {items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-border/70 bg-white/70 p-4">
+          <div key={item.id} className="surface-subtle rounded-2xl p-4">
             <div className="grid grid-cols-2 gap-2">
               <figure className="space-y-2">
                 <BpsImage

@@ -10,8 +10,8 @@ const slots = [
 
 export const AcutePromo = () => {
   return (
-    <section className="py-10 md:py-16">
-      <div className="rounded-[32px] bg-gradient-to-br from-[#d97706] via-[#cf6d05] to-[#b45309] px-6 py-10 text-white md:px-12">
+    <section className="py-9 md:py-12">
+      <div className="rounded-[32px] bg-gradient-to-br from-[#cf6f08] via-[#c96906] to-[#a64d05] px-6 py-10 text-white md:px-12">
         <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-5">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
@@ -40,7 +40,7 @@ export const AcutePromo = () => {
               <Link href="/akutte-tider">Se ledige tider</Link>
             </Button>
           </div>
-          <div className="rounded-3xl bg-white p-6 text-foreground shadow-xl">
+          <div className="rounded-3xl border border-white/45 bg-white p-6 text-foreground shadow-xl">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold">Akutte tider</h3>
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">

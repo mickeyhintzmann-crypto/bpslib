@@ -17,7 +17,7 @@ const results = [
 
 export const TypicalResults = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-8 md:py-11">
       <div className="space-y-3 text-center">
         <h2 className="text-2xl font-semibold text-foreground">Typiske resultater</h2>
         <p className="text-sm text-muted-foreground">
@@ -26,7 +26,10 @@ export const TypicalResults = () => {
       </div>
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         {results.map((item) => (
-          <div key={item.text} className="rounded-3xl border border-border/70 bg-white/80 p-6 text-center shadow-sm">
+          <div
+            key={item.text}
+            className="surface-subtle rounded-[24px] p-6 text-center transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_hsl(20_30%_20%/0.1)]"
+          >
             <div className="text-xl font-semibold text-primary">
               {item.value === "★★★★★" ? (
                 <span className="inline-flex items-center gap-1 text-primary">

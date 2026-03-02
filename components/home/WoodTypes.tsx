@@ -12,7 +12,7 @@ const otherTypes = ["Teak", "Kirsebær", "Ahorn", "Fyr"];
 
 export const WoodTypes = () => {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-9 md:py-12">
       <div className="space-y-3 text-center">
         <h2 className="text-2xl font-semibold text-foreground">Træsorter vi arbejder med</h2>
         <p className="text-sm text-muted-foreground">
@@ -24,7 +24,7 @@ export const WoodTypes = () => {
           <Link
             key={type.href}
             href={type.href}
-            className="rounded-full border border-border/70 bg-white px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
+            className="rounded-full border border-border/70 bg-white px-4 py-2 text-sm text-muted-foreground transition hover:-translate-y-0.5 hover:text-foreground"
           >
             {type.label}
           </Link>

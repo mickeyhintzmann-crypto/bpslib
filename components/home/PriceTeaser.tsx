@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const PriceTeaser = () => {
   return (
-    <section className="grid gap-8 py-10 md:grid-cols-[1.1fr_0.9fr] md:py-16">
+    <section className="grid gap-8 py-9 md:grid-cols-[1.1fr_0.9fr] md:py-12">
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-foreground">Vil du kende prisen før du booker?</h2>
         <p className="text-sm text-muted-foreground">
@@ -26,12 +26,12 @@ export const PriceTeaser = () => {
           <li>• Ekstra elementer som vandfald, lister eller bryggers</li>
         </ul>
       </div>
-      <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-white/70 p-6">
+      <div className="surface-panel flex flex-col gap-3 rounded-[26px] p-6">
         <p className="text-sm text-muted-foreground">
           Se prisguiden for overblik og detaljer, eller upload billeder hvis du vil have et
           konkret overslag.
         </p>
-        <div className="rounded-xl border border-border/70 bg-white/90 p-4 text-sm text-muted-foreground">
+        <div className="surface-subtle rounded-xl p-4 text-sm text-muted-foreground">
           <p className="font-semibold text-foreground">Pris‑eksempler (vejledende)</p>
           <ul className="mt-2 grid gap-2">
             <li>• Små/alm. køkkener: ca. 3.000–4.000 kr.</li>

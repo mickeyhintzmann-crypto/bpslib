@@ -29,8 +29,8 @@ const perks = [
 
 export const PriceEstimatorPromo = () => {
   return (
-    <section className="py-10 md:py-16">
-      <div className="grid gap-10 rounded-3xl border border-border/70 bg-white/80 p-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+    <section className="py-9 md:py-12">
+      <div className="surface-panel grid gap-10 rounded-[30px] p-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             AI-prisberegner
@@ -46,8 +46,8 @@ export const PriceEstimatorPromo = () => {
           </p>
           <div className="grid gap-4">
             {steps.map((step) => (
-              <div key={step.title} className="flex items-start gap-4">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-primary">
+              <div key={step.title} className="surface-subtle flex items-start gap-4 rounded-2xl p-3.5">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/70 bg-white text-primary">
                   <CheckIcon className="h-6 w-6" />
                 </span>
                 <div>
@@ -57,7 +57,7 @@ export const PriceEstimatorPromo = () => {
               </div>
             ))}
           </div>
-          <div className="rounded-2xl border border-border/70 bg-white/90 p-4">
+          <div className="surface-subtle rounded-2xl p-4">
             <div className="grid gap-2 text-sm text-muted-foreground">
               {perks.map((perk) => (
                 <div key={perk} className="flex items-center gap-2">

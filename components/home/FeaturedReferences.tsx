@@ -6,7 +6,7 @@ import { referenceProjects } from "@/lib/references-data";
 
 export const FeaturedReferences = () => {
   return (
-    <section className="rounded-3xl border border-border/70 bg-gradient-to-br from-white to-amber-50/40 p-6 md:p-8">
+    <section className="surface-panel rounded-[30px] p-6 md:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-3xl space-y-3">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">

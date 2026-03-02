@@ -38,6 +38,9 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
   }
 
   const compact = variant === "compact";
+  const featuredNames = clientLogos
+    .slice(0, 5)
+    .map((item) => item.alt.replace(/\s+logo$/i, ""));
 
   return (
     <Section
@@ -67,6 +70,19 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
             <LogoCard key={logo.src} src={logo.src} alt={logo.alt} compact={compact} />
           ))}
         </ul>
+
+        {!compact ? (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {featuredNames.map((name) => (
+              <span
+                key={name}
+                className="rounded-full border border-border/70 bg-white px-3 py-1 text-xs font-semibold text-foreground"
+              >
+                {name}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Button asChild size={compact ? "sm" : "lg"} className={compact ? "h-10 px-5" : "h-12 px-6"}>
