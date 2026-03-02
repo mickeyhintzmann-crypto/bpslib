@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
-import { Button } from "@/components/ui/button";
+import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -118,25 +118,17 @@ export const metadata = buildMetadata({
 
 export default function GulvHubPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
-      <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-8">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          Gulvafslibning på Sjælland
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi hjælper med gulvafslibning på hele Sjælland. Du får et uforpligtende tilbud baseret på
-          gulvtype, areal og ønsket finish. Vi planlægger realistisk og giver dig en klar forventning
-          til både pris og proces.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/tilbudstid">Book tilbudstid</Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/kontakt">Kontakt os</Link>
-          </Button>
-        </div>
-      </section>
+    <ServicePageLayout
+      title="Gulvafslibning på Sjælland"
+      subtitle="Vi hjælper med gulvafslibning på hele Sjælland. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket finish. Vi planlægger realistisk og giver dig en klar forventning til både pris og proces."
+      bullets={[
+        "Gulvafslibning & gulvslibning på hele Sjælland",
+        "Rådgivning om efterbehandling: lak, olie eller sæbe",
+        "Plan og tørretid afklares før start"
+      ]}
+      primaryCta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+      secondaryCta={{ label: "Kontakt os", href: "/kontakt" }}
+    >
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
@@ -453,6 +445,6 @@ export default function GulvHubPage() {
       />
 
       <StructuredData data={buildFaqSchema(faqItems)} />
-    </main>
+    </ServicePageLayout>
   );
 }
