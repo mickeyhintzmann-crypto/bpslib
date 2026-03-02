@@ -4,6 +4,8 @@ import { FaqSection } from "@/components/bordplade/FaqSection";
 import { InternalLinkGrid } from "@/components/bordplade/InternalLinkGrid";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
 import { CaseGallery } from "@/components/media/CaseGallery";
+import { MidPageCTA } from "@/components/marketing/MidPageCTA";
+import { ProblemCards } from "@/components/marketing/ProblemCards";
 import { ServiceAreaGrid } from "@/components/bordplade/ServiceAreaGrid";
 import {
   StructuredData,
@@ -128,6 +130,29 @@ const faqItems = [
   }
 ];
 
+const problemCardsItems = [
+  {
+    title: "Skjolder ved vask og vandringe",
+    description:
+      "Når finishen er slidt, kan vand trække ind og give skjolder. Vi vurderer dybde og anbefaler en behandling der passer til din brug."
+  },
+  {
+    title: "Ridser og ru overflade",
+    description:
+      "Fine ridser kan gøre bordpladen mat og ujævn i lyset. Trinvis slibning kan ofte genskabe en jævn, ensartet overflade."
+  },
+  {
+    title: "Matte zoner i arbejdsområdet",
+    description:
+      "Typisk tegn på at beskyttelsen er slidt væk. Vi gør overfladen ens igen og hjælper med finishvalg."
+  },
+  {
+    title: "Varmepletter og misfarvninger",
+    description:
+      "Varmeaftryk kan ofte reduceres afhængigt af trætype og dybde. Vi starter med en vurdering via billeder."
+  }
+];
+
 const caseGalleryItems = [
   {
     title: "Køkkenbord – skjolder ved vask og matte zoner",
@@ -192,11 +217,24 @@ export default function BordpladePillarPage() {
     >
       <ProcessSteps />
 
+      <ProblemCards
+        title="Typiske bordplade-problemer vi løser"
+        subtitle="Hvis bordpladen er massiv træ, kan slibning og korrekt behandling ofte give et markant løft."
+        items={problemCardsItems}
+      />
+
       <CaseGallery
         title="Eksempler på typiske bordplade-opgaver"
         subtitle="Et hurtigt overblik over opgavetyper vi ofte vurderer via billeder, før vi planlægger næste skridt."
         items={caseGalleryItems}
         cta={{ label: "Få vurdering via billeder", href: "/bordpladeslibning/prisberegner" }}
+      />
+
+      <MidPageCTA
+        title="Vil du have en hurtig vurdering?"
+        subtitle="Upload 3–6 billeder og få et konkret forslag til næste skridt – uden at gætte."
+        primary={{ label: "Få vurdering via billeder", href: "/bordpladeslibning/prisberegner" }}
+        secondary={{ label: "Se priseksempler", href: "/bordpladeslibning/pris" }}
       />
 
       <section className="py-10 md:py-14">

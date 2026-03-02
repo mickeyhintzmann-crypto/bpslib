@@ -5,6 +5,8 @@ import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
 import { CaseGallery } from "@/components/media/CaseGallery";
+import { MidPageCTA } from "@/components/marketing/MidPageCTA";
+import { ProblemCards } from "@/components/marketing/ProblemCards";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -110,6 +112,29 @@ const faqItems = [
   }
 ];
 
+const problemCardsItems = [
+  {
+    title: "Slidte gangzoner og matte felter",
+    description:
+      "Når overfladen er slidt ned i ganglinjer, kan slibning og ny behandling give et mere ensartet udtryk."
+  },
+  {
+    title: "Ridser og mærker i dagslys",
+    description:
+      "Ridser bliver ofte tydelige i lys. Vi vurderer gulvtype og stand og planlægger den rigtige proces."
+  },
+  {
+    title: "Ujævn glans og ‘plettet’ look",
+    description:
+      "Ældre behandling kan give ujævn glans. Ny slibning + korrekt efterbehandling gør helhedsindtrykket roligere."
+  },
+  {
+    title: "Behov for ny efterbehandling",
+    description:
+      "Lak, olie eller sæbe? Vi rådgiver ud fra rum og brug, så gulvet bliver nemt at holde pænt."
+  }
+];
+
 const caseGalleryItems = [
   {
     title: "Trægulv – slidte gangzoner og ujævn glans",
@@ -157,11 +182,24 @@ export default function GulvHubPage() {
       primaryCta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
       secondaryCta={{ label: "Kontakt os", href: "/kontakt" }}
     >
+      <ProblemCards
+        title="Typiske gulv-problemer vi løser"
+        subtitle="Målet er et roligt, ensartet gulv og en efterbehandling der fungerer i din hverdag."
+        items={problemCardsItems}
+      />
+
       <CaseGallery
         title="Eksempler på typiske gulvopgaver"
         subtitle="Et hurtigt overblik over opgavetyper vi ofte planlægger, før vi aftaler proces, efterbehandling og tidsplan."
         items={caseGalleryItems}
         cta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+      />
+
+      <MidPageCTA
+        title="Vil du have en plan og et konkret næste skridt?"
+        subtitle="Fortæl kort om gulvet og rummene, så planlægger vi forløb og tørretid realistisk."
+        primary={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+        secondary={{ label: "Se cases", href: "/cases" }}
       />
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
