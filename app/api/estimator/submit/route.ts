@@ -8,6 +8,8 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
+import { sendEmail } from "@/lib/notify/email";
+import { buildNewAiQuoteTemplate } from "@/lib/notify/templates";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -84,6 +86,26 @@ const resolveNeedsReview = (
   }
 
   return false;
+};
+
+const summarizeOutput = (output: Record<string, unknown>) => {
+  const textCandidate =
+    (typeof output.text === "string" ? output.text.trim() : "") ||
+    (typeof output.explanation === "string" ? output.explanation.trim() : "") ||
+    (typeof output.summary === "string" ? output.summary.trim() : "");
+  if (textCandidate) {
+    return textCandidate.length > 180 ? `${textCandidate.slice(0, 177)}...` : textCandidate;
+  }
+  const priceRange =
+    output.price_range && typeof output.price_range === "object"
+      ? (output.price_range as Record<string, unknown>)
+      : {};
+  const min = priceRange.min ?? output.price_min;
+  const max = priceRange.max ?? output.price_max;
+  if (min || max) {
+    return `Prisinterval: ${min ?? "?"} - ${max ?? "?"}`;
+  }
+  return "Ingen AI output tekst.";
 };
 
 export async function POST(request: Request) {
@@ -352,6 +374,39 @@ export async function POST(request: Request) {
 
         if (quoteResultError && !isMissingAiTable(quoteResultError.message, "ai_quote_results")) {
           console.error("[estimator_submit] ai_quote_results insert failed", quoteResultError.message);
+        } else if (!quoteResultError && (process.env.NOTIFY_AI_ENABLED || "").toLowerCase() === "true") {
+          const reviewStatus = "unreviewed";
+          const shouldNotify = needsReview || reviewStatus === "unreviewed";
+          if (shouldNotify) {
+            try {
+              const template = buildNewAiQuoteTemplate({
+                leadId,
+                service,
+                leadName: fields.navn,
+                leadPhone: fields.telefon,
+                confidence,
+                needsReview,
+                inputs: {
+                  boardCount,
+                  fields
+                },
+                outputSummary: summarizeOutput(output)
+              });
+
+              const notifyResult = await sendEmail({
+                subject: template.subject,
+                html: template.html,
+                text: template.text,
+                enabled: true
+              });
+
+              if (!notifyResult.ok) {
+                console.error("[ai_notify] email failed", notifyResult.error);
+              }
+            } catch (notifyError) {
+              console.error("[ai_notify] email failed", notifyError);
+            }
+          }
         }
       }
     } catch (aiControlRoomError) {

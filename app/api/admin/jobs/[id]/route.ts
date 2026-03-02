@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
 import { isJobService, isJobStatus } from "@/lib/admin/jobs";
+import { sendEmail } from "@/lib/notify/email";
+import { buildJobNotificationTemplate } from "@/lib/notify/templates";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
@@ -130,6 +132,8 @@ const toItem = (row: JobRow) => {
 const JOB_SELECT =
   "id, created_at, updated_at, lead_id, title, service, location, address, notes, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color), lead:lead_id(id,name,email,phone,location,message,source,service)";
 
+const PATCH_NOTIFY_FIELDS = ["assigned_employee_id", "start_at", "end_at", "status"] as const;
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
@@ -243,6 +247,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "Ingen felter at opdatere." }, { status: 400 });
     }
 
+    const shouldNotifyPatch = PATCH_NOTIFY_FIELDS.some((key) =>
+      Object.prototype.hasOwnProperty.call(updates, key)
+    );
+
     const supabase = createSupabaseServiceClient();
 
     if (Object.prototype.hasOwnProperty.call(updates, "start_at") || Object.prototype.hasOwnProperty.call(updates, "end_at")) {
@@ -275,6 +283,35 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         );
       }
       return NextResponse.json({ message: error?.message || "Kunne ikke opdatere job." }, { status: 500 });
+    }
+
+    if (shouldNotifyPatch && (process.env.NOTIFY_JOBS_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const row = data as JobRow;
+        const employee = asSingleRelation(row.employee);
+        const template = buildJobNotificationTemplate({
+          action: "updated",
+          title: row.title,
+          service: row.service,
+          status: row.status,
+          startAt: row.start_at,
+          endAt: row.end_at,
+          employeeName: employee?.name || null,
+          location: row.location,
+          address: row.address
+        });
+        const notifyResult = await sendEmail({
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+          enabled: true
+        });
+        if (!notifyResult.ok) {
+          console.error("[job_notify] patch email failed", notifyResult.error);
+        }
+      } catch (notifyError) {
+        console.error("[job_notify] patch email failed", notifyError);
+      }
     }
 
     return NextResponse.json({ item: toItem(data as JobRow) }, { status: 200 });

@@ -1,5 +1,7 @@
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
+import { sendEmail } from "@/lib/notify/email";
+import { buildNewLeadTemplate } from "@/lib/notify/templates";
 
 const SOURCE_VALUES = ["form", "ai_quote", "booking", "manual", "import"] as const;
 const SERVICE_VALUES = [
@@ -118,6 +120,35 @@ export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadInta
       leadId: null,
       error: error?.message || "Kunne ikke indsætte lead."
     };
+  }
+
+  if ((process.env.NOTIFY_LEADS_ENABLED || "").toLowerCase() === "true") {
+    try {
+      const template = buildNewLeadTemplate({
+        leadId,
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+        location: row.location,
+        service: row.service,
+        source: row.source,
+        pageUrl: row.page_url,
+        message: row.message
+      });
+
+      const result = await sendEmail({
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+        enabled: true
+      });
+
+      if (!result.ok) {
+        console.error("[lead_notify] email failed", result.error);
+      }
+    } catch (notifyError) {
+      console.error("[lead_notify] email failed", notifyError);
+    }
   }
 
   return {

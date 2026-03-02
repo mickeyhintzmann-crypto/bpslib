@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
 import { isJobService, isJobStatus, toIsoDateRange } from "@/lib/admin/jobs";
+import { sendEmail } from "@/lib/notify/email";
+import { buildJobNotificationTemplate } from "@/lib/notify/templates";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
@@ -214,6 +216,35 @@ export async function POST(request: Request) {
         );
       }
       return NextResponse.json({ message: error?.message || "Kunne ikke oprette job." }, { status: 500 });
+    }
+
+    if ((process.env.NOTIFY_JOBS_ENABLED || "").toLowerCase() === "true") {
+      try {
+        const row = data as JobRow;
+        const employee = asSingleRelation(row.employee);
+        const template = buildJobNotificationTemplate({
+          action: "created",
+          title: row.title,
+          service: row.service,
+          status: row.status,
+          startAt: row.start_at,
+          endAt: row.end_at,
+          employeeName: employee?.name || null,
+          location: row.location,
+          address: row.address
+        });
+        const notifyResult = await sendEmail({
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+          enabled: true
+        });
+        if (!notifyResult.ok) {
+          console.error("[job_notify] create email failed", notifyResult.error);
+        }
+      } catch (notifyError) {
+        console.error("[job_notify] create email failed", notifyError);
+      }
     }
 
     return NextResponse.json({ item: toItem(data as JobRow) }, { status: 201 });
