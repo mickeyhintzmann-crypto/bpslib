@@ -21,6 +21,8 @@ const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
+const AI_CONTROL_ROOM_MIGRATION =
+  "supabase/migrations/20260302_000050_ai_estimator_control_room.sql";
 
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
@@ -28,6 +30,60 @@ const isMissingEstimatorTable = (message: string | undefined) => {
     normalized.includes("could not find the table 'public.estimator_requests'") ||
     normalized.includes('relation "estimator_requests" does not exist')
   );
+};
+
+const isMissingAiTable = (message: string | undefined, table: string) => {
+  const normalized = (message || "").toLowerCase();
+  return (
+    normalized.includes(`could not find the table 'public.${table}'`) ||
+    normalized.includes(`relation "${table}" does not exist`) ||
+    normalized.includes(`relation \"${table}\" does not exist`)
+  );
+};
+
+const sanitizeObject = (value: unknown): Record<string, unknown> => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+};
+
+const parseRuleNumber = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+const resolveNeedsReview = (
+  rules: Record<string, unknown>,
+  input: { confidence: number | null; imageCount: number; boardCount: number; aiStatus: string }
+) => {
+  const minImages = parseRuleNumber(rules.min_images) ?? parseRuleNumber(rules.minImages) ?? 1;
+  const minBoardCount = parseRuleNumber(rules.min_board_count) ?? parseRuleNumber(rules.minBoardCount) ?? 1;
+  const minConfidence =
+    parseRuleNumber(rules.min_confidence) ?? parseRuleNumber(rules.minConfidence) ?? 0.65;
+
+  if (input.aiStatus !== "estimated") {
+    return true;
+  }
+  if (input.imageCount < minImages) {
+    return true;
+  }
+  if (input.boardCount < minBoardCount) {
+    return true;
+  }
+  if (typeof input.confidence === "number" && input.confidence < minConfidence) {
+    return true;
+  }
+
+  return false;
 };
 
 export async function POST(request: Request) {
@@ -103,6 +159,12 @@ export async function POST(request: Request) {
 
     const supabase = createSupabaseServiceClient();
     const requestId = randomUUID();
+    const service = "bordplade";
+    const pageUrl = request.headers.get("referer") || null;
+    const requestMeta = {
+      ...buildLeadMetaFromRequest(request),
+      endpoint: "/api/estimator/submit"
+    };
 
     const uploadedImages: Array<{ path: string; name: string; isEdge: boolean; isOverview: boolean }> = [];
 
@@ -178,23 +240,125 @@ export async function POST(request: Request) {
       );
     }
 
+    let leadId: string | null = null;
     try {
-      await insertLeadIntake({
+      const leadResult = await insertLeadIntake({
         source: "ai_quote",
-        service: "bordplade",
+        service,
         name: fields.navn,
         phone: fields.telefon,
         message: `Prisberegner indsendt med ${boardCount} billede(r).`,
-        pageUrl: request.headers.get("referer") || null,
+        pageUrl,
         meta: {
-          ...buildLeadMetaFromRequest(request),
+          ...requestMeta,
           estimatorRequestId: data.id,
           boardCount,
           aiStatus
         }
       });
+      if (leadResult.ok && leadResult.leadId) {
+        leadId = leadResult.leadId;
+      } else {
+        console.error("[estimator_submit] lead capture failed", leadResult.error);
+      }
     } catch (leadCaptureError) {
       console.error("[estimator_submit] lead capture failed", leadCaptureError);
+    }
+
+    try {
+      let promptVersionId: string | null = null;
+      let promptRules: Record<string, unknown> = {};
+
+      const { data: activePrompt, error: promptError } = await supabase
+        .from("ai_prompt_versions")
+        .select("id, rules")
+        .eq("service", service)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (promptError) {
+        if (
+          !isMissingAiTable(promptError.message, "ai_prompt_versions") &&
+          !isMissingAiTable(promptError.message, "ai_quote_requests")
+        ) {
+          console.error("[estimator_submit] prompt lookup failed", promptError.message);
+        }
+      } else if (activePrompt) {
+        promptVersionId = activePrompt.id as string;
+        promptRules = sanitizeObject(activePrompt.rules);
+      }
+
+      const { data: quoteRequest, error: quoteRequestError } = await supabase
+        .from("ai_quote_requests")
+        .insert({
+          service,
+          lead_id: leadId,
+          page_url: pageUrl,
+          utm: {},
+          inputs: {
+            fields,
+            boardCount,
+            aiNote,
+            estimatorRequestId: data.id
+          },
+          images: uploadedImages,
+          client_meta: requestMeta
+        })
+        .select("id")
+        .single();
+
+      if (quoteRequestError || !quoteRequest) {
+        if (
+          !isMissingAiTable(quoteRequestError?.message, "ai_quote_requests") &&
+          !isMissingAiTable(quoteRequestError?.message, "ai_quote_results")
+        ) {
+          console.error("[estimator_submit] ai_quote_requests insert failed", quoteRequestError?.message);
+        }
+      } else {
+        const confidence = aiEstimate ? (aiStatus === "estimated" ? 0.78 : 0.45) : null;
+        const needsReview = resolveNeedsReview(promptRules, {
+          confidence,
+          imageCount: images.length,
+          boardCount,
+          aiStatus
+        });
+
+        const output = {
+          text: aiEstimate
+            ? "AI vurdering genereret på baggrund af historiske estimater og indsendte billeder."
+            : "Automatisk vurdering var ikke mulig. Sagen er markeret til manuel gennemgang.",
+          price_range: aiEstimate ? { min: aiEstimate.min, max: aiEstimate.max } : null,
+          explanation:
+            "Prisintervallet er vejledende og valideres i den manuelle gennemgang før endeligt tilbud.",
+          next_steps: [
+            "Vi validerer opgavens omfang og billedmateriale.",
+            "Du modtager næste konkrete skridt fra teamet."
+          ],
+          ai_status: aiStatus
+        };
+
+        const { error: quoteResultError } = await supabase.from("ai_quote_results").insert({
+          request_id: quoteRequest.id,
+          prompt_version_id: promptVersionId,
+          output,
+          confidence,
+          needs_review: needsReview,
+          review_status: "unreviewed",
+          admin_feedback: null,
+          admin_override: {}
+        });
+
+        if (quoteResultError && !isMissingAiTable(quoteResultError.message, "ai_quote_results")) {
+          console.error("[estimator_submit] ai_quote_results insert failed", quoteResultError.message);
+        }
+      }
+    } catch (aiControlRoomError) {
+      console.error(
+        `[estimator_submit] AI Control Room write failed. Ensure migration exists: ${AI_CONTROL_ROOM_MIGRATION}`,
+        aiControlRoomError
+      );
     }
 
     return NextResponse.json(
