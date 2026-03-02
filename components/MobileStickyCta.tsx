@@ -3,9 +3,8 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { CONTACT_TEL_HREF } from "@/lib/contact";
 import { trackEvent } from "@/lib/tracking";
-
-const PHONE_TEL = "tel:+45XXXXXXXX";
 
 export const MobileStickyCta = () => {
   return (
@@ -18,7 +17,7 @@ export const MobileStickyCta = () => {
           <Link href="/bordpladeslibning/book">Book tid</Link>
         </Button>
         <Button asChild variant="secondary" className="flex-1">
-          <a href={PHONE_TEL} onClick={() => trackEvent("call_click", { source: "mobile_sticky" })}>
+          <a href={CONTACT_TEL_HREF} onClick={() => trackEvent("call_click", { source: "mobile_sticky" })}>
             Ring
           </a>
         </Button>

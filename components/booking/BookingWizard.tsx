@@ -23,9 +23,8 @@ import {
   formatExtrasSummary,
   type BordpladeExtras
 } from "@/lib/bordplade/extras";
+import { CONTACT_TEL_HREF } from "@/lib/contact";
 import { trackEvent } from "@/lib/tracking";
-
-const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -598,7 +597,7 @@ export const BookingWizard = ({
                 </Button>
                 <Button asChild variant="outline">
                   <a
-                    href={PHONE_TEL}
+                    href={CONTACT_TEL_HREF}
                     onClick={() => {
                       trackEvent("call_click", { source: "booking_step_1" });
                     }}
@@ -773,7 +772,7 @@ export const BookingWizard = ({
             <p>Kan du ikke finde en tid?</p>
             <div className="mt-2 flex flex-wrap gap-3">
               <a
-                href={PHONE_TEL}
+                href={CONTACT_TEL_HREF}
                 className="font-semibold text-primary"
                 onClick={() => {
                   trackEvent("call_click", { source: "booking_no_time" });

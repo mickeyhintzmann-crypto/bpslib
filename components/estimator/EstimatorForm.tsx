@@ -5,10 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { CONTACT_TEL_HREF } from "@/lib/contact";
 import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
-
-const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const UPLOAD_GUIDE = [
   "Upload 1 billede pr. bordplade (hele bordpladen i billedet).",
@@ -299,7 +298,7 @@ export const EstimatorForm = () => {
         </Button>
         <Button asChild variant="outline">
           <a
-            href={PHONE_TEL}
+            href={CONTACT_TEL_HREF}
             onClick={() => {
               trackEvent("call_click", { source: "prisberegner" });
             }}

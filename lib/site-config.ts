@@ -1,8 +1,10 @@
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
+
 export const siteConfig = {
   companyName: "BP Slib",
   address: "",
-  phone: "+4526913737",
-  phoneDisplay: "26 91 37 37",
+  phone: CONTACT_PHONE_E164,
+  phoneDisplay: CONTACT_PHONE_DISPLAY,
   email: "info@bpslib.dk",
   serviceArea: "Sjælland",
   cvr: "45700453",

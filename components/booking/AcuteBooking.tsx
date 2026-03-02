@@ -14,9 +14,8 @@ import {
   type DayOverrideInput,
   type SlotTime
 } from "@/lib/booking-schedule";
+import { CONTACT_TEL_HREF } from "@/lib/contact";
 import { trackEvent } from "@/lib/tracking";
-
-const PHONE_TEL = "tel:+45XXXXXXXX";
 
 const formatPrice = (price: number) => `${price.toLocaleString("da-DK")} kr.`;
 
@@ -379,7 +378,7 @@ export const AcuteBooking = ({
           </Button>
           <Button asChild variant="outline">
             <a
-              href={PHONE_TEL}
+              href={CONTACT_TEL_HREF}
               onClick={() => {
                 trackEvent("call_click", { source: "acute_booking_panel" });
               }}
