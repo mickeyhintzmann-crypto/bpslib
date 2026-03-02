@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
-import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
+import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 import { sanitizeUtm, type UtmPayload } from "@/lib/utm";
 
 type ContactPayload = {
@@ -15,8 +15,6 @@ type ContactPayload = {
   website?: unknown;
   utm?: unknown;
 };
-
-const UTM_JSONB_COLUMNS = ["meta", "metadata", "tracking", "utm", "fields"] as const;
 
 const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
@@ -34,26 +32,11 @@ const isMissingLeadsTable = (message: string | undefined) => {
   );
 };
 
-const isMissingColumn = (message: string | undefined) => {
-  const normalized = (message || "").toLowerCase();
-  return normalized.includes("column") && normalized.includes("does not exist");
-};
-
 const formatUtmLine = (utm: UtmPayload | null) => {
   if (!utm) {
     return "";
   }
   return `UTM: ${JSON.stringify(utm)}`;
-};
-
-const withAppendedUtm = (text: string, utm: UtmPayload | null) => {
-  if (!utm) {
-    return text || null;
-  }
-
-  const line = formatUtmLine(utm);
-  const clean = text.trim();
-  return clean ? `${clean}\n\n${line}` : line;
 };
 
 export async function POST(request: Request) {
@@ -117,79 +100,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Postnr. skal være 4 cifre." }, { status: 400 });
     }
 
-    const supabase = createSupabaseServiceClient();
-
-    const baseLead = {
-      source: "kontakt",
+    const leadResult = await insertLeadIntake({
+      source: "form",
       service: "andet",
       name,
       phone,
       email,
-      postal_code: postalCode || null,
-      message: withAppendedUtm(message, null),
-      status: "new"
-    };
-
-    let data: { id: string } | null = null;
-    let error: { message?: string } | null = null;
-
-    if (utm) {
-      for (const column of UTM_JSONB_COLUMNS) {
-        const attempt = await supabase
-          .from("leads")
-          .insert({
-            ...baseLead,
-            [column]: { utm }
-          })
-          .select("id")
-          .single();
-
-        if (!attempt.error && attempt.data) {
-          data = attempt.data;
-          error = null;
-          break;
-        }
-
-        if (isMissingColumn(attempt.error?.message)) {
-          continue;
-        }
-
-        error = attempt.error;
-        break;
+      location: postalCode || null,
+      message,
+      pageUrl: request.headers.get("referer") || null,
+      utm: utm ? { ...utm } : null,
+      meta: {
+        ...buildLeadMetaFromRequest(request),
+        endpoint: "/api/leads/contact/submit"
       }
-    }
+    });
 
-    if (!data && !error) {
-      const fallback = await supabase
-        .from("leads")
-        .insert({
-          ...baseLead,
-          message: withAppendedUtm(message, utm)
-        })
-        .select("id")
-        .single();
-      data = fallback.data;
-      error = fallback.error;
-    }
-
-    if (error || !data) {
-      if (isMissingLeadsTable(error?.message) || isMissingColumn(error?.message)) {
+    if (!leadResult.ok || !leadResult.leadId) {
+      if (isMissingLeadsTable(leadResult.error || undefined)) {
         return NextResponse.json(
           {
             message:
-              "Kontaktformularen er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208_000009_leads_contact_columns.sql."
+              "Kontaktformularen er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260302_000030_admin_leads_schema.sql."
           },
           { status: 503 }
         );
       }
-      return NextResponse.json({ message: error?.message || "Kunne ikke sende beskeden." }, { status: 500 });
+      return NextResponse.json({ message: leadResult.error || "Kunne ikke sende beskeden." }, { status: 500 });
     }
 
     const adminTo = getSmtpAdminTo();
     if (adminTo) {
       const subject = "Ny kontakt";
       const text = [
-        `Lead-ID: ${data.id}`,
+        `Lead-ID: ${leadResult.leadId}`,
         `Navn: ${name}`,
         `Telefon: ${phone}`,
         `Email: ${email}`,
@@ -212,11 +156,11 @@ export async function POST(request: Request) {
         subject,
         ok: result.ok,
         error: result.error || null,
-        meta: { leadId: data.id, source: "kontakt" }
+        meta: { leadId: leadResult.leadId, source: "kontakt" }
       });
     }
 
-    return NextResponse.json({ ok: true, leadId: data.id }, { status: 200 });
+    return NextResponse.json({ ok: true, leadId: leadResult.leadId }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

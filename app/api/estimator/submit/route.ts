@@ -7,6 +7,7 @@ import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -175,6 +176,25 @@ export async function POST(request: Request) {
         { message: insertError?.message || "Kunne ikke gemme vurderingen i databasen." },
         { status: 500 }
       );
+    }
+
+    try {
+      await insertLeadIntake({
+        source: "ai_quote",
+        service: "bordplade",
+        name: fields.navn,
+        phone: fields.telefon,
+        message: `Prisberegner indsendt med ${boardCount} billede(r).`,
+        pageUrl: request.headers.get("referer") || null,
+        meta: {
+          ...buildLeadMetaFromRequest(request),
+          estimatorRequestId: data.id,
+          boardCount,
+          aiStatus
+        }
+      });
+    } catch (leadCaptureError) {
+      console.error("[estimator_submit] lead capture failed", leadCaptureError);
     }
 
     return NextResponse.json(

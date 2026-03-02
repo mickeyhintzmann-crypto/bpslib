@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
-import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
+import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 import { sanitizeUtm, type UtmPayload } from "@/lib/utm";
 
 type TilbudstidPayload = {
@@ -18,8 +18,6 @@ type TilbudstidPayload = {
 const SERVICE_VALUES = ["gulv", "toemrer", "maler", "murer", "andet"] as const;
 type ServiceValue = (typeof SERVICE_VALUES)[number];
 
-const UTM_JSONB_COLUMNS = ["meta", "metadata", "tracking", "utm", "fields"] as const;
-
 const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 const normalizePhone = (value: string) => value.replace(/\s+/g, "");
@@ -32,11 +30,6 @@ const isMissingLeadsTable = (message: string | undefined) => {
   );
 };
 
-const isMissingColumn = (message: string | undefined) => {
-  const normalized = (message || "").toLowerCase();
-  return normalized.includes("column") && normalized.includes("does not exist");
-};
-
 const formatUtmLine = (utm: UtmPayload | null) => {
   if (!utm) {
     return "";
@@ -44,14 +37,11 @@ const formatUtmLine = (utm: UtmPayload | null) => {
   return `UTM: ${JSON.stringify(utm)}`;
 };
 
-const withAppendedUtm = (text: string, utm: UtmPayload | null) => {
-  if (!utm) {
-    return text || null;
+const normalizeLeadService = (value: ServiceValue) => {
+  if (value === "gulv") {
+    return "gulvafslibning";
   }
-
-  const line = formatUtmLine(utm);
-  const clean = text.trim();
-  return clean ? `${clean}\n\n${line}` : line;
+  return value;
 };
 
 export async function POST(request: Request) {
@@ -106,79 +96,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Beskeden er for lang. Hold den under 1000 tegn." }, { status: 400 });
     }
 
-    const supabase = createSupabaseServiceClient();
-
-    const baseLead = {
-      source: "tilbudstid",
-      service,
+    const normalizedService = normalizeLeadService(service as ServiceValue);
+    const leadResult = await insertLeadIntake({
+      source: "form",
+      service: normalizedService,
       name,
       phone,
-      postal_code: postalCode,
-      note: withAppendedUtm(note, null),
-      status: "new"
-    };
-
-    let data: { id: string } | null = null;
-    let error: { message?: string } | null = null;
-
-    if (utm) {
-      for (const column of UTM_JSONB_COLUMNS) {
-        const attempt = await supabase
-          .from("leads")
-          .insert({
-            ...baseLead,
-            [column]: { utm }
-          })
-          .select("id")
-          .single();
-
-        if (!attempt.error && attempt.data) {
-          data = attempt.data;
-          error = null;
-          break;
-        }
-
-        if (isMissingColumn(attempt.error?.message)) {
-          continue;
-        }
-
-        error = attempt.error;
-        break;
+      location: postalCode,
+      message: note || null,
+      pageUrl: request.headers.get("referer") || null,
+      utm: utm ? { ...utm } : null,
+      meta: {
+        ...buildLeadMetaFromRequest(request),
+        endpoint: "/api/leads/tilbudstid/submit"
       }
-    }
+    });
 
-    if (!data && !error) {
-      const fallback = await supabase
-        .from("leads")
-        .insert({
-          ...baseLead,
-          note: withAppendedUtm(note, utm)
-        })
-        .select("id")
-        .single();
-      data = fallback.data;
-      error = fallback.error;
-    }
-
-    if (error || !data) {
-      if (isMissingLeadsTable(error?.message) || isMissingColumn(error?.message)) {
+    if (!leadResult.ok || !leadResult.leadId) {
+      if (isMissingLeadsTable(leadResult.error || undefined)) {
         return NextResponse.json(
           {
             message:
-              "Tilbudstid er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208_000005_leads.sql."
+              "Tilbudstid er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260302_000030_admin_leads_schema.sql."
           },
           { status: 503 }
         );
       }
-      return NextResponse.json({ message: error?.message || "Kunne ikke gemme forespørgslen." }, { status: 500 });
+      return NextResponse.json({ message: leadResult.error || "Kunne ikke gemme forespørgslen." }, { status: 500 });
     }
 
     const adminTo = getSmtpAdminTo();
     if (adminTo) {
       const subject = "Ny tilbudstid lead";
       const text = [
-        `Lead-ID: ${data.id}`,
-        `Service: ${service}`,
+        `Lead-ID: ${leadResult.leadId}`,
+        `Service: ${normalizedService}`,
         `Navn: ${name}`,
         `Telefon: ${phone}`,
         `Postnr: ${postalCode}`,
@@ -200,11 +152,11 @@ export async function POST(request: Request) {
         subject,
         ok: result.ok,
         error: result.error || null,
-        meta: { leadId: data.id, source: "tilbudstid" }
+        meta: { leadId: leadResult.leadId, source: "tilbudstid" }
       });
     }
 
-    return NextResponse.json({ ok: true, leadId: data.id }, { status: 200 });
+    return NextResponse.json({ ok: true, leadId: leadResult.leadId }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

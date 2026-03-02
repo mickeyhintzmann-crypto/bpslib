@@ -9,6 +9,7 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { getSiteUrl } from "@/lib/site-url";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const validPhoneRegex = /^[+0-9()\s-]{6,25}$/;
@@ -235,6 +236,26 @@ export async function POST(request: Request) {
         { message: error?.message || "Kunne ikke oprette booking." },
         { status: 500 }
       );
+    }
+
+    try {
+      await insertLeadIntake({
+        source: "booking",
+        service: "bordplade",
+        name,
+        email: email || null,
+        phone,
+        location: `${postalCode} ${address}`.trim(),
+        message: note || null,
+        pageUrl: request.headers.get("referer") || null,
+        meta: {
+          ...buildLeadMetaFromRequest(request),
+          bookingId: data.id,
+          endpoint: "/api/bookings/submit"
+        }
+      });
+    } catch (leadCaptureError) {
+      console.error("[booking_submit] lead capture failed", leadCaptureError);
     }
 
     const manageLink = `${getSiteUrl()}/booking/manage/${manageToken}`;

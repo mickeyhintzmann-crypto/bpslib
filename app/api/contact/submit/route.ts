@@ -59,16 +59,18 @@ const tryInsertLead = async ({
       phone: telefon,
       email: email || null,
       message: besked || null,
-      source: "kontakt",
-      status: "Ny"
+      source: "form",
+      service: "andet",
+      status: "new"
     },
     {
       navn,
       telefon,
       email: email || null,
       besked: besked || null,
-      source: "kontakt",
-      status: "Ny"
+      source: "form",
+      service: "andet",
+      status: "new"
     },
     {
       fields: {
@@ -77,8 +79,9 @@ const tryInsertLead = async ({
         email,
         besked
       },
-      source: "kontakt",
-      status: "Ny"
+      source: "form",
+      service: "andet",
+      status: "new"
     }
   ];
 
