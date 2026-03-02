@@ -20,29 +20,31 @@ const highlights = [
 
 export const TrustHighlights = () => {
   return (
-    <section className="py-8 md:py-10">
-      <div className="rounded-[30px] border border-border/70 bg-white/70 p-5 md:p-7">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold text-foreground">Hvorfor kunder vælger os</h2>
-          <span className="rounded-full border border-border/70 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Lokalt håndværk
-          </span>
+    <section className="relative left-1/2 right-1/2 mt-5 w-screen -translate-x-1/2 bg-[hsl(230_26%_95%)] py-16 md:py-20">
+      <div className="mx-auto w-full max-w-[1180px] px-4 md:px-6">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+            Din garanti for en god oplevelse
+          </p>
+          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+            Hvorfor kunder vælger os
+          </h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
-        {highlights.map(({ title, text, Icon }) => (
-          <div
-            key={title}
-            className="surface-subtle rounded-[24px] p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_hsl(20_30%_20%/0.1)]"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-white text-primary">
-                <Icon className="h-6 w-6" />
+
+        <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+          {highlights.map(({ title, text, Icon }) => (
+            <div key={title} className="mx-auto flex max-w-sm flex-col items-center text-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full border border-primary/35 bg-white text-primary">
+                <Icon className="h-8 w-8" />
               </span>
-              <h3 className="text-base font-semibold text-foreground">{title}</h3>
+              <h3 className="mt-6 text-3xl font-semibold text-foreground md:text-[32px]">
+                {title}
+              </h3>
+              <p className="mt-4 text-lg leading-relaxed text-muted-foreground md:text-xl">
+                {text}
+              </p>
             </div>
-            <p className="mt-3 text-sm text-muted-foreground">{text}</p>
-          </div>
-        ))}
+          ))}
         </div>
       </div>
     </section>
