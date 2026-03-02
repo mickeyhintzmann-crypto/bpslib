@@ -6,7 +6,8 @@ const repoRoot = process.cwd();
 const publicRoot = path.join(repoRoot, "public");
 const manifestOut = path.join(repoRoot, "lib", "mediaManifest.ts");
 
-const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".avif"]);
+const WEB_IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const FALLBACK_IMAGE_EXTENSIONS = new Set([".heic", ".heif", ".avif"]);
 
 const roots = {
   gulv: [
@@ -27,41 +28,52 @@ function isDirectory(targetPath) {
   }
 }
 
+function sorted(list) {
+  return [...list].sort((a, b) => a.localeCompare(b, "da", { numeric: true, sensitivity: "base" }));
+}
+
 function toWebPath(filePath) {
   const rel = path.relative(publicRoot, filePath).split(path.sep).join("/");
   return `/${rel}`;
 }
 
-function isImage(filePath) {
-  return IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+function hasExtension(filePath, extensionSet) {
+  return extensionSet.has(path.extname(filePath).toLowerCase());
 }
 
-function sorted(list) {
-  return [...list].sort((a, b) => a.localeCompare(b, "da", { numeric: true, sensitivity: "base" }));
+function collectCaseImages(caseDir) {
+  return sorted(
+    fs
+      .readdirSync(caseDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => path.join(caseDir, entry.name))
+  );
 }
 
-function pickBeforeAfter(imageFiles) {
-  if (imageFiles.length < 2) {
+function pickByPrefix(files, prefix, extensionSet) {
+  const prefixRegex = new RegExp(`^${prefix}`, "i");
+  return files.find(
+    (filePath) => prefixRegex.test(path.basename(filePath)) && hasExtension(filePath, extensionSet)
+  );
+}
+
+function pickBeforeAfter(files) {
+  let before = pickByPrefix(files, "before", WEB_IMAGE_EXTENSIONS);
+  let after = pickByPrefix(files, "after", WEB_IMAGE_EXTENSIONS);
+
+  // Fallback for legacy uploads that are not web-optimized yet.
+  if (!before) {
+    before = pickByPrefix(files, "before", FALLBACK_IMAGE_EXTENSIONS);
+  }
+  if (!after) {
+    after = pickByPrefix(files, "after", FALLBACK_IMAGE_EXTENSIONS);
+  }
+
+  if (!before || !after) {
     return null;
   }
 
-  const beforeRegex = /(^|[^a-z0-9])before([^a-z0-9]|$)/i;
-  const afterRegex = /(^|[^a-z0-9])after([^a-z0-9]|$)/i;
-
-  const beforeCandidates = imageFiles.filter((filePath) => beforeRegex.test(path.basename(filePath)));
-  const afterCandidates = imageFiles.filter((filePath) => afterRegex.test(path.basename(filePath)));
-
-  if (beforeCandidates.length && afterCandidates.length) {
-    return {
-      before: beforeCandidates[0],
-      after: afterCandidates[0]
-    };
-  }
-
-  return {
-    before: imageFiles[0],
-    after: imageFiles[imageFiles.length - 1]
-  };
+  return { before, after };
 }
 
 function collectBeforeAfter(rootCandidates) {
@@ -81,15 +93,8 @@ function collectBeforeAfter(rootCandidates) {
     );
 
     for (const caseDir of caseDirs) {
-      const imageFiles = sorted(
-        fs
-          .readdirSync(caseDir, { withFileTypes: true })
-          .filter((entry) => entry.isFile())
-          .map((entry) => path.join(caseDir, entry.name))
-          .filter(isImage)
-      );
-
-      const pair = pickBeforeAfter(imageFiles);
+      const files = collectCaseImages(caseDir);
+      const pair = pickBeforeAfter(files);
       if (!pair) {
         continue;
       }
@@ -100,11 +105,11 @@ function collectBeforeAfter(rootCandidates) {
         afterSrc: toWebPath(pair.after)
       };
 
-      const dedupeKey = `${record.caseId}|${record.beforeSrc}|${record.afterSrc}`;
-      if (seen.has(dedupeKey)) {
+      const key = `${record.caseId}|${record.beforeSrc}|${record.afterSrc}`;
+      if (seen.has(key)) {
         continue;
       }
-      seen.add(dedupeKey);
+      seen.add(key);
       results.push(record);
     }
   }
@@ -139,6 +144,7 @@ const galleryBordplade = buildGallery(beforeAfterBordplade);
 
 writeManifest({ beforeAfterGulv, beforeAfterBordplade, galleryGulv, galleryBordplade });
 
-console.log(
-  `[media-manifest] Gulv: ${beforeAfterGulv.length} pairs, Bordplade: ${beforeAfterBordplade.length} pairs`
-);
+console.log(`[media-manifest] gulv cases found: ${beforeAfterGulv.length}`);
+console.log(`[media-manifest] bordplade cases found: ${beforeAfterBordplade.length}`);
+console.log(`[media-manifest] gulv gallery images: ${galleryGulv.length}`);
+console.log(`[media-manifest] bordplade gallery images: ${galleryBordplade.length}`);

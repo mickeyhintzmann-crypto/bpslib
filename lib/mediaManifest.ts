@@ -48,49 +48,14 @@ export const beforeAfterGulv: BeforeAfterItem[] = [
 
 export const beforeAfterBordplade: BeforeAfterItem[] = [
   {
-    "caseId": "case-001_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_01..HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_02.HEIC"
-  },
-  {
-    "caseId": "case-002_koekken_01",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-002_koekken_01/case-002_koekken_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-002_koekken_01/case-002_koekken_02.HEIC"
-  },
-  {
-    "caseId": "case-003_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-003_koekken/case-003_koekken_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-003_koekken/case-003_koekken_02.HEIC"
-  },
-  {
-    "caseId": "case-004_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-004_koekken/case-004_koekken_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-004_koekken/case-004_koekken_02.HEIC"
-  },
-  {
-    "caseId": "case-005_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-005_koekken/case-005_koekken_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-005_koekken/case-005_koekken_02.HEIC"
-  },
-  {
     "caseId": "case-006_koekken..",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken../before.HEIC",
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken../after.HEIC"
   },
   {
-    "caseId": "case-006_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/case-006_koekken_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/case-006_koekken_02.HEIC"
-  },
-  {
     "caseId": "case-008_koekken",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.HEIC",
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.HEIC"
-  },
-  {
-    "caseId": "case-009_spisebord",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_01.HEIC",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_02.HEIC"
   }
 ];
 
@@ -105,14 +70,7 @@ export const galleryGulv: string[] = [
 ];
 
 export const galleryBordplade: string[] = [
-  "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_02.HEIC",
-  "/media/galleries:bordplade:before-after/case-002_koekken_01/case-002_koekken_02.HEIC",
-  "/media/galleries:bordplade:before-after/case-003_koekken/case-003_koekken_02.HEIC",
-  "/media/galleries:bordplade:before-after/case-004_koekken/case-004_koekken_02.HEIC",
-  "/media/galleries:bordplade:before-after/case-005_koekken/case-005_koekken_02.HEIC",
   "/media/galleries:bordplade:before-after/case-006_koekken../after.HEIC",
-  "/media/galleries:bordplade:before-after/case-006_koekken/case-006_koekken_02.HEIC",
-  "/media/galleries:bordplade:before-after/case-008_koekken/after.HEIC",
-  "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_02.HEIC"
+  "/media/galleries:bordplade:before-after/case-008_koekken/after.HEIC"
 ];
 
