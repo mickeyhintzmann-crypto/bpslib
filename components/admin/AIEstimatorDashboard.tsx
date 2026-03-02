@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import {
   AI_REVIEW_STATUS_VALUES,
   AI_SERVICES,
-  type AiReviewStatus
+  type AiReviewStatus,
+  type AiService
 } from "@/lib/ai-estimator-control-room";
 
 type TabKey = "queue" | "history" | "prompts";
@@ -79,8 +80,29 @@ type QuoteDetailResponse = QuoteDetailPayload & {
   message?: string;
 };
 
+type PromptItem = {
+  id: string;
+  created_at: string;
+  name: string;
+  service: string;
+  prompt: string;
+  rules: Record<string, unknown>;
+  is_active: boolean;
+};
+
+type PromptListResponse = {
+  items?: PromptItem[];
+  item?: PromptItem;
+  message?: string;
+};
+
 const serviceOptions = ["alle", ...AI_SERVICES] as const;
 const reviewStatusOptions = ["alle", ...AI_REVIEW_STATUS_VALUES] as const;
+const DEFAULT_RULES_TEXT = `{
+  "min_confidence": 0.6,
+  "needs_review_if_missing_images": true,
+  "needs_review_if_missing_m2": true
+}`;
 
 const short = (value: string | null | undefined, fallback = "-") => {
   const cleaned = (value || "").trim();
@@ -163,6 +185,17 @@ export const AIEstimatorDashboard = () => {
 
   const [feedbackDraft, setFeedbackDraft] = useState("");
   const [overrideDraft, setOverrideDraft] = useState("{}");
+  const [promptsLoading, setPromptsLoading] = useState(false);
+  const [promptsError, setPromptsError] = useState("");
+  const [promptsMessage, setPromptsMessage] = useState("");
+  const [promptServiceFilter, setPromptServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
+  const [promptItems, setPromptItems] = useState<PromptItem[]>([]);
+  const [editingPromptId, setEditingPromptId] = useState<string | null>(null);
+  const [promptNameDraft, setPromptNameDraft] = useState("");
+  const [promptServiceDraft, setPromptServiceDraft] = useState<AiService>("bordplade");
+  const [promptTextDraft, setPromptTextDraft] = useState("");
+  const [promptRulesDraft, setPromptRulesDraft] = useState(DEFAULT_RULES_TEXT);
+  const [promptSaving, setPromptSaving] = useState(false);
 
   const isQueueTab = tab === "queue";
   const isHistoryTab = tab === "history";
@@ -172,6 +205,8 @@ export const AIEstimatorDashboard = () => {
     setListMessage("");
     setDetailError("");
     setDetailMessage("");
+    setPromptsError("");
+    setPromptsMessage("");
   };
 
   const applyDetail = (payload: QuoteDetailPayload) => {
@@ -230,6 +265,142 @@ export const AIEstimatorDashboard = () => {
     }
   };
 
+  const resetPromptEditor = () => {
+    setEditingPromptId(null);
+    setPromptNameDraft("");
+    setPromptServiceDraft("bordplade");
+    setPromptTextDraft("");
+    setPromptRulesDraft(DEFAULT_RULES_TEXT);
+  };
+
+  const loadPrompts = async () => {
+    setPromptsLoading(true);
+    setPromptsError("");
+
+    try {
+      const params = new URLSearchParams();
+      if (promptServiceFilter !== "alle") {
+        params.set("service", promptServiceFilter);
+      }
+
+      const query = params.toString();
+      const response = await fetch(`/api/admin/ai/prompts${query ? `?${query}` : ""}`, {
+        cache: "no-store"
+      });
+      const payload = (await response.json()) as PromptListResponse;
+
+      if (!response.ok || !payload.items) {
+        setPromptItems([]);
+        setPromptsError(payload.message || "Kunne ikke hente prompt versions.");
+        return;
+      }
+
+      setPromptItems(payload.items);
+    } catch (error) {
+      console.error(error);
+      setPromptItems([]);
+      setPromptsError("Netværksfejl ved hentning af prompt versions.");
+    } finally {
+      setPromptsLoading(false);
+    }
+  };
+
+  const startCreatePrompt = () => {
+    setPromptsError("");
+    setPromptsMessage("");
+    resetPromptEditor();
+  };
+
+  const startEditPrompt = (item: PromptItem) => {
+    setPromptsError("");
+    setPromptsMessage("");
+    setEditingPromptId(item.id);
+    setPromptNameDraft(item.name);
+    setPromptServiceDraft(item.service as AiService);
+    setPromptTextDraft(item.prompt);
+    setPromptRulesDraft(prettyJson(item.rules || {}));
+  };
+
+  const savePromptVersion = async () => {
+    setPromptSaving(true);
+    setPromptsError("");
+    setPromptsMessage("");
+
+    try {
+      if (promptNameDraft.trim().length < 2) {
+        setPromptsError("Name er påkrævet.");
+        return;
+      }
+      if (promptTextDraft.trim().length < 10) {
+        setPromptsError("Prompt er for kort.");
+        return;
+      }
+
+      const parsedRules = parseJsonObject(promptRulesDraft);
+      const isEditing = Boolean(editingPromptId);
+      const endpoint = isEditing ? `/api/admin/ai/prompts/${editingPromptId}` : "/api/admin/ai/prompts";
+      const method = isEditing ? "PATCH" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: promptNameDraft.trim(),
+          service: promptServiceDraft,
+          prompt: promptTextDraft.trim(),
+          rules: parsedRules
+        })
+      });
+      const payload = (await response.json()) as PromptListResponse;
+
+      if (!response.ok) {
+        setPromptsError(payload.message || "Kunne ikke gemme prompt version.");
+        return;
+      }
+
+      setPromptsMessage(isEditing ? "Prompt version opdateret." : "Prompt version oprettet.");
+      if (!isEditing) {
+        resetPromptEditor();
+      }
+      await loadPrompts();
+    } catch (error) {
+      console.error(error);
+      setPromptsError(error instanceof Error ? error.message : "Kunne ikke gemme prompt version.");
+    } finally {
+      setPromptSaving(false);
+    }
+  };
+
+  const activatePromptVersion = async (id: string) => {
+    setPromptSaving(true);
+    setPromptsError("");
+    setPromptsMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/ai/prompts/${id}/activate`, {
+        method: "POST"
+      });
+      const payload = (await response.json()) as PromptListResponse;
+
+      if (!response.ok || !payload.items) {
+        setPromptsError(payload.message || "Kunne ikke aktivere prompt version.");
+        return;
+      }
+
+      if (promptServiceFilter === "alle") {
+        await loadPrompts();
+      } else {
+        setPromptItems(payload.items);
+      }
+      setPromptsMessage("Prompt version aktiveret.");
+    } catch (error) {
+      console.error(error);
+      setPromptsError("Netværksfejl ved aktivering af prompt version.");
+    } finally {
+      setPromptSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (tab === "prompts") {
       return;
@@ -237,6 +408,14 @@ export const AIEstimatorDashboard = () => {
     loadQuotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, serviceFilter, needsReviewOnly, historyStatusFilter]);
+
+  useEffect(() => {
+    if (tab !== "prompts") {
+      return;
+    }
+    loadPrompts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, promptServiceFilter]);
 
   const openDetail = async (resultId: string) => {
     setDetailLoading(true);
@@ -332,6 +511,10 @@ export const AIEstimatorDashboard = () => {
     () => extractImageUrls(Array.isArray(detail?.request?.images) ? detail?.request?.images : []),
     [detail?.request?.images]
   );
+  const activePrompt = useMemo(
+    () => promptItems.find((item) => item.is_active) || null,
+    [promptItems]
+  );
 
   return (
     <section className="space-y-6">
@@ -372,6 +555,9 @@ export const AIEstimatorDashboard = () => {
           onClick={() => {
             clearMessages();
             setTab("prompts");
+            if (!editingPromptId) {
+              startCreatePrompt();
+            }
           }}
           className={`rounded-lg px-3 py-2 text-sm ${
             tab === "prompts" ? "bg-primary text-white" : "text-foreground"
@@ -385,11 +571,158 @@ export const AIEstimatorDashboard = () => {
       {listMessage ? <p className="text-sm font-medium text-emerald-700">{listMessage}</p> : null}
 
       {tab === "prompts" ? (
-        <div className="rounded-2xl border border-border bg-muted/20 p-5">
-          <p className="text-sm font-medium text-foreground">Prompts-tab kommer i næste iteration.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Brug “Queue” og “History” til review + overrides i denne version.
-          </p>
+        <div className="space-y-4">
+          {promptsError ? <p className="text-sm font-medium text-red-700">{promptsError}</p> : null}
+          {promptsMessage ? <p className="text-sm font-medium text-emerald-700">{promptsMessage}</p> : null}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-sm text-muted-foreground">
+              Service
+              <select
+                value={promptServiceFilter}
+                onChange={(event) => setPromptServiceFilter(event.target.value as (typeof serviceOptions)[number])}
+                className="ml-2 h-10 rounded-md border border-border bg-white px-3"
+              >
+                {serviceOptions.map((service) => (
+                  <option key={service} value={service}>
+                    {service}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Button variant="outline" onClick={loadPrompts} disabled={promptsLoading || promptSaving}>
+              {promptsLoading ? "Henter..." : "Opdater"}
+            </Button>
+            <Button variant="outline" onClick={startCreatePrompt} disabled={promptSaving}>
+              Ny version
+            </Button>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-muted/20 p-4">
+            <p className="text-sm font-semibold text-foreground">Aktiv prompt i produktion</p>
+            {activePrompt ? (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {activePrompt.name} ({activePrompt.service}) · {formatDateTime(activePrompt.created_at)}
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-muted-foreground">Ingen aktiv prompt version i det valgte filter.</p>
+            )}
+            <p className="mt-1 text-xs text-muted-foreground">
+              This is the prompt currently used in production.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-border bg-white">
+            <div className="grid grid-cols-[1.4fr_140px_120px_180px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <span>Name</span>
+              <span>Service</span>
+              <span>Active</span>
+              <span>Actions</span>
+            </div>
+            <div className="divide-y divide-border/60">
+              {promptItems.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen prompt versions fundet.</p>
+              ) : (
+                promptItems.map((item) => (
+                  <div key={item.id} className="grid grid-cols-[1.4fr_140px_120px_180px] items-start gap-3 px-4 py-3 text-sm">
+                    <div>
+                      <p className="font-medium text-foreground">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(item.created_at)}</p>
+                    </div>
+                    <span className="text-muted-foreground">{item.service}</span>
+                    <span
+                      className={`inline-flex w-fit rounded-full px-2 py-1 text-xs ${
+                        item.is_active ? "bg-emerald-100 text-emerald-900" : "bg-muted text-foreground"
+                      }`}
+                    >
+                      {item.is_active ? "active" : "inactive"}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => startEditPrompt(item)} disabled={promptSaving}>
+                        View/Edit
+                      </Button>
+                      {!item.is_active ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => activatePromptVersion(item.id)}
+                          disabled={promptSaving}
+                        >
+                          Activate
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-white p-4">
+            <p className="text-sm font-semibold text-foreground">
+              {editingPromptId ? "Rediger prompt version" : "Opret ny prompt version"}
+            </p>
+
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              <label className="text-sm text-muted-foreground">
+                Name
+                <input
+                  value={promptNameDraft}
+                  onChange={(event) => setPromptNameDraft(event.target.value)}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                />
+              </label>
+              <label className="text-sm text-muted-foreground">
+                Service
+                <select
+                  value={promptServiceDraft}
+                  onChange={(event) => setPromptServiceDraft(event.target.value as AiService)}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                >
+                  {AI_SERVICES.map((service) => (
+                    <option key={service} value={service}>
+                      {service}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm text-muted-foreground md:col-span-2">
+                Prompt
+                <textarea
+                  value={promptTextDraft}
+                  onChange={(event) => setPromptTextDraft(event.target.value)}
+                  rows={8}
+                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2"
+                />
+              </label>
+
+              <label className="text-sm text-muted-foreground md:col-span-2">
+                Rules (JSON)
+                <textarea
+                  value={promptRulesDraft}
+                  onChange={(event) => setPromptRulesDraft(event.target.value)}
+                  rows={7}
+                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs"
+                />
+              </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button onClick={savePromptVersion} disabled={promptSaving}>
+                {promptSaving ? "Gemmer..." : "Save changes"}
+              </Button>
+              {editingPromptId ? (
+                <Button
+                  variant="outline"
+                  onClick={() => activatePromptVersion(editingPromptId)}
+                  disabled={promptSaving}
+                >
+                  Activate this version
+                </Button>
+              ) : null}
+            </div>
+          </div>
         </div>
       ) : null}
 
