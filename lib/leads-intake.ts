@@ -1,4 +1,5 @@
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
+import { randomUUID } from "crypto";
 
 const SOURCE_VALUES = ["form", "ai_quote", "booking", "manual", "import"] as const;
 const SERVICE_VALUES = [
@@ -93,8 +94,10 @@ export const buildLeadMetaFromRequest = (request: Request) => {
 
 export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadIntakeOptions = {}) => {
   const supabase = options.useAnonClient ? createSupabaseAnonClient() : createSupabaseServiceClient();
+  const leadId = randomUUID();
 
   const row = {
+    id: leadId,
     source: normalizeSource(input.source),
     service: normalizeService(input.service),
     name: cleanContactField(input.name),
@@ -107,9 +110,9 @@ export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadInta
     meta: sanitizeObject(input.meta)
   };
 
-  const { data, error } = await supabase.from("leads").insert(row).select("id").single();
+  const { error } = await supabase.from("leads").insert(row);
 
-  if (error || !data) {
+  if (error) {
     return {
       ok: false as const,
       leadId: null,
@@ -119,7 +122,7 @@ export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadInta
 
   return {
     ok: true as const,
-    leadId: data.id,
+    leadId,
     error: null
   };
 };
