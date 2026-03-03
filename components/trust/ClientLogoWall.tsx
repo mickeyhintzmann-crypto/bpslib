@@ -11,22 +11,28 @@ type ClientLogoWallProps = {
   variant?: "prominent" | "compact";
 };
 
-const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
+const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string; compact?: boolean }) => {
   const isRigshospitalLogo = /rigshospital/i.test(alt);
+  const itemClass = compact
+    ? "logo-marquee-item flex min-w-[180px] items-center justify-center px-5 py-1 md:min-w-[240px] md:px-7 md:py-1.5"
+    : "logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3";
+  const sizeClass = compact
+    ? isRigshospitalLogo
+      ? "max-h-[58px] max-w-[220px] md:max-h-[75px] md:max-w-[289px]"
+      : "max-h-[96px] max-w-[283px] md:max-h-[122px] md:max-w-[367px]"
+    : isRigshospitalLogo
+      ? "max-h-[68px] max-w-[258px] md:max-h-[88px] md:max-w-[340px]"
+      : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]";
 
   return (
-    <li className="logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3">
+    <li className={itemClass}>
       <Image
         src={src}
         alt={alt}
         width={420}
         height={180}
         sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
-        className={`h-auto w-auto object-contain opacity-100 transition duration-200 ${
-          isRigshospitalLogo
-            ? "max-h-[68px] max-w-[258px] md:max-h-[88px] md:max-w-[340px]"
-            : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]"
-        }`}
+        className={`h-auto w-auto object-contain opacity-100 transition duration-200 ${sizeClass}`}
       />
     </li>
   );
@@ -136,14 +142,14 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </div>
         </div>
 
-        <div className="relative mt-7 overflow-hidden rounded-2xl border border-border/60 bg-white/60 py-2">
+        <div className="relative mt-7 overflow-hidden rounded-2xl border border-border/60 bg-white/60 py-0.5">
           <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 z-[2] w-12" />
           <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 z-[2] w-12" />
 
           <div className="logo-marquee-track-compact">
             <ul className="flex w-max items-center">
               {[...clientLogos, ...clientLogos].map((logo, index) => (
-                <LogoRailItem key={`${logo.src}-compact-${index}`} src={logo.src} alt={logo.alt} />
+                <LogoRailItem key={`${logo.src}-compact-${index}`} src={logo.src} alt={logo.alt} compact />
               ))}
             </ul>
           </div>
