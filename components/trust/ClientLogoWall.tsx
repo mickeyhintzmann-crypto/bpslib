@@ -30,14 +30,14 @@ const LogoCard = ({ src, alt }: { src: string; alt: string }) => {
 
 const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
   return (
-    <li className="logo-marquee-item flex min-w-[180px] items-center justify-center px-6 py-3 md:min-w-[220px] md:px-8 md:py-4">
+    <li className="logo-marquee-item flex min-w-[260px] items-center justify-center px-10 py-6 md:min-w-[360px] md:px-14 md:py-7">
       <Image
         src={src}
         alt={alt}
-        width={280}
-        height={120}
-        sizes="(max-width: 768px) 42vw, (max-width: 1200px) 24vw, 14vw"
-        className="h-auto w-auto max-h-[42px] object-contain opacity-75 grayscale transition duration-200 hover:opacity-100 hover:grayscale-0 md:max-h-[52px]"
+        width={420}
+        height={180}
+        sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
+        className="h-auto w-auto max-h-[74px] max-w-none object-contain opacity-100 transition duration-200 md:max-h-[96px] md:scale-[1.75]"
       />
     </li>
   );
@@ -49,27 +49,26 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
   }
 
   const compact = variant === "compact";
-  const featuredNames = clientLogos.map((item) => item.alt.replace(/\s+logo$/i, "")).slice(0, 6);
   const marqueeLogos = [...clientLogos, ...clientLogos];
 
   if (!compact) {
     return (
-      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-[hsl(220_22%_95%)] py-10 md:py-12">
+      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-[hsl(220_20%_94%)] py-12 md:py-14">
         <div className="mx-auto w-full max-w-[1320px] px-4 md:px-6">
-          <div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:items-center lg:gap-10">
-            <div className="space-y-2 text-center lg:text-left">
-              <p className="text-sm font-medium text-muted-foreground">Et udvalg af</p>
-              <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center lg:gap-12">
+            <div className="space-y-3 text-center lg:text-left">
+              <p className="text-base text-muted-foreground">Et udvalg af</p>
+              <h2 className="font-display text-5xl font-semibold tracking-tight text-foreground md:text-6xl">
                 Vores referencer
               </h2>
-              <p className="text-sm text-muted-foreground md:text-base">
+              <p className="text-base text-muted-foreground md:text-lg">
                 Dokumenteret arbejde for professionelle kunder.
               </p>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl border border-white/80 bg-white/70 py-3 shadow-[0_18px_40px_hsl(220_18%_18%/0.08)] md:py-4">
-              <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-16 md:w-20" />
-              <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-16 md:w-20" />
+            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white py-3 shadow-[0_16px_32px_hsl(220_18%_18%/0.06)] md:py-4">
+              <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-20 md:w-28" />
+              <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-20 md:w-28" />
 
               <div className="logo-marquee-track">
                 <ul className="flex w-max items-center">
@@ -80,38 +79,18 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
               </div>
             </div>
           </div>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-2 lg:justify-start">
-            {featuredNames.map((name) => (
-              <span
-                key={name}
-                className="rounded-full border border-border/65 bg-white px-3 py-1 text-xs font-semibold text-foreground"
-              >
-                {name}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
-            <Button asChild size="lg" className="h-12 px-6">
-              <Link href="/referencer">Se alle referencer</Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary" className="h-12 px-6">
-              <Link href="/cases">Se cases</Link>
-            </Button>
-          </div>
         </div>
 
         <style jsx>{`
           .logo-marquee-track {
             display: flex;
             width: max-content;
-            animation: logoMarquee 42s linear infinite;
+            animation: logoMarquee 54s linear infinite;
             will-change: transform;
           }
 
           .logo-marquee-mask {
-            background: linear-gradient(to right, hsl(0 0% 100% / 0.85), transparent);
+            background: linear-gradient(to right, hsl(0 0% 100% / 1), transparent);
             z-index: 2;
           }
 
@@ -128,11 +107,15 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
             position: absolute;
             right: 0;
             top: 50%;
-            height: 34px;
+            height: 54px;
             width: 1px;
             transform: translateY(-50%);
-            background: hsl(220 14% 84%);
-            opacity: 0.7;
+            background: hsl(220 14% 88%);
+            opacity: 0.85;
+          }
+
+          .logo-marquee-item:last-child::after {
+            opacity: 0;
           }
 
           @keyframes logoMarquee {
@@ -147,6 +130,12 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           @media (prefers-reduced-motion: reduce) {
             .logo-marquee-track {
               animation: none;
+            }
+          }
+
+          @media (max-width: 767px) {
+            .logo-marquee-track {
+              animation-duration: 42s;
             }
           }
         `}</style>
