@@ -38,6 +38,8 @@ export const EmployeesManager = () => {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [credentialsBusyId, setCredentialsBusyId] = useState<string | null>(null);
+  const [activationCodeMessage, setActivationCodeMessage] = useState("");
 
   const loadEmployees = async () => {
     setLoading(true);
@@ -160,6 +162,30 @@ export const EmployeesManager = () => {
     }
   };
 
+  const generateCredentials = async (item: EmployeeItem) => {
+    if (!item.email) {
+      setError("Medarbejder skal have email før login-kode kan oprettes.");
+      return;
+    }
+    setCredentialsBusyId(item.id);
+    setError("");
+    setActivationCodeMessage("");
+    try {
+      const response = await fetch(`/api/admin/employees/${item.id}/credentials`, { method: "POST" });
+      const payload = (await response.json()) as { message?: string; activationCode?: string };
+      if (!response.ok || !payload.activationCode) {
+        setError(payload.message || "Kunne ikke oprette aktiveringskode.");
+        return;
+      }
+      setActivationCodeMessage(`Aktiveringskode for ${item.name}: ${payload.activationCode}`);
+    } catch (fetchError) {
+      console.error(fetchError);
+      setError("Netværksfejl ved oprettelse af aktiveringskode.");
+    } finally {
+      setCredentialsBusyId(null);
+    }
+  };
+
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -180,6 +206,7 @@ export const EmployeesManager = () => {
       </div>
 
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
+      {activationCodeMessage ? <p className="text-sm font-medium text-emerald-700">{activationCodeMessage}</p> : null}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-white">
         <div className="grid grid-cols-[1.6fr_1.8fr_1fr_120px_120px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -213,6 +240,14 @@ export const EmployeesManager = () => {
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => openEdit(item)}>
                     Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => generateCredentials(item)}
+                    disabled={credentialsBusyId === item.id}
+                  >
+                    {credentialsBusyId === item.id ? "Opretter..." : "Login-kode"}
                   </Button>
                   {item.isActive ? (
                     <Button size="sm" variant="outline" onClick={() => deactivateEmployee(item)} disabled={saving}>

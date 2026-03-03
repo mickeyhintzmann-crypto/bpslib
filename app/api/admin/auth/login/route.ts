@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
 
 import { adminSessionCookieName, createAdminSessionToken } from "@/lib/admin-auth";
+import { verifyPassword } from "@/lib/employee-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 type Payload = {
   password?: unknown;
   email?: unknown;
+};
+
+const EMPLOYEE_PASSWORD_MIGRATION = "supabase/migrations/20260304_000080_employee_password_setup.sql";
+
+const isMissingColumn = (message: string | undefined, table: string, column: string) => {
+  const normalized = (message || "").toLowerCase();
+  return (
+    normalized.includes(`column ${table}.${column} does not exist`) ||
+    normalized.includes(`column \"${column}\" of relation \"${table}\" does not exist`) ||
+    normalized.includes(`could not find the '${column}' column of '${table}'`)
+  );
 };
 
 const safeCompare = (left: string, right: string) => {
@@ -40,11 +52,19 @@ export async function POST(request: Request) {
 
     const { data: existingUsers, error: usersError } = await supabase
       .from("admin_users")
-      .select("id, email, name, role, is_active")
+      .select("id, email, name, role, is_active, employee_password_hash, employee_password_set_at")
       .order("created_at", { ascending: true });
 
     if (usersError) {
       const message = usersError.message || "";
+      if (isMissingColumn(message, "admin_users", "employee_password_hash")) {
+        return NextResponse.json(
+          {
+            message: `Employee login-felter mangler i databasen. Kør migrationen ${EMPLOYEE_PASSWORD_MIGRATION}.`
+          },
+          { status: 503 }
+        );
+      }
       if (message.includes("relation") && message.includes("admin_users")) {
         return NextResponse.json(
           {
@@ -85,7 +105,7 @@ export async function POST(request: Request) {
           role: "owner",
           is_active: true
         })
-        .select("id, email, name, role, is_active")
+        .select("id, email, name, role, is_active, employee_password_hash, employee_password_set_at")
         .single();
 
       if (createError || !created) {
@@ -95,6 +115,22 @@ export async function POST(request: Request) {
         );
       }
       selected = created;
+    }
+
+    if (selected.role === "employee") {
+      const hash = typeof selected.employee_password_hash === "string" ? selected.employee_password_hash : "";
+      if (!hash) {
+        return NextResponse.json(
+          {
+            message:
+              "Medarbejderkonto mangler kodeord. Brug førstegangsopsætning på /medarbejder/login med aktiveringskode."
+          },
+          { status: 401 }
+        );
+      }
+      if (!verifyPassword(password, hash)) {
+        return NextResponse.json({ message: "Forkert email eller kodeord." }, { status: 401 });
+      }
     }
 
     const token = createAdminSessionToken({
