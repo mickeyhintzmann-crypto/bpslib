@@ -33,6 +33,27 @@ const icons = [
   </svg>
 ];
 
+const cardToneClasses = [
+  "border-amber-200/70 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/60",
+  "border-sky-200/70 bg-gradient-to-br from-sky-50/70 via-white to-cyan-50/60",
+  "border-emerald-200/70 bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/60",
+  "border-rose-200/70 bg-gradient-to-br from-rose-50/70 via-white to-orange-50/60"
+] as const;
+
+const haloToneClasses = [
+  "bg-amber-300/30 group-hover:bg-amber-300/45",
+  "bg-sky-300/30 group-hover:bg-sky-300/45",
+  "bg-emerald-300/30 group-hover:bg-emerald-300/45",
+  "bg-rose-300/30 group-hover:bg-rose-300/45"
+] as const;
+
+const iconToneClasses = [
+  "border-amber-200/80 bg-white/90 text-amber-700",
+  "border-sky-200/80 bg-white/90 text-sky-700",
+  "border-emerald-200/80 bg-white/90 text-emerald-700",
+  "border-rose-200/80 bg-white/90 text-rose-700"
+] as const;
+
 export const ProblemCards = ({ title, subtitle, items }: ProblemCardsProps) => {
   if (!items.length) {
     return null;
@@ -49,24 +70,30 @@ export const ProblemCards = ({ title, subtitle, items }: ProblemCardsProps) => {
         ) : null}
 
         <div className="mt-7 grid gap-4 md:grid-cols-2">
-          {items.map((item, index) => (
-            <article
-              key={item.title}
-              className="group surface-subtle relative overflow-hidden rounded-[26px] p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_hsl(20_30%_20%/0.12)] md:p-6"
-            >
+          {items.map((item, index) => {
+            const toneIndex = index % cardToneClasses.length;
+
+            return (
+              <article
+                key={item.title}
+                className={`group relative overflow-hidden rounded-[26px] border p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_hsl(20_30%_20%/0.12)] md:p-6 ${cardToneClasses[toneIndex]}`}
+              >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10 blur-xl transition group-hover:bg-primary/20"
+                className={`pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full blur-xl transition ${haloToneClasses[toneIndex]}`}
               />
-              <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-white/80 text-muted-foreground">
+              <div
+                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border ${iconToneClasses[toneIndex]}`}
+              >
                 {icons[index % icons.length]}
               </div>
               <h3 className="relative mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
               <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
                 {item.description}
               </p>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
     </Section>
