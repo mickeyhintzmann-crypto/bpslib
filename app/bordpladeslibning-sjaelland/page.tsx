@@ -271,7 +271,7 @@ export default function BordpladePillarPage() {
     <ServicePageLayout
       title="Bordpladeslibning på Sjælland"
       subtitle="Vi hjælper med slibning, genopbygning og finish af massiv træbordplader. Du får tydelig rådgivning, realistiske priser og et forløb der er let at forstå fra første kontakt."
-      heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_6.HEIC"
+      heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_4.jpg"
       bullets={[
         "Slibning & behandling af massive træbordplader",
         "Få vurdering via billeder – hurtigt og konkret",
