@@ -15,6 +15,10 @@ const MIN_IMAGES = 1;
 const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
+const SERVICE_OPTIONS = [
+  { value: "gulvafslibning", label: "Gulvafslibning" },
+  { value: "bordplade", label: "Bordplade" }
+] as const;
 
 const parseNumber = (value: string) => {
   const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -27,6 +31,7 @@ const parseNumber = (value: string) => {
 
 export const AiTrainingAdmin = () => {
   const [images, setImages] = useState<File[]>([]);
+  const [service, setService] = useState<(typeof SERVICE_OPTIONS)[number]["value"]>("gulvafslibning");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [label, setLabel] = useState("");
@@ -88,6 +93,7 @@ export const AiTrainingAdmin = () => {
 
     try {
       const formData = new FormData();
+      formData.append("service", service);
       formData.append("priceMin", String(parseNumber(priceMin) ?? ""));
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("label", label.trim());
@@ -124,8 +130,8 @@ export const AiTrainingAdmin = () => {
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">AI træning</h1>
         <p className="text-sm text-muted-foreground">
-          Upload 1 billede pr. bordplade, så AI-estimatoren lærer ud fra rigtige cases. Hvert billede
-          skal vise hele bordpladen.
+          Manuel træningsupload. Data bruges kun inden for valgt service, så gulv-træning påvirker ikke
+          bordplade-estimatoren.
         </p>
       </div>
 
@@ -133,9 +139,23 @@ export const AiTrainingAdmin = () => {
       {message ? <p className="text-sm font-medium text-emerald-700">{message}</p> : null}
 
       <div className="space-y-3 rounded-xl border border-border bg-background/70 p-4">
+        <label className="grid gap-2 text-sm text-foreground">
+          Service
+          <select
+            value={service}
+            onChange={(event) => setService(event.target.value as (typeof SERVICE_OPTIONS)[number]["value"])}
+            className="h-10 rounded-md border border-border bg-white px-3"
+          >
+            {SERVICE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <h2 className="text-base font-semibold text-foreground">1) Upload billeder</h2>
         <p className="text-xs text-muted-foreground">
-          Upload 1 billede pr. bordplade. Har du 2 bordplader? Upload 2 billeder.
+          Upload 1-6 billeder pr. træningscase. Brug realistiske billeder fra udførte opgaver.
         </p>
         <label className="grid gap-2 text-sm text-foreground">
           Vælg billeder (JPEG/PNG/WEBP/HEIC)

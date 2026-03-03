@@ -121,6 +121,38 @@ export const getEstimatorAiSettings = async (supabase: SupabaseClient): Promise<
 type EstimatorAiInput = {
   fields?: EstimatorFormFields | null;
   extras?: BordpladeExtras | null;
+  service?: string | null;
+};
+
+const ESTIMATOR_AI_SERVICES = [
+  "bordplade",
+  "gulvafslibning",
+  "gulvbelaegning",
+  "microcement",
+  "maler",
+  "toemrer",
+  "murer",
+  "andet"
+] as const;
+
+type EstimatorAiService = (typeof ESTIMATOR_AI_SERVICES)[number];
+
+const normalizeService = (value: unknown): EstimatorAiService => {
+  if (typeof value !== "string") {
+    return "bordplade";
+  }
+  const cleaned = value.trim().toLowerCase();
+  if (ESTIMATOR_AI_SERVICES.includes(cleaned as EstimatorAiService)) {
+    return cleaned as EstimatorAiService;
+  }
+  return "bordplade";
+};
+
+const getServiceFromFields = (value: unknown): EstimatorAiService => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return "bordplade";
+  }
+  return normalizeService((value as Record<string, unknown>).service);
 };
 
 const getBoardCount = (input?: EstimatorAiInput) => {
@@ -128,6 +160,34 @@ const getBoardCount = (input?: EstimatorAiInput) => {
   return Number.isFinite(boardCountRaw)
     ? Math.max(1, Math.min(6, Math.floor(boardCountRaw as number)))
     : 1;
+};
+
+const parseBoardCount = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(1, Math.min(6, Math.floor(value)));
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(parsed)) {
+      return Math.max(1, Math.min(6, parsed));
+    }
+  }
+  return 1;
+};
+
+const parsePriceRange = (value: unknown) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { min: null as number | null, max: null as number | null };
+  }
+  const obj = value as Record<string, unknown>;
+  const range =
+    obj.price_range && typeof obj.price_range === "object" && !Array.isArray(obj.price_range)
+      ? (obj.price_range as Record<string, unknown>)
+      : {};
+
+  const min = parseSampleNumber(range.min ?? obj.price_min);
+  const max = parseSampleNumber(range.max ?? obj.price_max);
+  return { min, max };
 };
 
 const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorAiInput) => {
@@ -192,6 +252,7 @@ export const estimateAiPrice = async (
   supabase: SupabaseClient,
   input?: EstimatorAiInput
 ): Promise<EstimatorAiEstimate | null> => {
+  const targetService = normalizeService(input?.service ?? input?.fields?.service);
   const settings = await getEstimatorAiSettings(supabase);
 
   if (!settings.enabled) {
@@ -200,21 +261,34 @@ export const estimateAiPrice = async (
     return buildFallbackEstimate(settings, input);
   }
 
-  const { data, error } = await supabase
-    .from("estimator_requests")
-    .select("price_min, price_max, fields")
-    .not("price_min", "is", null)
-    .not("price_max", "is", null)
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const [estimatorResult, aiReviewedResult] = await Promise.all([
+    supabase
+      .from("estimator_requests")
+      .select("price_min, price_max, fields")
+      .not("price_min", "is", null)
+      .not("price_max", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(240),
+    supabase
+      .from("ai_quote_results")
+      .select("review_status, admin_override, output, request:request_id(service, inputs)")
+      .in("review_status", ["approved", "edited"])
+      .order("created_at", { ascending: false })
+      .limit(240)
+  ]);
 
-  if (error) {
-    console.error("Kunne ikke hente estimator samples:", error);
+  if (estimatorResult.error) {
+    console.error("Kunne ikke hente estimator samples:", estimatorResult.error);
     return buildFallbackEstimate(settings, input);
   }
 
-  const samples = (data || [])
+  type SampleRow = { baseMid: number };
+  const estimatorSamples: SampleRow[] = (estimatorResult.data || [])
     .map((row) => {
+      if (getServiceFromFields(row.fields) !== targetService) {
+        return null;
+      }
+
       const min = parseSampleNumber(row.price_min);
       const max = parseSampleNumber(row.price_max);
       if (min === null || max === null) {
@@ -228,7 +302,53 @@ export const estimateAiPrice = async (
 
       return { baseMid };
     })
-    .filter((row): row is { baseMid: number } => Boolean(row));
+    .filter((row): row is SampleRow => Boolean(row));
+
+  const aiReviewedSamples: SampleRow[] = [];
+  if (aiReviewedResult.error) {
+    console.error("Kunne ikke hente AI review samples:", aiReviewedResult.error);
+  } else {
+    type AiReviewedRow = {
+      review_status: string;
+      admin_override: Record<string, unknown> | null;
+      output: Record<string, unknown> | null;
+      request:
+        | { service: string; inputs: Record<string, unknown> | null }
+        | Array<{ service: string; inputs: Record<string, unknown> | null }>
+        | null;
+    };
+
+    ((aiReviewedResult.data || []) as AiReviewedRow[]).forEach((row) => {
+      const request = Array.isArray(row.request) ? row.request[0] || null : row.request;
+      if (normalizeService(request?.service) !== targetService) {
+        return;
+      }
+      const boardCount = parseBoardCount(request?.inputs?.boardCount);
+
+      const overrideRange = parsePriceRange(row.admin_override);
+      const outputRange = parsePriceRange(row.output);
+
+      const min = overrideRange.min ?? outputRange.min;
+      const max = overrideRange.max ?? outputRange.max;
+      if (min === null || max === null || min <= 0 || max <= 0 || max < min) {
+        return;
+      }
+
+      const normalizedBase = ((min + max) / 2) / boardCount;
+      const baseMid = toBaseMid(normalizedBase, normalizedBase);
+      if (!baseMid) {
+        return;
+      }
+
+      // "edited" vurderinger er direkte menneske-korrigerede og vægtes højere.
+      if (row.review_status === "edited") {
+        aiReviewedSamples.push({ baseMid });
+      }
+      aiReviewedSamples.push({ baseMid });
+    });
+  }
+
+  const samples = [...estimatorSamples, ...aiReviewedSamples];
 
   if (samples.length === 0 || samples.length < settings.minSamples) {
     return buildFallbackEstimate(settings, input);

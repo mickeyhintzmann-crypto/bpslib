@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { AI_SERVICES } from "@/lib/ai-estimator-control-room";
 import { auditLog } from "@/lib/audit";
 import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -37,6 +38,17 @@ const parseNumber = (value: string, min: number, max: number) => {
   return rounded;
 };
 
+const parseService = (value: string) => {
+  const cleaned = value.trim().toLowerCase();
+  if (!cleaned) {
+    return null;
+  }
+  if (AI_SERVICES.includes(cleaned as (typeof AI_SERVICES)[number])) {
+    return cleaned;
+  }
+  return null;
+};
+
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return (
@@ -58,6 +70,7 @@ export async function POST(request: Request) {
     const priceMaxRaw = asString(formData.get("priceMax"));
     const label = asString(formData.get("label"));
     const note = asString(formData.get("note"));
+    const service = parseService(asString(formData.get("service")));
 
     const images = formData
       .getAll("images")
@@ -90,7 +103,9 @@ export async function POST(request: Request) {
 
     const boardCount = images.length;
     const aiNote =
-      "Hvert billede repræsenterer én bordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.";
+      service === "bordplade"
+        ? "Hvert billede repræsenterer én bordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade."
+        : "Træningsdata for service, gemt manuelt til intern AI-læring.";
 
     const priceMin = parseNumber(priceMinRaw, 500, 20000);
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
@@ -100,6 +115,9 @@ export async function POST(request: Request) {
     }
     if (priceMin > priceMax) {
       return NextResponse.json({ message: "Prisinterval: min må ikke være større end max." }, { status: 400 });
+    }
+    if (!service) {
+      return NextResponse.json({ message: "Vælg en gyldig service til træning." }, { status: 400 });
     }
 
     const supabase = createSupabaseServiceClient();
@@ -145,6 +163,7 @@ export async function POST(request: Request) {
       navn: label || "Træning",
       telefon: "00000000",
       note: note || undefined,
+      service,
       boardCount,
       aiNote
     };
@@ -187,6 +206,7 @@ export async function POST(request: Request) {
       entityType: "estimator",
       entityId: data.id,
       meta: {
+        service,
         priceMin,
         priceMax,
         imageCount: uploadedImages.length,

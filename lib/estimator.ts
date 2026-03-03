@@ -39,6 +39,7 @@ export type EstimatorFormFields = {
   telefon: string;
   email?: string;
   note?: string;
+  service?: string;
   extras?: BordpladeExtras;
   boardCount?: number;
   aiNote?: string;
