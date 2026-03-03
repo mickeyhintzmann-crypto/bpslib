@@ -11,23 +11,6 @@ type ClientLogoWallProps = {
   variant?: "prominent" | "compact";
 };
 
-const LogoCard = ({ src, alt }: { src: string; alt: string }) => {
-  return (
-    <li
-      className="group flex h-[92px] items-center justify-center rounded-2xl border border-border/70 bg-white px-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <Image
-        src={src}
-        alt={alt}
-        width={320}
-        height={150}
-        sizes="(max-width: 767px) 42vw, 22vw"
-        className="h-auto w-auto max-h-[44px] object-contain transition duration-200 group-hover:scale-[1.02] md:max-h-[50px]"
-      />
-    </li>
-  );
-};
-
 const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
   const isRigshospitalLogo = /rigshospital/i.test(alt);
 
@@ -153,11 +136,18 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </div>
         </div>
 
-        <ul className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {clientLogos.map((logo) => (
-            <LogoCard key={logo.src} src={logo.src} alt={logo.alt} />
-          ))}
-        </ul>
+        <div className="relative mt-7 overflow-hidden rounded-2xl border border-border/60 bg-white/60 py-2">
+          <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 z-[2] w-12" />
+          <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 z-[2] w-12" />
+
+          <div className="logo-marquee-track-compact">
+            <ul className="flex w-max items-center">
+              {[...clientLogos, ...clientLogos].map((logo, index) => (
+                <LogoRailItem key={`${logo.src}-compact-${index}`} src={logo.src} alt={logo.alt} />
+              ))}
+            </ul>
+          </div>
+        </div>
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Button asChild size="sm" className="h-10 px-5">
@@ -173,6 +163,44 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </Button>
         </div>
       </div>
+
+      <style jsx>{`
+        .logo-marquee-track-compact {
+          display: flex;
+          width: max-content;
+          animation: logoMarqueeCompact 48s linear infinite;
+          will-change: transform;
+        }
+
+        .logo-marquee-mask {
+          background: linear-gradient(to right, hsl(0 0% 100% / 1), transparent);
+        }
+
+        .logo-marquee-mask-right {
+          transform: scaleX(-1);
+        }
+
+        @keyframes logoMarqueeCompact {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .logo-marquee-track-compact {
+            animation: none;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .logo-marquee-track-compact {
+            animation-duration: 40s;
+          }
+        }
+      `}</style>
     </Section>
   );
 };
