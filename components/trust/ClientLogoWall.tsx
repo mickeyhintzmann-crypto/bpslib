@@ -13,15 +13,20 @@ type ClientLogoWallProps = {
 
 const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string; compact?: boolean }) => {
   const isRigshospitalLogo = /rigshospital/i.test(alt);
+  const isSkatteministerietLogo = /skatteministeriet/i.test(alt);
   const itemClass = compact
     ? "logo-marquee-item flex min-w-[180px] items-center justify-center px-5 py-1 md:min-w-[240px] md:px-7 md:py-1.5"
     : "logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3";
   const sizeClass = compact
     ? isRigshospitalLogo
       ? "max-h-[58px] max-w-[220px] md:max-h-[75px] md:max-w-[289px]"
+      : isSkatteministerietLogo
+        ? "max-h-[116px] max-w-[340px] md:max-h-[146px] md:max-w-[440px]"
       : "max-h-[96px] max-w-[283px] md:max-h-[122px] md:max-w-[367px]"
     : isRigshospitalLogo
       ? "max-h-[68px] max-w-[258px] md:max-h-[88px] md:max-w-[340px]"
+      : isSkatteministerietLogo
+        ? "max-h-[134px] max-w-[396px] md:max-h-[172px] md:max-w-[518px]"
       : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]";
 
   return (
