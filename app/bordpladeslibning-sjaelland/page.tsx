@@ -183,7 +183,16 @@ const caseGalleryItems = [
   }
 ];
 
-const caseGalleryItemsWithImages = caseGalleryItems.map((item, index) => ({
+const caseGalleryItemsWithImages: Array<
+  (typeof caseGalleryItems)[number] & {
+    image?: {
+      src: string;
+      alt: string;
+      hoverSrc?: string;
+      hoverAlt?: string;
+    };
+  }
+> = caseGalleryItems.map((item, index) => ({
   ...item,
   image: galleryBordplade[index]
     ? {
@@ -192,6 +201,15 @@ const caseGalleryItemsWithImages = caseGalleryItems.map((item, index) => ({
       }
     : undefined
 }));
+
+if (caseGalleryItemsWithImages[0]) {
+  caseGalleryItemsWithImages[0].image = {
+    src: "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
+    alt: "Køkkenbord før slibning med skjolder ved vask",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+    hoverAlt: "Køkkenbord efter slibning med ensartet finish"
+  };
+}
 
 const beforeAfterBordpladePreview = beforeAfterBordplade.slice(0, 4).map((item) => ({
   ...item,

@@ -11,6 +11,8 @@ type CaseGalleryItem = {
   image?: {
     src: string;
     alt: string;
+    hoverSrc?: string;
+    hoverAlt?: string;
   };
 };
 
@@ -55,6 +57,16 @@ export const CaseGallery = ({ title, subtitle, items, cta }: CaseGalleryProps) =
                     sizes="(max-width: 768px) 100vw, 50vw"
                     unoptimized
                   />
+                  {item.image.hoverSrc ? (
+                    <Image
+                      src={item.image.hoverSrc}
+                      alt={item.image.hoverAlt ?? item.image.alt}
+                      fill
+                      className="object-cover opacity-0 transition duration-500 group-hover:opacity-100 group-hover:scale-[1.03]"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      unoptimized
+                    />
+                  ) : null}
                 </div>
               ) : (
                 <div className="aspect-[4/3] rounded-2xl border border-dashed border-border/80 bg-muted/30 p-4">
