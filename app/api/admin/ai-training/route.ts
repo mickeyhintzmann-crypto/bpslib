@@ -65,6 +65,19 @@ const parseService = (value: string) => {
   return null;
 };
 
+const FLOOR_CONDITIONS = ["let", "middel", "kraftig"] as const;
+
+const parseFloorCondition = (value: string) => {
+  const cleaned = value.trim().toLowerCase();
+  if (!cleaned) {
+    return null;
+  }
+  if (FLOOR_CONDITIONS.includes(cleaned as (typeof FLOOR_CONDITIONS)[number])) {
+    return cleaned;
+  }
+  return null;
+};
+
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return (
@@ -86,6 +99,7 @@ export async function POST(request: Request) {
     const priceMaxRaw = asString(formData.get("priceMax"));
     const areaM2Raw = asString(formData.get("areaM2"));
     const description = asString(formData.get("description"));
+    const floorCondition = parseFloorCondition(asString(formData.get("floorCondition")));
     const label = asString(formData.get("label"));
     const note = asString(formData.get("note"));
     const service = parseService(asString(formData.get("service")));
@@ -147,6 +161,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (service === "gulvafslibning" && !floorCondition) {
+      return NextResponse.json({ message: "Vælg gulvets tilstand (let/middel/kraftig)." }, { status: 400 });
+    }
 
     const supabase = createSupabaseServiceClient();
     const requestId = randomUUID();
@@ -194,6 +211,7 @@ export async function POST(request: Request) {
       service,
       areaM2: areaM2 ?? undefined,
       description: description || undefined,
+      floorCondition: floorCondition || undefined,
       boardCount,
       aiNote
     };
@@ -239,6 +257,7 @@ export async function POST(request: Request) {
         service,
         areaM2,
         description: description || null,
+        floorCondition: floorCondition || null,
         priceMin,
         priceMax,
         imageCount: uploadedImages.length,

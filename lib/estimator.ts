@@ -42,6 +42,7 @@ export type EstimatorFormFields = {
   service?: string;
   areaM2?: number;
   description?: string;
+  floorCondition?: string;
   extras?: BordpladeExtras;
   boardCount?: number;
   aiNote?: string;

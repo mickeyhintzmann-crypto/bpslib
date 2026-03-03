@@ -19,6 +19,11 @@ const SERVICE_OPTIONS = [
   { value: "gulvafslibning", label: "Gulvafslibning" },
   { value: "bordplade", label: "Bordplade" }
 ] as const;
+const FLOOR_CONDITION_OPTIONS = [
+  { value: "let", label: "Let slid" },
+  { value: "middel", label: "Middel slid" },
+  { value: "kraftig", label: "Kraftig slid/skader" }
+] as const;
 
 const parseNumber = (value: string) => {
   const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -36,6 +41,7 @@ export const AiTrainingAdmin = () => {
   const [priceMax, setPriceMax] = useState("");
   const [areaM2, setAreaM2] = useState("");
   const [description, setDescription] = useState("");
+  const [floorCondition, setFloorCondition] = useState<(typeof FLOOR_CONDITION_OPTIONS)[number]["value"]>("middel");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -86,6 +92,9 @@ export const AiTrainingAdmin = () => {
       if (!description.trim()) {
         return "Tilføj kort beskrivelse (træsort, behandling, stand).";
       }
+      if (!floorCondition) {
+        return "Vælg gulvets tilstand.";
+      }
     }
 
     return null;
@@ -109,6 +118,7 @@ export const AiTrainingAdmin = () => {
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
       formData.append("areaM2", areaM2.trim());
       formData.append("description", description.trim());
+      formData.append("floorCondition", floorCondition);
       formData.append("label", label.trim());
       formData.append("note", note.trim());
       images.forEach((file) => formData.append("images", file));
@@ -130,6 +140,7 @@ export const AiTrainingAdmin = () => {
       setPriceMax("");
       setAreaM2("");
       setDescription("");
+      setFloorCondition("middel");
       setLabel("");
       setNote("");
     } catch (submitError) {
@@ -191,6 +202,24 @@ export const AiTrainingAdmin = () => {
       </div>
 
       <div className="grid gap-4 rounded-xl border border-border bg-background/70 p-4 md:grid-cols-2">
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Gulvets tilstand
+            <select
+              value={floorCondition}
+              onChange={(event) =>
+                setFloorCondition(event.target.value as (typeof FLOOR_CONDITION_OPTIONS)[number]["value"])
+              }
+              className="h-10 rounded-md border border-border bg-white px-3"
+            >
+              {FLOOR_CONDITION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         {service === "gulvafslibning" ? (
           <label className="grid gap-2 text-sm text-foreground">
             Areal (m2)

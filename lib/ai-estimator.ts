@@ -213,6 +213,20 @@ const getAreaM2FromFields = (value: unknown) => {
   return parseAreaM2((value as Record<string, unknown>).areaM2);
 };
 
+const normalizeFloorCondition = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const cleaned = value.trim().toLowerCase();
+  if (!cleaned) {
+    return null;
+  }
+  if (cleaned === "let" || cleaned === "middel" || cleaned === "kraftig") {
+    return cleaned;
+  }
+  return null;
+};
+
 const parseBoardCount = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return Math.max(1, Math.min(6, Math.floor(value)));
@@ -347,12 +361,17 @@ export const estimateAiPrice = async (
     return buildFallbackEstimate(settings, targetService, input);
   }
 
-  type SampleRow = { baseMid: number };
+  type SampleRow = { baseMid: number; floorCondition: string | null };
   const estimatorSamples: SampleRow[] = (estimatorResult.data || [])
     .map((row) => {
       if (getServiceFromFields(row.fields) !== targetService) {
         return null;
       }
+      const floorCondition = normalizeFloorCondition(
+        row.fields && typeof row.fields === "object" && !Array.isArray(row.fields)
+          ? (row.fields as Record<string, unknown>).floorCondition
+          : null
+      );
 
       const min = parseSampleNumber(row.price_min);
       const max = parseSampleNumber(row.price_max);
@@ -378,7 +397,7 @@ export const estimateAiPrice = async (
         return null;
       }
 
-      return { baseMid };
+      return { baseMid, floorCondition };
     })
     .filter((row): row is SampleRow => Boolean(row));
 
@@ -407,6 +426,7 @@ export const estimateAiPrice = async (
           ? ((request.inputs as Record<string, unknown>).fields as Record<string, unknown> | undefined)
           : undefined;
       const areaM2 = parseAreaM2(inputFields?.areaM2 ?? (request?.inputs as Record<string, unknown> | null)?.areaM2);
+      const floorCondition = normalizeFloorCondition(inputFields?.floorCondition);
 
       const overrideRange = parsePriceRange(row.admin_override);
       const outputRange = parsePriceRange(row.output);
@@ -429,15 +449,22 @@ export const estimateAiPrice = async (
 
       // "edited" vurderinger er direkte menneske-korrigerede og vægtes højere.
       if (row.review_status === "edited") {
-        aiReviewedSamples.push({ baseMid });
+        aiReviewedSamples.push({ baseMid, floorCondition });
       }
-      aiReviewedSamples.push({ baseMid });
+      aiReviewedSamples.push({ baseMid, floorCondition });
     });
   }
 
   const samples = [...estimatorSamples, ...aiReviewedSamples];
+  const wantedFloorCondition = normalizeFloorCondition(input?.fields?.floorCondition);
+  const conditionedSamples =
+    targetService === "gulvafslibning" && wantedFloorCondition
+      ? samples.filter((sample) => sample.floorCondition === wantedFloorCondition)
+      : [];
+  const activeSamples =
+    conditionedSamples.length >= Math.max(1, settings.minSamples) ? conditionedSamples : samples;
 
-  if (samples.length === 0 || samples.length < settings.minSamples) {
+  if (activeSamples.length === 0 || activeSamples.length < settings.minSamples) {
     return buildFallbackEstimate(settings, targetService, input);
   }
 
@@ -449,7 +476,7 @@ export const estimateAiPrice = async (
   let baseMin: number;
   let baseMax: number;
 
-  const avgBase = samples.reduce((sum, row) => sum + row.baseMid, 0) / samples.length;
+  const avgBase = activeSamples.reduce((sum, row) => sum + row.baseMid, 0) / activeSamples.length;
   baseMin = Math.round(avgBase - halfInterval);
   baseMax = Math.round(avgBase + halfInterval);
 
@@ -496,6 +523,6 @@ export const estimateAiPrice = async (
   return {
     min,
     max,
-    sampleCount: samples.length
+    sampleCount: activeSamples.length
   };
 };
