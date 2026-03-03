@@ -82,6 +82,18 @@ function normalizeForMatch(value) {
     .trim();
 }
 
+function toCanonicalMatch(value) {
+  return value
+    .toLowerCase()
+    .replace(/^case[-_ ]*\d+[:._-]*/i, "")
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "oe")
+    .replace(/å/g, "aa")
+    .replace(/\.(svg|png|jpe?g|webp)$/i, "")
+    .replace(/\blogo\b/g, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
 function toDisplayName(clientId) {
   const formatted = clientId
     .replace(/^case[-_ ]*\d+[:._-]*/i, "")
@@ -146,10 +158,13 @@ for (const clientDir of clientDirs) {
   const clientId = path.basename(clientDir);
   const clientName = toDisplayName(clientId) || clientId;
   const normalizedClientId = normalizeForMatch(clientId);
+  const canonicalClientId = toCanonicalMatch(clientId);
 
   const logoFile =
     logoFiles.find((fileName) => normalizeForMatch(fileName).includes(normalizedClientId)) ??
-    logoFiles.find((fileName) => normalizedClientId.includes(normalizeForMatch(fileName)));
+    logoFiles.find((fileName) => normalizedClientId.includes(normalizeForMatch(fileName))) ??
+    logoFiles.find((fileName) => toCanonicalMatch(fileName).includes(canonicalClientId)) ??
+    logoFiles.find((fileName) => canonicalClientId.includes(toCanonicalMatch(fileName)));
 
   const clientLogoSrc = logoFile ? toWebPath(path.join(logosRoot, logoFile)) : undefined;
 

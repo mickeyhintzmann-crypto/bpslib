@@ -87,6 +87,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-004:sengeloese-kro",
     "clientId": "case-004:sengeloese-kro",
     "clientName": "Sengeloese Kro",
+    "clientLogoSrc": "/media/logos/clients/sengeloesekro.logo.svg",
     "title": "Opgave for Sengeloese Kro",
     "coverSrc": "/media/cases/enterprise/case-004%3Asengeloese-kro/sengeloese-kro%3Acase-003%3A01-after.jpg",
     "imageSrcs": [
