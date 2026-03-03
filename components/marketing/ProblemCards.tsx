@@ -34,24 +34,24 @@ const icons = [
 ];
 
 const cardToneClasses = [
-  "border-amber-200/70 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/60",
-  "border-sky-200/70 bg-gradient-to-br from-sky-50/70 via-white to-cyan-50/60",
-  "border-emerald-200/70 bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/60",
-  "border-rose-200/70 bg-gradient-to-br from-rose-50/70 via-white to-orange-50/60"
+  "border-amber-300/90 bg-gradient-to-br from-amber-100/90 via-amber-50/85 to-orange-100/80",
+  "border-sky-300/90 bg-gradient-to-br from-sky-100/90 via-sky-50/85 to-cyan-100/80",
+  "border-emerald-300/90 bg-gradient-to-br from-emerald-100/90 via-emerald-50/85 to-teal-100/80",
+  "border-rose-300/90 bg-gradient-to-br from-rose-100/90 via-rose-50/85 to-orange-100/80"
 ] as const;
 
 const haloToneClasses = [
-  "bg-amber-300/30 group-hover:bg-amber-300/45",
-  "bg-sky-300/30 group-hover:bg-sky-300/45",
-  "bg-emerald-300/30 group-hover:bg-emerald-300/45",
-  "bg-rose-300/30 group-hover:bg-rose-300/45"
+  "bg-amber-400/40 group-hover:bg-amber-400/60",
+  "bg-sky-400/40 group-hover:bg-sky-400/60",
+  "bg-emerald-400/40 group-hover:bg-emerald-400/60",
+  "bg-rose-400/40 group-hover:bg-rose-400/60"
 ] as const;
 
 const iconToneClasses = [
-  "border-amber-200/80 bg-white/90 text-amber-700",
-  "border-sky-200/80 bg-white/90 text-sky-700",
-  "border-emerald-200/80 bg-white/90 text-emerald-700",
-  "border-rose-200/80 bg-white/90 text-rose-700"
+  "border-amber-300/90 bg-amber-100/95 text-amber-800",
+  "border-sky-300/90 bg-sky-100/95 text-sky-800",
+  "border-emerald-300/90 bg-emerald-100/95 text-emerald-800",
+  "border-rose-300/90 bg-rose-100/95 text-rose-800"
 ] as const;
 
 export const ProblemCards = ({ title, subtitle, items }: ProblemCardsProps) => {
