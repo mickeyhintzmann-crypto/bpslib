@@ -24,8 +24,8 @@ const stats = [
 export const SpecialistSection = () => {
   return (
     <section className="py-9 md:py-12">
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="relative">
+      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+        <div className="relative min-h-[360px] lg:min-h-0">
           <BpsImage
             src={homeAssets.specialist}
             alt="Bordpladeslibning i køkken"
@@ -37,7 +37,7 @@ export const SpecialistSection = () => {
             15+ års erfaring
           </div>
         </div>
-        <div className="surface-panel space-y-5 rounded-[28px] p-6 md:p-7">
+        <div className="surface-panel h-full space-y-5 rounded-[28px] p-6 md:p-7">
           <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Vores speciale
           </span>

@@ -12,7 +12,7 @@ export const trustAssets = {
 
 export const homeAssets = {
   hero: "/images/home/hero.jpg",
-  specialist: "/images/home/specialist.jpg",
+  specialist: "/media/featured%3Abordplade/20210302_160950.jpg",
   estimator: "/images/home/ai-estimator.jpg",
   booking: "/images/home/booking.jpg",
   about: "/images/home/about.jpg",
