@@ -60,6 +60,12 @@ export async function POST(request: Request) {
     let activeUsers = (existingUsers || []).filter((user) => user.is_active !== false);
     if (emailHint) {
       activeUsers = activeUsers.filter((user) => user.email?.toLowerCase() === emailHint);
+      if (activeUsers.length === 0) {
+        return NextResponse.json(
+          { message: "Ingen aktiv bruger fundet med den email." },
+          { status: 401 }
+        );
+      }
     }
 
     const pickByRole = (role: string) => activeUsers.find((user) => user.role === role);

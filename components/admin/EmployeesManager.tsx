@@ -8,6 +8,7 @@ type EmployeeItem = {
   id: string;
   createdAt: string;
   name: string;
+  email: string | null;
   role: string;
   isActive: boolean;
   calendarColor: string | null;
@@ -20,6 +21,7 @@ type EmployeesResponse = {
 
 const emptyForm = {
   name: "",
+  email: "",
   role: "worker",
   calendarColor: "#f97316",
   isActive: true
@@ -82,6 +84,7 @@ export const EmployeesManager = () => {
     setEditingId(item.id);
     setForm({
       name: item.name,
+      email: item.email || "",
       role: item.role || "worker",
       calendarColor: item.calendarColor || "#f97316",
       isActive: item.isActive
@@ -105,6 +108,7 @@ export const EmployeesManager = () => {
         },
         body: JSON.stringify({
           name: form.name,
+          email: form.email,
           role: form.role,
           calendar_color: form.calendarColor,
           is_active: form.isActive
@@ -178,8 +182,9 @@ export const EmployeesManager = () => {
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-white">
-        <div className="grid grid-cols-[2fr_1fr_120px_120px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="grid grid-cols-[1.6fr_1.8fr_1fr_120px_120px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <span>Navn</span>
+          <span>Email (login)</span>
           <span>Rolle</span>
           <span>Aktiv</span>
           <span>Handling</span>
@@ -192,7 +197,7 @@ export const EmployeesManager = () => {
             </p>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="grid grid-cols-[2fr_1fr_120px_120px] items-center gap-2 px-4 py-3 text-sm">
+              <div key={item.id} className="grid grid-cols-[1.6fr_1.8fr_1fr_120px_120px] items-center gap-2 px-4 py-3 text-sm">
                 <div className="flex items-center gap-2 text-foreground">
                   <span
                     className="inline-block h-3 w-3 rounded-full border border-border"
@@ -200,6 +205,7 @@ export const EmployeesManager = () => {
                   />
                   <span>{item.name}</span>
                 </div>
+                <span className="text-muted-foreground">{item.email || "-"}</span>
                 <span className="text-muted-foreground">{item.role || "worker"}</span>
                 <span className={item.isActive ? "text-emerald-700" : "text-slate-500"}>
                   {item.isActive ? "Ja" : "Nej"}
@@ -244,6 +250,16 @@ export const EmployeesManager = () => {
                   value={form.name}
                   onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                   className="mt-2 h-10 w-full rounded-md border border-border bg-white px-3"
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-muted-foreground">
+                Email (bruges til medarbejder-login)
+                <input
+                  value={form.email}
+                  onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                  className="mt-2 h-10 w-full rounded-md border border-border bg-white px-3"
+                  placeholder="fx medarbejder@bpslib.dk"
                 />
               </label>
 

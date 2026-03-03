@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
+const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -13,6 +14,7 @@ type EmployeeRow = {
   id: string;
   created_at: string;
   name: string;
+  email: string | null;
   role: string;
   is_active: boolean;
   calendar_color: string | null;
@@ -33,6 +35,15 @@ const isMissingTable = (message: string | undefined, table: string) => {
   );
 };
 
+const isMissingColumn = (message: string | undefined, table: string, column: string) => {
+  const normalized = (message || "").toLowerCase();
+  return (
+    normalized.includes(`column ${table}.${column} does not exist`) ||
+    normalized.includes(`column \"${column}\" of relation \"${table}\" does not exist`) ||
+    normalized.includes(`could not find the '${column}' column of '${table}'`)
+  );
+};
+
 const resolveId = async (context: RouteContext) => {
   const params = await context.params;
   return params?.id || "";
@@ -42,6 +53,7 @@ const toItem = (row: EmployeeRow) => ({
   id: row.id,
   createdAt: row.created_at,
   name: row.name,
+  email: row.email,
   role: row.role,
   isActive: row.is_active,
   calendarColor: row.calendar_color
@@ -74,6 +86,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       updates.role = asTrimmed(payload.role) || "worker";
     }
 
+    if (Object.prototype.hasOwnProperty.call(payload, "email")) {
+      updates.email = asOptionalString(payload.email)?.toLowerCase() || null;
+    }
+
     if (Object.prototype.hasOwnProperty.call(payload, "calendar_color")) {
       updates.calendar_color = asOptionalString(payload.calendar_color);
     }
@@ -91,10 +107,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       .from("employees")
       .update(updates)
       .eq("id", id)
-      .select("id, created_at, name, role, is_active, calendar_color")
+      .select("id, created_at, name, email, role, is_active, calendar_color")
       .single();
 
     if (error || !data) {
+      if (isMissingColumn(error?.message, "employees", "email")) {
+        return NextResponse.json(
+          { message: `Employees-email mangler. Kør migrationen ${EMPLOYEE_PORTAL_MIGRATION}.` },
+          { status: 503 }
+        );
+      }
       if (isMissingTable(error?.message, "employees")) {
         return NextResponse.json(
           {
@@ -131,10 +153,16 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       .from("employees")
       .update({ is_active: false })
       .eq("id", id)
-      .select("id, created_at, name, role, is_active, calendar_color")
+      .select("id, created_at, name, email, role, is_active, calendar_color")
       .single();
 
     if (error || !data) {
+      if (isMissingColumn(error?.message, "employees", "email")) {
+        return NextResponse.json(
+          { message: `Employees-email mangler. Kør migrationen ${EMPLOYEE_PORTAL_MIGRATION}.` },
+          { status: 503 }
+        );
+      }
       if (isMissingTable(error?.message, "employees")) {
         return NextResponse.json(
           {
