@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -21,7 +22,17 @@ export const MassivTraeCallout = () => {
             </ul>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="space-y-4">
+          <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-muted/30">
+            <Image
+              src="/media/featured%3Abordplade/20210308_105216.jpg"
+              alt="Massiv bordplade vurdering"
+              width={720}
+              height={540}
+              sizes="(max-width: 767px) 100vw, 34vw"
+              className="h-52 w-full object-cover md:h-56"
+            />
+          </div>
           <Button asChild>
             <Link href="/bordpladeslibning/prisberegner">Upload og få vurdering</Link>
           </Button>
