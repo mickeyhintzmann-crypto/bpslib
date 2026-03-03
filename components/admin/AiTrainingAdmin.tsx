@@ -24,6 +24,16 @@ const FLOOR_CONDITION_OPTIONS = [
   { value: "middel", label: "Middel slid" },
   { value: "kraftig", label: "Kraftig slid/skader" }
 ] as const;
+const FLOOR_TREATMENT_OPTIONS = [
+  { value: "lak", label: "Lak" },
+  { value: "olie", label: "Olie" },
+  { value: "saebe", label: "Sæbe" },
+  { value: "ukendt", label: "Ukendt" }
+] as const;
+const PROPERTY_TYPE_OPTIONS = [
+  { value: "hus", label: "Hus" },
+  { value: "lejlighed", label: "Lejlighed" }
+] as const;
 
 const parseNumber = (value: string) => {
   const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -42,6 +52,12 @@ export const AiTrainingAdmin = () => {
   const [areaM2, setAreaM2] = useState("");
   const [description, setDescription] = useState("");
   const [floorCondition, setFloorCondition] = useState<(typeof FLOOR_CONDITION_OPTIONS)[number]["value"]>("middel");
+  const [floorTreatment, setFloorTreatment] = useState<(typeof FLOOR_TREATMENT_OPTIONS)[number]["value"]>("ukendt");
+  const [postalCode, setPostalCode] = useState("");
+  const [propertyType, setPropertyType] = useState<(typeof PROPERTY_TYPE_OPTIONS)[number]["value"]>("hus");
+  const [apartmentFloor, setApartmentFloor] = useState("");
+  const [hasDoorThresholds, setHasDoorThresholds] = useState(false);
+  const [doorThresholdCount, setDoorThresholdCount] = useState("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -95,6 +111,24 @@ export const AiTrainingAdmin = () => {
       if (!floorCondition) {
         return "Vælg gulvets tilstand.";
       }
+      if (!floorTreatment) {
+        return "Vælg nuværende behandling.";
+      }
+      if (!/^\d{4}$/.test(postalCode.trim())) {
+        return "Angiv gyldigt postnummer (4 cifre).";
+      }
+      if (!propertyType) {
+        return "Vælg boligtype (hus/lejlighed).";
+      }
+      if (propertyType === "lejlighed" && !apartmentFloor.trim()) {
+        return "Angiv sal for lejlighed.";
+      }
+      if (hasDoorThresholds) {
+        const thresholdCount = Number.parseInt(doorThresholdCount.trim(), 10);
+        if (!Number.isFinite(thresholdCount) || thresholdCount < 1 || thresholdCount > 30) {
+          return "Angiv antal dørtrin (1-30).";
+        }
+      }
     }
 
     return null;
@@ -119,6 +153,12 @@ export const AiTrainingAdmin = () => {
       formData.append("areaM2", areaM2.trim());
       formData.append("description", description.trim());
       formData.append("floorCondition", floorCondition);
+      formData.append("floorTreatment", floorTreatment);
+      formData.append("postalCode", postalCode.trim());
+      formData.append("propertyType", propertyType);
+      formData.append("apartmentFloor", apartmentFloor.trim());
+      formData.append("hasDoorThresholds", hasDoorThresholds ? "true" : "false");
+      formData.append("doorThresholdCount", doorThresholdCount.trim());
       formData.append("label", label.trim());
       formData.append("note", note.trim());
       images.forEach((file) => formData.append("images", file));
@@ -141,6 +181,12 @@ export const AiTrainingAdmin = () => {
       setAreaM2("");
       setDescription("");
       setFloorCondition("middel");
+      setFloorTreatment("ukendt");
+      setPostalCode("");
+      setPropertyType("hus");
+      setApartmentFloor("");
+      setHasDoorThresholds(false);
+      setDoorThresholdCount("");
       setLabel("");
       setNote("");
     } catch (submitError) {
@@ -222,6 +268,24 @@ export const AiTrainingAdmin = () => {
         ) : null}
         {service === "gulvafslibning" ? (
           <label className="grid gap-2 text-sm text-foreground">
+            Nuværende behandling
+            <select
+              value={floorTreatment}
+              onChange={(event) =>
+                setFloorTreatment(event.target.value as (typeof FLOOR_TREATMENT_OPTIONS)[number]["value"])
+              }
+              className="h-10 rounded-md border border-border bg-white px-3"
+            >
+              {FLOOR_TREATMENT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
             Areal (m2)
             <input
               value={areaM2}
@@ -229,6 +293,72 @@ export const AiTrainingAdmin = () => {
               inputMode="decimal"
               className="h-10 rounded-md border border-border bg-white px-3"
               placeholder="fx 42.5"
+            />
+          </label>
+        ) : null}
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Postnummer
+            <input
+              value={postalCode}
+              onChange={(event) => setPostalCode(event.target.value)}
+              inputMode="numeric"
+              className="h-10 rounded-md border border-border bg-white px-3"
+              placeholder="fx 2100"
+            />
+          </label>
+        ) : null}
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Boligtype
+            <select
+              value={propertyType}
+              onChange={(event) =>
+                setPropertyType(event.target.value as (typeof PROPERTY_TYPE_OPTIONS)[number]["value"])
+              }
+              className="h-10 rounded-md border border-border bg-white px-3"
+            >
+              {PROPERTY_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {service === "gulvafslibning" && propertyType === "lejlighed" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Sal
+            <input
+              value={apartmentFloor}
+              onChange={(event) => setApartmentFloor(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3"
+              placeholder="fx 3. sal"
+            />
+          </label>
+        ) : null}
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Dørtrin
+            <select
+              value={hasDoorThresholds ? "ja" : "nej"}
+              onChange={(event) => setHasDoorThresholds(event.target.value === "ja")}
+              className="h-10 rounded-md border border-border bg-white px-3"
+            >
+              <option value="nej">Nej</option>
+              <option value="ja">Ja</option>
+            </select>
+          </label>
+        ) : null}
+        {service === "gulvafslibning" && hasDoorThresholds ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Antal dørtrin
+            <input
+              value={doorThresholdCount}
+              onChange={(event) => setDoorThresholdCount(event.target.value)}
+              inputMode="numeric"
+              className="h-10 rounded-md border border-border bg-white px-3"
+              placeholder="fx 6"
             />
           </label>
         ) : null}

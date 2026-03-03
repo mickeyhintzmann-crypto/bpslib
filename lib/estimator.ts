@@ -43,6 +43,12 @@ export type EstimatorFormFields = {
   areaM2?: number;
   description?: string;
   floorCondition?: string;
+  floorTreatment?: string;
+  postalCode?: string;
+  propertyType?: string;
+  apartmentFloor?: string;
+  hasDoorThresholds?: boolean;
+  doorThresholdCount?: number;
   extras?: BordpladeExtras;
   boardCount?: number;
   aiNote?: string;

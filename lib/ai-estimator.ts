@@ -227,6 +227,123 @@ const normalizeFloorCondition = (value: unknown) => {
   return null;
 };
 
+const normalizeFloorTreatment = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const cleaned = value.trim().toLowerCase();
+  if (cleaned === "lak" || cleaned === "olie" || cleaned === "saebe" || cleaned === "ukendt") {
+    return cleaned;
+  }
+  return null;
+};
+
+const normalizePropertyType = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const cleaned = value.trim().toLowerCase();
+  if (cleaned === "hus" || cleaned === "lejlighed") {
+    return cleaned;
+  }
+  return null;
+};
+
+const normalizePostalCode = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const cleaned = value.trim();
+  if (/^\d{4}$/.test(cleaned)) {
+    return cleaned;
+  }
+  return null;
+};
+
+const normalizeBool = (value: unknown) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    const cleaned = value.trim().toLowerCase();
+    if (cleaned === "true") {
+      return true;
+    }
+    if (cleaned === "false") {
+      return false;
+    }
+  }
+  return null;
+};
+
+const normalizePositiveInt = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const rounded = Math.round(value);
+    return rounded >= 0 ? rounded : null;
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+type GulvProfile = {
+  floorCondition: string | null;
+  floorTreatment: string | null;
+  propertyType: string | null;
+  postalPrefix: string | null;
+  hasDoorThresholds: boolean | null;
+  thresholdBand: "none" | "few" | "many" | null;
+};
+
+const getThresholdBand = (count: number | null) => {
+  if (count === null) {
+    return null;
+  }
+  if (count <= 0) {
+    return "none" as const;
+  }
+  if (count <= 4) {
+    return "few" as const;
+  }
+  return "many" as const;
+};
+
+const emptyGulvProfile = (): GulvProfile => ({
+  floorCondition: null,
+  floorTreatment: null,
+  propertyType: null,
+  postalPrefix: null,
+  hasDoorThresholds: null,
+  thresholdBand: null
+});
+
+const getGulvProfileFromFields = (value: unknown): GulvProfile => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return emptyGulvProfile();
+  }
+  const raw = value as Record<string, unknown>;
+  const fields =
+    raw.fields && typeof raw.fields === "object" && !Array.isArray(raw.fields)
+      ? (raw.fields as Record<string, unknown>)
+      : raw;
+  const postalCode = normalizePostalCode(fields.postalCode);
+  const hasDoorThresholds = normalizeBool(fields.hasDoorThresholds);
+  const thresholdCount = normalizePositiveInt(fields.doorThresholdCount);
+  return {
+    floorCondition: normalizeFloorCondition(fields.floorCondition),
+    floorTreatment: normalizeFloorTreatment(fields.floorTreatment),
+    propertyType: normalizePropertyType(fields.propertyType),
+    postalPrefix: postalCode ? postalCode.slice(0, 2) : null,
+    hasDoorThresholds,
+    thresholdBand:
+      hasDoorThresholds === false ? "none" : hasDoorThresholds === true ? getThresholdBand(thresholdCount) : null
+  };
+};
+
 const parseBoardCount = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return Math.max(1, Math.min(6, Math.floor(value)));
@@ -361,17 +478,13 @@ export const estimateAiPrice = async (
     return buildFallbackEstimate(settings, targetService, input);
   }
 
-  type SampleRow = { baseMid: number; floorCondition: string | null };
+  type SampleRow = { baseMid: number; profile: GulvProfile };
   const estimatorSamples: SampleRow[] = (estimatorResult.data || [])
     .map((row) => {
       if (getServiceFromFields(row.fields) !== targetService) {
         return null;
       }
-      const floorCondition = normalizeFloorCondition(
-        row.fields && typeof row.fields === "object" && !Array.isArray(row.fields)
-          ? (row.fields as Record<string, unknown>).floorCondition
-          : null
-      );
+      const profile = getGulvProfileFromFields(row.fields);
 
       const min = parseSampleNumber(row.price_min);
       const max = parseSampleNumber(row.price_max);
@@ -397,7 +510,7 @@ export const estimateAiPrice = async (
         return null;
       }
 
-      return { baseMid, floorCondition };
+      return { baseMid, profile };
     })
     .filter((row): row is SampleRow => Boolean(row));
 
@@ -426,7 +539,7 @@ export const estimateAiPrice = async (
           ? ((request.inputs as Record<string, unknown>).fields as Record<string, unknown> | undefined)
           : undefined;
       const areaM2 = parseAreaM2(inputFields?.areaM2 ?? (request?.inputs as Record<string, unknown> | null)?.areaM2);
-      const floorCondition = normalizeFloorCondition(inputFields?.floorCondition);
+      const profile = getGulvProfileFromFields(inputFields ?? request?.inputs);
 
       const overrideRange = parsePriceRange(row.admin_override);
       const outputRange = parsePriceRange(row.output);
@@ -449,20 +562,46 @@ export const estimateAiPrice = async (
 
       // "edited" vurderinger er direkte menneske-korrigerede og vægtes højere.
       if (row.review_status === "edited") {
-        aiReviewedSamples.push({ baseMid, floorCondition });
+        aiReviewedSamples.push({ baseMid, profile });
       }
-      aiReviewedSamples.push({ baseMid, floorCondition });
+      aiReviewedSamples.push({ baseMid, profile });
     });
   }
 
   const samples = [...estimatorSamples, ...aiReviewedSamples];
-  const wantedFloorCondition = normalizeFloorCondition(input?.fields?.floorCondition);
-  const conditionedSamples =
-    targetService === "gulvafslibning" && wantedFloorCondition
-      ? samples.filter((sample) => sample.floorCondition === wantedFloorCondition)
-      : [];
-  const activeSamples =
-    conditionedSamples.length >= Math.max(1, settings.minSamples) ? conditionedSamples : samples;
+  const wantedProfile = getGulvProfileFromFields(input?.fields);
+
+  const withProfile = (predicate: (profile: GulvProfile) => boolean) =>
+    samples.filter((sample) => predicate(sample.profile));
+
+  let activeSamples = samples;
+  if (targetService === "gulvafslibning") {
+    const tier1 = withProfile(
+      (profile) =>
+        profile.floorCondition === wantedProfile.floorCondition &&
+        profile.floorTreatment === wantedProfile.floorTreatment &&
+        profile.propertyType === wantedProfile.propertyType &&
+        profile.hasDoorThresholds === wantedProfile.hasDoorThresholds &&
+        profile.thresholdBand === wantedProfile.thresholdBand
+    );
+    const tier2 = withProfile(
+      (profile) =>
+        profile.floorCondition === wantedProfile.floorCondition &&
+        profile.floorTreatment === wantedProfile.floorTreatment
+    );
+    const tier3 = withProfile((profile) => profile.floorCondition === wantedProfile.floorCondition);
+    const tier4 = withProfile((profile) => profile.postalPrefix === wantedProfile.postalPrefix);
+
+    if (tier1.length >= settings.minSamples) {
+      activeSamples = tier1;
+    } else if (tier2.length >= settings.minSamples) {
+      activeSamples = tier2;
+    } else if (tier3.length >= settings.minSamples) {
+      activeSamples = tier3;
+    } else if (tier4.length >= settings.minSamples) {
+      activeSamples = tier4;
+    }
+  }
 
   if (activeSamples.length === 0 || activeSamples.length < settings.minSamples) {
     return buildFallbackEstimate(settings, targetService, input);

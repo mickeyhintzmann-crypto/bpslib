@@ -66,6 +66,8 @@ const parseService = (value: string) => {
 };
 
 const FLOOR_CONDITIONS = ["let", "middel", "kraftig"] as const;
+const FLOOR_TREATMENTS = ["lak", "olie", "saebe", "ukendt"] as const;
+const PROPERTY_TYPES = ["hus", "lejlighed"] as const;
 
 const parseFloorCondition = (value: string) => {
   const cleaned = value.trim().toLowerCase();
@@ -77,6 +79,41 @@ const parseFloorCondition = (value: string) => {
   }
   return null;
 };
+
+const parseFloorTreatment = (value: string) => {
+  const cleaned = value.trim().toLowerCase();
+  if (!cleaned) {
+    return null;
+  }
+  if (FLOOR_TREATMENTS.includes(cleaned as (typeof FLOOR_TREATMENTS)[number])) {
+    return cleaned;
+  }
+  return null;
+};
+
+const parsePropertyType = (value: string) => {
+  const cleaned = value.trim().toLowerCase();
+  if (!cleaned) {
+    return null;
+  }
+  if (PROPERTY_TYPES.includes(cleaned as (typeof PROPERTY_TYPES)[number])) {
+    return cleaned;
+  }
+  return null;
+};
+
+const parsePostalCode = (value: string) => {
+  const cleaned = value.trim();
+  if (!cleaned) {
+    return null;
+  }
+  if (!/^\d{4}$/.test(cleaned)) {
+    return null;
+  }
+  return cleaned;
+};
+
+const parseBool = (value: string) => value.trim().toLowerCase() === "true";
 
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
@@ -100,6 +137,12 @@ export async function POST(request: Request) {
     const areaM2Raw = asString(formData.get("areaM2"));
     const description = asString(formData.get("description"));
     const floorCondition = parseFloorCondition(asString(formData.get("floorCondition")));
+    const floorTreatment = parseFloorTreatment(asString(formData.get("floorTreatment")));
+    const postalCode = parsePostalCode(asString(formData.get("postalCode")));
+    const propertyType = parsePropertyType(asString(formData.get("propertyType")));
+    const apartmentFloor = asString(formData.get("apartmentFloor"));
+    const hasDoorThresholds = parseBool(asString(formData.get("hasDoorThresholds")));
+    const doorThresholdCountRaw = asString(formData.get("doorThresholdCount"));
     const label = asString(formData.get("label"));
     const note = asString(formData.get("note"));
     const service = parseService(asString(formData.get("service")));
@@ -142,6 +185,7 @@ export async function POST(request: Request) {
     const priceMin = parseNumber(priceMinRaw, 500, 20000);
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
     const areaM2 = parseDecimal(areaM2Raw, 1, 2000);
+    const doorThresholdCount = parseNumber(doorThresholdCountRaw, 0, 30);
 
     if (priceMin === null || priceMax === null) {
       return NextResponse.json({ message: "Angiv prisinterval (min/max)." }, { status: 400 });
@@ -163,6 +207,25 @@ export async function POST(request: Request) {
     }
     if (service === "gulvafslibning" && !floorCondition) {
       return NextResponse.json({ message: "Vælg gulvets tilstand (let/middel/kraftig)." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && !floorTreatment) {
+      return NextResponse.json({ message: "Vælg nuværende behandling (lak/olie/sæbe/ukendt)." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && !postalCode) {
+      return NextResponse.json({ message: "Angiv gyldigt postnummer (4 cifre)." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && !propertyType) {
+      return NextResponse.json({ message: "Vælg boligtype (hus/lejlighed)." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && propertyType === "lejlighed" && !apartmentFloor) {
+      return NextResponse.json({ message: "Angiv sal for lejlighed." }, { status: 400 });
+    }
+    if (
+      service === "gulvafslibning" &&
+      hasDoorThresholds &&
+      (doorThresholdCount === null || doorThresholdCount < 1)
+    ) {
+      return NextResponse.json({ message: "Angiv antal dørtrin (1-30)." }, { status: 400 });
     }
 
     const supabase = createSupabaseServiceClient();
@@ -212,6 +275,13 @@ export async function POST(request: Request) {
       areaM2: areaM2 ?? undefined,
       description: description || undefined,
       floorCondition: floorCondition || undefined,
+      floorTreatment: floorTreatment || undefined,
+      postalCode: postalCode || undefined,
+      propertyType: propertyType || undefined,
+      apartmentFloor: propertyType === "lejlighed" ? apartmentFloor || undefined : undefined,
+      hasDoorThresholds: service === "gulvafslibning" ? hasDoorThresholds : undefined,
+      doorThresholdCount:
+        service === "gulvafslibning" && hasDoorThresholds ? (doorThresholdCount ?? undefined) : undefined,
       boardCount,
       aiNote
     };
@@ -258,6 +328,12 @@ export async function POST(request: Request) {
         areaM2,
         description: description || null,
         floorCondition: floorCondition || null,
+        floorTreatment: floorTreatment || null,
+        postalCode: postalCode || null,
+        propertyType: propertyType || null,
+        apartmentFloor: propertyType === "lejlighed" ? apartmentFloor || null : null,
+        hasDoorThresholds,
+        doorThresholdCount: hasDoorThresholds ? doorThresholdCount : 0,
         priceMin,
         priceMax,
         imageCount: uploadedImages.length,
