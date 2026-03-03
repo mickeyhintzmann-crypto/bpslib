@@ -47,8 +47,8 @@ export const ServicePageLayout = ({
   return (
     <main className="pb-20">
       <Section
-        className={hasImageHero ? "py-0" : "pb-8 pt-12 md:pb-10 md:pt-16"}
-        innerClassName={hasImageHero ? "max-w-none px-0" : undefined}
+        className={hasImageHero ? "py-0 md:py-0" : "pb-8 pt-12 md:pb-10 md:pt-16"}
+        innerClassName={hasImageHero ? "max-w-none px-0 md:px-0" : undefined}
       >
         {hasImageHero ? (
           <section className="relative min-h-[560px] w-full overflow-hidden">
