@@ -49,45 +49,55 @@ export const EnterpriseCaseShowcase = ({
         ) : null}
 
         <ul className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {visibleCases.map((caseItem) => (
-            <li key={caseItem.id}>
-              <button
-                type="button"
-                className="group surface-subtle w-full overflow-hidden rounded-[24px] text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_36px_hsl(20_30%_20%/0.14)]"
-                onClick={() => setOpenCaseId(caseItem.id)}
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-muted/30">
-                  <Image
-                    src={caseItem.coverSrc}
-                    alt={caseItem.title}
-                    fill
-                    sizes="(max-width: 767px) 95vw, (max-width: 1023px) 46vw, 30vw"
-                    className="object-cover transition duration-300 group-hover:scale-[1.02]"
-                  />
-                  {caseItem.clientLogoSrc ? (
-                    <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-3 md:p-4">
-                      <div className="relative h-[26%] w-[64%] max-w-[240px] rounded-lg bg-white/88 p-2 shadow-[0_8px_22px_hsl(0_0%_0%/0.2)] ring-1 ring-black/5 backdrop-blur-[1px]">
-                        <Image
-                          src={caseItem.clientLogoSrc}
-                          alt={`${caseItem.clientName} logo`}
-                          fill
-                          sizes="(max-width: 767px) 78vw, (max-width: 1023px) 42vw, 27vw"
-                          className="object-contain opacity-[0.96] drop-shadow-[0_2px_8px_hsl(0_0%_0%/0.16)] transition duration-300 group-hover:scale-[1.01]"
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
+          {visibleCases.map((caseItem) => {
+            const isRigshospitalCase = caseItem.clientId.includes("rigshospitalets.patienthotel");
+            const logoFrameClass = isRigshospitalCase
+              ? "h-[62%] w-[86%] max-w-[360px]"
+              : "h-[82%] w-[94%] max-w-[520px]";
+            const logoPaddingClass = isRigshospitalCase ? "p-3 md:p-4" : "p-2 md:p-3";
 
-                <div className="p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                    {caseItem.clientName}
-                  </p>
-                  <h3 className="mt-2 text-base font-semibold text-foreground md:text-lg">{caseItem.title}</h3>
-                </div>
-              </button>
-            </li>
-          ))}
+            return (
+              <li key={caseItem.id}>
+                <button
+                  type="button"
+                  className="group surface-subtle w-full overflow-hidden rounded-[24px] text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_36px_hsl(20_30%_20%/0.14)]"
+                  onClick={() => setOpenCaseId(caseItem.id)}
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted/30">
+                    <Image
+                      src={caseItem.coverSrc}
+                      alt={caseItem.title}
+                      fill
+                      sizes="(max-width: 767px) 95vw, (max-width: 1023px) 46vw, 30vw"
+                      className="object-cover transition duration-300 group-hover:scale-[1.02]"
+                    />
+                    {caseItem.clientLogoSrc ? (
+                      <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-2 md:p-3">
+                        <div
+                          className={`relative ${logoFrameClass} rounded-xl bg-white/68 shadow-[0_10px_26px_hsl(0_0%_0%/0.16)] ring-1 ring-black/10 backdrop-blur-[1px]`}
+                        >
+                          <Image
+                            src={caseItem.clientLogoSrc}
+                            alt={`${caseItem.clientName} logo`}
+                            fill
+                            sizes="(max-width: 767px) 88vw, (max-width: 1023px) 44vw, 29vw"
+                            className={`object-contain ${logoPaddingClass} opacity-[0.98] drop-shadow-[0_2px_10px_hsl(0_0%_0%/0.18)] transition duration-300 group-hover:scale-[1.01]`}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="p-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      {caseItem.clientName}
+                    </p>
+                    <h3 className="mt-2 text-base font-semibold text-foreground md:text-lg">{caseItem.title}</h3>
+                  </div>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </section>
 

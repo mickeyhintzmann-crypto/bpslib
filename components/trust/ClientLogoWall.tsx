@@ -29,6 +29,8 @@ const LogoCard = ({ src, alt }: { src: string; alt: string }) => {
 };
 
 const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
+  const isRigshospitalLogo = /rigshospital/i.test(alt);
+
   return (
     <li className="logo-marquee-item flex min-w-[240px] items-center justify-center px-9 py-4 md:min-w-[330px] md:px-12 md:py-5">
       <Image
@@ -37,7 +39,9 @@ const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
         width={420}
         height={180}
         sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
-        className="h-auto w-auto max-h-[82px] max-w-none object-contain opacity-100 transition duration-200 md:max-h-[112px] md:scale-[2]"
+        className={`h-auto w-auto max-w-none object-contain opacity-100 transition duration-200 ${
+          isRigshospitalLogo ? "max-h-[48px] md:max-h-[62px]" : "max-h-[56px] md:max-h-[72px]"
+        }`}
       />
     </li>
   );
