@@ -8,6 +8,20 @@ export type BeforeAfterItem = {
   afterSrc: string;
 };
 
+export type CasesManifestCategory = "bordplade" | "gulvafslibning" | "gulvbelaegning";
+
+export type CasesManifestItem = {
+  id: string;
+  caseId: string;
+  category: CasesManifestCategory;
+  beforeSrc: string | null;
+  afterSrc: string | null;
+  gallery: string[];
+  title: string;
+  location: string | null;
+  clientLogoSrc?: string;
+};
+
 export const beforeAfterGulv: BeforeAfterItem[] = [
   {
     "caseId": "case-001_stairs",
@@ -72,5 +86,234 @@ export const galleryGulv: string[] = [
 export const galleryBordplade: string[] = [
   "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
   "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
+];
+
+export const casesManifest: CasesManifestItem[] = [
+  {
+    "id": "bordplade:case-006_koekken",
+    "caseId": "case-006_koekken",
+    "category": "bordplade",
+    "title": "Koekken",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+      "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg"
+    ]
+  },
+  {
+    "id": "bordplade:case-008_koekken",
+    "caseId": "case-008_koekken",
+    "category": "bordplade",
+    "title": "Koekken",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+      "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-001_stairs",
+    "caseId": "case-001_stairs",
+    "category": "gulvafslibning",
+    "title": "Stairs",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-001_stairs/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-001_stairs/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-001_stairs/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-001_stairs/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-002_dark_wood",
+    "caseId": "case-002_dark_wood",
+    "category": "gulvafslibning",
+    "title": "Dark Wood",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-002_dark_wood/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-002_dark_wood/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-002_dark_wood/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-002_dark_wood/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-003_fyrtrae",
+    "caseId": "case-003_fyrtrae",
+    "category": "gulvafslibning",
+    "title": "Fyrtrae",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-003_fyrtrae/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-004_fernis",
+    "caseId": "case-004_fernis",
+    "category": "gulvafslibning",
+    "title": "Fernis",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-004_fernis/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-004_fernis/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-004_fernis/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-004_fernis/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-005_fernis_stairs",
+    "caseId": "case-005_fernis_stairs",
+    "category": "gulvafslibning",
+    "title": "Fernis Stairs",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-005_fernis_stairs/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-005_fernis_stairs/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-005_fernis_stairs/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-005_fernis_stairs/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-006_old",
+    "caseId": "case-006_old",
+    "category": "gulvafslibning",
+    "title": "Old",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-006_old/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-006_old/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-006_old/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-006_old/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-007_fyrtrae",
+    "caseId": "case-007_fyrtrae",
+    "category": "gulvafslibning",
+    "title": "Fyrtrae",
+    "location": null,
+    "beforeSrc": "/media/galleries:gulv:before-after/case-007_fyrtrae/before.01.jpg",
+    "afterSrc": "/media/galleries:gulv:before-after/case-007_fyrtrae/after.01.jpg",
+    "gallery": [
+      "/media/galleries:gulv:before-after/case-007_fyrtrae/after.01.jpg",
+      "/media/galleries:gulv:before-after/case-007_fyrtrae/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-001_vinyl",
+    "caseId": "case-001_vinyl",
+    "category": "gulvbelaegning",
+    "title": "Vinyl",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-001_vinyl/before.01.jpg",
+    "afterSrc": "/media/cases:gulvbelaegning/case-001_vinyl/after.01.JPG",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-001_vinyl/after.01.JPG",
+      "/media/cases:gulvbelaegning/case-001_vinyl/before.01.jpg",
+      "/media/cases:gulvbelaegning/case-001_vinyl/before.02.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-002_spartel",
+    "caseId": "case-002_spartel",
+    "category": "gulvbelaegning",
+    "title": "Spartel",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-002_spartel/before.01.jpg",
+    "afterSrc": "/media/cases:gulvbelaegning/case-002_spartel/after.01.jpg",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-002_spartel/after.01.jpg",
+      "/media/cases:gulvbelaegning/case-002_spartel/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-003_sildeben",
+    "caseId": "case-003_sildeben",
+    "category": "gulvbelaegning",
+    "title": "Sildeben",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-003_sildeben/before.01.jpg",
+    "afterSrc": "/media/cases:gulvbelaegning/case-003_sildeben/after.01.jpg",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-003_sildeben/after.01.jpg",
+      "/media/cases:gulvbelaegning/case-003_sildeben/after.02.jpg",
+      "/media/cases:gulvbelaegning/case-003_sildeben/after.03.jpg",
+      "/media/cases:gulvbelaegning/case-003_sildeben/before.01.jpg",
+      "/media/cases:gulvbelaegning/case-003_sildeben/before.02.jpg",
+      "/media/cases:gulvbelaegning/case-003_sildeben/detail.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-004_sildeben",
+    "caseId": "case-004_sildeben",
+    "category": "gulvbelaegning",
+    "title": "Sildeben",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-004_sildeben/before.JPG",
+    "afterSrc": "/media/cases:gulvbelaegning/case-004_sildeben/after.jpg",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-004_sildeben/after.jpg",
+      "/media/cases:gulvbelaegning/case-004_sildeben/before.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-005_epoxy",
+    "caseId": "case-005_epoxy",
+    "category": "gulvbelaegning",
+    "title": "Epoxy",
+    "location": null,
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-005_epoxy/case-005_epoxy_01.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-006_sildeben",
+    "caseId": "case-006_sildeben",
+    "category": "gulvbelaegning",
+    "title": "Sildeben",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-006_sildeben/before.01.JPG",
+    "afterSrc": "/media/cases:gulvbelaegning/case-006_sildeben/after.01.JPG",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.01.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.02.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.03.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.04.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.detail.05.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/after.wide.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/before.01.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/before.02.JPG",
+      "/media/cases:gulvbelaegning/case-006_sildeben/before.03.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-007_parket",
+    "caseId": "case-007_parket",
+    "category": "gulvbelaegning",
+    "title": "Parket",
+    "location": null,
+    "beforeSrc": "/media/cases:gulvbelaegning/case-007_parket/before.01.JPG",
+    "afterSrc": "/media/cases:gulvbelaegning/case-007_parket/after.01.JPG",
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-007_parket/after.01.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/after.02.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/after.03.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/after.04.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/after.05.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/after.wide.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/before.01.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/before.02.JPG",
+      "/media/cases:gulvbelaegning/case-007_parket/before3.JPG"
+    ]
+  }
 ];
 
