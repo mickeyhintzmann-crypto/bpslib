@@ -65,28 +65,36 @@ export const NavDropdown = ({
     <div className="relative group">
       <button
         type="button"
-        className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold transition ${
-          emphasis ? "text-foreground" : "text-muted-foreground"
-        } hover:bg-white/70 hover:text-foreground`}
+        className={`inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm font-semibold transition ${
+          emphasis
+            ? "border-primary/30 bg-primary/10 text-foreground shadow-[0_8px_18px_hsl(var(--primary)/0.15)]"
+            : "border-transparent text-muted-foreground"
+        } hover:border-border/70 hover:bg-white hover:text-foreground`}
         aria-haspopup="menu"
       >
         {label}
         <span className="text-[11px]">▾</span>
       </button>
       <div className="absolute left-0 top-full z-20 hidden min-w-[240px] pt-3 group-hover:block group-focus-within:block">
-        <div className="rounded-2xl border border-border/80 bg-white/95 p-4 shadow-[0_18px_38px_hsl(20_30%_20%/0.16)] backdrop-blur">
+        <div className="overflow-hidden rounded-2xl border border-border/80 bg-white/97 shadow-[0_20px_42px_hsl(20_30%_20%/0.18)] backdrop-blur">
+          <div className="border-b border-border/60 bg-[linear-gradient(180deg,hsl(35_30%_96%),hsl(32_22%_94%))] px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+            {label}
+          </div>
           <div className="grid gap-2">
             {visibleItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-2 py-1 text-sm text-muted-foreground transition hover:bg-secondary/55 hover:text-foreground"
+                className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-secondary/60 hover:text-foreground"
               >
                 {item.label}
               </Link>
             ))}
             {cta ? (
-              <Link href={cta.href} className="pt-2 text-sm font-semibold text-primary">
+              <Link
+                href={cta.href}
+                className="mt-1 border-t border-border/60 px-3 pt-3 text-sm font-semibold text-primary"
+              >
                 {cta.label}
               </Link>
             ) : null}
