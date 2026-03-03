@@ -45,13 +45,17 @@ export const WhyChoose = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="surface-subtle rounded-[24px] p-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_hsl(20_30%_20%/0.11)]"
+            className="group relative overflow-hidden rounded-[24px] border border-border/70 bg-gradient-to-br from-white via-white to-primary/5 p-6 shadow-[0_10px_24px_hsl(20_30%_20%/0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_hsl(20_30%_20%/0.14)]"
           >
-            <div className="text-2xl font-semibold text-primary">{stat.title}</div>
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary/70 via-primary to-primary/60" />
+            <div className="text-[2rem] font-semibold leading-none text-primary md:text-[2.3rem]">
+              {stat.title}
+            </div>
+            <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/75">
               {stat.label}
             </div>
-            <p className="mt-3 text-sm text-muted-foreground">{stat.text}</p>
+            <p className="mt-4 text-[15px] leading-relaxed text-foreground/80">{stat.text}</p>
+            <div className="mt-5 h-px bg-gradient-to-r from-primary/20 to-transparent transition group-hover:from-primary/45" />
           </div>
         ))}
       </div>
