@@ -48,6 +48,39 @@ type LeadMessageRow = {
   created_by: string | null;
 };
 
+type AiQuoteRequestRow = {
+  id: string;
+  created_at: string;
+  service: string;
+  page_url: string | null;
+};
+
+type AiQuoteResultRow = {
+  id: string;
+  created_at: string;
+  confidence: number | null;
+  needs_review: boolean;
+  review_status: string;
+  output: Record<string, unknown> | null;
+  admin_override: Record<string, unknown> | null;
+};
+
+type BookingRow = {
+  id: string;
+  created_at: string;
+  status: string | null;
+  source: string | null;
+  date: string | null;
+  start_slot_index: number | null;
+  slot_count: number | null;
+  customer_name: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  address: string | null;
+  postal_code: string | null;
+  notes: string | null;
+};
+
 const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 const asUuidOrNull = (value: string | null | undefined) =>
@@ -97,6 +130,210 @@ const toMessageItem = (row: LeadMessageRow) => ({
   content: row.content,
   createdBy: row.created_by
 });
+
+const asNumberOrNull = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+const extractPriceRange = (result: AiQuoteResultRow | null) => {
+  if (!result) {
+    return { min: null as number | null, max: null as number | null };
+  }
+
+  const output = asObject(result.output) || {};
+  const override = asObject(result.admin_override) || {};
+  const outputPriceRange = asObject(output.price_range) || {};
+  const overridePriceRange = asObject(override.price_range) || {};
+
+  const min =
+    asNumberOrNull(overridePriceRange.min) ??
+    asNumberOrNull(override.price_min) ??
+    asNumberOrNull(outputPriceRange.min) ??
+    asNumberOrNull(output.price_min);
+  const max =
+    asNumberOrNull(overridePriceRange.max) ??
+    asNumberOrNull(override.price_max) ??
+    asNumberOrNull(outputPriceRange.max) ??
+    asNumberOrNull(output.price_max);
+
+  return { min, max };
+};
+
+const summarizeAiOutput = (result: AiQuoteResultRow | null) => {
+  if (!result) {
+    return null;
+  }
+
+  const output = asObject(result.output) || {};
+  const candidate =
+    asTrimmed(output.summary) || asTrimmed(output.text) || asTrimmed(output.explanation);
+  if (!candidate) {
+    return null;
+  }
+  return candidate.length > 220 ? `${candidate.slice(0, 217)}...` : candidate;
+};
+
+const fetchLeadContext = async (
+  supabase: ReturnType<typeof createSupabaseServiceClient>,
+  lead: LeadRow
+) => {
+  const meta = asObject(lead.meta) || {};
+  const bookingId = asUuidOrNull(asTrimmed(meta.bookingId));
+  const estimatorRequestId = asUuidOrNull(asTrimmed(meta.estimatorRequestId));
+
+  let aiQuote: {
+    requestId: string;
+    resultId: string | null;
+    createdAt: string;
+    service: string;
+    pageUrl: string | null;
+    reviewStatus: string | null;
+    confidence: number | null;
+    needsReview: boolean | null;
+    priceMin: number | null;
+    priceMax: number | null;
+    summary: string | null;
+  } | null = null;
+
+  let booking: {
+    id: string;
+    createdAt: string;
+    status: string | null;
+    source: string | null;
+    date: string | null;
+    startSlotIndex: number | null;
+    slotCount: number | null;
+    customerName: string | null;
+    customerPhone: string | null;
+    customerEmail: string | null;
+    address: string | null;
+    postalCode: string | null;
+    notes: string | null;
+  } | null = null;
+
+  const shouldFetchAi = lead.source === "ai_quote" || Boolean(estimatorRequestId);
+  if (shouldFetchAi) {
+    let requestRow: AiQuoteRequestRow | null = null;
+
+    if (estimatorRequestId) {
+      const estimatorRequest = await supabase
+        .from("ai_quote_requests")
+        .select("id, created_at, service, page_url")
+        .eq("id", estimatorRequestId)
+        .maybeSingle();
+      if (!estimatorRequest.error && estimatorRequest.data) {
+        requestRow = estimatorRequest.data as AiQuoteRequestRow;
+      }
+    }
+
+    if (!requestRow) {
+      const latestByLead = await supabase
+        .from("ai_quote_requests")
+        .select("id, created_at, service, page_url")
+        .eq("lead_id", lead.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!latestByLead.error && latestByLead.data) {
+        requestRow = latestByLead.data as AiQuoteRequestRow;
+      }
+    }
+
+    if (requestRow) {
+      let resultRow: AiQuoteResultRow | null = null;
+      const latestResult = await supabase
+        .from("ai_quote_results")
+        .select("id, created_at, confidence, needs_review, review_status, output, admin_override")
+        .eq("request_id", requestRow.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!latestResult.error && latestResult.data) {
+        resultRow = latestResult.data as AiQuoteResultRow;
+      }
+
+      const { min, max } = extractPriceRange(resultRow);
+      aiQuote = {
+        requestId: requestRow.id,
+        resultId: resultRow?.id || null,
+        createdAt: requestRow.created_at,
+        service: requestRow.service,
+        pageUrl: requestRow.page_url,
+        reviewStatus: resultRow?.review_status || null,
+        confidence: resultRow?.confidence ?? null,
+        needsReview: typeof resultRow?.needs_review === "boolean" ? resultRow.needs_review : null,
+        priceMin: min,
+        priceMax: max,
+        summary: summarizeAiOutput(resultRow)
+      };
+    }
+  }
+
+  const shouldFetchBooking = lead.source === "booking" || Boolean(bookingId);
+  if (shouldFetchBooking) {
+    let bookingRow: BookingRow | null = null;
+
+    if (bookingId) {
+      const linkedBooking = await supabase
+        .from("bookings")
+        .select(
+          "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes"
+        )
+        .eq("id", bookingId)
+        .maybeSingle();
+      if (!linkedBooking.error && linkedBooking.data) {
+        bookingRow = linkedBooking.data as BookingRow;
+      }
+    }
+
+    if (!bookingRow) {
+      const phone = asTrimmed(lead.phone);
+      if (phone) {
+        const latestByPhone = await supabase
+          .from("bookings")
+          .select(
+            "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes"
+          )
+          .eq("customer_phone", phone)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!latestByPhone.error && latestByPhone.data) {
+          bookingRow = latestByPhone.data as BookingRow;
+        }
+      }
+    }
+
+    if (bookingRow) {
+      booking = {
+        id: bookingRow.id,
+        createdAt: bookingRow.created_at,
+        status: bookingRow.status,
+        source: bookingRow.source,
+        date: bookingRow.date,
+        startSlotIndex: bookingRow.start_slot_index,
+        slotCount: bookingRow.slot_count,
+        customerName: bookingRow.customer_name,
+        customerPhone: bookingRow.customer_phone,
+        customerEmail: bookingRow.customer_email,
+        address: bookingRow.address,
+        postalCode: bookingRow.postal_code,
+        notes: bookingRow.notes
+      };
+    }
+  }
+
+  return { aiQuote, booking };
+};
 
 const fetchLeadWithMessages = async (
   supabase: ReturnType<typeof createSupabaseServiceClient>,
@@ -163,6 +400,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     return NextResponse.json(
       {
         item: toLeadItem(lead.data as LeadRow),
+        context: await fetchLeadContext(supabase, lead.data as LeadRow),
         messages: ((messages.data || []) as LeadMessageRow[]).map(toMessageItem)
       },
       { status: 200 }

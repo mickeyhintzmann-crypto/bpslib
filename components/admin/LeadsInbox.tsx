@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { JobFormModal, type JobDraft } from "@/components/admin/JobFormModal";
@@ -70,6 +71,36 @@ type LeadsListResponse = {
 
 type LeadDetailResponse = {
   item?: LeadListItem;
+  context?: {
+    aiQuote?: {
+      requestId: string;
+      resultId: string | null;
+      createdAt: string;
+      service: string;
+      pageUrl: string | null;
+      reviewStatus: string | null;
+      confidence: number | null;
+      needsReview: boolean | null;
+      priceMin: number | null;
+      priceMax: number | null;
+      summary: string | null;
+    } | null;
+    booking?: {
+      id: string;
+      createdAt: string;
+      status: string | null;
+      source: string | null;
+      date: string | null;
+      startSlotIndex: number | null;
+      slotCount: number | null;
+      customerName: string | null;
+      customerPhone: string | null;
+      customerEmail: string | null;
+      address: string | null;
+      postalCode: string | null;
+      notes: string | null;
+    } | null;
+  };
   messages?: LeadMessageItem[];
   message?: string;
 };
@@ -121,6 +152,27 @@ const copyText = async (value: string | null | undefined) => {
   }
 };
 
+const formatCurrency = (value: number | null) => {
+  if (typeof value !== "number") {
+    return "-";
+  }
+  return `${Math.round(value).toLocaleString("da-DK")} kr.`;
+};
+
+const asPlainText = (value: unknown) => {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return null;
+};
+
+const readObjectValue = (obj: Record<string, unknown> | null | undefined, key: string) =>
+  asPlainText(obj?.[key]);
+
 export const LeadsInbox = () => {
   const [statusFilter, setStatusFilter] = useState("alle");
   const [sourceFilter, setSourceFilter] = useState("alle");
@@ -134,6 +186,7 @@ export const LeadsInbox = () => {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<LeadListItem | null>(null);
+  const [detailContext, setDetailContext] = useState<LeadDetailResponse["context"] | null>(null);
   const [messages, setMessages] = useState<LeadMessageItem[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState("");
@@ -145,6 +198,11 @@ export const LeadsInbox = () => {
   const [noteDraft, setNoteDraft] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [jobPrefillBusy, setJobPrefillBusy] = useState(false);
+  const [bookingActionBusy, setBookingActionBusy] = useState(false);
+  const [replySubject, setReplySubject] = useState("");
+  const [replyMessage, setReplyMessage] = useState("");
+  const [replyStatusAfter, setReplyStatusAfter] = useState("awaiting_customer");
+  const [replyBusy, setReplyBusy] = useState(false);
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [jobDraft, setJobDraft] = useState<JobDraft | null>(null);
   const [jobSuccessMessage, setJobSuccessMessage] = useState("");
@@ -152,6 +210,14 @@ export const LeadsInbox = () => {
   const hasItems = items.length > 0;
 
   const selectedSummary = useMemo(() => items.find((item) => item.id === selectedId) || null, [items, selectedId]);
+  const sourceCounts = useMemo(
+    () => ({
+      form: items.filter((item) => item.source === "form").length,
+      aiQuote: items.filter((item) => item.source === "ai_quote").length,
+      booking: items.filter((item) => item.source === "booking").length
+    }),
+    [items]
+  );
 
   const loadList = async () => {
     setLoadingList(true);
@@ -184,6 +250,7 @@ export const LeadsInbox = () => {
       if (payload.items.length === 0) {
         setSelectedId(null);
         setDetail(null);
+        setDetailContext(null);
         setMessages([]);
       } else if (!selectedId) {
         setSelectedId(payload.items[0].id);
@@ -208,18 +275,21 @@ export const LeadsInbox = () => {
 
       if (!response.ok || !payload.item) {
         setDetail(null);
+        setDetailContext(null);
         setMessages([]);
         setDetailError(payload.message || "Kunne ikke hente lead-detaljer.");
         return;
       }
 
       setDetail(payload.item);
+      setDetailContext(payload.context || null);
       setMessages(payload.messages || []);
       setStatusDraft(payload.item.status || "new");
       setServiceDraft(payload.item.service || "");
     } catch (error) {
       console.error(error);
       setDetail(null);
+      setDetailContext(null);
       setMessages([]);
       setDetailError("Netværksfejl ved hentning af lead.");
     } finally {
@@ -239,6 +309,36 @@ export const LeadsInbox = () => {
     loadDetail(selectedId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!detail) {
+      return;
+    }
+    const name = short(detail.name, "kunde");
+    if (detail.source === "ai_quote") {
+      setReplySubject(`Opfølgning på prisberegning${name ? ` – ${name}` : ""}`);
+      if (detailContext?.aiQuote?.priceMin || detailContext?.aiQuote?.priceMax) {
+        setReplyMessage(
+          [
+            "Tak for din henvendelse.",
+            `Vi har gennemgået din prisberegning og estimerer opgaven til ${formatCurrency(
+              detailContext.aiQuote.priceMin
+            )} - ${formatCurrency(detailContext.aiQuote.priceMax)}.`,
+            "Svar gerne her, hvis du vil have et endeligt tilbud eller en tid."
+          ].join("\n")
+        );
+      } else {
+        setReplyMessage("Tak for din henvendelse. Vi har gennemgået din prisberegning og vender tilbage med pris og næste skridt.");
+      }
+    } else if (detail.source === "booking") {
+      setReplySubject(`Vedr. din booking hos BP Slib${name ? ` – ${name}` : ""}`);
+      setReplyMessage("Tak for din booking. Vi bekræfter tid hurtigst muligt. Hvis tiden skal flyttes, kontakter vi dig med forslag.");
+    } else {
+      setReplySubject(`Tak for din henvendelse${name ? ` – ${name}` : ""}`);
+      setReplyMessage("Tak for din henvendelse. Vi vender tilbage hurtigst muligt med næste skridt.");
+    }
+    setReplyStatusAfter("awaiting_customer");
+  }, [detail?.id, detail?.source, detailContext?.aiQuote?.priceMin, detailContext?.aiQuote?.priceMax]);
 
   const saveStatusAndService = async () => {
     if (!detail) {
@@ -267,6 +367,7 @@ export const LeadsInbox = () => {
       }
 
       setDetail(payload.item);
+      setDetailContext(payload.context || detailContext);
       setMessages(payload.messages || messages);
       setItems((current) => current.map((item) => (item.id === payload.item!.id ? payload.item! : item)));
     } catch (error) {
@@ -373,12 +474,113 @@ export const LeadsInbox = () => {
         return next?.id || null;
       });
       setDetail(null);
+      setDetailContext(null);
       setMessages([]);
     } catch (error) {
       console.error(error);
       setDetailError("Netværksfejl ved sletning.");
     } finally {
       setSavingMeta(false);
+    }
+  };
+
+  const runQuickSourceView = (value: string) => {
+    setSourceFilter(value);
+  };
+
+  const updateLinkedBookingStatus = async (status: "confirmed" | "cancelled") => {
+    const bookingId = detailContext?.booking?.id;
+    if (!bookingId) {
+      return;
+    }
+
+    setBookingActionBusy(true);
+    setDetailError("");
+
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status })
+      });
+      const payload = (await response.json()) as { item?: { status?: string | null }; message?: string };
+      if (!response.ok || !payload.item) {
+        setDetailError(payload.message || "Kunne ikke opdatere bookingstatus.");
+        return;
+      }
+      setDetailContext((current) =>
+        current
+          ? {
+              ...current,
+              booking: current.booking
+                ? {
+                    ...current.booking,
+                    status: payload.item?.status || status
+                  }
+                : current.booking
+            }
+          : current
+      );
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved opdatering af bookingstatus.");
+    } finally {
+      setBookingActionBusy(false);
+    }
+  };
+
+  const sendReplyEmail = async () => {
+    if (!detail) {
+      return;
+    }
+    if (!replySubject.trim() || !replyMessage.trim()) {
+      setDetailError("Emne og besked skal udfyldes.");
+      return;
+    }
+
+    setReplyBusy(true);
+    setDetailError("");
+    setJobSuccessMessage("");
+    try {
+      const response = await fetch(`/api/admin/leads/${detail.id}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          subject: replySubject.trim(),
+          message: replyMessage.trim(),
+          statusAfter: replyStatusAfter
+        })
+      });
+      const payload = (await response.json()) as {
+        item?: LeadMessageItem;
+        lead?: { status?: string };
+        message?: string;
+      };
+      if (!response.ok || !payload.item) {
+        setDetailError(payload.message || "Kunne ikke sende svar.");
+        return;
+      }
+
+      setMessages((current) => [...current, payload.item!]);
+      if (payload.lead?.status) {
+        setStatusDraft(payload.lead.status);
+        setDetail((current) => (current ? { ...current, status: payload.lead?.status || current.status } : current));
+        setItems((current) =>
+          current.map((item) =>
+            item.id === detail.id ? { ...item, status: payload.lead?.status || item.status } : item
+          )
+        );
+      }
+      setJobSuccessMessage("Svar sendt til kunden og logget i historik.");
+    } catch (error) {
+      console.error(error);
+      setDetailError("Netværksfejl ved afsendelse af svar.");
+    } finally {
+      setReplyBusy(false);
     }
   };
 
@@ -391,6 +593,21 @@ export const LeadsInbox = () => {
         </div>
         <Button variant="outline" onClick={() => loadList()} disabled={loadingList}>
           {loadingList ? "Henter..." : "Opdater"}
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button variant={sourceFilter === "alle" ? "default" : "outline"} onClick={() => runQuickSourceView("alle")}>
+          Alle ({items.length})
+        </Button>
+        <Button variant={sourceFilter === "ai_quote" ? "default" : "outline"} onClick={() => runQuickSourceView("ai_quote")}>
+          Prisberegner ({sourceCounts.aiQuote})
+        </Button>
+        <Button variant={sourceFilter === "booking" ? "default" : "outline"} onClick={() => runQuickSourceView("booking")}>
+          Booking ({sourceCounts.booking})
+        </Button>
+        <Button variant={sourceFilter === "form" ? "default" : "outline"} onClick={() => runQuickSourceView("form")}>
+          Kontakt/Form ({sourceCounts.form})
         </Button>
       </div>
 
@@ -579,18 +796,163 @@ export const LeadsInbox = () => {
                 </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-border/70 p-3 text-xs">
-                  <p className="mb-2 font-semibold uppercase text-muted-foreground">UTM</p>
-                  <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words text-[11px] text-foreground">
-                    {JSON.stringify(detail.utm || {}, null, 2)}
-                  </pre>
+              {detail.source === "ai_quote" ? (
+                <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-900">Prisberegner flow</h3>
+                  <div className="grid gap-2 text-sm md:grid-cols-2">
+                    <p>
+                      <strong>Estimat:</strong>{" "}
+                      {detailContext?.aiQuote
+                        ? `${formatCurrency(detailContext.aiQuote.priceMin)} - ${formatCurrency(detailContext.aiQuote.priceMax)}`
+                        : "Ikke fundet"}
+                    </p>
+                    <p>
+                      <strong>Review:</strong> {short(detailContext?.aiQuote?.reviewStatus, "-")}
+                    </p>
+                    <p>
+                      <strong>Confidence:</strong>{" "}
+                      {typeof detailContext?.aiQuote?.confidence === "number"
+                        ? `${Math.round(detailContext.aiQuote.confidence * 100)}%`
+                        : "-"}
+                    </p>
+                    <p>
+                      <strong>Behøver review:</strong>{" "}
+                      {typeof detailContext?.aiQuote?.needsReview === "boolean"
+                        ? detailContext.aiQuote.needsReview
+                          ? "Ja"
+                          : "Nej"
+                        : "-"}
+                    </p>
+                  </div>
+                  {detailContext?.aiQuote?.summary ? (
+                    <p className="text-sm text-muted-foreground">{detailContext.aiQuote.summary}</p>
+                  ) : null}
+                  <div className="flex flex-wrap gap-2">
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/admin/ai-estimator">Åbn AI prisberegner</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/admin/estimator">Åbn prisberegner inbox</Link>
+                    </Button>
+                  </div>
                 </div>
-                <div className="rounded-xl border border-border/70 p-3 text-xs">
-                  <p className="mb-2 font-semibold uppercase text-muted-foreground">Meta</p>
-                  <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words text-[11px] text-foreground">
-                    {JSON.stringify(detail.meta || {}, null, 2)}
-                  </pre>
+              ) : null}
+
+              {detail.source === "booking" ? (
+                <div className="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-900">Booking flow</h3>
+                  {detailContext?.booking ? (
+                    <>
+                      <div className="grid gap-2 text-sm md:grid-cols-2">
+                        <p>
+                          <strong>Booking ID:</strong> {detailContext.booking.id}
+                        </p>
+                        <p>
+                          <strong>Status:</strong> {short(detailContext.booking.status, "-")}
+                        </p>
+                        <p>
+                          <strong>Dato:</strong> {short(detailContext.booking.date, "-")}
+                        </p>
+                        <p>
+                          <strong>Slots:</strong> {detailContext.booking.slotCount ?? "-"}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/admin/bookings/${detailContext.booking.id}`}>Åbn booking</Link>
+                        </Button>
+                        <Button size="sm" onClick={() => updateLinkedBookingStatus("confirmed")} disabled={bookingActionBusy}>
+                          Godkend booking
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateLinkedBookingStatus("cancelled")}
+                          disabled={bookingActionBusy}
+                        >
+                          Markér aflyst
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Ingen koblet booking fundet. Tjek bookinger-listen med kundens telefon/email.
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+              <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Kampagneinfo
+                </p>
+                <p>
+                  <strong>Source:</strong> {readObjectValue(detail.utm, "source") || "-"}
+                </p>
+                <p>
+                  <strong>Medium:</strong> {readObjectValue(detail.utm, "medium") || "-"}
+                </p>
+                <p>
+                  <strong>Campaign:</strong> {readObjectValue(detail.utm, "campaign") || "-"}
+                </p>
+                <p>
+                  <strong>Referrer:</strong> {readObjectValue(detail.meta, "referrer") || "-"}
+                </p>
+              </div>
+
+              <div className="space-y-3 rounded-xl border border-border/70 bg-white p-4">
+                <h3 className="text-base font-semibold text-foreground">Svar kunde (email)</h3>
+                <p className="text-xs text-muted-foreground">
+                  Sender email, logger outbound-besked og sætter status til valgt opfølgningsstatus.
+                </p>
+                <div className="grid gap-3 md:grid-cols-[1fr_220px]">
+                  <input
+                    value={replySubject}
+                    onChange={(event) => setReplySubject(event.target.value)}
+                    placeholder="Emne"
+                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                  />
+                  <select
+                    value={replyStatusAfter}
+                    onChange={(event) => setReplyStatusAfter(event.target.value)}
+                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                  >
+                    <option value="awaiting_customer">Awaiting customer</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="new">New</option>
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </div>
+                <textarea
+                  value={replyMessage}
+                  onChange={(event) => setReplyMessage(event.target.value)}
+                  rows={6}
+                  placeholder="Skriv svar til kunden"
+                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setReplyMessage("Tak for din henvendelse. Vi vender tilbage hurtigst muligt.")}
+                  >
+                    Standard svar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setReplyMessage(
+                        "Tak for din henvendelse. Vi har mulighed for at tilbyde en ny tid. Svar gerne med hvilke dage/tidspunkter der passer dig bedst."
+                      )
+                    }
+                  >
+                    Foreslå ny tid
+                  </Button>
+                  <Button onClick={sendReplyEmail} disabled={replyBusy}>
+                    {replyBusy ? "Sender..." : "Send svar"}
+                  </Button>
                 </div>
               </div>
 
