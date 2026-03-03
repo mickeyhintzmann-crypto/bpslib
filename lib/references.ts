@@ -3,5 +3,8 @@ export const references = [
   "Brdr. Price Tivoli",
   "Skatteministeriet",
   "Boldens Gård",
-  "Flere kontorbygninger i København"
+  "Fairway",
+  "Sengeløse kro",
+  "AK Nygaard",
+  "Vibenshuset"
 ] as const;
