@@ -262,6 +262,7 @@ export default function BordpladePillarPage() {
         secondary={{ label: "Se priseksempler", href: "/bordpladeslibning/pris" }}
       />
 
+      <div className="[&_h2]:font-sans [&_h2]:tracking-tight">
       <section className="grid gap-6 py-10 lg:grid-cols-[1.08fr_0.92fr] md:py-14">
         <article className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
           <h2 className="text-2xl font-semibold text-foreground">
@@ -382,12 +383,11 @@ export default function BordpladePillarPage() {
             slibning være begrænset eller risikabel. Derfor starter vi altid med at afklare opbygningen
             — ofte kan et billede af kanten eller enden (endetræ) give svaret med det samme.
           </p>
-          <p className="mt-3 text-[15px] leading-relaxed font-sans text-muted-foreground">
-            Læs guiden:{" "}
-            <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
-              /bordpladeslibning/kan-det-slibes
-            </Link>
-          </p>
+          <div className="mt-4">
+            <Button asChild variant="outline" size="sm" className="h-10 px-4">
+              <Link href="/bordpladeslibning/kan-det-slibes">Læs guiden: kan det slibes?</Link>
+            </Button>
+          </div>
         </article>
       </section>
 
@@ -415,18 +415,14 @@ export default function BordpladePillarPage() {
             er at starte med billeder, så vi kan se både helheden og de værste områder. På den måde
             kan vi anbefale den rigtige løsning og undgå overraskelser.
           </p>
-          <p className="mt-3 text-[15px] leading-relaxed font-sans text-muted-foreground">
-            Se priseksempler:{" "}
-            <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
-              /bordpladeslibning/pris
-            </Link>
-          </p>
-          <p className="text-[15px] leading-relaxed font-sans text-muted-foreground">
-            Få vurdering via billeder:{" "}
-            <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
-              /bordpladeslibning/prisberegner
-            </Link>
-          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button asChild variant="outline" size="sm" className="h-10 px-4">
+              <Link href="/bordpladeslibning/pris">Se priseksempler</Link>
+            </Button>
+            <Button asChild size="sm" className="h-10 px-4">
+              <Link href="/bordpladeslibning/prisberegner">Få vurdering via billeder</Link>
+            </Button>
+          </div>
         </article>
 
         <article className="rounded-3xl border border-border/70 bg-white/80 p-6">
@@ -485,22 +481,23 @@ export default function BordpladePillarPage() {
             slidt/mat overflade som en del af samme opgave. Vi kan udføre sæbebehandling, men
             anbefaler normalt olie eller lak til bordplader.
           </p>
-          <div className="mt-4 grid gap-2 text-[15px] leading-relaxed font-sans text-muted-foreground">
-            <Link href="/bordpladeslibning/olie-eller-lak" className="hover:text-foreground">
-              Olie eller lak: hvad passer til dit køkken?
-            </Link>
-            <Link href="/bordpladeslibning/skjolder" className="hover:text-foreground">
-              Fjern skjolder på bordpladen
-            </Link>
-            <Link href="/bordpladeslibning/slidt-mat-overflade" className="hover:text-foreground">
-              Slidt eller mat bordplade
-            </Link>
-            <Link href="/bordpladeslibning/ridser" className="hover:text-foreground">
-              Fjern ridser i bordpladen
-            </Link>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm" className="h-9 px-3">
+              <Link href="/bordpladeslibning/olie-eller-lak">Olie eller lak</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-9 px-3">
+              <Link href="/bordpladeslibning/skjolder">Skjolder</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-9 px-3">
+              <Link href="/bordpladeslibning/slidt-mat-overflade">Slidt/mat overflade</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-9 px-3">
+              <Link href="/bordpladeslibning/ridser">Ridser</Link>
+            </Button>
           </div>
         </article>
       </section>
+      </div>
 
       <ServiceAreaGrid />
 
