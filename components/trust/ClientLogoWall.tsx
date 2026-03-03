@@ -32,7 +32,7 @@ const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
   const isRigshospitalLogo = /rigshospital/i.test(alt);
 
   return (
-    <li className="logo-marquee-item flex min-w-[240px] items-center justify-center px-9 py-4 md:min-w-[330px] md:px-12 md:py-5">
+    <li className="logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3">
       <Image
         src={src}
         alt={alt}
@@ -40,7 +40,7 @@ const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
         height={180}
         sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
         className={`h-auto w-auto max-w-none object-contain opacity-100 transition duration-200 ${
-          isRigshospitalLogo ? "max-h-[48px] md:max-h-[62px]" : "max-h-[56px] md:max-h-[72px]"
+          isRigshospitalLogo ? "max-h-[58px] md:max-h-[76px]" : "max-h-[68px] md:max-h-[90px]"
         }`}
       />
     </li>
@@ -57,20 +57,20 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
 
   if (!compact) {
     return (
-      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-10 md:py-12">
+      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-6 md:py-7">
         <div className="mx-auto w-full max-w-[1320px] px-4 md:px-6">
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center lg:gap-12">
-            <div className="space-y-3 text-center lg:text-left">
-              <p className="text-base text-muted-foreground">Et udvalg af</p>
-              <h2 className="font-display text-5xl font-semibold tracking-tight text-foreground md:text-6xl">
+          <div className="grid gap-6 lg:grid-cols-[250px_1fr] lg:items-center lg:gap-10">
+            <div className="space-y-2 text-center lg:text-left">
+              <p className="text-sm text-muted-foreground">Et udvalg af</p>
+              <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
                 Vores referencer
               </h2>
-              <p className="text-base text-muted-foreground md:text-lg">
+              <p className="text-sm text-muted-foreground md:text-base">
                 Dokumenteret arbejde for professionelle kunder.
               </p>
             </div>
 
-            <div className="relative overflow-hidden py-4 md:py-6">
+            <div className="relative overflow-hidden py-1 md:py-2">
               <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-20 md:w-28" />
               <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-20 md:w-28" />
 
