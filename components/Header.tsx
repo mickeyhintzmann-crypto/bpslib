@@ -46,7 +46,7 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 shadow-[0_8px_24px_hsl(20_30%_20%/0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/88">
       <div className="hidden border-b border-border/40 bg-[linear-gradient(90deg,hsl(28_26%_18%),hsl(24_22%_13%))] md:block">
-        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-6 py-2 text-xs text-stone-300">
+        <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-5 py-2 text-xs text-stone-300 lg:px-6">
           <div className="flex items-center gap-4">
             <a
               href={`tel:${siteConfig.phone}`}
@@ -61,7 +61,7 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-6 py-3.5">
+      <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-4 px-5 py-3.5 lg:px-6">
         <div className="flex items-center gap-6">
           <Link
             href="/"
@@ -70,7 +70,7 @@ export const Header = () => {
             <BpsImage src={brandAssets.logo} alt={`${siteConfig.companyName} logo`} width={132} height={48} className="h-12 w-auto" />
             <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-5 font-sans md:flex">
             <NavDropdown
               label="Bordplade"
               items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
@@ -91,7 +91,7 @@ export const Header = () => {
               <Link
                 key={route.href}
                 href={route.href}
-                className="relative text-sm font-medium text-muted-foreground transition hover:text-foreground after:absolute after:-bottom-1 after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all hover:after:w-full"
+                className="relative text-[15px] font-semibold tracking-[0.01em] text-muted-foreground transition hover:text-foreground after:absolute after:-bottom-1 after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all hover:after:w-full"
               >
                 {route.label}
               </Link>
@@ -100,13 +100,6 @@ export const Header = () => {
           </nav>
         </div>
         <div className="flex items-center gap-2.5">
-          <a
-            href={`tel:${siteConfig.phone}`}
-            className="hidden rounded-xl border border-border/70 bg-white px-3.5 py-2 text-sm text-muted-foreground transition hover:text-foreground lg:inline"
-            onClick={() => trackEvent("call_click", { source: "header_main" })}
-          >
-            Tlf. {siteConfig.phoneDisplay}
-          </a>
           {bookingCta ? (
             <Button
               asChild
@@ -132,7 +125,7 @@ export const Header = () => {
 
       {isOpen ? (
         <div id="mobilmenu" className="border-t border-border/70 bg-[linear-gradient(180deg,hsl(30_27%_96%),hsl(28_24%_93%))] shadow-[0_18px_34px_hsl(20_30%_20%/0.1)] md:hidden">
-          <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-6 py-6">
+          <div className="mx-auto grid w-full max-w-[1320px] gap-4 px-5 py-6">
             <NavDropdown
               label="Bordplade"
               items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
