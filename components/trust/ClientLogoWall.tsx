@@ -53,7 +53,7 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
 
   if (!compact) {
     return (
-      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-[hsl(220_20%_94%)] py-12 md:py-14">
+      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-14 md:py-16">
         <div className="mx-auto w-full max-w-[1320px] px-4 md:px-6">
           <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center lg:gap-12">
             <div className="space-y-3 text-center lg:text-left">
@@ -66,7 +66,7 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
               </p>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white py-3 shadow-[0_16px_32px_hsl(220_18%_18%/0.06)] md:py-4">
+            <div className="relative overflow-hidden py-4 md:py-6">
               <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-20 md:w-28" />
               <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-20 md:w-28" />
 
@@ -100,22 +100,6 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
 
           .logo-marquee-item {
             position: relative;
-          }
-
-          .logo-marquee-item::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
-            height: 54px;
-            width: 1px;
-            transform: translateY(-50%);
-            background: hsl(220 14% 88%);
-            opacity: 0.85;
-          }
-
-          .logo-marquee-item:last-child::after {
-            opacity: 0;
           }
 
           @keyframes logoMarquee {
