@@ -192,6 +192,32 @@ const summarizeQuoteOutput = (output: Record<string, unknown>) => {
   return "Ingen tekst-output fra AI.";
 };
 
+const extractPriceRange = (value: Record<string, unknown> | null | undefined) => {
+  const source = value || {};
+  const range =
+    source.price_range && typeof source.price_range === "object"
+      ? (source.price_range as Record<string, unknown>)
+      : {};
+
+  const asNumber = (input: unknown) => {
+    if (typeof input === "number" && Number.isFinite(input)) {
+      return input;
+    }
+    if (typeof input === "string" && input.trim()) {
+      const parsed = Number(input);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+    return null;
+  };
+
+  return {
+    min: asNumber(range.min ?? source.price_min),
+    max: asNumber(range.max ?? source.price_max)
+  };
+};
+
 export const AIEstimatorDashboard = () => {
   const [tab, setTab] = useState<TabKey>("queue");
   const [serviceFilter, setServiceFilter] = useState<(typeof serviceOptions)[number]>("alle");
@@ -215,6 +241,8 @@ export const AIEstimatorDashboard = () => {
 
   const [feedbackDraft, setFeedbackDraft] = useState("");
   const [overrideDraft, setOverrideDraft] = useState("{}");
+  const [overrideMinDraft, setOverrideMinDraft] = useState("");
+  const [overrideMaxDraft, setOverrideMaxDraft] = useState("");
   const [promptsLoading, setPromptsLoading] = useState(false);
   const [promptsError, setPromptsError] = useState("");
   const [promptsMessage, setPromptsMessage] = useState("");
@@ -248,6 +276,9 @@ export const AIEstimatorDashboard = () => {
     setDetail(payload);
     setFeedbackDraft(payload.result.admin_feedback || "");
     setOverrideDraft(prettyJson(payload.result.admin_override || {}));
+    const { min, max } = extractPriceRange(payload.result.admin_override || payload.result.output || {});
+    setOverrideMinDraft(typeof min === "number" ? String(Math.round(min)) : "");
+    setOverrideMaxDraft(typeof max === "number" ? String(Math.round(max)) : "");
   };
 
   const loadQuotes = async () => {
@@ -326,7 +357,7 @@ export const AIEstimatorDashboard = () => {
 
       if (!response.ok || !payload.items) {
         setPromptItems([]);
-        setPromptsError(payload.message || "Kunne ikke hente prompt versions.");
+        setPromptsError(payload.message || "Kunne ikke hente prompt-versioner.");
         return;
       }
 
@@ -334,7 +365,7 @@ export const AIEstimatorDashboard = () => {
     } catch (error) {
       console.error(error);
       setPromptItems([]);
-      setPromptsError("Netværksfejl ved hentning af prompt versions.");
+      setPromptsError("Netværksfejl ved hentning af prompt-versioner.");
     } finally {
       setPromptsLoading(false);
     }
@@ -363,7 +394,7 @@ export const AIEstimatorDashboard = () => {
 
     try {
       if (promptNameDraft.trim().length < 2) {
-        setPromptsError("Name er påkrævet.");
+        setPromptsError("Navn er påkrævet.");
         return;
       }
       if (promptTextDraft.trim().length < 10) {
@@ -389,18 +420,18 @@ export const AIEstimatorDashboard = () => {
       const payload = (await response.json()) as PromptListResponse;
 
       if (!response.ok) {
-        setPromptsError(payload.message || "Kunne ikke gemme prompt version.");
+        setPromptsError(payload.message || "Kunne ikke gemme prompt-version.");
         return;
       }
 
-      setPromptsMessage(isEditing ? "Prompt version opdateret." : "Prompt version oprettet.");
+      setPromptsMessage(isEditing ? "Prompt-version opdateret." : "Prompt-version oprettet.");
       if (!isEditing) {
         resetPromptEditor();
       }
       await loadPrompts();
     } catch (error) {
       console.error(error);
-      setPromptsError(error instanceof Error ? error.message : "Kunne ikke gemme prompt version.");
+      setPromptsError(error instanceof Error ? error.message : "Kunne ikke gemme prompt-version.");
     } finally {
       setPromptSaving(false);
     }
@@ -418,7 +449,7 @@ export const AIEstimatorDashboard = () => {
       const payload = (await response.json()) as PromptListResponse;
 
       if (!response.ok || !payload.items) {
-        setPromptsError(payload.message || "Kunne ikke aktivere prompt version.");
+        setPromptsError(payload.message || "Kunne ikke aktivere prompt-version.");
         return;
       }
 
@@ -427,10 +458,10 @@ export const AIEstimatorDashboard = () => {
       } else {
         setPromptItems(payload.items);
       }
-      setPromptsMessage("Prompt version aktiveret.");
+      setPromptsMessage("Prompt-version aktiveret.");
     } catch (error) {
       console.error(error);
-      setPromptsError("Netværksfejl ved aktivering af prompt version.");
+      setPromptsError("Netværksfejl ved aktivering af prompt-version.");
     } finally {
       setPromptSaving(false);
     }
@@ -523,6 +554,42 @@ export const AIEstimatorDashboard = () => {
     await patchDetail({ admin_override: {} }, "Override nulstillet.");
   };
 
+  const savePriceOverride = async () => {
+    if (!detail) {
+      return;
+    }
+
+    const min = overrideMinDraft.trim() ? Number(overrideMinDraft) : null;
+    const max = overrideMaxDraft.trim() ? Number(overrideMaxDraft) : null;
+
+    if ((min !== null && !Number.isFinite(min)) || (max !== null && !Number.isFinite(max))) {
+      setDetailError("Pris-felter skal være tal.");
+      return;
+    }
+
+    if (min !== null && max !== null && max < min) {
+      setDetailError("Pris til kan ikke være mindre end pris fra.");
+      return;
+    }
+
+    try {
+      const current = parseJsonObject(overrideDraft);
+      const next = {
+        ...current,
+        price_range: {
+          min,
+          max
+        },
+        price_min: min,
+        price_max: max
+      };
+
+      await patchDetail({ admin_override: next }, "Pris-override gemt.");
+    } catch (error) {
+      setDetailError(error instanceof Error ? error.message : "Kunne ikke gemme pris-override.");
+    }
+  };
+
   const saveFeedback = async () => {
     await patchDetail({ admin_feedback: feedbackDraft }, "Feedback gemt.");
   };
@@ -607,7 +674,7 @@ export const AIEstimatorDashboard = () => {
       <header className="space-y-1">
         <h1 className="font-display text-4xl font-semibold text-foreground">AI Prisberegner</h1>
         <p className="text-sm text-muted-foreground">
-          Queue og historik for AI-estimater med review, feedback og admin overrides.
+          Gennemgang og historik for AI-estimater. Brug siden til at godkende, rette og forbedre vurderinger.
         </p>
       </header>
 
@@ -622,7 +689,7 @@ export const AIEstimatorDashboard = () => {
             tab === "queue" ? "bg-primary text-white" : "text-foreground"
           }`}
         >
-          Queue
+          Til gennemgang
         </button>
         <button
           type="button"
@@ -634,7 +701,7 @@ export const AIEstimatorDashboard = () => {
             tab === "history" ? "bg-primary text-white" : "text-foreground"
           }`}
         >
-          History
+          Historik
         </button>
         <button
           type="button"
@@ -649,7 +716,7 @@ export const AIEstimatorDashboard = () => {
             tab === "prompts" ? "bg-primary text-white" : "text-foreground"
           }`}
         >
-          Prompts
+          Prompt-indstillinger
         </button>
       </div>
 
@@ -664,7 +731,7 @@ export const AIEstimatorDashboard = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <label className="text-sm text-muted-foreground">
-              Service
+              Ydelse
               <select
                 value={promptServiceFilter}
                 onChange={(event) => setPromptServiceFilter(event.target.value as (typeof serviceOptions)[number])}
@@ -695,20 +762,20 @@ export const AIEstimatorDashboard = () => {
               <p className="mt-1 text-sm text-muted-foreground">Ingen aktiv prompt version i det valgte filter.</p>
             )}
             <p className="mt-1 text-xs text-muted-foreground">
-              This is the prompt currently used in production.
+              Dette er prompten, der bruges i produktion lige nu.
             </p>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-white">
             <div className="grid grid-cols-[1.4fr_140px_120px_180px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <span>Name</span>
-              <span>Service</span>
-              <span>Active</span>
-              <span>Actions</span>
+              <span>Navn</span>
+              <span>Ydelse</span>
+              <span>Aktiv</span>
+              <span>Handlinger</span>
             </div>
             <div className="divide-y divide-border/60">
               {promptItems.length === 0 ? (
-                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen prompt versions fundet.</p>
+                <p className="px-4 py-6 text-sm text-muted-foreground">Ingen prompt-versioner fundet.</p>
               ) : (
                 promptItems.map((item) => (
                   <div key={item.id} className="grid grid-cols-[1.4fr_140px_120px_180px] items-start gap-3 px-4 py-3 text-sm">
@@ -722,11 +789,11 @@ export const AIEstimatorDashboard = () => {
                         item.is_active ? "bg-emerald-100 text-emerald-900" : "bg-muted text-foreground"
                       }`}
                     >
-                      {item.is_active ? "active" : "inactive"}
+                      {item.is_active ? "aktiv" : "inaktiv"}
                     </span>
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" variant="outline" onClick={() => startEditPrompt(item)} disabled={promptSaving}>
-                        View/Edit
+                        Vis/redigér
                       </Button>
                       {!item.is_active ? (
                         <Button
@@ -735,7 +802,7 @@ export const AIEstimatorDashboard = () => {
                           onClick={() => activatePromptVersion(item.id)}
                           disabled={promptSaving}
                         >
-                          Activate
+                          Aktivér
                         </Button>
                       ) : null}
                     </div>
@@ -747,12 +814,12 @@ export const AIEstimatorDashboard = () => {
 
           <div className="rounded-2xl border border-border bg-white p-4">
             <p className="text-sm font-semibold text-foreground">
-              {editingPromptId ? "Rediger prompt version" : "Opret ny prompt version"}
+              {editingPromptId ? "Rediger prompt-version" : "Opret ny prompt-version"}
             </p>
 
             <div className="mt-3 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-muted-foreground">
-                Name
+                Navn
                 <input
                   value={promptNameDraft}
                   onChange={(event) => setPromptNameDraft(event.target.value)}
@@ -760,7 +827,7 @@ export const AIEstimatorDashboard = () => {
                 />
               </label>
               <label className="text-sm text-muted-foreground">
-                Service
+                Ydelse
                 <select
                   value={promptServiceDraft}
                   onChange={(event) => setPromptServiceDraft(event.target.value as AiService)}
@@ -785,7 +852,7 @@ export const AIEstimatorDashboard = () => {
               </label>
 
               <label className="text-sm text-muted-foreground md:col-span-2">
-                Rules (JSON)
+                Regler (JSON)
                 <textarea
                   value={promptRulesDraft}
                   onChange={(event) => setPromptRulesDraft(event.target.value)}
@@ -797,7 +864,7 @@ export const AIEstimatorDashboard = () => {
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Button onClick={savePromptVersion} disabled={promptSaving}>
-                {promptSaving ? "Gemmer..." : "Save changes"}
+                {promptSaving ? "Gemmer..." : "Gem ændringer"}
               </Button>
               {editingPromptId ? (
                 <Button
@@ -805,7 +872,7 @@ export const AIEstimatorDashboard = () => {
                   onClick={() => activatePromptVersion(editingPromptId)}
                   disabled={promptSaving}
                 >
-                  Activate this version
+                  Aktivér denne version
                 </Button>
               ) : null}
             </div>
@@ -838,13 +905,13 @@ export const AIEstimatorDashboard = () => {
                   checked={needsReviewOnly}
                   onChange={(event) => setNeedsReviewOnly(event.target.checked)}
                 />
-                Needs review only
+                Kun kræver gennemgang
               </label>
             ) : null}
 
             {isHistoryTab ? (
               <label className="text-sm text-muted-foreground">
-                Review status
+                Gennemgangsstatus
                 <select
                   value={historyStatusFilter}
                   onChange={(event) =>
@@ -864,7 +931,7 @@ export const AIEstimatorDashboard = () => {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Søg i lead/inputs/output..."
+              placeholder="Søg i kunde, noter eller AI-svar..."
               className="h-10 min-w-[220px] rounded-md border border-border bg-white px-3 text-sm"
             />
 
@@ -875,13 +942,13 @@ export const AIEstimatorDashboard = () => {
 
           <div className="overflow-hidden rounded-2xl border border-border bg-white">
             <div className="grid grid-cols-[160px_130px_220px_120px_120px_1fr_100px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <span>Tid</span>
-              <span>Service</span>
-              <span>Lead</span>
-              <span>Confidence</span>
-              <span>Status</span>
-              <span>Summary</span>
-              <span>Detalje</span>
+              <span>Tidspunkt</span>
+              <span>Ydelse</span>
+              <span>Kunde</span>
+              <span>AI-score</span>
+              <span>Gennemgang</span>
+              <span>Resumé</span>
+              <span>Åbn</span>
             </div>
             <div className="divide-y divide-border/60">
               {items.length === 0 ? (
@@ -913,11 +980,11 @@ export const AIEstimatorDashboard = () => {
                       <p className="text-foreground">{item.summary}</p>
                       {item.needs_review ? (
                         <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">
-                          needs review
+                          kræver gennemgang
                         </span>
                       ) : (
                         <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-900">
-                          reviewed
+                          gennemgået
                         </span>
                       )}
                     </div>
@@ -927,7 +994,7 @@ export const AIEstimatorDashboard = () => {
                       onClick={() => openDetail(item.result_id)}
                       disabled={detailLoading}
                     >
-                      Open
+                      Åbn
                     </Button>
                   </div>
                 ))
@@ -935,7 +1002,7 @@ export const AIEstimatorDashboard = () => {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">Viser {items.length} af {total} resultater.</p>
+          <p className="text-xs text-muted-foreground">Viser {items.length} af {total} vurderinger.</p>
         </div>
       ) : null}
 
@@ -944,7 +1011,7 @@ export const AIEstimatorDashboard = () => {
           <div className="h-full w-full max-w-3xl overflow-y-auto bg-white p-6 shadow-xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold text-foreground">Quote detail</h2>
+                <h2 className="text-2xl font-semibold text-foreground">AI-vurdering detalje</h2>
                 <p className="text-xs text-muted-foreground">
                   {detail.request?.service || "-"} · {formatDateTime(detail.result.created_at)}
                 </p>
@@ -979,7 +1046,7 @@ export const AIEstimatorDashboard = () => {
                     <div className="mt-2 flex flex-wrap gap-2">
                       {openLeadHref ? (
                         <Link href={openLeadHref} className="inline-flex text-primary underline underline-offset-2">
-                          Open lead
+                          Åbn henvendelse
                         </Link>
                       ) : null}
                     </div>
@@ -990,20 +1057,55 @@ export const AIEstimatorDashboard = () => {
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">Request</p>
+                <p className="text-sm font-semibold text-foreground">Indsendte oplysninger</p>
                 <p className="mt-2 text-xs text-muted-foreground">
                   Oprettet: {detail.request ? formatDateTime(detail.request.created_at) : "-"}
                 </p>
                 <p className="text-xs text-muted-foreground">Page: {short(detail.request?.page_url)}</p>
-                <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-md border border-border/70 bg-white p-3 text-xs text-muted-foreground">
-                  {prettyJson(detail.request?.inputs || {})}
-                </pre>
+                <div className="mt-3 rounded-md border border-border/70 bg-white p-3 text-sm">
+                  <p>
+                    <strong>Navn:</strong>{" "}
+                    {short(
+                      typeof detail.request?.inputs?.navn === "string"
+                        ? detail.request.inputs.navn
+                        : typeof detail.request?.inputs?.name === "string"
+                          ? detail.request.inputs.name
+                          : null
+                    )}
+                  </p>
+                  <p>
+                    <strong>Telefon:</strong>{" "}
+                    {short(
+                      typeof detail.request?.inputs?.telefon === "string"
+                        ? detail.request.inputs.telefon
+                        : typeof detail.request?.inputs?.phone === "string"
+                          ? detail.request.inputs.phone
+                          : null
+                    )}
+                  </p>
+                  <p>
+                    <strong>Antal bordplader:</strong>{" "}
+                    {short(
+                      typeof detail.request?.inputs?.boardCount === "number"
+                        ? String(detail.request.inputs.boardCount)
+                        : null
+                    )}
+                  </p>
+                </div>
+                <details className="mt-3 rounded-md border border-border/70 bg-white p-3">
+                  <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+                    Vis rå request-data (JSON)
+                  </summary>
+                  <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-xs text-muted-foreground">
+                    {prettyJson(detail.request?.inputs || {})}
+                  </pre>
+                </details>
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
                 <p className="text-sm font-semibold text-foreground">Images</p>
                 {detailImages.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted-foreground">No images provided.</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Ingen billeder fundet.</p>
                 ) : (
                   <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
                     {detailImages.map((url) => (
@@ -1026,26 +1128,48 @@ export const AIEstimatorDashboard = () => {
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">AI output</p>
+                <p className="text-sm font-semibold text-foreground">AI-vurdering</p>
                 {typeof detail.result.output?.text === "string" && detail.result.output.text.trim() ? (
                   <p className="mt-2 text-sm text-foreground">{detail.result.output.text.trim()}</p>
                 ) : null}
-                <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-md border border-border/70 bg-white p-3 text-xs text-muted-foreground">
-                  {prettyJson(detail.result.output || {})}
-                </pre>
+                <div className="mt-3 rounded-md border border-border/70 bg-white p-3 text-sm">
+                  {(() => {
+                    const range = extractPriceRange(detail.result.output || {});
+                    return (
+                      <p>
+                        <strong>Foreslået prisinterval:</strong>{" "}
+                        {range.min !== null || range.max !== null
+                          ? `${range.min ?? "-"} - ${range.max ?? "-"} kr`
+                          : "Ikke angivet"}
+                      </p>
+                    );
+                  })()}
+                  <p>
+                    <strong>AI-score:</strong>{" "}
+                    {typeof detail.result.confidence === "number" ? detail.result.confidence.toFixed(2) : "n/a"}
+                  </p>
+                </div>
+                <details className="mt-3 rounded-md border border-border/70 bg-white p-3">
+                  <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+                    Vis rå AI-output (JSON)
+                  </summary>
+                  <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-xs text-muted-foreground">
+                    {prettyJson(detail.result.output || {})}
+                  </pre>
+                </details>
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">Review actions</p>
+                <p className="text-sm font-semibold text-foreground">Gennemgangshandlinger</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("approved")}>
-                    Approve
+                    Godkend
                   </Button>
                   <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("edited")}>
-                    Mark edited
+                    Marker redigeret
                   </Button>
                   <Button variant="outline" disabled={detailSaving} onClick={() => reviewAction("rejected")}>
-                    Reject
+                    Afvis
                   </Button>
                 </div>
                 <label className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
@@ -1055,12 +1179,12 @@ export const AIEstimatorDashboard = () => {
                     onChange={(event) => updateNeedsReview(event.target.checked)}
                     disabled={detailSaving}
                   />
-                  needs_review
+                  Kræver gennemgang
                 </label>
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">Admin feedback</p>
+                <p className="text-sm font-semibold text-foreground">Intern feedback til AI-team</p>
                 <textarea
                   value={feedbackDraft}
                   onChange={(event) => setFeedbackDraft(event.target.value)}
@@ -1069,13 +1193,42 @@ export const AIEstimatorDashboard = () => {
                 />
                 <div className="mt-3">
                   <Button variant="outline" disabled={detailSaving} onClick={saveFeedback}>
-                    Save feedback
+                    Gem feedback
                   </Button>
                 </div>
               </section>
 
               <section className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-sm font-semibold text-foreground">Admin override (JSON)</p>
+                <p className="text-sm font-semibold text-foreground">Pris-override (nem redigering)</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <label className="text-sm text-muted-foreground">
+                    Pris fra (kr)
+                    <input
+                      value={overrideMinDraft}
+                      onChange={(event) => setOverrideMinDraft(event.target.value.replace(/[^\d]/g, ""))}
+                      className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                      inputMode="numeric"
+                    />
+                  </label>
+                  <label className="text-sm text-muted-foreground">
+                    Pris til (kr)
+                    <input
+                      value={overrideMaxDraft}
+                      onChange={(event) => setOverrideMaxDraft(event.target.value.replace(/[^\d]/g, ""))}
+                      className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                      inputMode="numeric"
+                    />
+                  </label>
+                </div>
+                <div className="mt-3">
+                  <Button variant="outline" disabled={detailSaving} onClick={savePriceOverride}>
+                    Gem pris-override
+                  </Button>
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Avanceret override (JSON)</p>
                 <textarea
                   value={overrideDraft}
                   onChange={(event) => setOverrideDraft(event.target.value)}
@@ -1084,10 +1237,10 @@ export const AIEstimatorDashboard = () => {
                 />
                 <div className="mt-3 flex gap-2">
                   <Button variant="outline" disabled={detailSaving} onClick={saveOverride}>
-                    Save override
+                    Gem avanceret override
                   </Button>
                   <Button variant="outline" disabled={detailSaving} onClick={clearOverride}>
-                    Clear override
+                    Nulstil override
                   </Button>
                 </div>
               </section>
