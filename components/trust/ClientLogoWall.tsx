@@ -19,14 +19,14 @@ const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string;
     : "logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3";
   const sizeClass = compact
     ? isRigshospitalLogo
-      ? "max-h-[58px] max-w-[220px] md:max-h-[75px] md:max-w-[289px]"
+      ? "max-h-[46px] max-w-[176px] md:max-h-[60px] md:max-w-[231px]"
       : isSkatteministerietLogo
-        ? "max-h-[116px] max-w-[340px] md:max-h-[146px] md:max-w-[440px]"
+        ? "max-h-[133px] max-w-[391px] md:max-h-[168px] md:max-w-[506px]"
       : "max-h-[96px] max-w-[283px] md:max-h-[122px] md:max-w-[367px]"
     : isRigshospitalLogo
-      ? "max-h-[68px] max-w-[258px] md:max-h-[88px] md:max-w-[340px]"
+      ? "max-h-[54px] max-w-[206px] md:max-h-[70px] md:max-w-[272px]"
       : isSkatteministerietLogo
-        ? "max-h-[134px] max-w-[396px] md:max-h-[172px] md:max-w-[518px]"
+        ? "max-h-[154px] max-w-[455px] md:max-h-[198px] md:max-w-[596px]"
       : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]";
 
   return (
