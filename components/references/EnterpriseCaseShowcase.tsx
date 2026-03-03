@@ -52,9 +52,9 @@ export const EnterpriseCaseShowcase = ({
           {visibleCases.map((caseItem) => {
             const isRigshospitalCase = caseItem.clientId.includes("rigshospitalets.patienthotel");
             const logoFrameClass = isRigshospitalCase
-              ? "h-[62%] w-[86%] max-w-[360px]"
+              ? "h-[36%] w-[51%] max-w-[205px]"
               : "h-[82%] w-[94%] max-w-[520px]";
-            const logoPaddingClass = isRigshospitalCase ? "p-3 md:p-4" : "p-2 md:p-3";
+            const logoPaddingClass = isRigshospitalCase ? "p-2 md:p-3" : "p-2 md:p-3";
 
             return (
               <li key={caseItem.id}>

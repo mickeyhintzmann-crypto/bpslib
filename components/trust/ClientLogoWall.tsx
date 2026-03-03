@@ -39,8 +39,10 @@ const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
         width={420}
         height={180}
         sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
-        className={`h-auto w-auto max-w-none object-contain opacity-100 transition duration-200 ${
-          isRigshospitalLogo ? "max-h-[58px] md:max-h-[76px]" : "max-h-[68px] md:max-h-[90px]"
+        className={`h-auto w-auto object-contain opacity-100 transition duration-200 ${
+          isRigshospitalLogo
+            ? "max-h-[68px] max-w-[258px] md:max-h-[88px] md:max-w-[340px]"
+            : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]"
         }`}
       />
     </li>
