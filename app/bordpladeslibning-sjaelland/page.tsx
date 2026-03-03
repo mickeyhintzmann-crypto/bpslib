@@ -176,10 +176,10 @@ const caseGalleryItems = [
       "Varmeaftryk kan ofte reduceres afhængigt af dybde og trætype. Vi starter med en billedvurdering, så forventninger og plan er klare."
   },
   {
-    title: "Køkken + bryggers – samlet vurdering via billeder",
+    title: "Spisebord – samlet vurdering via billeder",
     location: "Sjælland",
     summary:
-      "Flere bordplader kan ofte vurderes samlet. Du sender billeder og mål, og vi vender tilbage med et konkret forslag til næste skridt."
+      "Spiseborde kan ofte reddes med en målrettet slibning. Du sender billeder og mål, og vi vender tilbage med et konkret forslag til næste skridt."
   }
 ];
 
@@ -208,6 +208,33 @@ if (caseGalleryItemsWithImages[0]) {
     alt: "Køkkenbord før slibning med skjolder ved vask",
     hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
     hoverAlt: "Køkkenbord efter slibning med ensartet finish"
+  };
+}
+
+if (caseGalleryItemsWithImages[1]) {
+  caseGalleryItemsWithImages[1].image = {
+    src: "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
+    alt: "Træbordplade før slibning med fine ridser og ujævn glans",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+    hoverAlt: "Træbordplade efter slibning med roligt og ensartet udtryk"
+  };
+}
+
+if (caseGalleryItemsWithImages[2]) {
+  caseGalleryItemsWithImages[2].image = {
+    src: "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_01..HEIC",
+    alt: "Massiv bordplade før slibning med varmepletter og misfarvning",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_02.HEIC",
+    hoverAlt: "Massiv bordplade efter slibning med forbedret finish"
+  };
+}
+
+if (caseGalleryItemsWithImages[3]) {
+  caseGalleryItemsWithImages[3].image = {
+    src: "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_01.HEIC",
+    alt: "Spisebord før slibning",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_02.HEIC",
+    hoverAlt: "Spisebord efter slibning"
   };
 }
 
