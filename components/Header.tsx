@@ -70,6 +70,7 @@ export const Header = () => {
               width={320}
               height={108}
               className="h-[54px] max-w-none w-auto md:h-[108px]"
+              style={{ width: "auto" }}
             />
             <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
