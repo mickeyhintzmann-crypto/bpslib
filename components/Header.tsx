@@ -61,22 +61,23 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="mx-auto grid w-full max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-3.5 lg:px-6">
-        <div className="flex items-center">
-          <Link href="/" className="inline-flex shrink-0 items-center transition hover:opacity-90">
+      <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-4 px-5 py-3.5 lg:px-6">
+        <div className="flex items-center gap-6">
+          <Link
+            href="/"
+            className="inline-flex shrink-0 items-center transition hover:opacity-90"
+          >
             <BpsImage
               src={brandAssets.logo}
               alt={`${siteConfig.companyName} logo`}
-              width={320}
-              height={108}
-              className="h-[54px] max-w-none w-auto md:h-[108px]"
-              style={{ width: "auto" }}
+              width={160}
+              height={54}
+              className="max-w-none"
+              style={{ width: "auto", height: "54px" }}
             />
             <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
-        </div>
-
-        <nav className="hidden items-center justify-center gap-5 font-sans md:flex">
+          <nav className="hidden items-center gap-5 font-sans md:flex">
             <NavDropdown
               label="Bordplade"
               items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
@@ -104,7 +105,7 @@ export const Header = () => {
             ))}
             <NavDropdown label="Mere" items={moreMenu.map((route) => ({ href: route.href, label: route.label }))} />
           </nav>
-
+        </div>
         <div className="flex items-center gap-2.5">
           {bookingCta ? (
             <Button
