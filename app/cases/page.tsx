@@ -1,7 +1,9 @@
 import Link from "next/link";
 
-import { FinishGallery } from "@/components/cases/FinishGallery";
+import { CasesHubClient } from "@/components/cases/CasesHubClient";
 import { Button } from "@/components/ui/button";
+import { enterpriseCases } from "@/lib/enterpriseCases";
+import { casesManifest } from "@/lib/mediaManifest";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
@@ -53,6 +55,17 @@ export default function CasesPage() {
           </Link>
           .
         </p>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+          Vi har også cases og billedserier inden for{" "}
+          <Link href="/gulvafslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
+            gulvafslibning
+          </Link>{" "}
+          og{" "}
+          <Link href="/gulvlaegning-sjaelland" className="font-medium text-foreground hover:text-primary">
+            gulvbelægning
+          </Link>
+          .
+        </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild>
             <Link href="/bordpladeslibning/prisberegner">Få pris via billeder</Link>
@@ -69,7 +82,7 @@ export default function CasesPage() {
         </div>
       </section>
 
-      <FinishGallery />
+      <CasesHubClient cases={casesManifest} enterpriseCases={enterpriseCases} />
     </main>
   );
 }
