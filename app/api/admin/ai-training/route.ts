@@ -38,6 +38,22 @@ const parseNumber = (value: string, min: number, max: number) => {
   return rounded;
 };
 
+const parseDecimal = (value: string, min: number, max: number) => {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.replace(",", ".").replace(/[^0-9.]/g, "");
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  const rounded = Math.round(parsed * 10) / 10;
+  if (rounded < min || rounded > max) {
+    return null;
+  }
+  return rounded;
+};
+
 const parseService = (value: string) => {
   const cleaned = value.trim().toLowerCase();
   if (!cleaned) {
@@ -68,6 +84,8 @@ export async function POST(request: Request) {
 
     const priceMinRaw = asString(formData.get("priceMin"));
     const priceMaxRaw = asString(formData.get("priceMax"));
+    const areaM2Raw = asString(formData.get("areaM2"));
+    const description = asString(formData.get("description"));
     const label = asString(formData.get("label"));
     const note = asString(formData.get("note"));
     const service = parseService(asString(formData.get("service")));
@@ -109,6 +127,7 @@ export async function POST(request: Request) {
 
     const priceMin = parseNumber(priceMinRaw, 500, 20000);
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
+    const areaM2 = parseDecimal(areaM2Raw, 1, 2000);
 
     if (priceMin === null || priceMax === null) {
       return NextResponse.json({ message: "Angiv prisinterval (min/max)." }, { status: 400 });
@@ -118,6 +137,15 @@ export async function POST(request: Request) {
     }
     if (!service) {
       return NextResponse.json({ message: "Vælg en gyldig service til træning." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && areaM2 === null) {
+      return NextResponse.json({ message: "Angiv m2 for gulv-træning." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && !description) {
+      return NextResponse.json(
+        { message: "Tilføj en kort beskrivelse (træsort, behandling, stand)." },
+        { status: 400 }
+      );
     }
 
     const supabase = createSupabaseServiceClient();
@@ -164,6 +192,8 @@ export async function POST(request: Request) {
       telefon: "00000000",
       note: note || undefined,
       service,
+      areaM2: areaM2 ?? undefined,
+      description: description || undefined,
       boardCount,
       aiNote
     };
@@ -207,6 +237,8 @@ export async function POST(request: Request) {
       entityId: data.id,
       meta: {
         service,
+        areaM2,
+        description: description || null,
         priceMin,
         priceMax,
         imageCount: uploadedImages.length,

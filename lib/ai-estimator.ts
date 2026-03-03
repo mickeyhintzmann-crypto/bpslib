@@ -13,8 +13,18 @@ export type EstimatorAiSettings = {
   roundTo: number;
 };
 
-const HARD_MIN_PRICE = 3200;
-const HARD_MAX_PRICE = 4000;
+type ServiceHardLimits = {
+  min: number;
+  max: number;
+};
+
+const SERVICE_HARD_LIMITS: Record<string, ServiceHardLimits> = {
+  bordplade: { min: 3200, max: 4000 },
+  // Gulv bruger pris pr. m2 i læringen.
+  gulvafslibning: { min: 80, max: 1200 }
+};
+
+const FALLBACK_HARD_LIMITS: ServiceHardLimits = { min: 100, max: 100000 };
 
 export type EstimatorAiEstimate = {
   min: number;
@@ -26,10 +36,23 @@ export const ESTIMATOR_AI_DEFAULTS: EstimatorAiSettings = {
   enabled: true,
   minSamples: 1,
   interval: 300,
-  minPrice: HARD_MIN_PRICE,
-  maxPrice: HARD_MAX_PRICE,
+  minPrice: SERVICE_HARD_LIMITS.bordplade.min,
+  maxPrice: SERVICE_HARD_LIMITS.bordplade.max,
   fixedPrice: false,
   roundTo: 100
+};
+
+const SERVICE_DEFAULTS: Record<string, EstimatorAiSettings> = {
+  bordplade: ESTIMATOR_AI_DEFAULTS,
+  gulvafslibning: {
+    enabled: true,
+    minSamples: 1,
+    interval: 40,
+    minPrice: SERVICE_HARD_LIMITS.gulvafslibning.min,
+    maxPrice: SERVICE_HARD_LIMITS.gulvafslibning.max,
+    fixedPrice: false,
+    roundTo: 10
+  }
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -72,16 +95,23 @@ const parseSampleNumber = (value: unknown) => {
   return null;
 };
 
-export const getEstimatorAiSettings = async (supabase: SupabaseClient): Promise<EstimatorAiSettings> => {
+export const getEstimatorAiSettings = async (
+  supabase: SupabaseClient,
+  service: string = "bordplade"
+): Promise<EstimatorAiSettings> => {
+  const defaults = SERVICE_DEFAULTS[service] || ESTIMATOR_AI_DEFAULTS;
+  const hardLimits = SERVICE_HARD_LIMITS[service] || FALLBACK_HARD_LIMITS;
+  const settingsKey = service === "bordplade" ? "estimator_ai" : `estimator_ai_${service}`;
+
   try {
     const { data, error } = await supabase
       .from("settings")
       .select("value")
-      .eq("key", "estimator_ai")
+      .eq("key", settingsKey)
       .maybeSingle();
 
     if (error) {
-      return ESTIMATOR_AI_DEFAULTS;
+      return defaults;
     }
 
     const value = (data?.value || {}) as Partial<EstimatorAiSettings>;
@@ -94,27 +124,27 @@ export const getEstimatorAiSettings = async (supabase: SupabaseClient): Promise<
     const fixedPrice = parseBoolean(value.fixedPrice);
     const roundTo = parseIntValue(value.roundTo);
 
-    let resolvedMinPrice = minPrice ?? ESTIMATOR_AI_DEFAULTS.minPrice;
-    let resolvedMaxPrice = maxPrice ?? ESTIMATOR_AI_DEFAULTS.maxPrice;
+    let resolvedMinPrice = minPrice ?? defaults.minPrice;
+    let resolvedMaxPrice = maxPrice ?? defaults.maxPrice;
 
-    resolvedMinPrice = Math.max(resolvedMinPrice, HARD_MIN_PRICE);
-    resolvedMaxPrice = Math.min(resolvedMaxPrice, HARD_MAX_PRICE);
+    resolvedMinPrice = Math.max(resolvedMinPrice, hardLimits.min);
+    resolvedMaxPrice = Math.min(resolvedMaxPrice, hardLimits.max);
     if (resolvedMaxPrice < resolvedMinPrice) {
       resolvedMaxPrice = resolvedMinPrice;
     }
 
     return {
-      enabled: enabled ?? ESTIMATOR_AI_DEFAULTS.enabled,
-      minSamples: minSamples ?? ESTIMATOR_AI_DEFAULTS.minSamples,
-      interval: interval ?? ESTIMATOR_AI_DEFAULTS.interval,
+      enabled: enabled ?? defaults.enabled,
+      minSamples: minSamples ?? defaults.minSamples,
+      interval: interval ?? defaults.interval,
       minPrice: resolvedMinPrice,
       maxPrice: resolvedMaxPrice,
-      fixedPrice: fixedPrice ?? ESTIMATOR_AI_DEFAULTS.fixedPrice,
-      roundTo: roundTo ?? ESTIMATOR_AI_DEFAULTS.roundTo
+      fixedPrice: fixedPrice ?? defaults.fixedPrice,
+      roundTo: roundTo ?? defaults.roundTo
     };
   } catch (error) {
     console.error("Kunne ikke hente estimator AI settings:", error);
-    return ESTIMATOR_AI_DEFAULTS;
+    return defaults;
   }
 };
 
@@ -162,6 +192,27 @@ const getBoardCount = (input?: EstimatorAiInput) => {
     : 1;
 };
 
+const parseAreaM2 = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0 ? value : null;
+  }
+  if (typeof value === "string") {
+    const normalized = value.trim().replace(",", ".");
+    const parsed = Number.parseFloat(normalized);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+const getAreaM2FromFields = (value: unknown) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  return parseAreaM2((value as Record<string, unknown>).areaM2);
+};
+
 const parseBoardCount = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return Math.max(1, Math.min(6, Math.floor(value)));
@@ -190,8 +241,13 @@ const parsePriceRange = (value: unknown) => {
   return { min, max };
 };
 
-const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorAiInput) => {
+const buildFallbackEstimate = (
+  settings: EstimatorAiSettings,
+  service: string,
+  input?: EstimatorAiInput
+) => {
   const boardCount = getBoardCount(input);
+  const areaM2 = parseAreaM2(input?.fields?.areaM2);
   const extraRange = getExtrasPriceRange(input?.extras ?? null);
   const halfInterval = Math.max(0, Math.round(settings.interval / 2));
   const fallbackMid = (settings.minPrice + settings.maxPrice) / 2;
@@ -202,8 +258,16 @@ const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorA
   baseMin = clamp(baseMin, settings.minPrice, settings.maxPrice);
   baseMax = clamp(baseMax, settings.minPrice, settings.maxPrice);
 
-  let min = Math.round(baseMin * boardCount + extraRange.min);
-  let max = Math.round(baseMax * boardCount + extraRange.max);
+  let min = 0;
+  let max = 0;
+
+  if (service === "gulvafslibning" && areaM2) {
+    min = Math.round(baseMin * areaM2);
+    max = Math.round(baseMax * areaM2);
+  } else {
+    min = Math.round(baseMin * boardCount + extraRange.min);
+    max = Math.round(baseMax * boardCount + extraRange.max);
+  }
 
   if (max - min < settings.interval) {
     max = min + settings.interval;
@@ -213,7 +277,7 @@ const buildFallbackEstimate = (settings: EstimatorAiSettings, input?: EstimatorA
     min = max;
   }
 
-  ({ min, max } = clampFinalRange(min, max));
+  ({ min, max } = clampFinalRange(service, min, max));
 
   if (settings.fixedPrice) {
     const rounded = roundFixedPrice(settings, (min + max) / 2);
@@ -239,9 +303,10 @@ const roundFixedPrice = (settings: EstimatorAiSettings, value: number) => {
   return clamp(Math.round(rounded), settings.minPrice, settings.maxPrice);
 };
 
-const clampFinalRange = (min: number, max: number) => {
-  let clampedMin = clamp(min, HARD_MIN_PRICE, HARD_MAX_PRICE);
-  let clampedMax = clamp(max, HARD_MIN_PRICE, HARD_MAX_PRICE);
+const clampFinalRange = (service: string, min: number, max: number) => {
+  const limits = SERVICE_HARD_LIMITS[service] || FALLBACK_HARD_LIMITS;
+  let clampedMin = clamp(min, limits.min, limits.max);
+  let clampedMax = clamp(max, limits.min, limits.max);
   if (clampedMin > clampedMax) {
     clampedMax = clampedMin;
   }
@@ -253,12 +318,12 @@ export const estimateAiPrice = async (
   input?: EstimatorAiInput
 ): Promise<EstimatorAiEstimate | null> => {
   const targetService = normalizeService(input?.service ?? input?.fields?.service);
-  const settings = await getEstimatorAiSettings(supabase);
+  const settings = await getEstimatorAiSettings(supabase, targetService);
 
   if (!settings.enabled) {
     // Hvis AI er slået fra, returnér stadig et fallback-estimat,
     // så kunden kan få en pris uden at flowet stopper.
-    return buildFallbackEstimate(settings, input);
+    return buildFallbackEstimate(settings, targetService, input);
   }
 
   const [estimatorResult, aiReviewedResult] = await Promise.all([
@@ -279,7 +344,7 @@ export const estimateAiPrice = async (
 
   if (estimatorResult.error) {
     console.error("Kunne ikke hente estimator samples:", estimatorResult.error);
-    return buildFallbackEstimate(settings, input);
+    return buildFallbackEstimate(settings, targetService, input);
   }
 
   type SampleRow = { baseMid: number };
@@ -295,7 +360,20 @@ export const estimateAiPrice = async (
         return null;
       }
 
-      const baseMid = toBaseMid(min, max);
+      let baseMid = toBaseMid(min, max);
+      if (!baseMid) {
+        return null;
+      }
+
+      // Gulv læres som pris pr. m2; bordplade og øvrige services følger eksisterende model.
+      if (targetService === "gulvafslibning") {
+        const areaM2 = getAreaM2FromFields(row.fields);
+        if (!areaM2) {
+          return null;
+        }
+        baseMid = baseMid / areaM2;
+      }
+
       if (!baseMid) {
         return null;
       }
@@ -324,6 +402,11 @@ export const estimateAiPrice = async (
         return;
       }
       const boardCount = parseBoardCount(request?.inputs?.boardCount);
+      const inputFields =
+        request?.inputs && typeof request.inputs === "object" && !Array.isArray(request.inputs)
+          ? ((request.inputs as Record<string, unknown>).fields as Record<string, unknown> | undefined)
+          : undefined;
+      const areaM2 = parseAreaM2(inputFields?.areaM2 ?? (request?.inputs as Record<string, unknown> | null)?.areaM2);
 
       const overrideRange = parsePriceRange(row.admin_override);
       const outputRange = parsePriceRange(row.output);
@@ -334,7 +417,11 @@ export const estimateAiPrice = async (
         return;
       }
 
-      const normalizedBase = ((min + max) / 2) / boardCount;
+      const normalizedBase =
+        targetService === "gulvafslibning" ? ((min + max) / 2) / (areaM2 || 1) : ((min + max) / 2) / boardCount;
+      if (targetService === "gulvafslibning" && !areaM2) {
+        return;
+      }
       const baseMid = toBaseMid(normalizedBase, normalizedBase);
       if (!baseMid) {
         return;
@@ -351,11 +438,12 @@ export const estimateAiPrice = async (
   const samples = [...estimatorSamples, ...aiReviewedSamples];
 
   if (samples.length === 0 || samples.length < settings.minSamples) {
-    return buildFallbackEstimate(settings, input);
+    return buildFallbackEstimate(settings, targetService, input);
   }
 
   const extraRange = getExtrasPriceRange(input?.extras ?? null);
   const boardCount = getBoardCount(input);
+  const areaM2 = parseAreaM2(input?.fields?.areaM2);
   const halfInterval = Math.max(0, Math.round(settings.interval / 2));
 
   let baseMin: number;
@@ -378,8 +466,16 @@ export const estimateAiPrice = async (
     }
   }
 
-  let min = Math.round(baseMin * boardCount + extraRange.min);
-  let max = Math.round(baseMax * boardCount + extraRange.max);
+  let min = 0;
+  let max = 0;
+
+  if (targetService === "gulvafslibning" && areaM2) {
+    min = Math.round(baseMin * areaM2);
+    max = Math.round(baseMax * areaM2);
+  } else {
+    min = Math.round(baseMin * boardCount + extraRange.min);
+    max = Math.round(baseMax * boardCount + extraRange.max);
+  }
 
   if (max - min < settings.interval) {
     max = min + settings.interval;
@@ -389,7 +485,7 @@ export const estimateAiPrice = async (
     min = max;
   }
 
-  ({ min, max } = clampFinalRange(min, max));
+  ({ min, max } = clampFinalRange(targetService, min, max));
 
   if (settings.fixedPrice) {
     const rounded = roundFixedPrice(settings, (min + max) / 2);

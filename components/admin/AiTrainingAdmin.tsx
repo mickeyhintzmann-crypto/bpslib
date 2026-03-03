@@ -34,6 +34,8 @@ export const AiTrainingAdmin = () => {
   const [service, setService] = useState<(typeof SERVICE_OPTIONS)[number]["value"]>("gulvafslibning");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
+  const [areaM2, setAreaM2] = useState("");
+  const [description, setDescription] = useState("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -76,6 +78,15 @@ export const AiTrainingAdmin = () => {
     if (minValue > maxValue) {
       return "Prisinterval: min må ikke være større end max.";
     }
+    if (service === "gulvafslibning") {
+      const m2 = Number.parseFloat(areaM2.replace(",", "."));
+      if (!Number.isFinite(m2) || m2 <= 0) {
+        return "Angiv gyldigt m2 for gulv-træning.";
+      }
+      if (!description.trim()) {
+        return "Tilføj kort beskrivelse (træsort, behandling, stand).";
+      }
+    }
 
     return null;
   };
@@ -96,6 +107,8 @@ export const AiTrainingAdmin = () => {
       formData.append("service", service);
       formData.append("priceMin", String(parseNumber(priceMin) ?? ""));
       formData.append("priceMax", String(parseNumber(priceMax) ?? ""));
+      formData.append("areaM2", areaM2.trim());
+      formData.append("description", description.trim());
       formData.append("label", label.trim());
       formData.append("note", note.trim());
       images.forEach((file) => formData.append("images", file));
@@ -115,6 +128,8 @@ export const AiTrainingAdmin = () => {
       setImages([]);
       setPriceMin("");
       setPriceMax("");
+      setAreaM2("");
+      setDescription("");
       setLabel("");
       setNote("");
     } catch (submitError) {
@@ -176,6 +191,18 @@ export const AiTrainingAdmin = () => {
       </div>
 
       <div className="grid gap-4 rounded-xl border border-border bg-background/70 p-4 md:grid-cols-2">
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Areal (m2)
+            <input
+              value={areaM2}
+              onChange={(event) => setAreaM2(event.target.value)}
+              inputMode="decimal"
+              className="h-10 rounded-md border border-border bg-white px-3"
+              placeholder="fx 42.5"
+            />
+          </label>
+        ) : null}
         <label className="grid gap-2 text-sm text-foreground">
           Pris min (kr)
           <input
@@ -201,6 +228,15 @@ export const AiTrainingAdmin = () => {
             onChange={(event) => setLabel(event.target.value)}
             className="h-10 rounded-md border border-border bg-white px-3"
             placeholder="fx Træning køkken 1"
+          />
+        </label>
+        <label className="grid gap-2 text-sm text-foreground md:col-span-3">
+          Beskrivelse {service === "gulvafslibning" ? "(påkrævet)" : "(valgfri)"}
+          <input
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            className="h-10 rounded-md border border-border bg-white px-3"
+            placeholder="fx Fyrretræ, lakeret, dybe ridser, 42 m2 stue/gang"
           />
         </label>
         <label className="grid gap-2 text-sm text-foreground md:col-span-3">
