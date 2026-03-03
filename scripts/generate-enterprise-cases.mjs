@@ -9,6 +9,13 @@ const logosRoot = path.join(mediaRoot, "logos", "clients");
 const outputFile = path.join(repoRoot, "lib", "enterpriseCases.ts");
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const COVER_OVERRIDES = {
+  "case-001:vibenshuset": "vibenhus:case-001:12-after.JPG",
+  "case-002:brdr.price.tivoli": "brdr.price:case-002:02-after.jpg",
+  "case-003:fairway": "fairway:case-004:03-after.jpg",
+  "case-005:skatteministeriet": "skatteministeriet:case-005:07-afte.jpg",
+  "case-006:rigshospitalets.patienthotel": "rigshospitalets-patienthotel:case-006:02-after..jpg"
+};
 
 function isDirectory(targetPath) {
   try {
@@ -89,7 +96,18 @@ function toDisplayName(clientId) {
     .join(" ");
 }
 
-function chooseCover(images) {
+function chooseCover(images, caseId) {
+  const overrideFile = COVER_OVERRIDES[caseId];
+  if (overrideFile) {
+    const override = images.find(
+      (imagePath) => path.basename(imagePath).toLowerCase() === overrideFile.toLowerCase()
+    );
+    if (override) {
+      return override;
+    }
+    console.warn(`[enterprise-cases] cover override missing for ${caseId}: ${overrideFile}`);
+  }
+
   const prioritized = images.find((imagePath) => {
     const name = path.basename(imagePath).toLowerCase();
     return name.includes("after") || name.includes("finished");
@@ -152,7 +170,7 @@ for (const clientDir of clientDirs) {
 
     const sourceId = path.basename(sourceDir);
     const caseId = sourceDir === clientDir ? clientId : `${clientId}--${sourceId}`;
-    const coverAbs = chooseCover(imageFiles);
+    const coverAbs = chooseCover(imageFiles, caseId);
     const imageSrcs = imageFiles.map((imageAbs) => toWebPath(imageAbs));
     const coverSrc = toWebPath(coverAbs);
 

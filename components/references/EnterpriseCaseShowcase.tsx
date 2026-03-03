@@ -65,15 +65,16 @@ export const EnterpriseCaseShowcase = ({
                     className="object-cover transition duration-300 group-hover:scale-[1.02]"
                   />
                   {caseItem.clientLogoSrc ? (
-                    <div className="absolute left-3 top-3 rounded-md border border-white/40 bg-white/90 p-1.5 shadow-sm">
-                      <Image
-                        src={caseItem.clientLogoSrc}
-                        alt={`${caseItem.clientName} logo`}
-                        width={90}
-                        height={36}
-                        sizes="90px"
-                        className="h-auto max-h-7 w-auto object-contain"
-                      />
+                    <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-4 md:p-5">
+                      <div className="relative h-[68%] w-[82%]">
+                        <Image
+                          src={caseItem.clientLogoSrc}
+                          alt={`${caseItem.clientName} logo`}
+                          fill
+                          sizes="(max-width: 767px) 70vw, (max-width: 1023px) 36vw, 24vw"
+                          className="object-contain opacity-[0.24] transition duration-300 group-hover:opacity-[0.3]"
+                        />
+                      </div>
                     </div>
                   ) : null}
                 </div>

@@ -19,7 +19,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "clientName": "Vibenshuset",
     "clientLogoSrc": "/media/logos/clients/vibenshuset.logo.svg",
     "title": "Opgave for Vibenshuset",
-    "coverSrc": "/media/cases/enterprise/case-001%3Avibenshuset/vibenhus%3Acase-001%3A01-after.jpg",
+    "coverSrc": "/media/cases/enterprise/case-001%3Avibenshuset/vibenhus%3Acase-001%3A12-after.JPG",
     "imageSrcs": [
       "/media/cases/enterprise/case-001%3Avibenshuset/vibenhus%3Acase-001%3A01-after.jpg",
       "/media/cases/enterprise/case-001%3Avibenshuset/vibenhus%3Acase-001%3A01-before.JPG",
@@ -53,7 +53,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "clientName": "Brdr Price Tivoli",
     "clientLogoSrc": "/media/logos/clients/brdr.price.tivoli.logo.svg",
     "title": "Opgave for Brdr Price Tivoli",
-    "coverSrc": "/media/cases/enterprise/case-002%3Abrdr.price.tivoli/brdr.price%3Acase-002%3A01-after.JPG",
+    "coverSrc": "/media/cases/enterprise/case-002%3Abrdr.price.tivoli/brdr.price%3Acase-002%3A02-after.jpg",
     "imageSrcs": [
       "/media/cases/enterprise/case-002%3Abrdr.price.tivoli/brdr.price%3Acase-002%3A01-after.JPG",
       "/media/cases/enterprise/case-002%3Abrdr.price.tivoli/brdr.price%3Acase-002%3A01-before.jpg",
@@ -69,7 +69,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "clientName": "Fairway",
     "clientLogoSrc": "/media/logos/clients/fairway.logo.svg",
     "title": "Opgave for Fairway",
-    "coverSrc": "/media/cases/enterprise/case-003%3Afairway/fairway%3Acase-004%3A01-after.jpg",
+    "coverSrc": "/media/cases/enterprise/case-003%3Afairway/fairway%3Acase-004%3A03-after.jpg",
     "imageSrcs": [
       "/media/cases/enterprise/case-003%3Afairway/fairway%3Acase-004%3A01-after.jpg",
       "/media/cases/enterprise/case-003%3Afairway/fairway%3Acase-004%3A01-before.jpg",
@@ -102,7 +102,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "clientName": "Skatteministeriet",
     "clientLogoSrc": "/media/logos/clients/skatteministeriet.logo.svg",
     "title": "Opgave for Skatteministeriet",
-    "coverSrc": "/media/cases/enterprise/case-005%3Askatteministeriet/skatteministeriet%3Acase-005%3A01-after.jpg",
+    "coverSrc": "/media/cases/enterprise/case-005%3Askatteministeriet/skatteministeriet%3Acase-005%3A07-afte.jpg",
     "imageSrcs": [
       "/media/cases/enterprise/case-005%3Askatteministeriet/skatteministeriet%3Acase-005%3A01-after.jpg",
       "/media/cases/enterprise/case-005%3Askatteministeriet/skatteministeriet%3Acase-005%3A01-before.jpg",
@@ -144,7 +144,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "clientName": "Rigshospitalets Patienthotel",
     "clientLogoSrc": "/media/logos/clients/rigshospitalets.patienthotel.logo.svg",
     "title": "Opgave for Rigshospitalets Patienthotel",
-    "coverSrc": "/media/cases/enterprise/case-006%3Arigshospitalets.patienthotel/rigshospitalets-patienthotel%3Acase-006%3A01-after.jpg",
+    "coverSrc": "/media/cases/enterprise/case-006%3Arigshospitalets.patienthotel/rigshospitalets-patienthotel%3Acase-006%3A02-after..jpg",
     "imageSrcs": [
       "/media/cases/enterprise/case-006%3Arigshospitalets.patienthotel/rigshospitalets-patienthotel%3Acase-006%3A01-after.jpg",
       "/media/cases/enterprise/case-006%3Arigshospitalets.patienthotel/rigshospitalets-patienthotel%3Acase-006%3A01-before.jpg",

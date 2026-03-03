@@ -20,7 +20,7 @@ const highlights = [
 
 export const TrustHighlights = () => {
   return (
-    <section className="relative left-1/2 right-1/2 mt-5 w-screen -translate-x-1/2 bg-[hsl(230_26%_95%)] py-16 md:py-20">
+    <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 bg-[hsl(230_26%_95%)] py-16 md:py-20">
       <div className="mx-auto w-full max-w-[1180px] px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
