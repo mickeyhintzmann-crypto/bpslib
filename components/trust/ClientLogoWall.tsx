@@ -30,14 +30,14 @@ const LogoCard = ({ src, alt }: { src: string; alt: string }) => {
 
 const LogoRailItem = ({ src, alt }: { src: string; alt: string }) => {
   return (
-    <li className="logo-marquee-item flex min-w-[260px] items-center justify-center px-10 py-6 md:min-w-[360px] md:px-14 md:py-7">
+    <li className="logo-marquee-item flex min-w-[240px] items-center justify-center px-9 py-4 md:min-w-[330px] md:px-12 md:py-5">
       <Image
         src={src}
         alt={alt}
         width={420}
         height={180}
         sizes="(max-width: 768px) 56vw, (max-width: 1200px) 30vw, 18vw"
-        className="h-auto w-auto max-h-[74px] max-w-none object-contain opacity-100 transition duration-200 md:max-h-[96px] md:scale-[1.75]"
+        className="h-auto w-auto max-h-[82px] max-w-none object-contain opacity-100 transition duration-200 md:max-h-[112px] md:scale-[2]"
       />
     </li>
   );
@@ -53,7 +53,7 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
 
   if (!compact) {
     return (
-      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-14 md:py-16">
+      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-10 md:py-12">
         <div className="mx-auto w-full max-w-[1320px] px-4 md:px-6">
           <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center lg:gap-12">
             <div className="space-y-3 text-center lg:text-left">
