@@ -62,6 +62,11 @@ export const beforeAfterGulv: BeforeAfterItem[] = [
 
 export const beforeAfterBordplade: BeforeAfterItem[] = [
   {
+    "caseId": "case-001_koekken",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg"
+  },
+  {
     "caseId": "case-006_koekken",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg"
@@ -70,6 +75,11 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
     "caseId": "case-008_koekken",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
+  },
+  {
+    "caseId": "case-009_spisebord",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg"
   }
 ];
 
@@ -84,11 +94,26 @@ export const galleryGulv: string[] = [
 ];
 
 export const galleryBordplade: string[] = [
+  "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
   "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
-  "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
+  "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+  "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg"
 ];
 
 export const casesManifest: CasesManifestItem[] = [
+  {
+    "id": "bordplade:case-001_koekken",
+    "caseId": "case-001_koekken",
+    "category": "bordplade",
+    "title": "Koekken",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
+      "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg"
+    ]
+  },
   {
     "id": "bordplade:case-006_koekken",
     "caseId": "case-006_koekken",
@@ -113,6 +138,19 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
       "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg"
+    ]
+  },
+  {
+    "id": "bordplade:case-009_spisebord",
+    "caseId": "case-009_spisebord",
+    "category": "bordplade",
+    "title": "Spisebord",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
+      "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg"
     ]
   },
   {
