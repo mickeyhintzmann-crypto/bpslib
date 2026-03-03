@@ -222,18 +222,18 @@ if (caseGalleryItemsWithImages[1]) {
 
 if (caseGalleryItemsWithImages[2]) {
   caseGalleryItemsWithImages[2].image = {
-    src: "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_01..HEIC",
+    src: "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
     alt: "Massiv bordplade før slibning med varmepletter og misfarvning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/case-001_koekken_02.HEIC",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
     hoverAlt: "Massiv bordplade efter slibning med forbedret finish"
   };
 }
 
 if (caseGalleryItemsWithImages[3]) {
   caseGalleryItemsWithImages[3].image = {
-    src: "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_01.HEIC",
+    src: "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
     alt: "Spisebord før slibning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/case-009_spisebord_02.HEIC",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
     hoverAlt: "Spisebord efter slibning"
   };
 }
