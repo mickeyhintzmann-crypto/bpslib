@@ -1,7 +1,7 @@
 export const defaultFallback = "/images/placeholders/fallback.svg";
 
 export const brandAssets = {
-  logo: "/images/brand/logo.svg",
+  logo: "/images/brand/logo.png",
   favicon: "/images/brand/favicon.svg",
   hero: "/images/home/hero.jpg"
 } as const;
