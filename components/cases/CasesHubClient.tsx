@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -73,6 +73,30 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
     setActiveImageIndex(0);
   };
 
+  useEffect(() => {
+    if (!openCase) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeLightbox();
+        return;
+      }
+
+      if (event.key === "ArrowLeft" && openCaseImages.length > 1) {
+        setActiveImageIndex((current) => (current - 1 + openCaseImages.length) % openCaseImages.length);
+      }
+
+      if (event.key === "ArrowRight" && openCaseImages.length > 1) {
+        setActiveImageIndex((current) => (current + 1) % openCaseImages.length);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [openCase, openCaseImages.length]);
+
   return (
     <>
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-4 md:p-6">
@@ -81,7 +105,7 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
             <button
               type="button"
               onClick={() => setActiveFilter("alle")}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition duration-300 ${
                 activeFilter === "alle"
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-white text-foreground"
@@ -94,7 +118,7 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
                 key={category.value}
                 type="button"
                 onClick={() => setActiveFilter(category.value)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition duration-300 ${
                   activeFilter === category.value
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-white text-foreground"
@@ -219,6 +243,7 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
                     {labelByCategory[item.category]}
                   </p>
                   <p className="text-base font-semibold text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground">{item.gallery.length} billeder</p>
                 </div>
               </button>
             );
@@ -248,7 +273,10 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
       </section>
 
       {openCase && activeImage ? (
-        <div className="fixed inset-0 z-[80] bg-black/70 p-3 backdrop-blur-sm md:p-6" onClick={closeLightbox}>
+        <div
+          className="fixed inset-0 z-[80] bg-black/70 p-3 backdrop-blur-sm animate-in fade-in duration-200 md:p-6"
+          onClick={closeLightbox}
+        >
           <div
             className="mx-auto flex h-full w-full max-w-6xl flex-col rounded-2xl border border-white/20 bg-neutral-950/95 p-3 text-white md:p-5"
             onClick={(event) => event.stopPropagation()}
@@ -308,6 +336,31 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
                 Næste
               </Button>
             </div>
+
+            {openCaseImages.length > 1 ? (
+              <ul className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {openCaseImages.map((imageSrc, index) => (
+                  <li key={imageSrc}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`relative h-14 w-20 overflow-hidden rounded-md border transition ${
+                        index === activeImageIndex ? "border-white" : "border-white/35"
+                      }`}
+                    >
+                      <Image
+                        src={imageSrc}
+                        alt={`${openCase.title} thumbnail ${index + 1}`}
+                        fill
+                        unoptimized
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         </div>
       ) : null}
