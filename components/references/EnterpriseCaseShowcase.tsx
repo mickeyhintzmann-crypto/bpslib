@@ -66,13 +66,13 @@ export const EnterpriseCaseShowcase = ({
                   />
                   {caseItem.clientLogoSrc ? (
                     <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-3 md:p-4">
-                      <div className="relative h-[82%] w-[92%]">
+                      <div className="relative h-[26%] w-[64%] max-w-[240px] rounded-lg bg-white/88 p-2 shadow-[0_8px_22px_hsl(0_0%_0%/0.2)] ring-1 ring-black/5 backdrop-blur-[1px]">
                         <Image
                           src={caseItem.clientLogoSrc}
                           alt={`${caseItem.clientName} logo`}
                           fill
                           sizes="(max-width: 767px) 78vw, (max-width: 1023px) 42vw, 27vw"
-                          className="object-contain opacity-[0.9] mix-blend-multiply drop-shadow-[0_4px_16px_hsl(0_0%_0%/0.18)] transition duration-300 group-hover:opacity-100"
+                          className="object-contain opacity-[0.96] drop-shadow-[0_2px_8px_hsl(0_0%_0%/0.16)] transition duration-300 group-hover:scale-[1.01]"
                         />
                       </div>
                     </div>
