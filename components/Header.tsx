@@ -65,9 +65,16 @@ export const Header = () => {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="rounded-2xl border border-border/70 bg-white px-3 py-2 shadow-[0_10px_24px_hsl(20_35%_10%/0.18)] transition hover:-translate-y-0.5 hover:brightness-105"
+            className="inline-flex shrink-0 items-center transition hover:opacity-90"
           >
-            <BpsImage src={brandAssets.logo} alt={`${siteConfig.companyName} logo`} width={132} height={48} className="h-12 w-auto" />
+            <BpsImage
+              src={brandAssets.logo}
+              alt={`${siteConfig.companyName} logo`}
+              width={160}
+              height={54}
+              className="max-w-none"
+              style={{ width: "auto", height: "54px" }}
+            />
             <span className="sr-only">{siteConfig.companyName}</span>
           </Link>
           <nav className="hidden items-center gap-5 font-sans md:flex">
