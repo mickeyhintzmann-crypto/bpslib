@@ -36,35 +36,13 @@ const serviceMeta: Record<
 };
 
 const DenmarkMiniMap = () => (
-  <svg
-    viewBox="0 0 640 560"
-    role="img"
-    aria-label="Danmarkskort med markering af Sjælland"
-    className="mx-auto h-44 w-full max-w-[280px]"
-  >
-    <g fill="hsl(var(--foreground) / 0.9)" stroke="hsl(var(--background))" strokeWidth="8">
-      <path d="M108 66L148 50L181 57L200 89L235 117L236 151L261 181L250 227L271 271L255 318L228 349L206 372L194 414L171 463L136 488L99 474L79 440L61 409L57 364L72 322L62 284L75 247L101 216L110 183L95 149L101 116Z" />
-      <path d="M218 437L235 429L250 440L247 458L230 467L215 456Z" />
-      <path d="M283 353L315 344L343 357L356 386L347 414L318 433L287 424L270 398Z" />
-      <path d="M360 251L402 229L452 226L497 246L521 281L528 325L510 364L476 392L431 398L386 381L359 350L349 305Z" />
-      <path d="M372 410L414 397L461 405L484 429L478 455L446 473L400 470L375 446Z" />
-      <path d="M484 422L513 414L541 428L545 455L527 476L495 476L478 454Z" />
-      <path d="M447 374L467 367L485 377L486 396L468 405L450 395Z" />
-      <path d="M533 255L562 243L590 256L597 284L579 307L549 310L531 290Z" />
-      <path d="M347 170L365 163L384 173L380 192L359 198L343 188Z" />
-      <path d="M336 229L349 224L358 232L352 245L339 246L332 236Z" />
-    </g>
-    <path
-      d="M360 251L402 229L452 226L497 246L521 281L528 325L510 364L476 392L431 398L386 381L359 350L349 305Z"
-      fill="hsl(var(--primary) / 0.2)"
-      stroke="hsl(var(--primary))"
-      strokeWidth="6"
-    />
-    <circle cx="439" cy="313" r="6" fill="hsl(var(--primary))" />
-    <text x="394" y="518" className="fill-foreground text-[28px] font-semibold">
-      Sjælland
-    </text>
-  </svg>
+  <img
+    src="/images/maps/denmark-map.svg"
+    alt="Danmarkskort"
+    loading="lazy"
+    decoding="async"
+    className="mx-auto h-44 w-full max-w-[280px] object-contain"
+  />
 );
 
 export const FooterCityCoverage = ({
