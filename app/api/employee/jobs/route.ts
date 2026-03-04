@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getAdminSessionFromRequest } from "@/lib/admin-auth";
+import { getSlotRangeForBooking } from "@/lib/admin-availability";
 import { toIsoDateRange } from "@/lib/admin/jobs";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -34,6 +35,22 @@ type JobRow = {
   notes: string | null;
   lead_id: string | null;
   lead: LeadRow | LeadRow[] | null;
+};
+
+type BookingRow = {
+  id: string;
+  service_type: string | null;
+  status: string | null;
+  date: string | null;
+  start_slot_index: number | null;
+  slot_count: number | null;
+  address: string | null;
+  postal_code: string | null;
+  customer_name: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  notes: string | null;
+  price_total: number | null;
 };
 
 type AiQuoteRequestRow = {
@@ -136,6 +153,13 @@ const formatPriceRange = (min: number | null, max: number | null) => {
   return "Ikke angivet";
 };
 
+const formatTotalPrice = (total: number | null | undefined) => {
+  if (typeof total !== "number" || Number.isNaN(total)) {
+    return "Ikke angivet";
+  }
+  return `${Math.round(total).toLocaleString("da-DK")} kr.`;
+};
+
 const buildMapsUrl = (address: string | null, location: string | null) => {
   const query = [address, location].filter(Boolean).join(", ");
   if (!query) {
@@ -147,7 +171,11 @@ const buildMapsUrl = (address: string | null, location: string | null) => {
 const getSessionEmployee = async (request: Request) => {
   const session = getAdminSessionFromRequest(request);
   if (!session || session.role !== "employee") {
-    return { error: NextResponse.json({ message: "Ingen adgang." }, { status: 401 }), employee: null };
+    return {
+      error: NextResponse.json({ message: "Ingen adgang." }, { status: 401 }),
+      session: null,
+      employee: null
+    };
   }
 
   const supabase = createSupabaseServiceClient();
@@ -165,6 +193,7 @@ const getSessionEmployee = async (request: Request) => {
           { message: `Employees-email mangler. Kør migrationen ${EMPLOYEE_PORTAL_MIGRATION}.` },
           { status: 503 }
         ),
+        session: null,
         employee: null
       };
     }
@@ -174,10 +203,15 @@ const getSessionEmployee = async (request: Request) => {
           { message: "Employees-tabellen mangler. Kør jobs-migrationen i Supabase." },
           { status: 503 }
         ),
+        session: null,
         employee: null
       };
     }
-    return { error: NextResponse.json({ message: error.message }, { status: 500 }), employee: null };
+    return {
+      error: NextResponse.json({ message: error.message }, { status: 500 }),
+      session: null,
+      employee: null
+    };
   }
 
   if (!data || (data as EmployeeRow).is_active === false) {
@@ -186,17 +220,18 @@ const getSessionEmployee = async (request: Request) => {
         { message: "Din medarbejderprofil mangler eller er inaktiv. Kontakt administrator." },
         { status: 403 }
       ),
+      session: null,
       employee: null
     };
   }
 
-  return { error: null, employee: data as EmployeeRow };
+  return { error: null, session, employee: data as EmployeeRow };
 };
 
 export async function GET(request: Request) {
   try {
-    const { error: sessionError, employee } = await getSessionEmployee(request);
-    if (sessionError || !employee) {
+    const { error: sessionError, session, employee } = await getSessionEmployee(request);
+    if (sessionError || !employee || !session) {
       return sessionError;
     }
 
@@ -204,32 +239,57 @@ export async function GET(request: Request) {
     const fromRaw = parseIsoDate(url.searchParams.get("from"));
     const toRaw = parseIsoDate(url.searchParams.get("to"));
     const { fromIso, toIso } = toIsoDateRange(fromRaw, toRaw);
+    const fromDateKey = fromIso.slice(0, 10);
+    const toDateKey = toIso.slice(0, 10);
 
     const supabase = createSupabaseServiceClient();
-    const { data, error } = await supabase
-      .from("jobs")
-      .select(
-        "id, title, service, status, start_at, end_at, location, address, notes, lead_id, lead:lead_id(id,name,email,phone,location,message)"
-      )
-      .eq("assigned_employee_id", employee.id)
-      .gte("start_at", fromIso)
-      .lte("start_at", toIso)
-      .order("start_at", { ascending: true });
+    const [jobsResult, bookingsResult] = await Promise.all([
+      supabase
+        .from("jobs")
+        .select(
+          "id, title, service, status, start_at, end_at, location, address, notes, lead_id, lead:lead_id(id,name,email,phone,location,message)"
+        )
+        .eq("assigned_employee_id", employee.id)
+        .gte("start_at", fromIso)
+        .lte("start_at", toIso)
+        .order("start_at", { ascending: true }),
+      supabase
+        .from("bookings")
+        .select(
+          "id, service_type, status, date, start_slot_index, slot_count, address, postal_code, customer_name, customer_phone, customer_email, notes, price_total"
+        )
+        .eq("assigned_to", session.id)
+        .gte("date", fromDateKey)
+        .lte("date", toDateKey)
+        .order("date", { ascending: true })
+        .order("start_slot_index", { ascending: true })
+    ]);
 
-    if (error) {
-      if (isMissingTable(error.message, "jobs")) {
+    if (jobsResult.error) {
+      if (isMissingTable(jobsResult.error.message, "jobs")) {
         return NextResponse.json(
           { message: "Jobs-tabellen mangler. Kør jobs-migrationen i Supabase." },
           { status: 503 }
         );
       }
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json({ message: jobsResult.error.message }, { status: 500 });
     }
 
-    const jobs = ((data || []) as JobRow[]).map((row) => ({
+    if (bookingsResult.error) {
+      if (isMissingTable(bookingsResult.error.message, "bookings")) {
+        return NextResponse.json(
+          { message: "Bookings-tabellen mangler i databasen." },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json({ message: bookingsResult.error.message }, { status: 500 });
+    }
+
+    const jobs = ((jobsResult.data || []) as JobRow[]).map((row) => ({
       ...row,
       lead: asSingleRelation(row.lead)
     }));
+    const bookings = (bookingsResult.data || []) as BookingRow[];
 
     const leadIds = [...new Set(jobs.map((job) => job.lead_id).filter((id): id is string => Boolean(id)))];
     const priceByLeadId = new Map<string, { min: number | null; max: number | null }>();
@@ -280,7 +340,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const items = jobs.map((job) => {
+    const jobItems = jobs.map((job) => {
       const lead = job.lead as LeadRow | null;
       const price = job.lead_id ? priceByLeadId.get(job.lead_id) : undefined;
       const mapsUrl = buildMapsUrl(job.address, job.location || lead?.location || null);
@@ -311,6 +371,52 @@ export async function GET(request: Request) {
         mapsUrl
       };
     });
+
+    const bookingItems = bookings
+      .map((booking) => {
+        const startIndex =
+          typeof booking.start_slot_index === "number" && Number.isInteger(booking.start_slot_index)
+            ? booking.start_slot_index
+            : 0;
+        const slotCount =
+          typeof booking.slot_count === "number" && Number.isInteger(booking.slot_count)
+            ? booking.slot_count
+            : 1;
+        const slot = getSlotRangeForBooking(booking.date || "", startIndex, slotCount);
+        if (!slot) {
+          return null;
+        }
+
+        const leadLocation = booking.postal_code || null;
+        return {
+          id: `booking:${booking.id}`,
+          title: booking.service_type || "Booking",
+          service: booking.service_type || null,
+          status: booking.status || "new",
+          startAt: slot.slotStartIso,
+          endAt: slot.slotEndIso,
+          location: leadLocation,
+          address: booking.address,
+          notes: booking.notes,
+          lead: {
+            id: `booking:${booking.id}`,
+            name: booking.customer_name,
+            email: booking.customer_email,
+            phone: booking.customer_phone,
+            location: leadLocation,
+            message: booking.notes
+          },
+          priceMin: null,
+          priceMax: null,
+          priceLabel: formatTotalPrice(booking.price_total),
+          mapsUrl: buildMapsUrl(booking.address, leadLocation)
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+    const items = [...jobItems, ...bookingItems].sort(
+      (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+    );
 
     return NextResponse.json(
       {
