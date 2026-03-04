@@ -51,6 +51,13 @@ type AdminUser = {
   is_active: boolean | null;
 };
 
+type EmployeeProfile = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  isActive: boolean | null;
+};
+
 type CalendarDay = {
   dateKey: string;
   dayNumber: number;
@@ -82,6 +89,11 @@ type CalendarResponse = {
 
 type UsersResponse = {
   items?: AdminUser[];
+  message?: string;
+};
+
+type EmployeesResponse = {
+  items?: EmployeeProfile[];
   message?: string;
 };
 
@@ -312,6 +324,7 @@ export const CalendarAdmin = () => {
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [unavailability, setUnavailability] = useState<UnavailabilityItem[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [employeeProfiles, setEmployeeProfiles] = useState<EmployeeProfile[]>([]);
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -342,20 +355,34 @@ export const CalendarAdmin = () => {
   }, [currentMonth]);
 
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadPeople = async () => {
       try {
-        const response = await fetch("/api/admin/users?active=1", { cache: "no-store" });
-        const payload = (await response.json()) as UsersResponse;
-        if (!response.ok) {
+        const [usersResponse, employeesResponse] = await Promise.all([
+          fetch("/api/admin/users?active=1", { cache: "no-store" }),
+          fetch("/api/admin/employees?all=1", { cache: "no-store" })
+        ]);
+
+        const usersPayload = (await usersResponse.json()) as UsersResponse;
+        if (!usersResponse.ok) {
           return;
         }
-        setUsers(payload.items || []);
+
+        const employeesPayload = (await employeesResponse.json()) as EmployeesResponse;
+        if (!employeesResponse.ok) {
+          setUsers(usersPayload.items || []);
+          return;
+        }
+
+        setUsers(usersPayload.items || []);
+        setEmployeeProfiles(
+          (employeesPayload.items || []).filter((item) => item.isActive !== false)
+        );
       } catch (fetchError) {
         console.error(fetchError);
       }
     };
 
-    loadUsers();
+    loadPeople();
   }, []);
 
   const employeeOptions = useMemo(
@@ -371,18 +398,37 @@ export const CalendarAdmin = () => {
     return map;
   }, [users]);
 
+  const employeeByEmail = useMemo(() => {
+    const map = new Map<string, EmployeeProfile>();
+    employeeProfiles.forEach((profile) => {
+      if (!profile.email) {
+        return;
+      }
+      map.set(profile.email.trim().toLowerCase(), profile);
+    });
+    return map;
+  }, [employeeProfiles]);
+
   const matchesUnavailabilityToUser = useCallback(
     (item: UnavailabilityItem, userId: string) => {
       if (item.created_by_user_id && item.created_by_user_id === userId) {
         return true;
       }
       const user = userById.get(userId);
+      if (!user) {
+        return false;
+      }
+      const userEmail = user.email?.trim().toLowerCase() || "";
+      const employeeProfile = userEmail ? employeeByEmail.get(userEmail) : null;
+      if (employeeProfile?.id && item.employee_id && employeeProfile.id === item.employee_id) {
+        return true;
+      }
       if (!user?.email || !item.employee_email) {
         return false;
       }
-      return user.email.toLowerCase() === item.employee_email.toLowerCase();
+      return user.email.trim().toLowerCase() === item.employee_email.trim().toLowerCase();
     },
-    [userById]
+    [employeeByEmail, userById]
   );
 
   const bookingsByDate = useMemo(() => {
