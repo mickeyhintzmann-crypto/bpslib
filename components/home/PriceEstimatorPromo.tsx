@@ -29,11 +29,11 @@ const perks = [
 
 const estimatorPreviewImages = [
   {
-    src: "/media/featured%3Abordplade/20210302_093123.jpg",
+    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-1.JPG",
     alt: "Køkkenbordplade i massiv træ, vinkel 1"
   },
   {
-    src: "/media/featured%3Abordplade/20210308_105216.jpg",
+    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-2.JPG",
     alt: "Køkkenbordplade i massiv træ, vinkel 2"
   }
 ] as const;
