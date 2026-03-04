@@ -202,42 +202,6 @@ const caseGalleryItemsWithImages: Array<
     : undefined
 }));
 
-if (caseGalleryItemsWithImages[0]) {
-  caseGalleryItemsWithImages[0].image = {
-    src: "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
-    alt: "Køkkenbord før slibning med skjolder ved vask",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
-    hoverAlt: "Køkkenbord efter slibning med ensartet finish"
-  };
-}
-
-if (caseGalleryItemsWithImages[1]) {
-  caseGalleryItemsWithImages[1].image = {
-    src: "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
-    alt: "Træbordplade før slibning med fine ridser og ujævn glans",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
-    hoverAlt: "Træbordplade efter slibning med roligt og ensartet udtryk"
-  };
-}
-
-if (caseGalleryItemsWithImages[2]) {
-  caseGalleryItemsWithImages[2].image = {
-    src: "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
-    alt: "Massiv bordplade før slibning med varmepletter og misfarvning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
-    hoverAlt: "Massiv bordplade efter slibning med forbedret finish"
-  };
-}
-
-if (caseGalleryItemsWithImages[3]) {
-  caseGalleryItemsWithImages[3].image = {
-    src: "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
-    alt: "Spisebord før slibning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
-    hoverAlt: "Spisebord efter slibning"
-  };
-}
-
 const beforeAfterBordpladePreview = beforeAfterBordplade.slice(0, 4).map((item) => ({
   ...item,
   beforeAlt: "Massiv træbordplade før slibning",
@@ -271,7 +235,7 @@ export default function BordpladePillarPage() {
     <ServicePageLayout
       title="Bordpladeslibning på Sjælland"
       subtitle="Vi hjælper med slibning, genopbygning og finish af massiv træbordplader. Du får tydelig rådgivning, realistiske priser og et forløb der er let at forstå fra første kontakt."
-      heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_4.jpg"
+      heroBackgroundImage="/media/featured%3Abordplade/20210320_105853.jpg"
       bullets={[
         "Slibning & behandling af massive træbordplader",
         "Få vurdering via billeder – hurtigt og konkret",

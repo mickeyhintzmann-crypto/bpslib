@@ -62,9 +62,59 @@ export const beforeAfterGulv: BeforeAfterItem[] = [
 
 export const beforeAfterBordplade: BeforeAfterItem[] = [
   {
+    "caseId": "case_002_koekken_boeg_hvid_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_before_boeg_hvid_olie.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_after_boeg_hvid_olie.jpeg"
+  },
+  {
+    "caseId": "case-001_koekken_egetrae_hvid_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg"
+  },
+  {
     "caseId": "case-001_koekken",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg"
+  },
+  {
+    "caseId": "case-002_koekken__valnoed_natur_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_after.jpeg"
+  },
+  {
+    "caseId": "case-003_koekken_gummitrae_hvid_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_after.jpeg"
+  },
+  {
+    "caseId": "case-003_valnoed_natur_olie",
+    "beforeSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/before.1.JPG",
+    "afterSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/after.1.jpeg"
+  },
+  {
+    "caseId": "case-004_egetrae_hvid_olie",
+    "beforeSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/before.2.JPG",
+    "afterSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/after.2.JPG"
+  },
+  {
+    "caseId": "case-004_koekken_egetrae_hvid_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_after.jpeg"
+  },
+  {
+    "caseId": "case-005_egetrae_natur_olie",
+    "beforeSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/before.1.jpeg",
+    "afterSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/after.1.jpeg"
+  },
+  {
+    "caseId": "case-006_gummitrae_hvid_olie",
+    "beforeSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.1.JPG",
+    "afterSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.1.JPG"
+  },
+  {
+    "caseId": "case-006_koekken_valnoed_natur_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/Before..jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg"
   },
   {
     "caseId": "case-006_koekken",
@@ -72,35 +122,136 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg"
   },
   {
+    "caseId": "case-007_valnoed_natur_olie",
+    "beforeSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/before.1.jpeg",
+    "afterSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/after.1.jpeg"
+  },
+  {
+    "caseId": "case-008_koekken_ask_hvid_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/before..jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg"
+  },
+  {
     "caseId": "case-008_koekken",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
   },
   {
+    "caseId": "case-009_spisebord_teak_natur_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg"
+  },
+  {
     "caseId": "case-009_spisebord",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg"
+  },
+  {
+    "caseId": "case-010_koekken_valnoed_natur_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/after.jpeg"
+  },
+  {
+    "caseId": "case-011_koekken_mahogni_natur_olie",
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg"
   }
 ];
 
 export const galleryGulv: string[] = [
-  "/media/galleries:gulv:before-after/case-001_stairs/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-002_dark_wood/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-004_fernis/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-005_fernis_stairs/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-006_old/after.01.jpg",
-  "/media/galleries:gulv:before-after/case-007_fyrtrae/after.01.jpg"
+  "/media/featured:gulv/1.JPG",
+  "/media/featured:gulv/2.JPG",
+  "/media/featured:gulv/3.JPG",
+  "/media/featured:gulv/4.jpg",
+  "/media/featured:gulv/20211108_135502.jpg",
+  "/media/featured:gulv/20221009_103907.jpg",
+  "/media/featured:gulv/20221209_112140.jpg",
+  "/media/featured:gulv/20221212_111740.jpg",
+  "/media/featured:gulv/20221212_111817.jpg",
+  "/media/featured:gulv/20221212_111845.jpg",
+  "/media/featured:gulv/20230111_080639.jpg",
+  "/media/featured:gulv/20230202_135624.jpg",
+  "/media/featured:gulv/20230219_193820.jpg",
+  "/media/featured:gulv/20230311_122438.jpg",
+  "/media/featured:gulv/20230311_122449.jpg",
+  "/media/featured:gulv/20230311_164716.jpg",
+  "/media/featured:gulv/1000000516.JPG",
+  "/media/featured:gulv/A335EF2A-B264-434E-B6C3-6ACF21663A1F.JPG",
+  "/media/featured:gulv/CF20992B-1620-4828-8F41-FF424E698B48.JPG",
+  "/media/featured:gulv/FB_IMG_1668166013640.jpg",
+  "/media/featured:gulv/FB_IMG_1668166018025.jpg",
+  "/media/featured:gulv/FB_IMG_1668201336587.jpg",
+  "/media/featured:gulv/received_583538716870503.jpeg",
+  "/media/featured:gulv/received_917537392566684.jpeg"
 ];
 
 export const galleryBordplade: string[] = [
-  "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
-  "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
-  "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
-  "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg"
+  "/media/featured:bordplade/20210302_093123.jpg",
+  "/media/featured:bordplade/20210302_160950.jpg",
+  "/media/featured:bordplade/20210308_105216.jpg",
+  "/media/featured:bordplade/20210311_085121.jpg",
+  "/media/featured:bordplade/20210320_105853.jpg",
+  "/media/featured:bordplade/1000000212.JPG",
+  "/media/featured:bordplade/1000000214.JPG",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-1-v2.JPG",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-1-v3.jpg",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-1.JPG",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-2-v2.JPG",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-2-v3.jpg",
+  "/media/featured:bordplade/case-001-egetrae-natur-olie-2.JPG",
+  "/media/featured:bordplade/IMG_3383 3.jpeg",
+  "/media/featured:bordplade/IMG_3602.jpeg",
+  "/media/featured:bordplade/IMG_3607.jpeg",
+  "/media/featured:bordplade/IMG_3737 3.jpeg"
+];
+
+export const galleryGulvbelaegning: string[] = [
+  "/media/featured:gulvbelaegning/1000000297.JPG",
+  "/media/featured:gulvbelaegning/1000000507.JPG",
+  "/media/featured:gulvbelaegning/1000000509.JPG",
+  "/media/featured:gulvbelaegning/1000000512.JPG"
 ];
 
 export const casesManifest: CasesManifestItem[] = [
+  {
+    "id": "bordplade:case_002_koekken_boeg_hvid_olie",
+    "caseId": "case_002_koekken_boeg_hvid_olie",
+    "category": "bordplade",
+    "title": "Koekken Boeg Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_before_boeg_hvid_olie.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_after_boeg_hvid_olie.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_after_boeg_hvid_olie.jpeg",
+      "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_before_boeg_hvid_olie.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-001_egetræ_natur_olie",
+    "caseId": "case-001_egetræ_natur_olie",
+    "category": "bordplade",
+    "title": "Egetræ Natur Olie",
+    "location": null,
+    "beforeSrc": null,
+    "afterSrc": "/media/cases:bordplade/case-001_egetræ_natur_olie/after.1.JPG",
+    "gallery": [
+      "/media/cases:bordplade/case-001_egetræ_natur_olie/after.1.JPG",
+      "/media/cases:bordplade/case-001_egetræ_natur_olie/after.2.JPG"
+    ]
+  },
+  {
+    "id": "bordplade:case-001_koekken_egetrae_hvid_olie",
+    "caseId": "case-001_koekken_egetrae_hvid_olie",
+    "category": "bordplade",
+    "title": "Koekken Egetrae Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
+      "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg"
+    ]
+  },
   {
     "id": "bordplade:case-001_koekken",
     "caseId": "case-001_koekken",
@@ -112,6 +263,131 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
       "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg"
+    ]
+  },
+  {
+    "id": "bordplade:case-002_egetræ_natur_olie",
+    "caseId": "case-002_egetræ_natur_olie",
+    "category": "bordplade",
+    "title": "Egetræ Natur Olie",
+    "location": null,
+    "beforeSrc": null,
+    "afterSrc": "/media/cases:bordplade/case-002_egetræ_natur_olie/after.1.JPG",
+    "gallery": [
+      "/media/cases:bordplade/case-002_egetræ_natur_olie/after.1.JPG",
+      "/media/cases:bordplade/case-002_egetræ_natur_olie/after.2.JPG"
+    ]
+  },
+  {
+    "id": "bordplade:case-002_koekken__valnoed_natur_olie",
+    "caseId": "case-002_koekken__valnoed_natur_olie",
+    "category": "bordplade",
+    "title": "Koekken Valnoed Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_after.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_after.jpeg",
+      "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_before.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-003_koekken_gummitrae_hvid_olie",
+    "caseId": "case-003_koekken_gummitrae_hvid_olie",
+    "category": "bordplade",
+    "title": "Koekken Gummitrae Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_after.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_after.jpeg",
+      "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_before.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-003_valnoed_natur_olie",
+    "caseId": "case-003_valnoed_natur_olie",
+    "category": "bordplade",
+    "title": "Valnoed Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/before.1.JPG",
+    "afterSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/after.1.jpeg",
+    "gallery": [
+      "/media/cases:bordplade/case-003_valnoed_natur_olie/after.1.jpeg",
+      "/media/cases:bordplade/case-003_valnoed_natur_olie/after.2.jpeg",
+      "/media/cases:bordplade/case-003_valnoed_natur_olie/before.1.JPG",
+      "/media/cases:bordplade/case-003_valnoed_natur_olie/before.2.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-004_egetrae_hvid_olie",
+    "caseId": "case-004_egetrae_hvid_olie",
+    "category": "bordplade",
+    "title": "Egetrae Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/before.2.JPG",
+    "afterSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/after.2.JPG",
+    "gallery": [
+      "/media/cases:bordplade/case-004_egetrae_hvid_olie/after.2.JPG",
+      "/media/cases:bordplade/case-004_egetrae_hvid_olie/before.2.JPG"
+    ]
+  },
+  {
+    "id": "bordplade:case-004_koekken_egetrae_hvid_olie",
+    "caseId": "case-004_koekken_egetrae_hvid_olie",
+    "category": "bordplade",
+    "title": "Koekken Egetrae Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_after.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_after.jpeg",
+      "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_before.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-005_egetrae_natur_olie",
+    "caseId": "case-005_egetrae_natur_olie",
+    "category": "bordplade",
+    "title": "Egetrae Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/before.1.jpeg",
+    "afterSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/after.1.jpeg",
+    "gallery": [
+      "/media/cases:bordplade/case-005_egetrae_natur_olie/after.1.jpeg",
+      "/media/cases:bordplade/case-005_egetrae_natur_olie/after.2.jpeg",
+      "/media/cases:bordplade/case-005_egetrae_natur_olie/before.1.jpeg",
+      "/media/cases:bordplade/case-005_egetrae_natur_olie/before.2.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-006_gummitrae_hvid_olie",
+    "caseId": "case-006_gummitrae_hvid_olie",
+    "category": "bordplade",
+    "title": "Gummitrae Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.1.JPG",
+    "afterSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.1.JPG",
+    "gallery": [
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.1.JPG",
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.2.JPG",
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.3.jpeg",
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.1.JPG",
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.2.JPG",
+      "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.3.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-006_koekken_valnoed_natur_olie",
+    "caseId": "case-006_koekken_valnoed_natur_olie",
+    "category": "bordplade",
+    "title": "Koekken Valnoed Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/Before..jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg",
+      "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/Before..jpg"
     ]
   },
   {
@@ -128,6 +404,39 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "bordplade:case-007_valnoed_natur_olie",
+    "caseId": "case-007_valnoed_natur_olie",
+    "category": "bordplade",
+    "title": "Valnoed Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/before.1.jpeg",
+    "afterSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/after.1.jpeg",
+    "gallery": [
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/after.1.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/after.2.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/after.3.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/after.4.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/before.1.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/before.3.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/before.3.JPG",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/before2.jpeg",
+      "/media/cases:bordplade/case-007_valnoed_natur_olie/detail.jpeg"
+    ]
+  },
+  {
+    "id": "bordplade:case-008_koekken_ask_hvid_olie",
+    "caseId": "case-008_koekken_ask_hvid_olie",
+    "category": "bordplade",
+    "title": "Koekken Ask Hvid Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/before..jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg",
+      "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/before..jpg"
+    ]
+  },
+  {
     "id": "bordplade:case-008_koekken",
     "caseId": "case-008_koekken",
     "category": "bordplade",
@@ -141,6 +450,19 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "bordplade:case-009_spisebord_teak_natur_olie",
+    "caseId": "case-009_spisebord_teak_natur_olie",
+    "category": "bordplade",
+    "title": "Spisebord Teak Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
+      "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg"
+    ]
+  },
+  {
     "id": "bordplade:case-009_spisebord",
     "caseId": "case-009_spisebord",
     "category": "bordplade",
@@ -151,6 +473,32 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
       "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg"
+    ]
+  },
+  {
+    "id": "bordplade:case-010_koekken_valnoed_natur_olie",
+    "caseId": "case-010_koekken_valnoed_natur_olie",
+    "category": "bordplade",
+    "title": "Koekken Valnoed Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/after.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/after.jpeg",
+      "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG"
+    ]
+  },
+  {
+    "id": "bordplade:case-011_koekken_mahogni_natur_olie",
+    "caseId": "case-011_koekken_mahogni_natur_olie",
+    "category": "bordplade",
+    "title": "Koekken Mahogni Natur Olie",
+    "location": null,
+    "beforeSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg",
+    "afterSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg",
+    "gallery": [
+      "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg",
+      "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg"
     ]
   },
   {
@@ -351,6 +699,43 @@ export const casesManifest: CasesManifestItem[] = [
       "/media/cases:gulvbelaegning/case-007_parket/before.01.JPG",
       "/media/cases:gulvbelaegning/case-007_parket/before.02.JPG",
       "/media/cases:gulvbelaegning/case-007_parket/before3.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-008_sildebensbelægning",
+    "caseId": "case-008_sildebensbelægning",
+    "category": "gulvbelaegning",
+    "title": "Sildebensbelægning",
+    "location": null,
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/1.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/2.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/3.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/5.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/6.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/7.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/8.JPG",
+      "/media/cases:gulvbelaegning/case-008_sildebensbelægning/9.JPG"
+    ]
+  },
+  {
+    "id": "gulvbelaegning:case-009_sildebensbelægning",
+    "caseId": "case-009_sildebensbelægning",
+    "category": "gulvbelaegning",
+    "title": "Sildebensbelægning",
+    "location": null,
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/1.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/2.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/3.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/4.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/5.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/6.JPG",
+      "/media/cases:gulvbelaegning/case-009_sildebensbelægning/7.jpeg"
     ]
   }
 ];
