@@ -5,35 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { EnterpriseCaseShowcase } from "@/components/references/EnterpriseCaseShowcase";
-import type { EnterpriseCase } from "@/lib/enterpriseCases";
 import type { CasesManifestCategory, CasesManifestItem } from "@/lib/mediaManifest";
 
-type CasesHubClientProps = {
+type CasesCategoryClientProps = {
   cases: CasesManifestItem[];
-  enterpriseCases: EnterpriseCase[];
+  category: CasesManifestCategory;
+  title: string;
+  subtitle: string;
 };
-
-const categories: { value: CasesManifestCategory; label: string; subtitle: string; href: string }[] = [
-  {
-    value: "bordplade",
-    label: "Bordplader",
-    subtitle: "Massiv træ – før/efter og afsluttet resultat",
-    href: "/bordpladeslibning/cases"
-  },
-  {
-    value: "gulvafslibning",
-    label: "Gulvafslibning",
-    subtitle: "Trægulve med synlig forskel før og efter",
-    href: "/gulvafslibning/cases"
-  },
-  {
-    value: "gulvbelaegning",
-    label: "Gulvbelægning",
-    subtitle: "Sildeben, parket, vinyl og øvrige løsninger",
-    href: "/gulvlaegning/cases"
-  }
-];
 
 const labelByCategory: Record<CasesManifestCategory, string> = {
   bordplade: "Bordplader",
@@ -43,7 +22,7 @@ const labelByCategory: Record<CasesManifestCategory, string> = {
 
 const dedupe = (items: string[]) => [...new Set(items.filter(Boolean))];
 
-export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) => {
+export const CasesCategoryClient = ({ cases, category, title, subtitle }: CasesCategoryClientProps) => {
   const [openCaseId, setOpenCaseId] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -57,11 +36,6 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
   }, [openCase]);
 
   const activeImage = openCaseImages[activeImageIndex] ?? null;
-
-  const openLightbox = (caseId: string) => {
-    setOpenCaseId(caseId);
-    setActiveImageIndex(0);
-  };
 
   const closeLightbox = () => {
     setOpenCaseId(null);
@@ -94,98 +68,61 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
 
   return (
     <>
-      {categories.map((category) => {
-        const categoryCases = cases.filter((item) => item.category === category.value);
-        const previewCases = categoryCases.filter((item) => item.beforeSrc && item.afterSrc).slice(0, 4);
-
-        return (
-          <section key={category.value} className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-5 md:p-7">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground md:text-3xl">{category.label}</h2>
-                <p className="mt-2 text-sm text-muted-foreground md:text-base">{category.subtitle}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{categoryCases.length} cases i alt</p>
-              </div>
-              <Button asChild variant="outline" className="h-10 px-4">
-                <Link href={category.href}>Se flere</Link>
-              </Button>
-            </div>
-
-            {previewCases.length ? (
-              <div className="mt-6 grid gap-4 lg:grid-cols-2">
-                {previewCases.map((item) => (
-                  <article key={item.id} className="overflow-hidden rounded-2xl border border-border/70 bg-white">
-                    <div className="grid gap-2 p-2 sm:grid-cols-2 sm:gap-3 sm:p-3">
-                      <figure>
-                        <figcaption className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                          Før
-                        </figcaption>
-                        <button
-                          type="button"
-                          onClick={() => openLightbox(item.id)}
-                          className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl"
-                        >
-                          <Image
-                            src={item.beforeSrc!}
-                            alt={`${item.title} før`}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 1023px) 100vw, 40vw"
-                            className="object-cover"
-                          />
-                        </button>
-                      </figure>
-                      <figure>
-                        <figcaption className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                          Efter
-                        </figcaption>
-                        <button
-                          type="button"
-                          onClick={() => openLightbox(item.id)}
-                          className="relative block aspect-[4/3] w-full overflow-hidden rounded-xl"
-                        >
-                          <Image
-                            src={item.afterSrc!}
-                            alt={`${item.title} efter`}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 1023px) 100vw, 40vw"
-                            className="object-cover"
-                          />
-                        </button>
-                      </figure>
-                    </div>
-                    <div className="border-t border-border/60 px-4 py-3">
-                      <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-muted-foreground">Ingen før/efter-cases til visning endnu.</p>
-            )}
-          </section>
-        );
-      })}
-
-      <EnterpriseCaseShowcase
-        title="Enterprise references"
-        subtitle="Udvalgte erhvervscases med billedserier og kundelogo."
-        limit={6}
-        cases={enterpriseCases}
-      />
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-5 md:p-7">
-        <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
-          <Button asChild className="h-11 px-6">
-            <Link href="/bordpladeslibning/book">Book</Link>
+      <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-8">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">{title}</h1>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">{subtitle}</p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild variant="outline">
+            <Link href="/cases">Tilbage til alle fag</Link>
           </Button>
-          <Button asChild variant="secondary" className="h-11 px-6">
+          <Button asChild>
             <Link href="/bordpladeslibning/prisberegner">Få pris via billeder</Link>
           </Button>
-          <Button asChild variant="outline" className="h-11 px-6">
-            <Link href="/referencer">Se referencer</Link>
-          </Button>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-5 md:p-7">
+        <p className="text-sm text-muted-foreground md:text-base">
+          {cases.length} {labelByCategory[category].toLowerCase()}-cases i visning. Klik på et kort for at åbne hele billedserien.
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {cases.map((item) => {
+            const cover = item.afterSrc ?? item.gallery[0] ?? item.beforeSrc;
+            if (!cover) {
+              return null;
+            }
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setOpenCaseId(item.id);
+                  setActiveImageIndex(0);
+                }}
+                className="group overflow-hidden rounded-[22px] border border-border/70 bg-white text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_36px_hsl(20_30%_20%/0.14)]"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted/20">
+                  <Image
+                    src={cover}
+                    alt={`${item.title} case`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 767px) 96vw, (max-width: 1279px) 48vw, 32vw"
+                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+                <div className="space-y-2 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    {labelByCategory[item.category]}
+                  </p>
+                  <p className="text-base font-semibold text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground">{item.gallery.length} billeder</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 

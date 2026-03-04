@@ -470,12 +470,32 @@
   },
   {
     "path": "/gulvlaegning-sjaelland",
-    "title": "Gulvlægning",
-    "description": "Gulvlægning på Sjælland med trægulv, laminat og vinyl.",
+    "title": "Gulvbelægning",
+    "description": "Gulvbelægning på Sjælland med sildeben, parket, vinyl og epoxy.",
+    "navGroup": "gulv",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 121,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvlaegning/cases",
+    "title": "Cases gulvbelægning",
+    "description": "Før/efter cases og billedserier for gulvbelægning på Sjælland.",
     "navGroup": "gulv",
     "showInHeader": false,
     "showInFooter": true,
-    "priority": 121,
+    "priority": 122,
+    "noIndex": false
+  },
+  {
+    "path": "/gulvlaegning/pris",
+    "title": "Pris gulvbelægning",
+    "description": "Prisguide for gulvbelægning med materialer, m² og underlag.",
+    "navGroup": "gulv",
+    "showInHeader": true,
+    "showInFooter": true,
+    "priority": 123,
     "noIndex": false
   },
   {
@@ -709,6 +729,16 @@
     "noIndex": false
   },
   {
+    "path": "/gulvafslibning/cases",
+    "title": "Cases gulvafslibning",
+    "description": "Før/efter cases og billedserier for gulvafslibning.",
+    "navGroup": "gulv",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 147,
+    "noIndex": false
+  },
+  {
     "path": "/gulvafslibning/pris",
     "title": "pris",
     "description": "Pris og vurdering af gulvafslibning via tilbudstid.",
@@ -869,9 +899,19 @@
     "noIndex": true
   },
   {
+    "path": "/bordpladeslibning/cases",
+    "title": "Cases bordplade",
+    "description": "Før/efter cases og billedserier for bordpladeslibning.",
+    "navGroup": "bordplade",
+    "showInHeader": false,
+    "showInFooter": true,
+    "priority": 111,
+    "noIndex": false
+  },
+  {
     "path": "/cases",
     "title": "Cases",
-    "description": "Cases og før/efter eksempler på bordplader.",
+    "description": "Cases og før/efter eksempler på bordplader, gulvafslibning og gulvbelægning.",
     "navGroup": "core",
     "showInHeader": true,
     "showInFooter": true,

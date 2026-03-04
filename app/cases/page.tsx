@@ -7,12 +7,14 @@ import { casesManifest } from "@/lib/mediaManifest";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Cases | Træsort & olie-farver (massiv træ)",
+  title: "Cases | Bordplader, gulvafslibning og gulvbelægning",
   description:
-    "Se eksempler på træsorter og olie-farver på massive træbordplader. Få pris via billeder eller book tid.",
+    "Se før/efter-cases for bordplader, gulvafslibning og gulvbelægning. Åbn hvert fag og se flere cases.",
   path: "/cases",
   keywords: [
     "cases bordpladeslibning",
+    "cases gulvafslibning",
+    "cases gulvbelægning",
     "før efter bordplade",
     "træsort og olie farver",
     "massiv træbordplade"
@@ -25,11 +27,11 @@ export default function CasesPage() {
     <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
       <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          Cases (træsort & olie)
+          Cases på tværs af fag
         </h1>
         <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
-          Se eksempler på hvordan forskellige træsorter tager sig ud med olie-farver som Natur, Hvid,
-          Sort og Dark Coco. Se også vores overblik over{" "}
+          Se før/efter-cases for bordplader, gulvafslibning og gulvbelægning. Vælg et fag og klik “Se flere”
+          for at åbne den dedikerede caseside. Se også vores overblik over{" "}
           <Link href="/bordpladeslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
             bordpladeslibning på Sjælland
           </Link>

@@ -1,111 +1,203 @@
 import Link from "next/link";
 
-import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
-import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
-import { Button } from "@/components/ui/button";
+import { ServicePageLayout } from "@/components/layouts/ServicePageLayout";
+import { BeforeAfterGrid } from "@/components/media/BeforeAfterGrid";
+import { CaseGallery } from "@/components/media/CaseGallery";
+import { MidPageCTA } from "@/components/marketing/MidPageCTA";
+import { ProblemCards } from "@/components/marketing/ProblemCards";
+import {
+  StructuredData,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildServiceSchema
+} from "@/components/seo/StructuredData";
 import { buildMetadata } from "@/lib/seo";
+import { casesManifest, galleryGulvbelaegning } from "@/lib/mediaManifest";
 
 const faqItems = [
   {
-    question: "Hvilke gulvtyper lægger I?",
+    question: "Hvilke typer gulvbelægning lægger I?",
     answer:
-      "Vi hjælper med trægulv, laminat og vinyl og rådgiver om materialevalg ud fra slid, udtryk og budget."
+      "Vi arbejder med bl.a. sildebensgulv, parket, vinyl og epoxy-løsninger. Vi anbefaler løsning ud fra drift, udtryk og budget."
   },
   {
-    question: "Hvordan vurderer I underlaget før montering?",
+    question: "Hvad påvirker prisen på gulvbelægning?",
     answer:
-      "Vi vurderer planhed, fugtforhold og opbygning, så gulvet får den rigtige base og holder stabilt over tid."
+      "Pris afhænger især af m², materialevalg, underlagets stand, mønster (fx sildeben) og afslutninger som lister og overgange."
   },
   {
-    question: "Hvad påvirker prisen på gulvlægning?",
+    question: "Kan I hjælpe med opretning af underlag?",
     answer:
-      "Pris afhænger især af m², materiale, forberedelse af underlag og afslutninger som fodlister og overgange."
+      "Ja, vi vurderer planhed og opbygning før montering og anbefaler nødvendig forberedelse, så gulvet holder stabilt over tid."
   },
   {
-    question: "Hvor lang tid tager et typisk gulvlægningsprojekt?",
+    question: "Laver I både privat og erhverv?",
     answer:
-      "Tidsplanen afhænger af areal og kompleksitet. Du får en realistisk plan efter tilbudstiden."
+      "Ja. Vi udfører gulvbelægning i boliger, butikker og erhvervslokaler og planlægger efter adgang og drift."
   },
   {
-    question: "Kan I også hjælpe med afslutninger og lister?",
+    question: "Hvor lang tid tager et gulvbelægningsprojekt?",
     answer:
-      "Ja, vi kan hjælpe med fodlister, overgange og praktiske afslutninger, så resultatet fremstår færdigt."
+      "Det afhænger af areal, materialetype og underlag. Du får en realistisk tidsplan efter tilbudstiden."
+  },
+  {
+    question: "Er gulvbelægning det samme som gulvlægning?",
+    answer:
+      "Ja, i praksis bruges ordene ofte om det samme: montering af nyt gulv inkl. forberedelse og afslutninger."
   }
 ];
 
-export const metadata = buildMetadata({
-  title: "Gulvlægning på Sjælland | Trægulv, laminat & vinyl | BP Slib",
+const problemCardsItems = [
+  {
+    title: "Slidt eller ujævnt eksisterende gulv",
+    description:
+      "Vi vurderer om underlaget kræver opretning, spartel eller anden forberedelse før ny gulvbelægning."
+  },
+  {
+    title: "Forkert materiale til rummets belastning",
+    description:
+      "Valg af belægning skal matche trafik, rengøring og fugtforhold. Vi rådgiver ud fra den konkrete hverdag."
+  },
+  {
+    title: "Urolige overgange og afslutninger",
+    description:
+      "Vi planlægger overgange, lister og kanter, så gulvet fremstår samlet og færdigt."
+  },
+  {
+    title: "Behov for tydelig plan og pris",
+    description:
+      "Du får et konkret oplæg med materialevalg, opbygning, tidsplan og prisniveau før opstart."
+  }
+];
+
+const gulvbelaegningCases = casesManifest.filter((item) => item.category === "gulvbelaegning");
+
+const caseGalleryItemsWithImages = gulvbelaegningCases.slice(0, 4).map((item, index) => ({
+  title: item.title,
+  location: "Sjælland",
+  summary:
+    "Eksempel på gulvbelægning med fokus på underlag, korrekt opbygning og holdbar afslutning i den daglige drift.",
+  image: {
+    src: item.afterSrc ?? item.gallery[0] ?? galleryGulvbelaegning[index] ?? "",
+    alt: `${item.title} gulvbelægning case`
+  }
+})).filter((item) => Boolean(item.image.src));
+
+const beforeAfterGulvbelaegningPreview = gulvbelaegningCases
+  .filter((item) => item.beforeSrc && item.afterSrc)
+  .slice(0, 4)
+  .map((item) => ({
+    beforeSrc: item.beforeSrc!,
+    afterSrc: item.afterSrc!,
+    beforeAlt: `${item.title} før gulvbelægning`,
+    afterAlt: `${item.title} efter gulvbelægning`
+  }));
+
+const serviceSchema = buildServiceSchema({
+  name: "Gulvbelægning på Sjælland",
   description:
-    "Gulvlægning på Sjælland: trægulv, laminat og vinyl. Rådgivning, opbygning og montering - book uforpligtende tilbudstid.",
-  path: "/gulvlaegning-sjaelland"
+    "Gulvbelægning på Sjælland med rådgivning om materialevalg, underlag og afslutninger for et holdbart resultat.",
+  url: "https://bpslib.dk/gulvlaegning-sjaelland"
+});
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: "Forside", item: "https://bpslib.dk" },
+  { name: "Gulvbelægning på Sjælland", item: "https://bpslib.dk/gulvlaegning-sjaelland" }
+]);
+
+export const metadata = buildMetadata({
+  title: "Gulvbelægning på Sjælland | Sildeben, parket, vinyl & epoxy",
+  description:
+    "Gulvbelægning på Sjælland med tydelig rådgivning om materialer, opbygning og pris. Se cases og book tilbudstid.",
+  path: "/gulvlaegning-sjaelland",
+  keywords: [
+    "gulvbelægning sjælland",
+    "gulvlægning sjælland",
+    "sildebensgulv",
+    "vinylgulv",
+    "parketgulv",
+    "epoxygulv"
+  ]
 });
 
 export default function GulvlaegningSjaellandPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
-      <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-8">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          Gulvlægning på Sjælland
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Et nyt gulv ændrer hele rummet - både udtryk, komfort og vedligehold. Vi hjælper med
-          gulvlægning på Sjælland og rådgiver dig, så du ender med en løsning, der passer til dit
-          hjem (eller din drift), dit budget og din hverdag.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Uforpligtende tilbudstid: Vi vurderer underlag, m², rum, materialevalg og afslutninger -
-          og giver dig et konkret tilbud og en realistisk plan.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/tilbudstid">Book tilbudstid</Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/kontakt">Kontakt</Link>
-          </Button>
+    <ServicePageLayout
+      title="Gulvbelægning på Sjælland"
+      subtitle="Vi hjælper med gulvbelægning i bolig og erhverv. Du får et konkret oplæg med materialevalg, opbygning og tidsplan, så løsningen passer til drift, budget og ønsket udtryk."
+      heroBackgroundImage="/media/featured%3Agulvbelaegning/1000000509.JPG"
+      bullets={[
+        "Sildeben, parket, vinyl og epoxy",
+        "Underlag, opbygning og afslutninger planlægges korrekt",
+        "Uforpligtende tilbudstid med realistisk plan"
+      ]}
+      primaryCta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+      secondaryCta={{ label: "Se alle gulvbelægning-cases", href: "/gulvlaegning/cases" }}
+    >
+      <ProblemCards
+        title="Typiske udfordringer ved gulvbelægning"
+        subtitle="Vi fokuserer på holdbarhed i praksis, ikke kun et pænt billede på dag 1."
+        items={problemCardsItems}
+      />
+
+      <CaseGallery
+        title="Gulvbelægnings-sager"
+        subtitle="Udvalgte cases fra gulvbelægning. Se alle sager under den dedikerede caseside for faget."
+        items={caseGalleryItemsWithImages}
+        cta={{ label: "Se alle gulvbelægning-cases", href: "/gulvlaegning/cases" }}
+      />
+
+      <BeforeAfterGrid
+        title="Før & efter: gulvbelægning"
+        items={beforeAfterGulvbelaegningPreview}
+      />
+
+      <MidPageCTA
+        title="Klar til nyt gulv?"
+        subtitle="Fortæl kort om m², rum og ønsket løsning, så får du et konkret næste skridt med prisramme og plan."
+        primary={{ label: "Book tilbudstid", href: "/tilbudstid" }}
+        secondary={{ label: "Se priser", href: "/gulvlaegning/pris" }}
+      />
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Sådan foregår et gulvbelægningsforløb</h2>
+        <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>1. Tilbudstid med opmåling, behov og materialevalg.</li>
+          <li>2. Vurdering af underlag og plan for opbygning.</li>
+          <li>3. Montering af gulvbelægning med fokus på detaljer.</li>
+          <li>4. Afslutninger og overgange tilpasset rummene.</li>
+          <li>5. Aflevering med råd til vedligehold og drift.</li>
+        </ol>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <h2 className="text-2xl font-semibold text-foreground">Relaterede sider</h2>
+        <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <Link href="/gulvlaegning/cases" className="font-medium text-foreground hover:text-primary">
+            /gulvlaegning/cases
+          </Link>
+          <Link href="/gulvlaegning/pris" className="font-medium text-foreground hover:text-primary">
+            /gulvlaegning/pris
+          </Link>
+          <Link href="/gulvafslibning-sjaelland" className="font-medium text-foreground hover:text-primary">
+            /gulvafslibning-sjaelland
+          </Link>
+          <Link href="/cases" className="font-medium text-foreground hover:text-primary">
+            /cases
+          </Link>
         </div>
       </section>
 
-      <ReferenceStrip />
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
-        <ul className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <li>Trægulv</li>
-          <li>Laminat</li>
-          <li>Vinyl</li>
-          <li>Underlag/forberedelse</li>
-          <li>Afslutninger (fodlister/overgange)</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h2 className="text-2xl font-semibold text-foreground">Sådan foregår det</h2>
-          <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li>1. Tilbudstid med gennemgang af behov, materialer og praktiske forhold.</li>
-            <li>2. Klart tilbud med opbygning, materialevalg og estimeret tidsplan.</li>
-            <li>3. Montering og afslutning med fokus på drift og holdbarhed i hverdagen.</li>
-          </ol>
-        </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h2 className="text-2xl font-semibold text-foreground">Typiske projekter</h2>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Vi hjælper både ved udskiftning af ældre gulve og ved nyetablering i enkelte rum eller
-            større boligarealer. Vi tilpasser løsning efter trafik, rengøringsbehov og ønsket udtryk.
-          </p>
-        </article>
-      </section>
-
       <FaqSection
-        title="FAQ om gulvlægning"
-        intro="Kort overblik før du booker tilbudstid."
+        title="FAQ om gulvbelægning"
+        intro="Kort afklaring før du booker tilbudstid."
         items={faqItems}
       />
 
+      <StructuredData data={serviceSchema} />
+      <StructuredData data={breadcrumbSchema} />
       <StructuredData data={buildFaqSchema(faqItems)} />
-    </main>
+    </ServicePageLayout>
   );
 }
-

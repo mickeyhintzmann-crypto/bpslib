@@ -35,6 +35,9 @@ export const Header = () => {
 
   const gulvMenu = pickByPathOrder(headerRegistry.gulv, [
     "/gulvafslibning-sjaelland",
+    "/gulvlaegning-sjaelland",
+    "/gulvlaegning/cases",
+    "/gulvlaegning/pris",
     "/gulvafslibning/pris",
     "/gulvafslibning/omraader"
   ]);
