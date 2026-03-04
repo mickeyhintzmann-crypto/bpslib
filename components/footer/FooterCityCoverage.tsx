@@ -37,27 +37,31 @@ const serviceMeta: Record<
 
 const DenmarkMiniMap = () => (
   <svg
-    viewBox="0 0 420 420"
+    viewBox="0 0 640 560"
     role="img"
     aria-label="Danmarkskort med markering af Sjælland"
     className="mx-auto h-44 w-full max-w-[280px]"
   >
-    <g fill="hsl(var(--foreground) / 0.86)" stroke="hsl(var(--background))" strokeWidth="6">
-      <path d="M98 28L132 34L154 55L152 82L171 106L168 129L178 150L169 177L149 196L148 226L133 257L118 297L95 317L69 318L50 300L35 268L32 239L39 207L31 182L38 156L58 137L70 118L62 92L69 66L84 46Z" />
-      <path d="M177 239L199 232L216 239L222 257L217 279L200 294L179 286L171 268Z" />
-      <path d="M237 188L260 173L294 168L320 182L335 209L336 237L323 262L296 278L267 280L244 267L231 243L229 214Z" />
-      <path d="M239 298L260 288L282 292L293 307L290 327L273 337L250 334L238 319Z" />
-      <path d="M304 307L325 297L348 304L354 323L342 340L318 343L301 332Z" />
-      <path d="M356 175L372 170L386 180L383 197L367 204L352 196Z" />
+    <g fill="hsl(var(--foreground) / 0.9)" stroke="hsl(var(--background))" strokeWidth="8">
+      <path d="M108 66L148 50L181 57L200 89L235 117L236 151L261 181L250 227L271 271L255 318L228 349L206 372L194 414L171 463L136 488L99 474L79 440L61 409L57 364L72 322L62 284L75 247L101 216L110 183L95 149L101 116Z" />
+      <path d="M218 437L235 429L250 440L247 458L230 467L215 456Z" />
+      <path d="M283 353L315 344L343 357L356 386L347 414L318 433L287 424L270 398Z" />
+      <path d="M360 251L402 229L452 226L497 246L521 281L528 325L510 364L476 392L431 398L386 381L359 350L349 305Z" />
+      <path d="M372 410L414 397L461 405L484 429L478 455L446 473L400 470L375 446Z" />
+      <path d="M484 422L513 414L541 428L545 455L527 476L495 476L478 454Z" />
+      <path d="M447 374L467 367L485 377L486 396L468 405L450 395Z" />
+      <path d="M533 255L562 243L590 256L597 284L579 307L549 310L531 290Z" />
+      <path d="M347 170L365 163L384 173L380 192L359 198L343 188Z" />
+      <path d="M336 229L349 224L358 232L352 245L339 246L332 236Z" />
     </g>
     <path
-      d="M237 188L260 173L294 168L320 182L335 209L336 237L323 262L296 278L267 280L244 267L231 243L229 214Z"
-      fill="hsl(var(--primary) / 0.16)"
+      d="M360 251L402 229L452 226L497 246L521 281L528 325L510 364L476 392L431 398L386 381L359 350L349 305Z"
+      fill="hsl(var(--primary) / 0.2)"
       stroke="hsl(var(--primary))"
-      strokeWidth="4"
+      strokeWidth="6"
     />
-    <circle cx="286" cy="223" r="5" fill="hsl(var(--primary))" />
-    <text x="252" y="352" className="fill-foreground text-[18px] font-semibold">
+    <circle cx="439" cy="313" r="6" fill="hsl(var(--primary))" />
+    <text x="394" y="518" className="fill-foreground text-[28px] font-semibold">
       Sjælland
     </text>
   </svg>
