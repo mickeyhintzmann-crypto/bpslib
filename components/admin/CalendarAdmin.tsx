@@ -416,7 +416,7 @@ export const CalendarAdmin = () => {
     error.toLowerCase().includes("day_overrides") || error.toLowerCase().includes("mangler i databasen");
 
   const selectedSettings = selectedDateKey ? daySettings[selectedDateKey] || defaultDaySettings() : null;
-  const selectedBookings = selectedDateKey ? bookingsByDate[selectedDateKey] || [] : [];
+  const selectedBookings = selectedDateKey ? visibleBookingsByDate[selectedDateKey] || [] : [];
   const selectedDateLabel = selectedDateKey
     ? new Date(`${selectedDateKey}T12:00:00`).toLocaleDateString("da-DK", {
         weekday: "long",
@@ -505,6 +505,15 @@ export const CalendarAdmin = () => {
                 </option>
               ))}
             </select>
+            {employeeFilter !== "all" ? (
+              <button
+                type="button"
+                onClick={() => setEmployeeFilter("all")}
+                className="rounded-md border border-border bg-white px-2 py-1 text-xs text-muted-foreground"
+              >
+                Vis alle
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -573,11 +582,18 @@ export const CalendarAdmin = () => {
             const isSelected = selectedDateKey === day.dateKey;
 
             return (
-              <button
-                type="button"
+              <div
                 key={day.dateKey}
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedDateKey(day.dateKey)}
-                className={`min-h-[120px] rounded-xl border px-2 py-2 text-left transition ${
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedDateKey(day.dateKey);
+                  }
+                }}
+                className={`min-h-[120px] cursor-pointer rounded-xl border px-2 py-2 text-left transition ${
                   isSelected ? "border-primary bg-primary/5" : "border-border bg-white"
                 } ${day.isCurrentMonth ? "" : "opacity-50"}`}
               >
@@ -595,8 +611,10 @@ export const CalendarAdmin = () => {
                 </div>
                 <div className="mt-2 space-y-1">
                   {visible.slice(0, 3).map((booking) => (
-                    <div
+                    <Link
                       key={booking.id}
+                      href={`/admin/bookings/${booking.id}`}
+                      onClick={(event) => event.stopPropagation()}
                       className={`rounded-md px-2 py-1 text-[11px] ${
                         booking.assigned_to ? "bg-[#eaf1ff]" : "bg-[#fff2e6] text-orange-700"
                       }`}
@@ -617,13 +635,13 @@ export const CalendarAdmin = () => {
                       ) : (
                         <p className="text-[10px] text-orange-600">Ikke tildelt</p>
                       )}
-                    </div>
+                    </Link>
                   ))}
                   {visible.length > 3 ? (
                     <p className="text-[10px] text-muted-foreground">+{visible.length - 3} flere</p>
                   ) : null}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -692,7 +710,9 @@ export const CalendarAdmin = () => {
           <div className="rounded-2xl border border-border/60 bg-white/80 p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Opgaver denne dag</h2>
             <p className="text-sm text-muted-foreground">
-              {selectedBookings.length === 0 ? "Ingen bookinger" : `${selectedBookings.length} bookinger`}
+              {selectedBookings.length === 0
+                ? "Ingen bookinger"
+                : `${selectedBookings.length} booking${selectedBookings.length === 1 ? "" : "er"}`}
             </p>
 
             <div className="mt-4 space-y-3">
@@ -741,30 +761,48 @@ export const CalendarAdmin = () => {
             <div className="mt-6 border-t border-border/60 pt-4">
               <h3 className="text-sm font-semibold text-foreground">Medarbejder-oversigt (valgt dag)</h3>
               <p className="text-xs text-muted-foreground">
-                Se hver medarbejders opgaver for den valgte dato og tildel hurtigt.
+                Klik på en medarbejder for at vise deres kalender og opgaver.
               </p>
               <div className="mt-3 space-y-3">
                 {employeeSchedule.map(({ user, items }) => (
-                  <div key={user.id} className="rounded-lg border border-border/60 bg-white p-3">
+                  <div
+                    key={user.id}
+                    className={`rounded-lg border bg-white p-3 ${
+                      employeeFilter === user.id ? "border-primary/70 bg-primary/5" : "border-border/60"
+                    }`}
+                  >
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-semibold">{user.name || user.email || "Medarbejder"}</p>
-                      <span className="text-xs text-muted-foreground">
-                        {items.length} opgave{items.length === 1 ? "" : "r"}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {items.length} opgave{items.length === 1 ? "" : "r"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setEmployeeFilter((current) => (current === user.id ? "all" : user.id))}
+                          className="rounded-md border border-border bg-white px-2 py-1 text-xs font-medium text-foreground"
+                        >
+                          {employeeFilter === user.id ? "Vis alle" : "Vis kalender"}
+                        </button>
+                      </div>
                     </div>
                     {items.length === 0 ? (
                       <p className="mt-2 text-xs text-muted-foreground">Ingen opgaver denne dag.</p>
                     ) : (
                       <div className="mt-2 space-y-2">
                         {items.map((booking) => (
-                          <div key={booking.id} className="rounded-md bg-[#f6f9ff] px-2 py-1 text-xs">
+                          <Link
+                            key={booking.id}
+                            href={`/admin/bookings/${booking.id}`}
+                            className="block rounded-md bg-[#f6f9ff] px-2 py-1 text-xs hover:bg-[#eaf1ff]"
+                          >
                             <p className="font-semibold text-foreground">
                               {formatSlotLabel(booking)} · {booking.customer_name || "Ukendt"}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
                               {booking.postal_code || booking.address || "Postnr. mangler"}
                             </p>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     )}
