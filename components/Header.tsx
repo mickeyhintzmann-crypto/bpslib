@@ -79,7 +79,7 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 shadow-[0_8px_24px_hsl(20_30%_20%/0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/88">
       <div className="hidden border-b border-border/40 bg-[linear-gradient(90deg,hsl(28_26%_18%),hsl(24_22%_13%))] md:block">
-        <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-5 py-2 text-xs text-stone-300 lg:px-6">
+        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-5 py-2 text-xs text-stone-300 lg:px-6">
           <div className="flex items-center gap-4">
             <a
               href={`tel:${siteConfig.phone}`}
@@ -94,7 +94,7 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1320px] items-center gap-4 px-5 py-3.5 lg:px-6">
+      <div className="mx-auto flex w-full max-w-[1180px] items-center gap-4 px-5 py-3.5 lg:px-6">
         <Link
           href="/"
           className="inline-flex shrink-0 items-center transition hover:opacity-90"
@@ -169,7 +169,7 @@ export const Header = () => {
 
       {isOpen ? (
         <div id="mobilmenu" className="border-t border-border/70 bg-[linear-gradient(180deg,hsl(30_27%_96%),hsl(28_24%_93%))] shadow-[0_18px_34px_hsl(20_30%_20%/0.1)] md:hidden">
-          <div className="mx-auto grid w-full max-w-[1320px] gap-4 px-5 py-6">
+          <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-5 py-6">
             <NavDropdown
               label="Bordplade"
               items={bordpladeNavItems}

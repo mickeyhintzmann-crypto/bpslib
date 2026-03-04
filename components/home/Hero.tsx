@@ -23,7 +23,7 @@ export const Hero = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,hsl(var(--primary)/0.24),transparent_42%)]" />
 
       <div className="relative min-h-[640px] px-5 py-8 sm:px-7 md:min-h-[720px] md:px-9 md:py-12 lg:min-h-[760px]">
-        <div className="mx-auto grid h-full w-full max-w-[1320px] items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 xl:gap-16">
+        <div className="mx-auto grid h-full w-full max-w-[1180px] items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 xl:gap-16">
           <div className="space-y-6 text-white">
             <div className="space-y-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/85">
