@@ -37,37 +37,35 @@ const serviceMeta: Record<
 
 const DenmarkMiniMap = () => (
   <svg
-    viewBox="0 0 220 180"
+    viewBox="0 0 320 260"
     role="img"
-    aria-label="Forenklet Danmarkskort"
-    className="mx-auto h-40 w-full max-w-[220px]"
+    aria-label="Danmarkskort med markering af Sjælland"
+    className="mx-auto h-44 w-full max-w-[280px]"
   >
     <path
-      d="M40 15C22 30 20 52 32 72C39 83 36 95 30 108C22 126 25 146 41 160C56 172 75 167 88 153C97 143 98 129 102 116C106 102 113 92 119 83C130 66 126 43 112 31C98 20 86 21 73 17C61 13 50 10 40 15Z"
-      fill="hsl(var(--muted))"
-      stroke="hsl(var(--border))"
-      strokeWidth="2"
+      d="M61 22C42 37 37 61 45 83C50 96 47 112 41 127C32 148 38 176 57 194C76 213 101 207 118 189C132 174 133 155 138 141C145 123 157 112 170 97C185 80 184 58 170 43C157 30 140 26 124 21C105 16 86 11 61 22Z"
+      fill="hsl(var(--foreground) / 0.86)"
     />
-    <ellipse
-      cx="134"
-      cy="112"
-      rx="22"
-      ry="28"
-      fill="hsl(var(--muted))"
-      stroke="hsl(var(--border))"
-      strokeWidth="2"
+    <path
+      d="M190 164C184 150 186 135 196 126C207 117 221 119 229 129C236 138 235 151 230 162C224 174 213 180 202 177C196 175 192 171 190 164Z"
+      fill="hsl(var(--foreground) / 0.86)"
     />
-    <ellipse
-      cx="169"
-      cy="98"
-      rx="14"
-      ry="18"
-      fill="hsl(var(--primary) / 0.22)"
+    <path
+      d="M232 152C226 133 235 112 252 104C269 96 287 103 294 122C301 142 296 165 281 176C265 188 241 181 232 152Z"
+      fill="hsl(var(--primary) / 0.2)"
       stroke="hsl(var(--primary))"
-      strokeWidth="2"
+      strokeWidth="3"
     />
-    <circle cx="176" cy="96" r="3.5" fill="hsl(var(--primary))" />
-    <text x="153" y="138" className="fill-foreground text-[11px] font-semibold">
+    <path
+      d="M255 204C247 193 248 179 259 172C271 165 287 169 293 181C299 193 295 207 284 213C273 219 261 214 255 204Z"
+      fill="hsl(var(--foreground) / 0.86)"
+    />
+    <path
+      d="M286 96C281 90 282 80 290 76C299 72 309 76 312 84C315 93 310 102 301 104C296 105 290 102 286 96Z"
+      fill="hsl(var(--foreground) / 0.86)"
+    />
+    <circle cx="266" cy="136" r="4" fill="hsl(var(--primary))" />
+    <text x="244" y="193" className="fill-foreground text-[12px] font-semibold">
       Sjælland
     </text>
   </svg>
@@ -101,13 +99,13 @@ export const FooterCityCoverage = ({
   const pageCount = currentPages.length;
 
   return (
-    <section className="rounded-3xl border border-stone-700/70 bg-stone-950/35 p-6 md:p-8">
+    <section className="rounded-3xl border border-border/70 bg-transparent p-6 md:p-8">
       <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:items-start">
-        <div className="rounded-2xl border border-stone-700/70 bg-stone-900/45 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
+        <div className="rounded-2xl border border-border/70 bg-transparent p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Dækning på Sjælland
           </p>
-          <p className="mt-2 text-sm text-stone-300">
+          <p className="mt-2 text-sm text-muted-foreground">
             Kompakt oversigt over by-links. Alle URL&apos;er er uændrede.
           </p>
           <div className="mt-3">
@@ -118,10 +116,10 @@ export const FooterCityCoverage = ({
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="font-display text-2xl font-semibold text-stone-100">Byer på Sjælland</h3>
-              <p className="mt-1 text-sm text-stone-300">{serviceMeta[activeService].intro}</p>
+              <h3 className="font-display text-2xl font-semibold text-foreground">Byer på Sjælland</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{serviceMeta[activeService].intro}</p>
             </div>
-            <div className="inline-flex rounded-full border border-stone-700/70 bg-stone-900/40 p-1">
+            <div className="inline-flex rounded-full border border-border/80 bg-background/70 p-1">
               {(["bordplade", "gulv"] as const).map((service) => (
                 <button
                   key={service}
@@ -130,7 +128,7 @@ export const FooterCityCoverage = ({
                   className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition ${
                     activeService === service
                       ? "bg-primary text-primary-foreground"
-                      : "text-stone-300 hover:text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {serviceMeta[service].label}
@@ -145,17 +143,17 @@ export const FooterCityCoverage = ({
                 <Link
                   key={`${activeService}-${route.href}`}
                   href={route.href}
-                  className="group flex items-center justify-between rounded-xl border border-stone-700/70 bg-stone-900/40 px-3 py-2 text-sm text-stone-200 transition hover:border-stone-500 hover:text-white"
+                  className="group flex items-center justify-between rounded-xl border border-border/80 bg-background/60 px-3 py-2 text-sm text-foreground transition hover:border-primary/50"
                 >
                   <span>{route.label}</span>
-                  <span className="text-xs text-stone-500 transition group-hover:text-stone-300">{">"}</span>
+                  <span className="text-xs text-muted-foreground transition group-hover:text-foreground">{">"}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-1 rounded-full border border-stone-700/70 bg-stone-900/40 p-1">
+            <div className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-background/60 p-1">
               {Array.from({ length: pageCount }).map((_, index) => (
                 <button
                   key={`${activeService}-page-${index + 1}`}
@@ -164,7 +162,7 @@ export const FooterCityCoverage = ({
                   className={`h-8 min-w-8 rounded-full px-2 text-xs font-semibold transition ${
                     safePageIndex === index
                       ? "bg-primary text-primary-foreground"
-                      : "text-stone-300 hover:text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                   aria-label={`Vis side ${index + 1}`}
                 >
@@ -175,7 +173,7 @@ export const FooterCityCoverage = ({
 
             <Link
               href={serviceMeta[activeService].areasHref}
-              className="rounded-full border border-stone-600/80 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-stone-400 hover:text-white"
+              className="rounded-full border border-border/80 bg-background/60 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/60"
             >
               {serviceMeta[activeService].areasLabel}
             </Link>

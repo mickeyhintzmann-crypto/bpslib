@@ -30,7 +30,7 @@ export const FooterCityCoverageSection = () => {
   const gulvCityLinks = footerRegistry.gulvOgFag.filter((route) => isGulvCity(route.href));
 
   return (
-    <section className="border-t border-stone-700/70 bg-[linear-gradient(160deg,hsl(28_24%_14%),hsl(22_20%_10%)_55%,hsl(20_18%_8%)_100%)] text-stone-200">
+    <section className="border-t border-border/70 bg-background">
       <div className="mx-auto w-full max-w-[1180px] px-6 py-10">
         <FooterCityCoverage bordpladeCities={bordpladeCityLinks} gulvCities={gulvCityLinks} />
       </div>
