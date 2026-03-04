@@ -155,6 +155,12 @@ const typeLabel: Record<AvailabilityType, string> = {
   personal: "Privat"
 };
 
+const SLOT_RANGES = [
+  { label: "08:00", start: "08:00", end: "11:00" },
+  { label: "11:00", start: "11:00", end: "13:30" },
+  { label: "13:30", start: "13:30", end: "16:00" }
+] as const;
+
 const combineDateAndTimeToIso = (dateKey: string, hhmm: string) => {
   const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
   const [hourRaw, minuteRaw] = hhmm.split(":");
@@ -477,6 +483,65 @@ export const EmployeeCalendar = () => {
     }
   };
 
+  const getSlotOccupancy = useCallback(
+    (dateKey: string, slotIndex: number) => {
+      const slot = SLOT_RANGES[slotIndex];
+      if (!slot) {
+        return { kind: "free" } as const;
+      }
+
+      const slotStartIso = combineDateAndTimeToIso(dateKey, slot.start);
+      const slotEndIso = combineDateAndTimeToIso(dateKey, slot.end);
+      if (!slotStartIso || !slotEndIso) {
+        return { kind: "free" } as const;
+      }
+
+      const slotStartMs = new Date(slotStartIso).getTime();
+      const slotEndMs = new Date(slotEndIso).getTime();
+
+      const slotJob = jobs.find((job) => {
+        const startDate = parseIso(job.startAt);
+        const endDate = parseIso(job.endAt);
+        if (!startDate || !endDate) {
+          return false;
+        }
+        return overlap(startDate.getTime(), endDate.getTime(), slotStartMs, slotEndMs);
+      });
+      if (slotJob) {
+        return { kind: "job", job: slotJob } as const;
+      }
+
+      const slotAbsence = availability.find((item) => {
+        const startDate = parseIso(item.startAt);
+        const endDate = parseIso(item.endAt);
+        if (!startDate || !endDate) {
+          return false;
+        }
+        return overlap(startDate.getTime(), endDate.getTime(), slotStartMs, slotEndMs);
+      });
+      if (slotAbsence) {
+        return { kind: "absence", item: slotAbsence } as const;
+      }
+
+      return { kind: "free" } as const;
+    },
+    [availability, jobs]
+  );
+
+  const selectSlotForAbsence = (dateKey: string, slotIndex: number) => {
+    const slot = SLOT_RANGES[slotIndex];
+    if (!slot) {
+      return;
+    }
+    setAbsenceDateKey(dateKey);
+    setAbsenceAllDay(false);
+    setAbsenceStart(slot.start);
+    setAbsenceEnd(slot.end);
+    setAbsenceType("personal");
+    setAbsenceError("");
+    setAbsenceMessage(`Slot ${slot.label} valgt. Vælg type og tryk "Gem fravær".`);
+  };
+
   return (
     <main className="mx-auto w-full max-w-[1280px] px-4 py-8 md:px-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-white p-4">
@@ -577,6 +642,50 @@ export const EmployeeCalendar = () => {
                       Ferie
                     </button>
                   </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                  {SLOT_RANGES.map((slot, slotIndex) => {
+                    const occupancy = getSlotOccupancy(dateKey, slotIndex);
+                    const isFree = occupancy.kind === "free";
+
+                    return (
+                      <button
+                        key={`${dateKey}-${slot.label}`}
+                        type="button"
+                        onClick={() => {
+                          if (occupancy.kind === "job") {
+                            setSelectedJobId(occupancy.job.id);
+                            setAbsenceError("");
+                            setAbsenceMessage(`Åbnede opgave i slot ${slot.label}.`);
+                            return;
+                          }
+                          selectSlotForAbsence(dateKey, slotIndex);
+                        }}
+                        className={`rounded-md border px-1.5 py-1 text-left text-[10px] font-semibold ${
+                          isFree
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-red-200 bg-red-50 text-red-700"
+                        }`}
+                        title={
+                          occupancy.kind === "job"
+                            ? `Optaget med opgave (${slot.label})`
+                            : occupancy.kind === "absence"
+                              ? `Ikke ledig (${typeLabel[occupancy.item.type]})`
+                              : `Ledig (${slot.label})`
+                        }
+                      >
+                        <div>{slot.label}</div>
+                        <div>
+                          {occupancy.kind === "job"
+                            ? "Optaget"
+                            : occupancy.kind === "absence"
+                              ? "Ikke ledig"
+                              : "Ledig"}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {events.length === 0 ? (
