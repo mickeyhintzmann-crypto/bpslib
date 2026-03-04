@@ -54,7 +54,7 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
   if (!compact) {
     return (
       <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-4 md:py-5">
-        <div className="mx-auto w-full max-w-[930px] px-4 md:px-6">
+        <div className="mx-auto w-full max-w-[1120px] px-4 md:px-6">
           <div className="grid gap-4 lg:grid-cols-[175px_1fr] lg:items-center lg:gap-7">
             <div className="space-y-2 text-center lg:text-left">
               <p className="text-xs text-muted-foreground">Et udvalg af</p>

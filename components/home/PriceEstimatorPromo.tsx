@@ -3,7 +3,6 @@ import Link from "next/link";
 import { BpsImage } from "@/components/BpsImage";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/home/icons";
-import { homeAssets } from "@/lib/assets";
 import { CONTACT_PHONE_DISPLAY, CONTACT_TEL_HREF } from "@/lib/contact";
 
 const steps = [
@@ -27,6 +26,17 @@ const perks = [
   "Mulighed for anbefalet tid",
   "Afklaring af finish (olie/lak)"
 ];
+
+const estimatorPreviewImages = [
+  {
+    src: "/media/featured%3Abordplade/20210302_093123.jpg",
+    alt: "Køkkenbordplade i massiv træ, vinkel 1"
+  },
+  {
+    src: "/media/featured%3Abordplade/20210308_105216.jpg",
+    alt: "Køkkenbordplade i massiv træ, vinkel 2"
+  }
+] as const;
 
 export const PriceEstimatorPromo = () => {
   return (
@@ -88,14 +98,19 @@ export const PriceEstimatorPromo = () => {
             </a>
           </div>
         </div>
-        <div className="relative">
-          <BpsImage
-            src={homeAssets.estimator}
-            alt="AI-prisberegner eksempel"
-            width={1600}
-            height={900}
-            className="h-full w-full rounded-3xl object-cover shadow-xl"
-          />
+        <div className="relative overflow-hidden rounded-3xl shadow-xl">
+          <div className="grid gap-3 bg-neutral-950/5 p-2">
+            {estimatorPreviewImages.map((image) => (
+              <BpsImage
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                width={1200}
+                height={760}
+                className="h-[220px] w-full rounded-2xl object-cover sm:h-[250px] lg:h-[295px]"
+              />
+            ))}
+          </div>
           <div className="absolute right-4 top-4 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white">
             Fra 3.000 kr.
           </div>

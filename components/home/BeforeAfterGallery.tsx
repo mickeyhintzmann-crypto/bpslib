@@ -28,24 +28,26 @@ export const BeforeAfterGallery = async () => {
           <div key={item.id} className="surface-subtle rounded-2xl p-4">
             <div className="grid grid-cols-2 gap-2">
               <figure className="space-y-2">
-                <BpsImage
-                  src={item.beforeImage}
-                  alt={item.beforeAlt}
-                  width={1200}
-                  height={900}
-                  className="h-32 w-full rounded-xl object-cover"
+                <div className="relative h-32 w-full overflow-hidden rounded-xl">
+                  <BpsImage
+                    src={item.beforeImage}
+                    alt={item.beforeAlt}
+                    fill
+                    className="object-cover"
                   />
-                  <figcaption className="text-xs text-muted-foreground">Før</figcaption>
+                </div>
+                <figcaption className="text-xs text-muted-foreground">Før</figcaption>
               </figure>
               <figure className="space-y-2">
-                <BpsImage
-                  src={item.afterImage || item.beforeImage}
-                  alt={item.afterAlt || item.beforeAlt}
-                  width={1200}
-                  height={900}
-                  className="h-32 w-full rounded-xl object-cover"
+                <div className="relative h-32 w-full overflow-hidden rounded-xl">
+                  <BpsImage
+                    src={item.afterImage || item.beforeImage}
+                    alt={item.afterAlt || item.beforeAlt}
+                    fill
+                    className="object-cover"
                   />
-                  <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
+                </div>
+                <figcaption className="text-xs text-muted-foreground">Efter</figcaption>
               </figure>
             </div>
             <div className="mt-4 space-y-1 text-sm text-muted-foreground">

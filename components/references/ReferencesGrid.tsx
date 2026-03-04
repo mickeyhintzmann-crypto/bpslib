@@ -16,13 +16,14 @@ export const ReferencesGrid = ({ projects }: ReferencesGridProps) => {
           id={project.id}
           className="overflow-hidden rounded-3xl border border-border/70 bg-white/85 shadow-sm"
         >
-          <BpsImage
-            src={project.image}
-            alt={project.imageAlt}
-            width={1200}
-            height={900}
-            className="h-48 w-full object-cover"
-          />
+          <div className="relative h-56 w-full overflow-hidden">
+            <BpsImage
+              src={project.image}
+              alt={project.imageAlt}
+              fill
+              className="object-cover"
+            />
+          </div>
           <div className="space-y-3 p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {project.service}
