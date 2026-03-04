@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -36,6 +36,7 @@ const ShellContent = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const session = useAdminSession();
   const role: AdminRole = session?.role || "viewer";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const activeHref = useMemo(() => {
     if (!pathname) {
@@ -46,6 +47,10 @@ const ShellContent = ({ children }: { children: React.ReactNode }) => {
   }, [pathname]);
 
   const visibleItems = useMemo(() => NAV_ITEMS.filter((item) => item.roles.includes(role)), [role]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -102,6 +107,13 @@ const ShellContent = ({ children }: { children: React.ReactNode }) => {
               <p className="text-lg font-semibold text-foreground">Driftsoverblik</p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="rounded-full border border-border px-4 py-2 text-sm text-foreground md:hidden"
+              >
+                Menu
+              </button>
               <Link href="/" className="rounded-full border border-border px-4 py-2 text-sm text-foreground">
                 Tilbage til hjemmeside
               </Link>
@@ -118,6 +130,71 @@ const ShellContent = ({ children }: { children: React.ReactNode }) => {
           <div className="rounded-2xl border border-border/70 bg-white p-5 shadow-sm md:p-6">{children}</div>
         </div>
       </div>
+
+      {mobileMenuOpen ? (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="absolute inset-0 bg-black/45"
+            aria-label="Luk menu"
+          />
+
+          <aside className="absolute left-0 top-0 h-full w-[86%] max-w-sm overflow-y-auto bg-[#191919] p-4 text-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-semibold">BP Slib</span>
+                <span className="text-xs text-white/60">Admin Panel</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md border border-white/20 px-2 py-1 text-xs text-white/80"
+              >
+                Luk
+              </button>
+            </div>
+
+            <nav className="mt-4 space-y-1 text-sm">
+              {visibleItems.map((item) => {
+                const isActive = activeHref === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg px-3 py-2 text-white/80 transition hover:bg-white/10 hover:text-white",
+                      isActive && "bg-primary text-white"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-6 border-t border-white/10 pt-4 text-xs text-white/60">
+              <p>Logget ind som {session?.name || session?.email || "admin"}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-white/40">{role}</p>
+              <div className="mt-3 grid gap-2">
+                <Link
+                  href="/"
+                  className="rounded-lg border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10"
+                >
+                  Til hjemmeside
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full rounded-lg border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10"
+                >
+                  Log ud
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </div>
   );
 };
