@@ -128,11 +128,11 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
   }
 
   return (
-    <Section className="py-6 md:py-8" eyebrow="Udvalgte referencer">
-      <div className="surface-panel rounded-[30px] p-5 md:p-7">
-        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+    <Section className="py-4 md:py-5" eyebrow="Udvalgte referencer">
+      <div className="surface-panel rounded-[30px] p-4 md:p-5">
+        <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <h2 className="text-2xl font-semibold text-foreground md:text-3xl">
+            <h2 className="text-2xl font-semibold text-foreground md:text-[2rem]">
               Dokumenteret arbejde for professionelle kunder
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
@@ -147,7 +147,7 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </div>
         </div>
 
-        <div className="relative mt-7 overflow-hidden rounded-2xl border border-border/60 bg-white/60 py-0.5">
+        <div className="relative mt-4 overflow-hidden py-0.5">
           <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 z-[2] w-12" />
           <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 z-[2] w-12" />
 
@@ -160,15 +160,15 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </div>
         </div>
 
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Button asChild size="sm" className="h-10 px-5">
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Button asChild size="sm" className="h-9 px-5">
             <Link href="/referencer">Se alle referencer</Link>
           </Button>
           <Button
             asChild
             size="sm"
             variant="secondary"
-            className="h-10 px-5"
+            className="h-9 px-5"
           >
             <Link href="/cases">Se cases</Link>
           </Button>
