@@ -47,10 +47,15 @@ export const BpsImage = ({
 
   if (activeSrc.startsWith("/images/")) {
     const { className, width, height, style } = props;
+    const fallbackWidth =
+      typeof width === "number" ? `${width}px` : typeof width === "string" ? width : "auto";
+    const fallbackHeight =
+      typeof height === "number" ? `${height}px` : typeof height === "string" ? height : "auto";
     const mergedStyle: CSSProperties = {
       display: "block",
-      width: style?.width ?? "100%",
-      height: style?.height ?? "auto",
+      width: style?.width ?? fallbackWidth,
+      height: style?.height ?? fallbackHeight,
+      maxWidth: style?.maxWidth ?? "100%",
       ...style
     };
     return (

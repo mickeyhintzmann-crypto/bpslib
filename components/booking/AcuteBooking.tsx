@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-  SLOT_TIMES,
-  applyDayOverrides,
-  createAcuteTemplates,
-  slotKey,
-  validStartTimes,
-  type DayOverrideInput,
-  type SlotTime
-} from "@/lib/booking-schedule";
+import { SLOT_TIMES, type SlotTime } from "@/lib/booking-schedule";
 import { CONTACT_TEL_HREF } from "@/lib/contact";
 import { trackEvent } from "@/lib/tracking";
 
 const formatPrice = (price: number) => `${price.toLocaleString("da-DK")} kr.`;
+const AVAILABILITY_POLL_INTERVAL_MS = 30_000;
+
+export type AcuteAvailabilityDay = {
+  dateKey: string;
+  dateLabel: string;
+  slots: SlotTime[];
+};
 
 type SelectedSlot = {
   dateKey: string;
@@ -25,12 +24,46 @@ type SelectedSlot = {
   time: SlotTime;
 };
 
+type AcuteAvailabilityResponse = {
+  items?: Array<{
+    date?: string;
+    dateLabel?: string;
+    slots?: unknown;
+  }>;
+};
+
+const isSlotTime = (value: unknown): value is SlotTime =>
+  typeof value === "string" && SLOT_TIMES.some((slotTime) => slotTime === value);
+
+const normalizeAvailabilityRows = (
+  items: AcuteAvailabilityResponse["items"]
+): AcuteAvailabilityDay[] => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items.flatMap((item) => {
+    if (!item || typeof item.date !== "string" || typeof item.dateLabel !== "string") {
+      return [];
+    }
+
+    const rawSlots = Array.isArray(item.slots) ? item.slots : [];
+    return [
+      {
+        dateKey: item.date,
+        dateLabel: item.dateLabel,
+        slots: rawSlots.filter(isSlotTime)
+      }
+    ];
+  });
+};
+
 export const AcuteBooking = ({
-  overrides = [],
+  initialAvailability = [],
   price = 3000,
   windowDays = 14
 }: {
-  overrides?: DayOverrideInput[];
+  initialAvailability?: AcuteAvailabilityDay[];
   price?: number;
   windowDays?: number;
 }) => {
@@ -39,26 +72,7 @@ export const AcuteBooking = ({
   const [showSticky, setShowSticky] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const templates = useMemo(
-    () => applyDayOverrides(createAcuteTemplates(windowDays), overrides, { respectAcuteVisibility: true }),
-    [overrides, windowDays]
-  );
-
-  const visibleTemplates = useMemo(
-    () => templates.filter((template) => template.showOnAcutePage !== false),
-    [templates]
-  );
-
-  const initialBlocked = useMemo(() => {
-    const blocked = new Set<string>();
-    visibleTemplates.forEach((template) => {
-      template.initialBooked.forEach((time) => blocked.add(slotKey(template.dateKey, time)));
-    });
-    return blocked;
-  }, [visibleTemplates]);
-
-  const [blockedSlots, setBlockedSlots] = useState<Set<string>>(new Set());
+  const [dayRows, setDayRows] = useState<AcuteAvailabilityDay[]>(initialAvailability);
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
 
   const [name, setName] = useState("");
@@ -69,11 +83,67 @@ export const AcuteBooking = ({
   const [email, setEmail] = useState("");
 
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const selectedSlotRef = useRef<SelectedSlot | null>(null);
+
+  const refreshAvailability = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/bookings/acute/availability?days=${windowDays}`, {
+        cache: "no-store"
+      });
+
+      const payload = (await response.json()) as AcuteAvailabilityResponse;
+      if (!response.ok) {
+        return;
+      }
+
+      const rows = normalizeAvailabilityRows(payload.items);
+      setDayRows(rows);
+
+      const currentSelection = selectedSlotRef.current;
+      if (!currentSelection) {
+        return;
+      }
+
+      const isStillAvailable = rows.some(
+        (day) => day.dateKey === currentSelection.dateKey && day.slots.includes(currentSelection.time)
+      );
+      if (!isStillAvailable) {
+        setSelectedSlot(null);
+        setErrorMessage("Den valgte tid er ikke længere ledig. Vælg en ny tid.");
+      }
+    } catch (refreshError) {
+      console.error(refreshError);
+    }
+  }, [windowDays]);
+
+  useEffect(() => {
+    selectedSlotRef.current = selectedSlot;
+  }, [selectedSlot]);
+
+  useEffect(() => {
+    setDayRows(initialAvailability);
+  }, [initialAvailability]);
 
   useEffect(() => {
     setMounted(true);
-    setBlockedSlots(initialBlocked);
-  }, [initialBlocked]);
+    void refreshAvailability();
+
+    const pollTimer = window.setInterval(() => {
+      void refreshAvailability();
+    }, AVAILABILITY_POLL_INTERVAL_MS);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refreshAvailability();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.clearInterval(pollTimer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [refreshAvailability]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -83,15 +153,6 @@ export const AcuteBooking = ({
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const dayRows = useMemo(
-    () =>
-      visibleTemplates.map((template) => ({
-        ...template,
-        slots: validStartTimes(template, blockedSlots, 1)
-      })),
-    [blockedSlots, visibleTemplates]
-  );
 
   const nextThree = useMemo(() => {
     const slots: SelectedSlot[] = [];
@@ -129,12 +190,12 @@ export const AcuteBooking = ({
   };
 
   const ensureAvailability = (slot: SelectedSlot) => {
-    const day = visibleTemplates.find((template) => template.dateKey === slot.dateKey);
+    const day = dayRows.find((row) => row.dateKey === slot.dateKey);
     if (!day) {
       return false;
     }
 
-    return validStartTimes(day, blockedSlots, 1).includes(slot.time);
+    return day.slots.includes(slot.time);
   };
 
   const submitAcuteBooking = async () => {
@@ -200,12 +261,9 @@ export const AcuteBooking = ({
 
       if (!response.ok || !payload.bookingId) {
         setErrorMessage(payload.message || "Kunne ikke gennemføre akut booking.");
+        await refreshAvailability();
         return;
       }
-
-      const nextBlocked = new Set(blockedSlots);
-      nextBlocked.add(slotKey(selectedSlot.dateKey, selectedSlot.time));
-      setBlockedSlots(nextBlocked);
 
       trackEvent("acute_booking_complete", {
         date: selectedSlot.dateKey,
@@ -218,6 +276,7 @@ export const AcuteBooking = ({
     } catch (submitError) {
       console.error(submitError);
       setErrorMessage("Der opstod en netværksfejl. Prøv igen.");
+      await refreshAvailability();
     } finally {
       setIsSubmitting(false);
     }

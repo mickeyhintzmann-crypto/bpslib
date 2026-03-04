@@ -61,29 +61,26 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-4 px-5 py-3.5 lg:px-6">
-        <div className="flex items-center gap-6">
-          <Link
-            href="/"
-            className="inline-flex shrink-0 items-center transition hover:opacity-90"
-          >
-            <BpsImage
-              src={brandAssets.logo}
-              alt={`${siteConfig.companyName} logo`}
-              width={160}
-              height={54}
-              className="max-w-none"
-              style={{ width: "auto", height: "54px" }}
-            />
-            <span className="sr-only">{siteConfig.companyName}</span>
-          </Link>
-          <nav className="hidden items-center gap-5 font-sans md:flex">
-            <NavDropdown
-              label="Bordplade"
-              items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
-              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
-              emphasis
-            />
+      <div className="mx-auto flex w-full max-w-[1320px] items-center gap-4 px-5 py-3.5 lg:px-6">
+        <Link
+          href="/"
+          className="inline-flex shrink-0 items-center transition hover:opacity-90"
+        >
+          <BpsImage
+            src={brandAssets.logo}
+            alt={`${siteConfig.companyName} logo`}
+            width={184}
+            height={62}
+            className="h-[52px] w-auto max-w-none md:h-[62px]"
+          />
+          <span className="sr-only">{siteConfig.companyName}</span>
+        </Link>
+        <nav className="hidden flex-1 items-center justify-end gap-5 pl-8 font-sans md:flex lg:pl-12">
+          <NavDropdown
+            label="Bordplade"
+            items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
+            cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
+          />
             <NavDropdown
               label="Gulvafslibning"
               items={gulvMenu.map((route) => ({ href: route.href, label: route.label }))}
@@ -104,8 +101,7 @@ export const Header = () => {
               </Link>
             ))}
             <NavDropdown label="Mere" items={moreMenu.map((route) => ({ href: route.href, label: route.label }))} />
-          </nav>
-        </div>
+        </nav>
         <div className="flex items-center gap-2.5">
           {bookingCta ? (
             <Button

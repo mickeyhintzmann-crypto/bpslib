@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { AcuteBooking } from "@/components/booking/AcuteBooking";
 import { Button } from "@/components/ui/button";
-import type { DayOverrideInput } from "@/lib/booking-schedule";
+import { getAvailabilityRange } from "@/lib/admin-availability";
 import { buildMetadata } from "@/lib/seo";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -13,7 +13,6 @@ export const metadata = buildMetadata({
   path: "/akutte-tider"
 });
 
-const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const COPENHAGEN_TIME_ZONE = "Europe/Copenhagen";
 
 const copenhagenDateFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -22,28 +21,6 @@ const copenhagenDateFormatter = new Intl.DateTimeFormat("en-CA", {
   month: "2-digit",
   day: "2-digit"
 });
-
-const addDaysToDateKey = (dateKey: string, days: number) => {
-  if (!dateRegex.test(dateKey)) {
-    return null;
-  }
-  const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
-  const year = Number.parseInt(yearRaw, 10);
-  const month = Number.parseInt(monthRaw, 10);
-  const day = Number.parseInt(dayRaw, 10);
-
-  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
-    return null;
-  }
-
-  const baseDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-  if (Number.isNaN(baseDate.getTime())) {
-    return null;
-  }
-
-  baseDate.setUTCDate(baseDate.getUTCDate() + days);
-  return copenhagenDateFormatter.format(baseDate);
-};
 
 const DEFAULT_SETTINGS = {
   enabled: true,
@@ -75,34 +52,34 @@ const loadAcuteSettings = async () => {
   };
 };
 
-const loadOverrides = async (days: number): Promise<DayOverrideInput[]> => {
+const loadLiveAvailability = async (days: number) => {
   const from = copenhagenDateFormatter.format(new Date());
-  const to = addDaysToDateKey(from, Math.max(0, days - 1));
-  if (!to) {
-    return [];
-  }
+  const safeDays = Math.max(1, Math.min(30, Math.round(days)));
 
-  const supabase = createSupabaseServiceClient();
-  const { data, error } = await supabase
-    .from("day_overrides")
-    .select("date, open_slots_count, show_on_acute_page, note")
-    .gte("date", from)
-    .lte("date", to);
+  const availability = await getAvailabilityRange({
+    from,
+    days: safeDays,
+    slotCount: 1,
+    respectAcuteVisibility: true
+  });
 
-  if (error) {
-    const code = (error as { code?: string }).code;
-    if (code !== "PGRST205") {
-      console.error(error);
+  if (!availability.data) {
+    if (availability.error) {
+      console.error(availability.error);
     }
     return [];
   }
 
-  return (data || []) as DayOverrideInput[];
+  return availability.data.items.map((item) => ({
+    dateKey: item.date,
+    dateLabel: item.dateLabel,
+    slots: item.availableStartSlots.map((slot) => slot.startTime)
+  }));
 };
 
 export default async function AkutteTiderPage() {
   const settings = await loadAcuteSettings();
-  const overrides = await loadOverrides(settings.windowDays);
+  const initialAvailability = await loadLiveAvailability(settings.windowDays);
 
   if (!settings.enabled) {
     return (
@@ -134,7 +111,7 @@ export default async function AkutteTiderPage() {
             Akutte tider
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-            Akutte tider til bordpladeslibning (fast pris)
+            Akutte tider til bordpladeslibning
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground md:text-lg">
             Ledige tider de næste {settings.windowDays} dage. Fast pris{" "}
@@ -159,7 +136,7 @@ export default async function AkutteTiderPage() {
       </section>
 
       <AcuteBooking
-        overrides={overrides}
+        initialAvailability={initialAvailability}
         price={settings.price}
         windowDays={settings.windowDays}
       />
