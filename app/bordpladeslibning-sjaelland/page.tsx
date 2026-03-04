@@ -202,6 +202,47 @@ const caseGalleryItemsWithImages: Array<
     : undefined
 }));
 
+const fixedCaseGalleryImageSet: Array<
+  | {
+      src: string;
+      alt: string;
+      hoverSrc?: string;
+      hoverAlt?: string;
+    }
+  | undefined
+> = [
+  {
+    src: "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
+    alt: "Køkkenbord før slibning med skjolder ved vask",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+    hoverAlt: "Køkkenbord efter slibning med ensartet finish"
+  },
+  {
+    src: "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
+    alt: "Træbordplade før slibning med fine ridser og ujævn glans",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+    hoverAlt: "Træbordplade efter slibning med roligt og ensartet udtryk"
+  },
+  {
+    src: "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
+    alt: "Massiv bordplade før slibning med varmepletter og misfarvning",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
+    hoverAlt: "Massiv bordplade efter slibning med forbedret finish"
+  },
+  {
+    src: "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
+    alt: "Spisebord før slibning",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
+    hoverAlt: "Spisebord efter slibning"
+  }
+];
+
+fixedCaseGalleryImageSet.forEach((image, index) => {
+  if (image && caseGalleryItemsWithImages[index]) {
+    caseGalleryItemsWithImages[index].image = image;
+  }
+});
+
 const beforeAfterBordpladePreview = beforeAfterBordplade.slice(0, 4).map((item) => ({
   ...item,
   beforeAlt: "Massiv træbordplade før slibning",
