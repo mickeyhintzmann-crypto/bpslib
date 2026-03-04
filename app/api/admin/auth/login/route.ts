@@ -36,14 +36,8 @@ export async function POST(request: Request) {
     const payload = (await request.json()) as Payload;
     const password = typeof payload.password === "string" ? payload.password : "";
     const emailHint = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
-    const expected = process.env.ADMIN_PASSWORD || "";
-
-    if (!expected) {
-      return NextResponse.json({ message: "ADMIN_PASSWORD mangler i miljøvariabler." }, { status: 500 });
-    }
-
-    if (!password || !safeCompare(password, expected)) {
-      return NextResponse.json({ message: "Forkert adgangskode." }, { status: 401 });
+    if (!password) {
+      return NextResponse.json({ message: "Indtast adgangskode." }, { status: 400 });
     }
 
     const supabase = createSupabaseServiceClient();
@@ -77,47 +71,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: usersError.message }, { status: 500 });
     }
 
-    let activeUsers = (existingUsers || []).filter((user) => user.is_active !== false);
-    if (emailHint) {
-      activeUsers = activeUsers.filter((user) => user.email?.toLowerCase() === emailHint);
-      if (activeUsers.length === 0) {
-        return NextResponse.json(
-          { message: "Ingen aktiv bruger fundet med den email." },
-          { status: 401 }
-        );
-      }
-    }
+    const expected = process.env.ADMIN_PASSWORD || "";
+    const activeUsers = (existingUsers || []).filter((user) => user.is_active !== false);
+    const matchedByEmail = emailHint
+      ? activeUsers.find((user) => user.email?.toLowerCase() === emailHint) || null
+      : null;
 
-    const pickByRole = (role: string) => activeUsers.find((user) => user.role === role);
-    let selected =
-      pickByRole("owner") ||
-      pickByRole("admin") ||
-      pickByRole("employee") ||
-      pickByRole("viewer") ||
-      activeUsers[0];
-
-    if (!selected) {
-      const { data: created, error: createError } = await supabase
-        .from("admin_users")
-        .insert({
-          email: ownerEmail,
-          name: ownerName,
-          role: "owner",
-          is_active: true
-        })
-        .select("id, email, name, role, is_active, employee_password_hash, employee_password_set_at")
-        .single();
-
-      if (createError || !created) {
-        return NextResponse.json(
-          { message: createError?.message || "Kunne ikke oprette admin-bruger." },
-          { status: 500 }
-        );
-      }
-      selected = created;
-    }
-
-    if (selected.role === "employee") {
+    let selected = matchedByEmail;
+    if (selected?.role === "employee") {
       const hash = typeof selected.employee_password_hash === "string" ? selected.employee_password_hash : "";
       if (!hash) {
         return NextResponse.json(
@@ -131,6 +92,53 @@ export async function POST(request: Request) {
       if (!verifyPassword(password, hash)) {
         return NextResponse.json({ message: "Forkert email eller kodeord." }, { status: 401 });
       }
+    } else {
+      if (!expected) {
+        return NextResponse.json({ message: "ADMIN_PASSWORD mangler i miljøvariabler." }, { status: 500 });
+      }
+      if (!safeCompare(password, expected)) {
+        return NextResponse.json({ message: "Forkert adgangskode." }, { status: 401 });
+      }
+
+      if (!selected) {
+        if (emailHint) {
+          return NextResponse.json({ message: "Ingen aktiv bruger fundet med den email." }, { status: 401 });
+        }
+
+        const pickByRole = (role: string) => activeUsers.find((user) => user.role === role);
+        selected =
+          pickByRole("owner") ||
+          pickByRole("admin") ||
+          pickByRole("employee") ||
+          pickByRole("viewer") ||
+          activeUsers[0] ||
+          null;
+
+        if (!selected) {
+          const { data: created, error: createError } = await supabase
+            .from("admin_users")
+            .insert({
+              email: ownerEmail,
+              name: ownerName,
+              role: "owner",
+              is_active: true
+            })
+            .select("id, email, name, role, is_active, employee_password_hash, employee_password_set_at")
+            .single();
+
+          if (createError || !created) {
+            return NextResponse.json(
+              { message: createError?.message || "Kunne ikke oprette admin-bruger." },
+              { status: 500 }
+            );
+          }
+          selected = created;
+        }
+      }
+    }
+
+    if (!selected) {
+      return NextResponse.json({ message: "Ingen aktiv bruger fundet." }, { status: 401 });
     }
 
     const token = createAdminSessionToken({
