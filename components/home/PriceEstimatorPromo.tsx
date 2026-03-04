@@ -29,11 +29,11 @@ const perks = [
 
 const estimatorPreviewImages = [
   {
-    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-1.JPG",
+    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-1-v2.JPG",
     alt: "Køkkenbordplade i massiv træ, vinkel 1"
   },
   {
-    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-2.JPG",
+    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-2-v2.JPG",
     alt: "Køkkenbordplade i massiv træ, vinkel 2"
   }
 ] as const;
@@ -98,23 +98,25 @@ export const PriceEstimatorPromo = () => {
             </a>
           </div>
         </div>
-        <div className="relative overflow-hidden rounded-3xl shadow-xl">
-          <div className="grid gap-3 bg-neutral-950/5 p-2">
-            {estimatorPreviewImages.map((image) => (
-              <BpsImage
-                key={image.src}
-                src={image.src}
-                alt={image.alt}
-                width={1200}
-                height={760}
-                className="h-[220px] w-full rounded-2xl object-cover sm:h-[250px] lg:h-[295px]"
-              />
-            ))}
+        <div className="overflow-hidden rounded-3xl bg-neutral-950/5 p-2 shadow-xl">
+          <div className="relative">
+            <div className="grid gap-3">
+              {estimatorPreviewImages.map((image) => (
+                <BpsImage
+                  key={image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  width={1200}
+                  height={760}
+                  className="h-[220px] w-full rounded-2xl object-cover sm:h-[250px] lg:h-[295px]"
+                />
+              ))}
+            </div>
+            <div className="absolute right-4 top-4 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white">
+              Fra 3.000 kr.
+            </div>
           </div>
-          <div className="absolute right-4 top-4 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white">
-            Fra 3.000 kr.
-          </div>
-          <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/90 p-4 shadow-sm">
+          <div className="mt-3 rounded-2xl bg-white/90 p-4 shadow-sm">
             <p className="text-xs text-muted-foreground">Estimeret pris</p>
             <p className="text-2xl font-semibold text-foreground">3.500 kr.</p>
             <p className="text-xs text-muted-foreground">
