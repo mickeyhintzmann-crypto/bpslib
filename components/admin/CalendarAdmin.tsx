@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { SLOT_TIMES, slotRange } from "@/lib/booking-schedule";
@@ -29,6 +29,18 @@ type BookingItem = {
   address: string | null;
   assigned_to: string | null;
   service_type: string | null;
+};
+
+type UnavailabilityItem = {
+  id: string;
+  employee_id: string | null;
+  created_by_user_id: string | null;
+  type: "sick" | "vacation" | "personal" | null;
+  note: string | null;
+  start_at: string | null;
+  end_at: string | null;
+  employee_name: string | null;
+  employee_email: string | null;
 };
 
 type AdminUser = {
@@ -58,17 +70,93 @@ type SlotActionState = {
   slotLabel: string;
   bookingId: string | null;
   slotOpenByOverride: boolean;
+  absenceSummary: string | null;
 };
 
 type CalendarResponse = {
   overrides?: OverrideItem[];
   bookings?: BookingItem[];
+  unavailability?: UnavailabilityItem[];
   message?: string;
 };
 
 type UsersResponse = {
   items?: AdminUser[];
   message?: string;
+};
+
+const SLOT_RANGES = [
+  { start: "08:00", end: "11:00" },
+  { start: "11:00", end: "13:30" },
+  { start: "13:30", end: "16:00" }
+] as const;
+
+const UNAVAILABILITY_LABELS = {
+  sick: "Syg",
+  vacation: "Ferie",
+  personal: "Privat"
+} as const;
+
+const parseIsoToMs = (value: string | null) => {
+  if (!value) {
+    return null;
+  }
+  const date = new Date(value);
+  const ms = date.getTime();
+  if (Number.isNaN(ms)) {
+    return null;
+  }
+  return ms;
+};
+
+const combineDateTimeToMs = (dateKey: string, hhmm: string) => {
+  const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
+  const [hourRaw, minuteRaw] = hhmm.split(":");
+  const year = Number.parseInt(yearRaw || "", 10);
+  const month = Number.parseInt(monthRaw || "", 10);
+  const day = Number.parseInt(dayRaw || "", 10);
+  const hour = Number.parseInt(hourRaw || "", 10);
+  const minute = Number.parseInt(minuteRaw || "", 10);
+  if ([year, month, day, hour, minute].some((value) => Number.isNaN(value))) {
+    return null;
+  }
+  return new Date(year, month - 1, day, hour, minute, 0, 0).getTime();
+};
+
+const overlaps = (startMs: number, endMs: number, windowStartMs: number, windowEndMs: number) =>
+  startMs < windowEndMs && endMs > windowStartMs;
+
+const formatAbsenceRange = (startAt: string | null, endAt: string | null) => {
+  const start = startAt ? new Date(startAt) : null;
+  const end = endAt ? new Date(endAt) : null;
+  if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "Tid ikke angivet";
+  }
+
+  const sameDay = start.toDateString() === end.toDateString();
+  const startLabel = start.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  const endLabel = end.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  const isAllDay =
+    start.getHours() === 0 &&
+    start.getMinutes() === 0 &&
+    end.getHours() === 23 &&
+    end.getMinutes() >= 55;
+
+  if (sameDay && isAllDay) {
+    return "Heldag";
+  }
+
+  if (sameDay) {
+    return `${startLabel}-${endLabel}`;
+  }
+
+  return `${start.toLocaleDateString("da-DK", {
+    day: "2-digit",
+    month: "2-digit"
+  })} ${startLabel} - ${end.toLocaleDateString("da-DK", {
+    day: "2-digit",
+    month: "2-digit"
+  })} ${endLabel}`;
 };
 
 const toDateKey = (date: Date) => {
@@ -222,6 +310,7 @@ export const CalendarAdmin = () => {
   const [selectedDateKey, setSelectedDateKey] = useState("");
   const [daySettings, setDaySettings] = useState<Record<string, DaySettings>>({});
   const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [unavailability, setUnavailability] = useState<UnavailabilityItem[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -274,6 +363,28 @@ export const CalendarAdmin = () => {
     [users]
   );
 
+  const userById = useMemo(() => {
+    const map = new Map<string, AdminUser>();
+    users.forEach((user) => {
+      map.set(user.id, user);
+    });
+    return map;
+  }, [users]);
+
+  const matchesUnavailabilityToUser = useCallback(
+    (item: UnavailabilityItem, userId: string) => {
+      if (item.created_by_user_id && item.created_by_user_id === userId) {
+        return true;
+      }
+      const user = userById.get(userId);
+      if (!user?.email || !item.employee_email) {
+        return false;
+      }
+      return user.email.toLowerCase() === item.employee_email.toLowerCase();
+    },
+    [userById]
+  );
+
   const bookingsByDate = useMemo(() => {
     const map: Record<string, BookingItem[]> = {};
     bookings.forEach((booking) => {
@@ -297,6 +408,13 @@ export const CalendarAdmin = () => {
     }
     return bookings.filter((booking) => booking.assigned_to === employeeFilter);
   }, [bookings, employeeFilter]);
+
+  const visibleUnavailability = useMemo(() => {
+    if (employeeFilter === "all") {
+      return [] as UnavailabilityItem[];
+    }
+    return unavailability.filter((item) => matchesUnavailabilityToUser(item, employeeFilter));
+  }, [employeeFilter, matchesUnavailabilityToUser, unavailability]);
 
   const visibleBookingsByDate = useMemo(() => {
     const map: Record<string, BookingItem[]> = {};
@@ -339,6 +457,7 @@ export const CalendarAdmin = () => {
       }
 
       setBookings(payload.bookings);
+      setUnavailability(payload.unavailability || []);
       setDaySettings((current) => {
         const next = { ...current };
         payload.overrides?.forEach((override) => {
@@ -488,7 +607,9 @@ export const CalendarAdmin = () => {
   };
 
   const errorIsMissingTable =
-    error.toLowerCase().includes("day_overrides") || error.toLowerCase().includes("mangler i databasen");
+    error.toLowerCase().includes("day_overrides") ||
+    error.toLowerCase().includes("employee_unavailability") ||
+    error.toLowerCase().includes("mangler i databasen");
 
   const selectedSettings = selectedDateKey ? daySettings[selectedDateKey] || defaultDaySettings() : null;
   const selectedBookings = selectedDateKey ? visibleBookingsByDate[selectedDateKey] || [] : [];
@@ -500,15 +621,68 @@ export const CalendarAdmin = () => {
       })
     : "";
 
-  const employeeSchedule = useMemo(() => {
+  const selectedDayRangeMs = useMemo(() => {
     if (!selectedDateKey) {
+      return null;
+    }
+    const startMs = combineDateTimeToMs(selectedDateKey, "00:00");
+    const endMs = combineDateTimeToMs(selectedDateKey, "23:59");
+    if (startMs === null || endMs === null) {
+      return null;
+    }
+    return { startMs, endMs };
+  }, [selectedDateKey]);
+
+  const getSlotAbsenceForDay = useCallback(
+    (dateKey: string, slotIndex: number) => {
+      if (employeeFilter === "all") {
+        return null;
+      }
+      const slotRange = SLOT_RANGES[slotIndex];
+      if (!slotRange) {
+        return null;
+      }
+      const slotStartMs = combineDateTimeToMs(dateKey, slotRange.start);
+      const slotEndMs = combineDateTimeToMs(dateKey, slotRange.end);
+      if (slotStartMs === null || slotEndMs === null) {
+        return null;
+      }
+
+      for (const item of visibleUnavailability) {
+        const startMs = parseIsoToMs(item.start_at);
+        const endMs = parseIsoToMs(item.end_at);
+        if (startMs === null || endMs === null) {
+          continue;
+        }
+        if (overlaps(startMs, endMs, slotStartMs, slotEndMs)) {
+          return item;
+        }
+      }
+      return null;
+    },
+    [employeeFilter, visibleUnavailability]
+  );
+
+  const employeeSchedule = useMemo(() => {
+    if (!selectedDateKey || !selectedDayRangeMs) {
       return [];
     }
     return employeeOptions.map((user) => ({
       user,
-      items: (bookingsByDate[selectedDateKey] || []).filter((booking) => booking.assigned_to === user.id)
+      items: (bookingsByDate[selectedDateKey] || []).filter((booking) => booking.assigned_to === user.id),
+      absences: unavailability.filter((item) => {
+        if (!matchesUnavailabilityToUser(item, user.id)) {
+          return false;
+        }
+        const startMs = parseIsoToMs(item.start_at);
+        const endMs = parseIsoToMs(item.end_at);
+        if (startMs === null || endMs === null) {
+          return false;
+        }
+        return overlaps(startMs, endMs, selectedDayRangeMs.startMs, selectedDayRangeMs.endMs);
+      })
     }));
-  }, [employeeOptions, bookingsByDate, selectedDateKey]);
+  }, [bookingsByDate, employeeOptions, matchesUnavailabilityToUser, selectedDateKey, selectedDayRangeMs, unavailability]);
 
   return (
     <section className="space-y-6">
@@ -540,7 +714,8 @@ export const CalendarAdmin = () => {
             <p className="font-semibold">{error}</p>
             {errorIsMissingTable ? (
               <p className="mt-2 text-xs text-red-600">
-                Kør migrationen: <code>supabase/migrations/20260208_000008_day_overrides.sql</code>
+                Kør migrationen: <code>supabase/migrations/20260208_000008_day_overrides.sql</code> og{" "}
+                <code>supabase/migrations/20260304_000090_employee_unavailability.sql</code>
               </p>
             ) : null}
           </div>
@@ -649,7 +824,8 @@ export const CalendarAdmin = () => {
           {gridDays.map((day) => {
             const settings = daySettings[day.dateKey] || defaultDaySettings();
             const dayBookingsAll = bookingsByDate[day.dateKey] || [];
-            const blocked = computeBlockedSlots(dayBookingsAll);
+            const dayBookingsForSlots = employeeFilter === "all" ? dayBookingsAll : visibleBookingsByDate[day.dateKey] || [];
+            const blocked = computeBlockedSlots(dayBookingsForSlots);
             const openSlots = settings.openSlotsCount;
             const bookedCount = Math.min(openSlots, blocked.size);
             const remaining = Math.max(0, openSlots - bookedCount);
@@ -687,10 +863,14 @@ export const CalendarAdmin = () => {
                   <div className="grid grid-cols-3 gap-1.5">
                     {[0, 1, 2].map((slotIndex) => {
                       const slotLabel = SLOT_TIMES[slotIndex] || `${slotIndex + 1}`;
-                      const slotBooking = getBookingForSlot(dayBookingsAll, slotIndex);
+                      const slotBooking = getBookingForSlot(dayBookingsForSlots, slotIndex);
+                      const slotAbsence = getSlotAbsenceForDay(day.dateKey, slotIndex);
                       const slotOpenByOverride = slotIndex < openSlots;
-                      const slotAvailable = slotOpenByOverride && !slotBooking;
+                      const slotAvailable = slotOpenByOverride && !slotBooking && !slotAbsence;
                       const isRed = !slotAvailable;
+                      const absenceSummary = slotAbsence
+                        ? `${UNAVAILABILITY_LABELS[slotAbsence.type || "personal"] || "Fravær"} (${formatAbsenceRange(slotAbsence.start_at, slotAbsence.end_at)})`
+                        : null;
 
                       return (
                         <button
@@ -704,7 +884,8 @@ export const CalendarAdmin = () => {
                             slotIndex,
                             slotLabel,
                             bookingId: slotBooking?.id || null,
-                            slotOpenByOverride
+                            slotOpenByOverride,
+                            absenceSummary
                           });
                         }}
                           className={`rounded-md border px-1.5 py-2 text-center text-[10px] font-semibold ${
@@ -715,6 +896,8 @@ export const CalendarAdmin = () => {
                           title={
                             slotBooking
                               ? `Optaget: ${slotLabel} (klik for valg)`
+                              : slotAbsence
+                                ? `Fravær: ${slotLabel} (klik for valg)`
                               : slotOpenByOverride
                                 ? `Ledig: ${slotLabel} (klik for valg)`
                                 : `Ikke ledig: ${slotLabel} (klik for valg)`
@@ -849,7 +1032,7 @@ export const CalendarAdmin = () => {
                 Klik på en medarbejder for at vise deres kalender og opgaver.
               </p>
               <div className="mt-3 space-y-3">
-                {employeeSchedule.map(({ user, items }) => (
+                {employeeSchedule.map(({ user, items, absences }) => (
                   <div
                     key={user.id}
                     className={`rounded-lg border bg-white p-3 ${
@@ -860,7 +1043,7 @@ export const CalendarAdmin = () => {
                       <p className="text-sm font-semibold">{user.name || user.email || "Medarbejder"}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          {items.length} opgave{items.length === 1 ? "" : "r"}
+                          {items.length} opgave{items.length === 1 ? "" : "r"} · {absences.length} fravær
                         </span>
                         <button
                           type="button"
@@ -871,9 +1054,25 @@ export const CalendarAdmin = () => {
                         </button>
                       </div>
                     </div>
-                    {items.length === 0 ? (
-                      <p className="mt-2 text-xs text-muted-foreground">Ingen opgaver denne dag.</p>
-                    ) : (
+                    {items.length === 0 && absences.length === 0 ? (
+                      <p className="mt-2 text-xs text-muted-foreground">Ingen opgaver eller fravær denne dag.</p>
+                    ) : null}
+                    {absences.length > 0 ? (
+                      <div className="mt-2 space-y-2">
+                        {absences.map((item) => {
+                          const absenceType = item.type || "personal";
+                          return (
+                            <div key={item.id} className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs">
+                              <p className="font-semibold text-red-700">
+                                {UNAVAILABILITY_LABELS[absenceType] || "Fravær"} · {formatAbsenceRange(item.start_at, item.end_at)}
+                              </p>
+                              {item.note ? <p className="text-[11px] text-red-600">{item.note}</p> : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                    {items.length > 0 ? (
                       <div className="mt-2 space-y-2">
                         {items.map((booking) => (
                           <Link
@@ -890,7 +1089,7 @@ export const CalendarAdmin = () => {
                           </Link>
                         ))}
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -939,6 +1138,11 @@ export const CalendarAdmin = () => {
                 </Button>
               ) : (
                 <>
+                  {slotAction.absenceSummary ? (
+                    <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                      Registreret fravær: {slotAction.absenceSummary}
+                    </p>
+                  ) : null}
                   <Button
                     className="w-full"
                     onClick={() => {

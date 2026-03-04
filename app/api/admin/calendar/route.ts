@@ -58,7 +58,10 @@ export async function GET(request: Request) {
 
     const supabase = createSupabaseServiceClient();
 
-    const [overrideResult, bookingResult] = await Promise.all([
+    const fromIso = `${from}T00:00:00.000Z`;
+    const toExclusiveIso = `${toExclusive}T00:00:00.000Z`;
+
+    const [overrideResult, bookingResult, unavailabilityResult] = await Promise.all([
       supabase
         .from("day_overrides")
         .select("date, open_slots_count, show_on_acute_page, note")
@@ -71,7 +74,13 @@ export async function GET(request: Request) {
           "id, date, start_slot_index, slot_count, source, status, customer_name, postal_code, address, assigned_to, service_type"
         )
         .gte("date", from)
-        .lt("date", toExclusive)
+        .lt("date", toExclusive),
+      supabase
+        .from("employee_unavailability")
+        .select("id, employee_id, created_by_user_id, type, note, start_at, end_at, employee:employee_id(id,name,email)")
+        .lt("start_at", toExclusiveIso)
+        .gte("end_at", fromIso)
+        .order("start_at", { ascending: true })
     ]);
 
     if (overrideResult.error) {
@@ -97,6 +106,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: bookingResult.error.message }, { status: 500 });
     }
 
+    if (unavailabilityResult.error) {
+      if (isMissingRelation(unavailabilityResult.error.message, "employee_unavailability")) {
+        return NextResponse.json(
+          {
+            message:
+              "Tabellen employee_unavailability mangler i databasen. Kør migrationen supabase/migrations/20260304_000090_employee_unavailability.sql."
+          },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json({ message: unavailabilityResult.error.message }, { status: 500 });
+    }
+
     const bookings = (bookingResult.data || []).map((booking) => ({
       id: booking.id,
       date: booking.date || "",
@@ -117,10 +139,26 @@ export async function GET(request: Request) {
       service_type: booking.service_type ?? null
     }));
 
+    const unavailability = (unavailabilityResult.data || []).map((item) => {
+      const employeeRelation = Array.isArray(item.employee) ? item.employee[0] : item.employee;
+      return {
+        id: item.id,
+        employee_id: item.employee_id ?? null,
+        created_by_user_id: item.created_by_user_id ?? null,
+        type: item.type ?? null,
+        note: item.note ?? null,
+        start_at: item.start_at ?? null,
+        end_at: item.end_at ?? null,
+        employee_name: employeeRelation?.name ?? null,
+        employee_email: employeeRelation?.email ?? null
+      };
+    });
+
     return NextResponse.json(
       {
         overrides: overrideResult.data || [],
-        bookings
+        bookings,
+        unavailability
       },
       { status: 200 }
     );
