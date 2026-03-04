@@ -138,6 +138,7 @@ export async function POST(request: Request) {
     const description = asString(formData.get("description"));
     const floorCondition = parseFloorCondition(asString(formData.get("floorCondition")));
     const floorTreatment = parseFloorTreatment(asString(formData.get("floorTreatment")));
+    const roomCountRaw = asString(formData.get("roomCount"));
     const postalCode = parsePostalCode(asString(formData.get("postalCode")));
     const propertyType = parsePropertyType(asString(formData.get("propertyType")));
     const apartmentFloor = asString(formData.get("apartmentFloor"));
@@ -186,6 +187,7 @@ export async function POST(request: Request) {
     const priceMax = parseNumber(priceMaxRaw, 500, 20000);
     const areaM2 = parseDecimal(areaM2Raw, 1, 2000);
     const doorThresholdCount = parseNumber(doorThresholdCountRaw, 0, 30);
+    const roomCount = parseNumber(roomCountRaw, 1, 20);
 
     if (priceMin === null || priceMax === null) {
       return NextResponse.json({ message: "Angiv prisinterval (min/max)." }, { status: 400 });
@@ -210,6 +212,9 @@ export async function POST(request: Request) {
     }
     if (service === "gulvafslibning" && !floorTreatment) {
       return NextResponse.json({ message: "Vælg nuværende behandling (lak/olie/sæbe/ukendt)." }, { status: 400 });
+    }
+    if (service === "gulvafslibning" && roomCount === null) {
+      return NextResponse.json({ message: "Angiv antal rum (1-20)." }, { status: 400 });
     }
     if (service === "gulvafslibning" && !postalCode) {
       return NextResponse.json({ message: "Angiv gyldigt postnummer (4 cifre)." }, { status: 400 });
@@ -276,6 +281,7 @@ export async function POST(request: Request) {
       description: description || undefined,
       floorCondition: floorCondition || undefined,
       floorTreatment: floorTreatment || undefined,
+      roomCount: roomCount ?? undefined,
       postalCode: postalCode || undefined,
       propertyType: propertyType || undefined,
       apartmentFloor: propertyType === "lejlighed" ? apartmentFloor || undefined : undefined,
@@ -329,6 +335,7 @@ export async function POST(request: Request) {
         description: description || null,
         floorCondition: floorCondition || null,
         floorTreatment: floorTreatment || null,
+        roomCount: roomCount ?? null,
         postalCode: postalCode || null,
         propertyType: propertyType || null,
         apartmentFloor: propertyType === "lejlighed" ? apartmentFloor || null : null,

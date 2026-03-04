@@ -53,6 +53,7 @@ export const AiTrainingAdmin = () => {
   const [description, setDescription] = useState("");
   const [floorCondition, setFloorCondition] = useState<(typeof FLOOR_CONDITION_OPTIONS)[number]["value"]>("middel");
   const [floorTreatment, setFloorTreatment] = useState<(typeof FLOOR_TREATMENT_OPTIONS)[number]["value"]>("ukendt");
+  const [roomCount, setRoomCount] = useState("1");
   const [postalCode, setPostalCode] = useState("");
   const [propertyType, setPropertyType] = useState<(typeof PROPERTY_TYPE_OPTIONS)[number]["value"]>("hus");
   const [apartmentFloor, setApartmentFloor] = useState("");
@@ -114,6 +115,10 @@ export const AiTrainingAdmin = () => {
       if (!floorTreatment) {
         return "Vælg nuværende behandling.";
       }
+      const rooms = Number.parseInt(roomCount.trim(), 10);
+      if (!Number.isFinite(rooms) || rooms < 1 || rooms > 20) {
+        return "Angiv antal rum (1-20).";
+      }
       if (!/^\d{4}$/.test(postalCode.trim())) {
         return "Angiv gyldigt postnummer (4 cifre).";
       }
@@ -154,6 +159,7 @@ export const AiTrainingAdmin = () => {
       formData.append("description", description.trim());
       formData.append("floorCondition", floorCondition);
       formData.append("floorTreatment", floorTreatment);
+      formData.append("roomCount", roomCount.trim());
       formData.append("postalCode", postalCode.trim());
       formData.append("propertyType", propertyType);
       formData.append("apartmentFloor", apartmentFloor.trim());
@@ -182,6 +188,7 @@ export const AiTrainingAdmin = () => {
       setDescription("");
       setFloorCondition("middel");
       setFloorTreatment("ukendt");
+      setRoomCount("1");
       setPostalCode("");
       setPropertyType("hus");
       setApartmentFloor("");
@@ -282,6 +289,18 @@ export const AiTrainingAdmin = () => {
                 </option>
               ))}
             </select>
+          </label>
+        ) : null}
+        {service === "gulvafslibning" ? (
+          <label className="grid gap-2 text-sm text-foreground">
+            Antal rum
+            <input
+              value={roomCount}
+              onChange={(event) => setRoomCount(event.target.value)}
+              inputMode="numeric"
+              className="h-10 rounded-md border border-border bg-white px-3"
+              placeholder="fx 3"
+            />
           </label>
         ) : null}
         {service === "gulvafslibning" ? (

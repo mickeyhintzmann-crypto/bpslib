@@ -44,6 +44,7 @@ export type EstimatorFormFields = {
   description?: string;
   floorCondition?: string;
   floorTreatment?: string;
+  roomCount?: number;
   postalCode?: string;
   propertyType?: string;
   apartmentFloor?: string;

@@ -293,6 +293,7 @@ const normalizePositiveInt = (value: unknown) => {
 type GulvProfile = {
   floorCondition: string | null;
   floorTreatment: string | null;
+  roomBand: "single" | "few" | "many" | null;
   propertyType: string | null;
   postalPrefix: string | null;
   hasDoorThresholds: boolean | null;
@@ -315,11 +316,25 @@ const getThresholdBand = (count: number | null) => {
 const emptyGulvProfile = (): GulvProfile => ({
   floorCondition: null,
   floorTreatment: null,
+  roomBand: null,
   propertyType: null,
   postalPrefix: null,
   hasDoorThresholds: null,
   thresholdBand: null
 });
+
+const getRoomBand = (count: number | null) => {
+  if (count === null) {
+    return null;
+  }
+  if (count <= 1) {
+    return "single" as const;
+  }
+  if (count <= 3) {
+    return "few" as const;
+  }
+  return "many" as const;
+};
 
 const getGulvProfileFromFields = (value: unknown): GulvProfile => {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -333,9 +348,11 @@ const getGulvProfileFromFields = (value: unknown): GulvProfile => {
   const postalCode = normalizePostalCode(fields.postalCode);
   const hasDoorThresholds = normalizeBool(fields.hasDoorThresholds);
   const thresholdCount = normalizePositiveInt(fields.doorThresholdCount);
+  const roomCount = normalizePositiveInt(fields.roomCount);
   return {
     floorCondition: normalizeFloorCondition(fields.floorCondition),
     floorTreatment: normalizeFloorTreatment(fields.floorTreatment),
+    roomBand: getRoomBand(roomCount),
     propertyType: normalizePropertyType(fields.propertyType),
     postalPrefix: postalCode ? postalCode.slice(0, 2) : null,
     hasDoorThresholds,
@@ -580,6 +597,7 @@ export const estimateAiPrice = async (
       (profile) =>
         profile.floorCondition === wantedProfile.floorCondition &&
         profile.floorTreatment === wantedProfile.floorTreatment &&
+        profile.roomBand === wantedProfile.roomBand &&
         profile.propertyType === wantedProfile.propertyType &&
         profile.hasDoorThresholds === wantedProfile.hasDoorThresholds &&
         profile.thresholdBand === wantedProfile.thresholdBand
