@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BpsImage } from "@/components/BpsImage";
+import { FooterCityCoverage } from "@/components/footer/FooterCityCoverage";
 import { brandAssets, trustAssets } from "@/lib/assets";
 import { footerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
@@ -33,35 +34,11 @@ export const Footer = () => {
     !gulvRegionPaths.has(href) &&
     href !== "/gulvafslibning/omraader";
 
-  const bordpladeLinks = footerRegistry.bordplade.reduce(
-    (acc, route) => {
-      if (!isBordpladeCity(route.href)) {
-        acc.links.push(route);
-        return acc;
-      }
-      if (acc.cityCount < 12) {
-        acc.links.push(route);
-        acc.cityCount += 1;
-      }
-      return acc;
-    },
-    { links: [] as typeof footerRegistry.bordplade, cityCount: 0 }
-  ).links;
+  const bordpladeCityLinks = footerRegistry.bordplade.filter((route) => isBordpladeCity(route.href));
+  const gulvCityLinks = footerRegistry.gulvOgFag.filter((route) => isGulvCity(route.href));
 
-  const gulvLinks = footerRegistry.gulvOgFag.reduce(
-    (acc, route) => {
-      if (!isGulvCity(route.href)) {
-        acc.links.push(route);
-        return acc;
-      }
-      if (acc.cityCount < 12) {
-        acc.links.push(route);
-        acc.cityCount += 1;
-      }
-      return acc;
-    },
-    { links: [] as typeof footerRegistry.gulvOgFag, cityCount: 0 }
-  ).links;
+  const bordpladeLinks = footerRegistry.bordplade.filter((route) => !isBordpladeCity(route.href));
+  const gulvLinks = footerRegistry.gulvOgFag.filter((route) => !isGulvCity(route.href));
 
   return (
     <footer className="border-t border-stone-700/70 bg-[linear-gradient(160deg,hsl(28_24%_14%),hsl(22_20%_10%)_55%,hsl(20_18%_8%)_100%)] text-stone-200">
@@ -115,10 +92,13 @@ export const Footer = () => {
             <div className="grid gap-2 text-stone-300">
               {bordpladeLinks.map((route) => (
                 <Link key={route.href} href={route.href} className="transition hover:text-white">
-                  {isBordpladeCity(route.href) ? `Bordpladeslibning i ${route.label}` : route.label}
+                  {route.label}
                 </Link>
               ))}
-              <Link href="/bordpladeslibning/omraader" className="font-semibold text-stone-100 transition hover:text-white">
+              <Link
+                href="/bordpladeslibning/omraader"
+                className="font-semibold text-stone-100 transition hover:text-white"
+              >
                 Se alle områder
               </Link>
             </div>
@@ -129,10 +109,13 @@ export const Footer = () => {
             <div className="grid gap-2 text-stone-300">
               {gulvLinks.map((route) => (
                 <Link key={route.href} href={route.href} className="transition hover:text-white">
-                  {isGulvCity(route.href) ? `Gulvafslibning i ${route.label}` : route.label}
+                  {route.label}
                 </Link>
               ))}
-              <Link href="/gulvafslibning/omraader" className="font-semibold text-stone-100 transition hover:text-white">
+              <Link
+                href="/gulvafslibning/omraader"
+                className="font-semibold text-stone-100 transition hover:text-white"
+              >
                 Se alle gulv-områder
               </Link>
             </div>
@@ -154,6 +137,8 @@ export const Footer = () => {
             </div>
           </div>
         </div>
+
+        <FooterCityCoverage bordpladeCities={bordpladeCityLinks} gulvCities={gulvCityLinks} />
       </div>
       <div className="border-t border-stone-700/70 py-4 text-center text-xs text-stone-400">
         © {new Date().getFullYear()} {siteConfig.companyName}. Alle rettigheder forbeholdes.

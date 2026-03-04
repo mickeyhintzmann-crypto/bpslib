@@ -9,7 +9,6 @@ import { Header } from "@/components/Header";
 import { StickyContactBar } from "@/components/contact/StickyContactBar";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { AnalyticsBootstrap } from "@/components/AnalyticsBootstrap";
-import { brandAssets } from "@/lib/assets";
 import { getSiteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -25,9 +24,12 @@ export const metadata: Metadata = {
         }
       : undefined,
   icons: {
-    icon: brandAssets.favicon,
-    shortcut: brandAssets.favicon,
-    apple: brandAssets.favicon
+    icon: [
+      { url: "/images/brand/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/brand/favicon-16x16.png", sizes: "16x16", type: "image/png" }
+    ],
+    shortcut: "/images/brand/favicon-32x32.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }]
   }
 };
 
