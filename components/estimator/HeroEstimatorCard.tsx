@@ -139,6 +139,9 @@ export const HeroEstimatorCard = () => {
 
   return (
     <aside className="w-full max-w-[430px] rounded-[28px] border border-border/75 bg-white p-5 text-foreground shadow-[0_24px_50px_hsl(20_35%_10%/0.25)] md:p-6">
+      <div className="mb-3 inline-flex items-center rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+        AI-prisberegner · kun bordplader
+      </div>
       <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
         Få et prisestimat
       </h2>
@@ -198,4 +201,3 @@ export const HeroEstimatorCard = () => {
     </aside>
   );
 };
-
