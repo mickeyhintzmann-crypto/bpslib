@@ -86,18 +86,23 @@ const formatDateLabel = (dateKey: string) => {
   }).format(date);
 };
 
+const isWeekendDateKey = (dateKey: string) => {
+  const date = parseDateKey(dateKey);
+  if (!date) {
+    return false;
+  }
+  const weekday = date.getUTCDay();
+  return weekday === 0 || weekday === 6;
+};
+
 const baseOpenSlotIndexes = (dateKey: string) => {
+  if (isWeekendDateKey(dateKey)) {
+    return [] as number[];
+  }
+
   const date = parseDateKey(dateKey);
   if (!date) {
     return [0, 1, 2];
-  }
-
-  const weekday = date.getUTCDay();
-  if (weekday === 0) {
-    return [0];
-  }
-  if (weekday === 6) {
-    return [0, 1];
   }
   return [0, 1, 2];
 };
@@ -144,10 +149,15 @@ const normalizeOpenSlotsCount = (value: number | null | undefined) => {
 };
 
 const openIndexesForOverride = (
+  dateKey: string,
   defaultOpenIndexes: number[],
   override: DayOverrideRow | undefined,
   respectAcuteVisibility: boolean
 ) => {
+  if (isWeekendDateKey(dateKey)) {
+    return new Set<number>();
+  }
+
   let openIndexes = new Set(defaultOpenIndexes);
 
   if (override) {
@@ -324,6 +334,7 @@ export const getAvailabilityRange = async ({
   const items = dateKeys.map((dateKey) => {
     const defaultOpen = baseOpenSlotIndexes(dateKey);
     const openIndexes = openIndexesForOverride(
+      dateKey,
       defaultOpen,
       overrideByDate.get(dateKey),
       respectAcuteVisibility
@@ -399,6 +410,10 @@ export const checkBookingAvailability = async ({
     return { ok: false, status: 400, message: "Ugyldig dato. Brug format YYYY-MM-DD." };
   }
 
+  if (isWeekendDateKey(date)) {
+    return { ok: false, status: 400, message: "Lørdag og søndag er lukket for booking." };
+  }
+
   if (!Number.isInteger(startSlotIndex) || startSlotIndex < 0 || startSlotIndex > 2) {
     return { ok: false, status: 400, message: "Ugyldig starttid. Vælg 08:00, 11:00 eller 13:30." };
   }
@@ -453,7 +468,7 @@ export const checkBookingAvailability = async ({
     : bookings;
 
   const defaultOpen = baseOpenSlotIndexes(date);
-  const openIndexes = openIndexesForOverride(defaultOpen, overrideRow || undefined, false);
+  const openIndexes = openIndexesForOverride(date, defaultOpen, overrideRow || undefined, false);
   const blockedIndexes = findBlockedSlotIndexes(date, filteredBookings as BookingRow[]);
   const availableSlots = buildValidStartSlots(openIndexes, blockedIndexes, safeSlotCount);
 

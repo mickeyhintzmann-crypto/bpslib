@@ -108,6 +108,19 @@ const toDateKey = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const isWeekendDateKey = (dateKey: string) => {
+  const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
+  const year = Number.parseInt(yearRaw || "", 10);
+  const month = Number.parseInt(monthRaw || "", 10);
+  const day = Number.parseInt(dayRaw || "", 10);
+  if ([year, month, day].some((value) => Number.isNaN(value))) {
+    return false;
+  }
+  const date = new Date(year, month - 1, day, 12, 0, 0, 0);
+  const weekday = date.getDay();
+  return weekday === 0 || weekday === 6;
+};
+
 const toIso = (date: Date) => date.toISOString();
 
 const parseIso = (value: string) => {
@@ -485,6 +498,10 @@ export const EmployeeCalendar = () => {
 
   const getSlotOccupancy = useCallback(
     (dateKey: string, slotIndex: number) => {
+      if (isWeekendDateKey(dateKey)) {
+        return { kind: "closed" } as const;
+      }
+
       const slot = SLOT_RANGES[slotIndex];
       if (!slot) {
         return { kind: "free" } as const;
@@ -660,6 +677,11 @@ export const EmployeeCalendar = () => {
                             setAbsenceMessage(`Åbnede opgave i slot ${slot.label}.`);
                             return;
                           }
+                          if (occupancy.kind === "closed") {
+                            setAbsenceError("");
+                            setAbsenceMessage("Weekend er lukket.");
+                            return;
+                          }
                           selectSlotForAbsence(dateKey, slotIndex);
                         }}
                         className={`rounded-md border px-1.5 py-1 text-left text-[10px] font-semibold ${
@@ -670,6 +692,8 @@ export const EmployeeCalendar = () => {
                         title={
                           occupancy.kind === "job"
                             ? `Optaget med opgave (${slot.label})`
+                            : occupancy.kind === "closed"
+                              ? `Weekend lukket (${slot.label})`
                             : occupancy.kind === "absence"
                               ? `Ikke ledig (${typeLabel[occupancy.item.type]})`
                               : `Ledig (${slot.label})`
@@ -679,6 +703,8 @@ export const EmployeeCalendar = () => {
                         <div>
                           {occupancy.kind === "job"
                             ? "Optaget"
+                            : occupancy.kind === "closed"
+                              ? "Lukket"
                             : occupancy.kind === "absence"
                               ? "Ikke ledig"
                               : "Ledig"}

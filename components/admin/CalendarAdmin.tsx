@@ -78,6 +78,7 @@ type SlotActionState = {
   bookingId: string | null;
   slotOpenByOverride: boolean;
   absenceSummary: string | null;
+  isWeekend: boolean;
 };
 
 type CalendarResponse = {
@@ -222,11 +223,27 @@ const buildMonthGrid = (month: Date) => {
   };
 };
 
-const defaultDaySettings = (): DaySettings => ({
-  openSlotsCount: 3,
-  showOnAcutePage: true,
-  note: ""
-});
+const isWeekendDateKey = (dateKey: string) => {
+  const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
+  const year = Number.parseInt(yearRaw || "", 10);
+  const month = Number.parseInt(monthRaw || "", 10);
+  const day = Number.parseInt(dayRaw || "", 10);
+  if ([year, month, day].some((value) => Number.isNaN(value))) {
+    return false;
+  }
+  const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const weekday = date.getUTCDay();
+  return weekday === 0 || weekday === 6;
+};
+
+const defaultDaySettings = (dateKey: string): DaySettings => {
+  const isWeekend = isWeekendDateKey(dateKey);
+  return {
+    openSlotsCount: isWeekend ? 0 : 3,
+    showOnAcutePage: !isWeekend,
+    note: ""
+  };
+};
 
 const sortBookingsByTime = (items: BookingItem[]) =>
   [...items].sort((a, b) => {
@@ -349,7 +366,7 @@ export const CalendarAdmin = () => {
     }
     const baseSettings: Record<string, DaySettings> = {};
     days.forEach((day) => {
-      baseSettings[day.dateKey] = defaultDaySettings();
+      baseSettings[day.dateKey] = defaultDaySettings(day.dateKey);
     });
     setDaySettings(baseSettings);
   }, [currentMonth]);
@@ -510,14 +527,21 @@ export const CalendarAdmin = () => {
           if (!override.date) {
             return;
           }
-          const currentSettings = next[override.date] ?? defaultDaySettings();
+          const currentSettings = next[override.date] ?? defaultDaySettings(override.date);
+          const weekend = isWeekendDateKey(override.date);
           next[override.date] = {
             openSlotsCount:
-              typeof override.open_slots_count === "number" ? override.open_slots_count : currentSettings.openSlotsCount,
+              weekend
+                ? 0
+                : typeof override.open_slots_count === "number"
+                  ? override.open_slots_count
+                  : currentSettings.openSlotsCount,
             showOnAcutePage:
-              typeof override.show_on_acute_page === "boolean"
-                ? override.show_on_acute_page
-                : currentSettings.showOnAcutePage,
+              weekend
+                ? false
+                : typeof override.show_on_acute_page === "boolean"
+                  ? override.show_on_acute_page
+                  : currentSettings.showOnAcutePage,
             note: override.note || ""
           };
         });
@@ -540,7 +564,7 @@ export const CalendarAdmin = () => {
     setDaySettings((current) => ({
       ...current,
       [dateKey]: {
-        ...(current[dateKey] || defaultDaySettings()),
+        ...(current[dateKey] || defaultDaySettings(dateKey)),
         ...patch
       }
     }));
@@ -551,7 +575,7 @@ export const CalendarAdmin = () => {
       return;
     }
 
-    const settings = daySettings[selectedDateKey] || defaultDaySettings();
+    const settings = daySettings[selectedDateKey] || defaultDaySettings(selectedDateKey);
     setSaveMessage("Gemmer...");
 
     try {
@@ -590,7 +614,7 @@ export const CalendarAdmin = () => {
   };
 
   const closeSlotByOverride = async (dateKey: string, slotIndex: number, slotLabel: string) => {
-    const currentSettings = daySettings[dateKey] || defaultDaySettings();
+    const currentSettings = daySettings[dateKey] || defaultDaySettings(dateKey);
     const currentOpenSlots = Math.max(0, Math.min(3, currentSettings.openSlotsCount));
     const nextOpenSlots = Math.max(0, Math.min(currentOpenSlots, slotIndex));
 
@@ -657,7 +681,7 @@ export const CalendarAdmin = () => {
     error.toLowerCase().includes("employee_unavailability") ||
     error.toLowerCase().includes("mangler i databasen");
 
-  const selectedSettings = selectedDateKey ? daySettings[selectedDateKey] || defaultDaySettings() : null;
+  const selectedSettings = selectedDateKey ? daySettings[selectedDateKey] || defaultDaySettings(selectedDateKey) : null;
   const selectedBookings = selectedDateKey ? visibleBookingsByDate[selectedDateKey] || [] : [];
   const selectedDateLabel = selectedDateKey
     ? new Date(`${selectedDateKey}T12:00:00`).toLocaleDateString("da-DK", {
@@ -868,7 +892,8 @@ export const CalendarAdmin = () => {
 
         <div className="grid grid-cols-7 gap-2">
           {gridDays.map((day) => {
-            const settings = daySettings[day.dateKey] || defaultDaySettings();
+            const isWeekend = isWeekendDateKey(day.dateKey);
+            const settings = daySettings[day.dateKey] || defaultDaySettings(day.dateKey);
             const dayBookingsAll = bookingsByDate[day.dateKey] || [];
             const dayBookingsForSlots = employeeFilter === "all" ? dayBookingsAll : visibleBookingsByDate[day.dateKey] || [];
             const blocked = computeBlockedSlots(dayBookingsForSlots);
@@ -931,7 +956,8 @@ export const CalendarAdmin = () => {
                             slotLabel,
                             bookingId: slotBooking?.id || null,
                             slotOpenByOverride,
-                            absenceSummary
+                            absenceSummary,
+                            isWeekend
                           });
                         }}
                           className={`rounded-md border px-1.5 py-2 text-center text-[10px] font-semibold ${
@@ -942,6 +968,8 @@ export const CalendarAdmin = () => {
                           title={
                             slotBooking
                               ? `Optaget: ${slotLabel} (klik for valg)`
+                              : isWeekend
+                                ? `Weekend lukket: ${slotLabel}`
                               : slotAbsence
                                 ? `Fravær: ${slotLabel} (klik for valg)`
                               : slotOpenByOverride
@@ -976,16 +1004,22 @@ export const CalendarAdmin = () => {
                       key={count}
                       type="button"
                       onClick={() => updateDaySettings(selectedDateKey, { openSlotsCount: count })}
+                      disabled={isWeekendDateKey(selectedDateKey) && count > 0}
                       className={`rounded-full border px-3 py-1 text-xs ${
                         selectedSettings.openSlotsCount === count
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border text-muted-foreground"
-                      }`}
+                      } ${isWeekendDateKey(selectedDateKey) && count > 0 ? "cursor-not-allowed opacity-50" : ""}`}
                     >
                       {count === 0 ? "Lukket" : `${count} slots`}
                     </button>
                   ))}
                 </div>
+                {isWeekendDateKey(selectedDateKey) ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Lørdag og søndag er altid lukket.
+                  </p>
+                ) : null}
               </div>
 
               <div>
@@ -994,12 +1028,16 @@ export const CalendarAdmin = () => {
                   <input
                     type="checkbox"
                     checked={selectedSettings.showOnAcutePage}
+                    disabled={isWeekendDateKey(selectedDateKey)}
                     onChange={(event) =>
                       updateDaySettings(selectedDateKey, { showOnAcutePage: event.target.checked })
                     }
                   />
                   {selectedSettings.showOnAcutePage ? "Ja" : "Nej"}
                 </label>
+                {isWeekendDateKey(selectedDateKey) ? (
+                  <p className="mt-1 text-xs text-muted-foreground">Weekend vises aldrig på akutte tider.</p>
+                ) : null}
               </div>
 
               <div>
@@ -1184,6 +1222,11 @@ export const CalendarAdmin = () => {
                 </Button>
               ) : (
                 <>
+                  {slotAction.isWeekend ? (
+                    <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                      Lørdag og søndag er permanent lukket.
+                    </p>
+                  ) : null}
                   {slotAction.absenceSummary ? (
                     <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
                       Registreret fravær: {slotAction.absenceSummary}
@@ -1191,6 +1234,7 @@ export const CalendarAdmin = () => {
                   ) : null}
                   <Button
                     className="w-full"
+                    disabled={slotAction.isWeekend}
                     onClick={() => {
                       const { dateKey, slotLabel } = slotAction;
                       setSlotAction(null);
@@ -1202,14 +1246,14 @@ export const CalendarAdmin = () => {
                   <Button
                     variant="outline"
                     className="w-full"
-                    disabled={!slotAction.slotOpenByOverride || slotActionBusy}
+                    disabled={slotAction.isWeekend || !slotAction.slotOpenByOverride || slotActionBusy}
                     onClick={() =>
                       closeSlotByOverride(slotAction.dateKey, slotAction.slotIndex, slotAction.slotLabel)
                     }
                   >
                     {slotActionBusy ? "Lukker tid..." : "Luk tid"}
                   </Button>
-                  {!slotAction.slotOpenByOverride ? (
+                  {!slotAction.isWeekend && !slotAction.slotOpenByOverride ? (
                     <p className="text-xs text-muted-foreground">Denne tid er allerede lukket.</p>
                   ) : null}
                 </>

@@ -30,6 +30,19 @@ const toDateKey = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const isWeekendDateKey = (dateKey: string) => {
+  const [yearRaw, monthRaw, dayRaw] = dateKey.split("-");
+  const year = Number.parseInt(yearRaw || "", 10);
+  const month = Number.parseInt(monthRaw || "", 10);
+  const day = Number.parseInt(dayRaw || "", 10);
+  if ([year, month, day].some((value) => Number.isNaN(value))) {
+    return false;
+  }
+  const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const weekday = date.getUTCDay();
+  return weekday === 0 || weekday === 6;
+};
+
 const formatDateLabel = (date: Date) =>
   date.toLocaleDateString("da-DK", {
     weekday: "short",
@@ -38,11 +51,8 @@ const formatDateLabel = (date: Date) =>
   });
 
 const baseOpenSlots = (weekday: number) => {
-  if (weekday === 0) {
-    return 1;
-  }
-  if (weekday === 6) {
-    return 2;
+  if (weekday === 0 || weekday === 6) {
+    return 0;
   }
   return 3;
 };
@@ -136,6 +146,11 @@ export const applyDayOverrides = (
 
     if (options?.respectAcuteVisibility && showOnAcutePage === false) {
       openSlotsCount = 0;
+    }
+
+    if (isWeekendDateKey(template.dateKey)) {
+      openSlotsCount = 0;
+      showOnAcutePage = false;
     }
 
     return {

@@ -29,6 +29,18 @@ const normalizeOpenSlots = (value: unknown) => {
   return NaN;
 };
 
+const isWeekendDateKey = (dateKey: string) => {
+  if (!dateRegex.test(dateKey)) {
+    return false;
+  }
+  const date = new Date(`${dateKey}T12:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+  const weekday = date.getUTCDay();
+  return weekday === 0 || weekday === 6;
+};
+
 export async function GET(request: Request) {
   try {
     const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
@@ -112,14 +124,18 @@ export async function PUT(request: Request) {
       );
     }
 
+    const isWeekend = isWeekendDateKey(date);
+    const normalizedOpenSlots = isWeekend ? 0 : openSlotsCount;
+    const normalizedShowOnAcute = isWeekend ? false : showOnAcute;
+
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("day_overrides")
       .upsert(
         {
           date,
-          open_slots_count: openSlotsCount,
-          show_on_acute_page: showOnAcute,
+          open_slots_count: normalizedOpenSlots,
+          show_on_acute_page: normalizedShowOnAcute,
           note: note || null,
           updated_at: new Date().toISOString()
         },
