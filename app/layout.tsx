@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { StickyContactBar } from "@/components/contact/StickyContactBar";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { AnalyticsBootstrap } from "@/components/AnalyticsBootstrap";
+import { FooterCityCoverageSection } from "@/components/footer/FooterCityCoverageSection";
 import { getSiteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -58,6 +59,7 @@ export default async function RootLayout({
       <body className="flex min-h-screen flex-col bg-background font-sans text-foreground">
         {isAdminShell ? null : <Header />}
         <div className={`flex-1 ${isAdminShell ? "" : "pb-20 md:pb-0"}`}>{children}</div>
+        {isAdminShell ? null : <FooterCityCoverageSection />}
         {isAdminShell ? null : <Footer />}
         {isAdminShell ? null : <StickyContactBar />}
         {isAdminShell ? null : <CookieConsentBanner />}

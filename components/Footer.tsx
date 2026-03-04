@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { BpsImage } from "@/components/BpsImage";
-import { FooterCityCoverage } from "@/components/footer/FooterCityCoverage";
 import { brandAssets, trustAssets } from "@/lib/assets";
 import { footerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
@@ -33,9 +32,6 @@ export const Footer = () => {
     href.startsWith("/gulvafslibning-") &&
     !gulvRegionPaths.has(href) &&
     href !== "/gulvafslibning/omraader";
-
-  const bordpladeCityLinks = footerRegistry.bordplade.filter((route) => isBordpladeCity(route.href));
-  const gulvCityLinks = footerRegistry.gulvOgFag.filter((route) => isGulvCity(route.href));
 
   const bordpladeLinks = footerRegistry.bordplade.filter((route) => !isBordpladeCity(route.href));
   const gulvLinks = footerRegistry.gulvOgFag.filter((route) => !isGulvCity(route.href));
@@ -137,8 +133,6 @@ export const Footer = () => {
             </div>
           </div>
         </div>
-
-        <FooterCityCoverage bordpladeCities={bordpladeCityLinks} gulvCities={gulvCityLinks} />
       </div>
       <div className="border-t border-stone-700/70 py-4 text-center text-xs text-stone-400">
         © {new Date().getFullYear()} {siteConfig.companyName}. Alle rettigheder forbeholdes.

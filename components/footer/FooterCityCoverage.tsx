@@ -101,7 +101,7 @@ export const FooterCityCoverage = ({
   const pageCount = currentPages.length;
 
   return (
-    <section className="mt-12 rounded-3xl border border-stone-700/70 bg-stone-950/35 p-6 md:p-8">
+    <section className="rounded-3xl border border-stone-700/70 bg-stone-950/35 p-6 md:p-8">
       <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:items-start">
         <div className="rounded-2xl border border-stone-700/70 bg-stone-900/45 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
