@@ -52,6 +52,14 @@ type DaySettings = {
   note: string;
 };
 
+type SlotActionState = {
+  dateKey: string;
+  slotIndex: number;
+  slotLabel: string;
+  bookingId: string | null;
+  slotOpenByOverride: boolean;
+};
+
 type CalendarResponse = {
   overrides?: OverrideItem[];
   bookings?: BookingItem[];
@@ -219,6 +227,9 @@ export const CalendarAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
+  const [slotAction, setSlotAction] = useState<SlotActionState | null>(null);
+  const [slotActionBusy, setSlotActionBusy] = useState(false);
+  const [slotActionMessage, setSlotActionMessage] = useState("");
   const dayDetailRef = useRef<HTMLDivElement | null>(null);
 
   const monthLabel = useMemo(() => formatMonthLabel(currentMonth), [currentMonth]);
@@ -257,14 +268,6 @@ export const CalendarAdmin = () => {
 
     loadUsers();
   }, []);
-
-  const userMap = useMemo(() => {
-    const map = new Map<string, AdminUser>();
-    users.forEach((user) => {
-      map.set(user.id, user);
-    });
-    return map;
-  }, [users]);
 
   const employeeOptions = useMemo(
     () => users.filter((user) => user.role === "employee" || user.role === "admin" || user.role === "owner"),
@@ -409,6 +412,58 @@ export const CalendarAdmin = () => {
     } catch (saveError) {
       console.error(saveError);
       setSaveMessage("Netværksfejl");
+    }
+  };
+
+  const openCreateBookingForSlot = (dateKey: string, slotLabel: string) => {
+    const query = new URLSearchParams({
+      date: dateKey,
+      startSlot: slotLabel,
+      slotCount: "1"
+    });
+    router.push(`/admin/bookings/new?${query.toString()}`);
+  };
+
+  const closeSlotByOverride = async (dateKey: string, slotIndex: number, slotLabel: string) => {
+    const currentSettings = daySettings[dateKey] || defaultDaySettings();
+    const currentOpenSlots = Math.max(0, Math.min(3, currentSettings.openSlotsCount));
+    const nextOpenSlots = Math.max(0, Math.min(currentOpenSlots, slotIndex));
+
+    if (nextOpenSlots === currentOpenSlots) {
+      setSlotActionMessage("Tiden er allerede lukket.");
+      return;
+    }
+
+    setSlotActionBusy(true);
+    setSlotActionMessage("");
+
+    try {
+      const response = await fetch("/api/admin/day-overrides", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: dateKey,
+          open_slots_count: nextOpenSlots,
+          show_on_acute_page: currentSettings.showOnAcutePage,
+          note: currentSettings.note.trim() ? currentSettings.note.trim() : null
+        })
+      });
+
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setSlotActionMessage(payload.message || "Kunne ikke lukke tiden.");
+        return;
+      }
+
+      updateDaySettings(dateKey, { openSlotsCount: nextOpenSlots });
+      setSaveMessage(`Tid ${slotLabel} lukket.`);
+      setTimeout(() => setSaveMessage(""), 1500);
+      setSlotAction(null);
+    } catch (closeError) {
+      console.error(closeError);
+      setSlotActionMessage("Netværksfejl ved lukning af tid.");
+    } finally {
+      setSlotActionBusy(false);
     }
   };
 
@@ -598,7 +653,6 @@ export const CalendarAdmin = () => {
             const openSlots = settings.openSlotsCount;
             const bookedCount = Math.min(openSlots, blocked.size);
             const remaining = Math.max(0, openSlots - bookedCount);
-            const visible = visibleBookingsByDate[day.dateKey] || [];
             const isSelected = selectedDateKey === day.dateKey;
 
             return (
@@ -641,70 +695,36 @@ export const CalendarAdmin = () => {
                       return (
                         <button
                           key={`${day.dateKey}-slot-${slotIndex}`}
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (slotBooking) {
-                              router.push(`/admin/bookings/${slotBooking.id}`);
-                              return;
-                            }
-                            const query = new URLSearchParams({
-                              date: day.dateKey,
-                              startSlot: slotLabel,
-                              slotCount: "1"
-                            });
-                            router.push(`/admin/bookings/new?${query.toString()}`);
-                          }}
-                          className={`rounded-md border px-1.5 py-1 text-left text-[10px] font-semibold ${
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSlotActionMessage("");
+                          setSlotAction({
+                            dateKey: day.dateKey,
+                            slotIndex,
+                            slotLabel,
+                            bookingId: slotBooking?.id || null,
+                            slotOpenByOverride
+                          });
+                        }}
+                          className={`rounded-md border px-1.5 py-2 text-center text-[10px] font-semibold ${
                             isRed
                               ? "border-red-200 bg-red-50 text-red-700"
                               : "border-emerald-200 bg-emerald-50 text-emerald-700"
                           }`}
                           title={
                             slotBooking
-                              ? `Optaget: ${slotLabel}`
+                              ? `Optaget: ${slotLabel} (klik for valg)`
                               : slotOpenByOverride
-                                ? `Ledig: ${slotLabel} (klik for at oprette)`
-                                : `Ikke ledig: ${slotLabel} (klik for at oprette)`
+                                ? `Ledig: ${slotLabel} (klik for valg)`
+                                : `Ikke ledig: ${slotLabel} (klik for valg)`
                           }
                         >
                           <div>{slotLabel}</div>
-                          <div>{slotBooking ? "Optaget" : slotAvailable ? "Ledig" : "Ikke ledig"}</div>
                         </button>
                       );
                     })}
                   </div>
-
-                  {visible.slice(0, 3).map((booking) => (
-                    <Link
-                      key={booking.id}
-                      href={`/admin/bookings/${booking.id}`}
-                      onClick={(event) => event.stopPropagation()}
-                      className={`rounded-md px-2 py-1 text-[11px] ${
-                        booking.assigned_to ? "bg-[#eaf1ff]" : "bg-[#fff2e6] text-orange-700"
-                      }`}
-                    >
-                      <p className="font-semibold text-foreground">
-                        {booking.service_type || "Bordplade"}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {formatSlotLabel(booking)} · {booking.customer_name || ""}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {booking.postal_code || booking.address || "Postnr. mangler"}
-                      </p>
-                      {booking.assigned_to ? (
-                        <p className="text-[10px] text-muted-foreground">
-                          {userMap.get(booking.assigned_to)?.name || "Tildelt"}
-                        </p>
-                      ) : (
-                        <p className="text-[10px] text-orange-600">Ikke tildelt</p>
-                      )}
-                    </Link>
-                  ))}
-                  {visible.length > 3 ? (
-                    <p className="text-[10px] text-muted-foreground">+{visible.length - 3} flere</p>
-                  ) : null}
                 </div>
               </div>
             );
@@ -875,6 +895,78 @@ export const CalendarAdmin = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {slotAction ? (
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/30 p-4 md:items-center">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-5 shadow-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Tidspunkt</p>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {new Date(`${slotAction.dateKey}T12:00:00`).toLocaleDateString("da-DK", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "long"
+                  })}{" "}
+                  · {slotAction.slotLabel}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSlotAction(null)}
+                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground"
+              >
+                Luk
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              {slotAction.bookingId ? (
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    const bookingId = slotAction.bookingId;
+                    setSlotAction(null);
+                    if (bookingId) {
+                      router.push(`/admin/bookings/${bookingId}`);
+                    }
+                  }}
+                >
+                  Åbn eksisterende opgave
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      const { dateKey, slotLabel } = slotAction;
+                      setSlotAction(null);
+                      openCreateBookingForSlot(dateKey, slotLabel);
+                    }}
+                  >
+                    Tilføj ny opgave
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={!slotAction.slotOpenByOverride || slotActionBusy}
+                    onClick={() =>
+                      closeSlotByOverride(slotAction.dateKey, slotAction.slotIndex, slotAction.slotLabel)
+                    }
+                  >
+                    {slotActionBusy ? "Lukker tid..." : "Luk tid"}
+                  </Button>
+                  {!slotAction.slotOpenByOverride ? (
+                    <p className="text-xs text-muted-foreground">Denne tid er allerede lukket.</p>
+                  ) : null}
+                </>
+              )}
+            </div>
+
+            {slotActionMessage ? <p className="mt-3 text-xs text-red-600">{slotActionMessage}</p> : null}
           </div>
         </div>
       ) : null}
