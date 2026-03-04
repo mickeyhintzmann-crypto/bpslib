@@ -6,7 +6,6 @@ import Link from "next/link";
 import { BpsImage } from "@/components/BpsImage";
 import { NavDropdown } from "@/components/NavDropdown";
 import { Button } from "@/components/ui/button";
-import { brandAssets } from "@/lib/assets";
 import { getRouteByPath, headerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
@@ -67,10 +66,10 @@ export const Header = () => {
           className="inline-flex shrink-0 items-center transition hover:opacity-90"
         >
           <BpsImage
-            src={brandAssets.logo}
+            src="/images/brand/logo-cropped.png"
             alt={`${siteConfig.companyName} logo`}
-            width={2000}
-            height={2000}
+            width={1638}
+            height={733}
             className="max-w-none"
             style={{ width: "auto", height: "62px" }}
           />
