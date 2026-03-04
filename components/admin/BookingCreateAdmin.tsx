@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
 const SERVICE_VALUES = ["bordplade", "gulv", "toemrer", "maler", "murer", "andet"] as const;
 const SLOT_TIMES = ["08:00", "11:00", "13:30"] as const;
 const SLOT_COUNTS = ["1", "2", "3"] as const;
+const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 type CreateResponse = {
   item?: {
@@ -46,6 +48,7 @@ const toNullableNumber = (value: string) => {
 };
 
 export const BookingCreateAdmin = () => {
+  const searchParams = useSearchParams();
   const [service, setService] = useState<(typeof SERVICE_VALUES)[number]>("bordplade");
   const [date, setDate] = useState("");
   const [startSlot, setStartSlot] = useState<(typeof SLOT_TIMES)[number]>(SLOT_TIMES[0]);
@@ -154,6 +157,30 @@ export const BookingCreateAdmin = () => {
     loadUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const datePrefill = (searchParams.get("date") || "").trim();
+    const startSlotPrefill = (searchParams.get("startSlot") || "").trim();
+    const slotCountPrefill = (searchParams.get("slotCount") || "").trim();
+    const servicePrefill = (searchParams.get("service") || "").trim();
+    const assignedToPrefill = (searchParams.get("assignedTo") || "").trim();
+
+    if (DATE_KEY_REGEX.test(datePrefill)) {
+      setDate(datePrefill);
+    }
+    if ((SLOT_TIMES as readonly string[]).includes(startSlotPrefill)) {
+      setStartSlot(startSlotPrefill as (typeof SLOT_TIMES)[number]);
+    }
+    if ((SLOT_COUNTS as readonly string[]).includes(slotCountPrefill)) {
+      setSlotCount(slotCountPrefill as (typeof SLOT_COUNTS)[number]);
+    }
+    if ((SERVICE_VALUES as readonly string[]).includes(servicePrefill)) {
+      setService(servicePrefill as (typeof SERVICE_VALUES)[number]);
+    }
+    if (assignedToPrefill) {
+      setAssignedTo(assignedToPrefill);
+    }
+  }, [searchParams]);
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">

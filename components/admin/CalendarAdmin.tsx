@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -169,6 +170,24 @@ const computeBlockedSlots = (dayBookings: BookingItem[]) => {
   return blocked;
 };
 
+const getBookingForSlot = (dayBookings: BookingItem[], slotIndex: number) => {
+  for (const booking of dayBookings) {
+    if (!isActiveStatus(booking.status)) {
+      continue;
+    }
+    const startIndex = typeof booking.start_slot_index === "number" ? booking.start_slot_index : null;
+    if (startIndex === null || startIndex < 0 || startIndex > 2) {
+      continue;
+    }
+    const slotCount = normalizeSlotCount(booking.slot_count ?? 1);
+    const endExclusive = startIndex + slotCount;
+    if (slotIndex >= startIndex && slotIndex < endExclusive && slotIndex <= 2) {
+      return booking;
+    }
+  }
+  return null;
+};
+
 const formatSlotLabel = (booking: BookingItem) => {
   const startIndex = typeof booking.start_slot_index === "number" ? booking.start_slot_index : 0;
   const slotCount = normalizeSlotCount(booking.slot_count ?? 1);
@@ -184,6 +203,7 @@ const formatSlotLabel = (booking: BookingItem) => {
 };
 
 export const CalendarAdmin = () => {
+  const router = useRouter();
   const session = useAdminSession();
   const canAssign = session?.role === "owner" || session?.role === "admin";
 
@@ -573,8 +593,8 @@ export const CalendarAdmin = () => {
         <div className="grid grid-cols-7 gap-2">
           {gridDays.map((day) => {
             const settings = daySettings[day.dateKey] || defaultDaySettings();
-            const dayBookings = bookingsByDate[day.dateKey] || [];
-            const blocked = computeBlockedSlots(dayBookings);
+            const dayBookingsAll = bookingsByDate[day.dateKey] || [];
+            const blocked = computeBlockedSlots(dayBookingsAll);
             const openSlots = settings.openSlotsCount;
             const bookedCount = Math.min(openSlots, blocked.size);
             const remaining = Math.max(0, openSlots - bookedCount);
@@ -610,6 +630,51 @@ export const CalendarAdmin = () => {
                   )}
                 </div>
                 <div className="mt-2 space-y-1">
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[0, 1, 2].map((slotIndex) => {
+                      const slotLabel = SLOT_TIMES[slotIndex] || `${slotIndex + 1}`;
+                      const slotBooking = getBookingForSlot(dayBookingsAll, slotIndex);
+                      const slotOpenByOverride = slotIndex < openSlots;
+                      const slotAvailable = slotOpenByOverride && !slotBooking;
+                      const isRed = !slotAvailable;
+
+                      return (
+                        <button
+                          key={`${day.dateKey}-slot-${slotIndex}`}
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            if (slotBooking) {
+                              router.push(`/admin/bookings/${slotBooking.id}`);
+                              return;
+                            }
+                            const query = new URLSearchParams({
+                              date: day.dateKey,
+                              startSlot: slotLabel,
+                              slotCount: "1"
+                            });
+                            router.push(`/admin/bookings/new?${query.toString()}`);
+                          }}
+                          className={`rounded-md border px-1.5 py-1 text-left text-[10px] font-semibold ${
+                            isRed
+                              ? "border-red-200 bg-red-50 text-red-700"
+                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          }`}
+                          title={
+                            slotBooking
+                              ? `Optaget: ${slotLabel}`
+                              : slotOpenByOverride
+                                ? `Ledig: ${slotLabel} (klik for at oprette)`
+                                : `Ikke ledig: ${slotLabel} (klik for at oprette)`
+                          }
+                        >
+                          <div>{slotLabel}</div>
+                          <div>{slotBooking ? "Optaget" : slotAvailable ? "Ledig" : "Ikke ledig"}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   {visible.slice(0, 3).map((booking) => (
                     <Link
                       key={booking.id}
