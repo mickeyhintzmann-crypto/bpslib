@@ -81,7 +81,7 @@ export const Header = () => {
             <NavDropdown
               label="Bordplade"
               items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
-              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
+              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner (bordplade)" }}
               emphasis
             />
             <NavDropdown
@@ -116,7 +116,7 @@ export const Header = () => {
             </Button>
           ) : null}
           <Button asChild variant="outline" className="hidden h-11 rounded-xl border-border/85 bg-white sm:inline-flex">
-            <Link href={headerRegistry.cta.href}>AI-prisberegner</Link>
+            <Link href={headerRegistry.cta.href}>AI-prisberegner (bordplade)</Link>
           </Button>
           <button
             type="button"
@@ -136,7 +136,7 @@ export const Header = () => {
             <NavDropdown
               label="Bordplade"
               items={bordpladeMenu.map((route) => ({ href: route.href, label: route.label }))}
-              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
+              cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner (bordplade)" }}
               variant="mobile"
               onNavigate={handleNavigate}
             />

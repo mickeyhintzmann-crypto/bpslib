@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
+import { CONTACT_PHONE_DISPLAY, CONTACT_TEL_HREF } from "@/lib/contact";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -61,6 +62,23 @@ export default function GulvPrisPage() {
           </Button>
           <Button asChild variant="secondary">
             <Link href="/kontakt">Kontakt os</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Kommer snart</p>
+        <h2 className="mt-2 text-2xl font-semibold text-foreground">AI-prisberegner til gulvafslibning</h2>
+        <p className="mt-3 text-sm text-muted-foreground md:text-base">
+          Vi bygger en AI-løsning til gulvafslibning, der vurderer bl.a. m², antal rum, gulvets tilstand
+          og billeder. Lige nu laver vi stadig manuel vurdering, så du får en sikker pris.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild>
+            <a href={CONTACT_TEL_HREF}>Ring for pris: {CONTACT_PHONE_DISPLAY}</a>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/tilbudstid">Book tilbudstid</Link>
           </Button>
         </div>
       </section>

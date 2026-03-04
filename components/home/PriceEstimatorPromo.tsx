@@ -4,6 +4,7 @@ import { BpsImage } from "@/components/BpsImage";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/home/icons";
 import { homeAssets } from "@/lib/assets";
+import { CONTACT_PHONE_DISPLAY, CONTACT_TEL_HREF } from "@/lib/contact";
 
 const steps = [
   {
@@ -33,7 +34,7 @@ export const PriceEstimatorPromo = () => {
       <div className="surface-panel grid gap-10 rounded-[30px] p-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-            AI-prisberegner
+            AI-prisberegner · kun bordplader
           </span>
           <h2 className="text-3xl font-semibold text-foreground md:text-4xl">
             Få et AI-overslag via billeder
@@ -70,6 +71,22 @@ export const PriceEstimatorPromo = () => {
           <Button asChild>
             <Link href="/bordpladeslibning/prisberegner">Få AI-overslag via billeder</Link>
           </Button>
+          <div className="rounded-2xl border border-border/80 bg-white/75 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Kommer snart</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              AI-prisberegning til gulvafslibning er på vej
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Indtil den er live, hjælper vi med manuel prisvurdering ud fra m², billeder og opgavens
+              detaljer.
+            </p>
+            <a
+              href={CONTACT_TEL_HREF}
+              className="mt-3 inline-flex text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Ring for pris: {CONTACT_PHONE_DISPLAY}
+            </a>
+          </div>
         </div>
         <div className="relative">
           <BpsImage
