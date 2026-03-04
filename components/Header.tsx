@@ -69,9 +69,10 @@ export const Header = () => {
           <BpsImage
             src={brandAssets.logo}
             alt={`${siteConfig.companyName} logo`}
-            width={184}
-            height={62}
-            className="h-[52px] w-auto max-w-none md:h-[62px]"
+            width={2000}
+            height={2000}
+            className="max-w-none"
+            style={{ width: "auto", height: "62px" }}
           />
           <span className="sr-only">{siteConfig.companyName}</span>
         </Link>
