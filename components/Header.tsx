@@ -112,7 +112,11 @@ export const Header = () => {
               <Link href={bookingCta.href}>{bookingCta.label}</Link>
             </Button>
           ) : null}
-          <Button asChild variant="outline" className="hidden h-11 rounded-xl border-border/85 bg-white sm:inline-flex">
+          <Button
+            asChild
+            variant="outline"
+            className="hidden h-11 rounded-xl border-border/85 bg-white sm:inline-flex"
+          >
             <Link href={headerRegistry.cta.href}>AI-prisberegner</Link>
           </Button>
           <button

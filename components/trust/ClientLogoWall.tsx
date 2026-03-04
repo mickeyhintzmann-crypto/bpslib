@@ -16,7 +16,7 @@ const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string;
   const isSkatteministerietLogo = /skatteministeriet/i.test(alt);
   const itemClass = compact
     ? "logo-marquee-item flex min-w-[180px] items-center justify-center px-5 py-1 md:min-w-[240px] md:px-7 md:py-1.5"
-    : "logo-marquee-item flex min-w-[220px] items-center justify-center px-8 py-2 md:min-w-[300px] md:px-10 md:py-3";
+    : "logo-marquee-item flex min-w-[154px] items-center justify-center px-6 py-1.5 md:min-w-[210px] md:px-7 md:py-2";
   const sizeClass = compact
     ? isRigshospitalLogo
       ? "max-h-[46px] max-w-[176px] md:max-h-[60px] md:max-w-[231px]"
@@ -24,10 +24,10 @@ const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string;
         ? "max-h-[133px] max-w-[391px] md:max-h-[168px] md:max-w-[506px]"
       : "max-h-[96px] max-w-[283px] md:max-h-[122px] md:max-w-[367px]"
     : isRigshospitalLogo
-      ? "max-h-[54px] max-w-[206px] md:max-h-[70px] md:max-w-[272px]"
+      ? "max-h-[38px] max-w-[144px] md:max-h-[49px] md:max-w-[190px]"
       : isSkatteministerietLogo
-        ? "max-h-[154px] max-w-[455px] md:max-h-[198px] md:max-w-[596px]"
-      : "max-h-[112px] max-w-[330px] md:max-h-[144px] md:max-w-[432px]";
+        ? "max-h-[108px] max-w-[319px] md:max-h-[138px] md:max-w-[417px]"
+      : "max-h-[78px] max-w-[231px] md:max-h-[101px] md:max-w-[302px]";
 
   return (
     <li className={itemClass}>
@@ -53,22 +53,22 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
 
   if (!compact) {
     return (
-      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-6 md:py-7">
-        <div className="mx-auto w-full max-w-[1320px] px-4 md:px-6">
-          <div className="grid gap-6 lg:grid-cols-[250px_1fr] lg:items-center lg:gap-10">
+      <section className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 border-y border-border/70 bg-white py-4 md:py-5">
+        <div className="mx-auto w-full max-w-[930px] px-4 md:px-6">
+          <div className="grid gap-4 lg:grid-cols-[175px_1fr] lg:items-center lg:gap-7">
             <div className="space-y-2 text-center lg:text-left">
-              <p className="text-sm text-muted-foreground">Et udvalg af</p>
-              <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+              <p className="text-xs text-muted-foreground">Et udvalg af</p>
+              <h2 className="font-display text-[2.1rem] font-semibold tracking-tight text-foreground md:text-[2.3rem]">
                 Vores referencer
               </h2>
-              <p className="text-sm text-muted-foreground md:text-base">
+              <p className="text-xs text-muted-foreground md:text-sm">
                 Dokumenteret arbejde for professionelle kunder.
               </p>
             </div>
 
-            <div className="relative overflow-hidden py-1 md:py-2">
-              <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-20 md:w-28" />
-              <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-20 md:w-28" />
+            <div className="relative overflow-hidden py-0.5 md:py-1">
+              <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 w-14 md:w-20" />
+              <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 w-14 md:w-20" />
 
               <div className="logo-marquee-track">
                 <ul className="flex w-max items-center">
