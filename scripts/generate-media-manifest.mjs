@@ -138,10 +138,17 @@ function titleFromCaseId(caseId) {
     return "Case";
   }
 
+  const toDanishWord = (word) =>
+    word
+      .replace(/aa/g, "å")
+      .replace(/ae/g, "æ")
+      .replace(/oe/g, "ø");
+
   return cleaned
     .split(" ")
     .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .map((part) => toDanishWord(part.toLowerCase()))
+    .map((part) => part.charAt(0).toLocaleUpperCase("da-DK") + part.slice(1))
     .join(" ");
 }
 

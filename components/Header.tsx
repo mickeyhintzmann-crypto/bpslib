@@ -58,8 +58,23 @@ export const Header = () => {
             : route.label
     }));
 
-  const corePrimary = pickByPathOrder(headerRegistry.core, ["/cases", "/referencer"]);
-  const moreMenu = pickByPathOrder(headerRegistry.core, ["/guides", "/om-os", "/kontakt"]);
+  const referencesItem = getRouteByPath("/referencer");
+  const referencesLink = {
+    href: referencesItem?.path ?? "/referencer",
+    label: referencesItem?.title ?? "Referencer"
+  };
+
+  const bordpladeNavItems = [...toNavItems(bordpladeMenu), referencesLink];
+  const gulvafslibningNavItems = [...toNavItems(gulvafslibningMenu), referencesLink];
+  const gulvbelaegningNavItems = [...toNavItems(gulvbelaegningMenu), referencesLink];
+
+  const moreMenu = pickByPathOrder(headerRegistry.core, [
+    "/cases",
+    "/referencer",
+    "/guides",
+    "/om-os",
+    "/kontakt"
+  ]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 shadow-[0_8px_24px_hsl(20_30%_20%/0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/88">
@@ -94,37 +109,35 @@ export const Header = () => {
           />
           <span className="sr-only">{siteConfig.companyName}</span>
         </Link>
-        <nav className="hidden flex-1 items-center justify-end gap-5 pl-8 font-sans md:flex lg:pl-12">
-          <NavDropdown
-            label="Bordplade"
-            items={toNavItems(bordpladeMenu)}
-            cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
-          />
-            <NavDropdown
-              label="Gulvafslibning"
-              items={toNavItems(gulvafslibningMenu)}
-              cta={tilbudCta}
-            />
-            <NavDropdown
-              label="Gulvbelægning"
-              items={toNavItems(gulvbelaegningMenu)}
-              cta={tilbudCta}
-            />
-            <NavDropdown
-              label="Flere fag"
-              items={headerRegistry.fag.map((route) => ({ href: route.href, label: route.label }))}
-              cta={tilbudCta}
-            />
-            {corePrimary.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className="relative text-[15px] font-semibold tracking-[0.01em] text-muted-foreground transition hover:text-foreground after:absolute after:-bottom-1 after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all hover:after:w-full"
-              >
-                {route.label}
-              </Link>
-            ))}
-            <NavDropdown label="Mere" items={moreMenu.map((route) => ({ href: route.href, label: route.label }))} />
+        <nav className="hidden flex-1 items-center justify-end pl-8 font-sans md:flex lg:pl-12">
+          <div className="flex items-center">
+            <div className="pr-4">
+              <NavDropdown
+                label="Bordplade"
+                items={bordpladeNavItems}
+                cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
+              />
+            </div>
+            <div className="border-l border-border/70 px-4">
+              <NavDropdown label="Gulvafslibning" items={gulvafslibningNavItems} cta={tilbudCta} />
+            </div>
+            <div className="border-l border-border/70 px-4">
+              <NavDropdown label="Gulvbelægning" items={gulvbelaegningNavItems} cta={tilbudCta} />
+            </div>
+            <div className="border-l border-border/70 px-4">
+              <NavDropdown
+                label="Flere fag"
+                items={headerRegistry.fag.map((route) => ({ href: route.href, label: route.label }))}
+                cta={tilbudCta}
+              />
+            </div>
+            <div className="border-l border-border/70 pl-4">
+              <NavDropdown
+                label="Mere"
+                items={moreMenu.map((route) => ({ href: route.href, label: route.label }))}
+              />
+            </div>
+          </div>
         </nav>
         <div className="flex items-center gap-2.5">
           {bookingCta ? (
@@ -159,21 +172,21 @@ export const Header = () => {
           <div className="mx-auto grid w-full max-w-[1320px] gap-4 px-5 py-6">
             <NavDropdown
               label="Bordplade"
-              items={toNavItems(bordpladeMenu)}
+              items={bordpladeNavItems}
               cta={{ href: headerRegistry.cta.href, label: "AI-prisberegner" }}
               variant="mobile"
               onNavigate={handleNavigate}
             />
             <NavDropdown
               label="Gulvafslibning"
-              items={toNavItems(gulvafslibningMenu)}
+              items={gulvafslibningNavItems}
               cta={tilbudCta}
               variant="mobile"
               onNavigate={handleNavigate}
             />
             <NavDropdown
               label="Gulvbelægning"
-              items={toNavItems(gulvbelaegningMenu)}
+              items={gulvbelaegningNavItems}
               cta={tilbudCta}
               variant="mobile"
               onNavigate={handleNavigate}
@@ -185,13 +198,6 @@ export const Header = () => {
               variant="mobile"
               onNavigate={handleNavigate}
             />
-            <div className="grid gap-3 text-sm font-medium text-foreground">
-              {corePrimary.map((route) => (
-                <Link key={route.href} href={route.href} onClick={handleNavigate}>
-                  {route.label}
-                </Link>
-              ))}
-            </div>
             <NavDropdown
               label="Mere"
               items={moreMenu.map((route) => ({ href: route.href, label: route.label }))}

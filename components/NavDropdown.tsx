@@ -79,11 +79,11 @@ export const NavDropdown = ({
     >
       <button
         type="button"
-        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[15px] font-semibold tracking-[0.01em] transition ${
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap text-[15px] font-semibold tracking-[0.025em] transition ${
           emphasis
-            ? "border-primary/30 bg-primary/10 text-foreground shadow-[0_8px_18px_hsl(var(--primary)/0.15)]"
-            : "border-transparent text-muted-foreground"
-        } hover:border-border/70 hover:bg-white hover:text-foreground`}
+            ? "text-foreground"
+            : "text-muted-foreground"
+        } hover:text-foreground`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
       >
