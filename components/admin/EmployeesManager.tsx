@@ -19,6 +19,19 @@ type EmployeesResponse = {
   message?: string;
 };
 
+type RoleUserItem = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+};
+
+type RoleUsersResponse = {
+  items?: RoleUserItem[];
+  message?: string;
+};
+
 const emptyForm = {
   name: "",
   email: "",
@@ -40,6 +53,8 @@ export const EmployeesManager = () => {
   const [saveError, setSaveError] = useState("");
   const [credentialsBusyId, setCredentialsBusyId] = useState<string | null>(null);
   const [activationCodeMessage, setActivationCodeMessage] = useState("");
+  const [roleUsers, setRoleUsers] = useState<RoleUserItem[]>([]);
+  const [selectedRoleUserId, setSelectedRoleUserId] = useState("");
 
   const loadEmployees = async () => {
     setLoading(true);
@@ -78,6 +93,7 @@ export const EmployeesManager = () => {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setSelectedRoleUserId("");
     setSaveError("");
     setEditorOpen(true);
   };
@@ -91,8 +107,40 @@ export const EmployeesManager = () => {
       calendarColor: item.calendarColor || "#f97316",
       isActive: item.isActive
     });
+    setSelectedRoleUserId("");
     setSaveError("");
     setEditorOpen(true);
+  };
+
+  useEffect(() => {
+    const loadRoleUsers = async () => {
+      try {
+        const response = await fetch("/api/admin/users?active=1&role=employee", { cache: "no-store" });
+        const payload = (await response.json()) as RoleUsersResponse;
+        if (!response.ok || !payload.items) {
+          return;
+        }
+        setRoleUsers(payload.items);
+      } catch (fetchError) {
+        console.error(fetchError);
+      }
+    };
+
+    loadRoleUsers();
+  }, []);
+
+  const applyRoleUser = (userId: string) => {
+    setSelectedRoleUserId(userId);
+    const selected = roleUsers.find((item) => item.id === userId);
+    if (!selected) {
+      return;
+    }
+    setForm((current) => ({
+      ...current,
+      name: selected.name || current.name,
+      email: selected.email || current.email,
+      role: "worker"
+    }));
   };
 
   const saveEmployee = async () => {
@@ -279,6 +327,24 @@ export const EmployeesManager = () => {
             {saveError ? <p className="mt-4 text-sm font-medium text-red-700">{saveError}</p> : null}
 
             <div className="mt-5 space-y-4">
+              {!editingId ? (
+                <label className="block text-sm font-medium text-muted-foreground">
+                  Vælg fra Brugere & roller (employee)
+                  <select
+                    value={selectedRoleUserId}
+                    onChange={(event) => applyRoleUser(event.target.value)}
+                    className="mt-2 h-10 w-full rounded-md border border-border bg-white px-3"
+                  >
+                    <option value="">Vælg bruger (valgfrit)</option>
+                    {roleUsers.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} · {user.email}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+
               <label className="block text-sm font-medium text-muted-foreground">
                 Navn
                 <input
@@ -300,11 +366,15 @@ export const EmployeesManager = () => {
 
               <label className="block text-sm font-medium text-muted-foreground">
                 Rolle
-                <input
+                <select
                   value={form.role}
                   onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))}
                   className="mt-2 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                >
+                  <option value="worker">worker</option>
+                  <option value="leder">leder</option>
+                  <option value="admin">admin</option>
+                </select>
               </label>
 
               <label className="block text-sm font-medium text-muted-foreground">
