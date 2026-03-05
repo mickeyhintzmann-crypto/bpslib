@@ -63,7 +63,7 @@ export const metadata = buildMetadata({
 
 export default function GulvKoebenhavnOmegnPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning i København & omegn
@@ -85,15 +85,15 @@ export default function GulvKoebenhavnOmegnPage() {
         </div>
       </CityImageHero>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Planlægning og proces i København og omegn</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
           I København og omegn varierer opgaverne fra lejligheder med opgang/elevator til villaer, hvor adgang ofte er enklere – og derfor starter vi altid med planlægningen. Vi afklarer gulvtype (parket, plank eller sildeben), tilstand og hvilke rum der er mest belastede, så proces og finish passer til brugen. Samtidig afklarer vi adgang, parkering og tidsvinduer, så du får en realistisk plan og en proces uden overraskelser. Målet er et ensartet resultat og en tidsplan der holder, uanset om opgaven er én stue eller flere rum.
         </p>
       </section>
 
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Gulvslibning og opfriskning</li>
@@ -102,7 +102,7 @@ export default function GulvKoebenhavnOmegnPage() {
             <li>Udbedring af ridser og pletter</li>
           </ul>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Sådan foregår det</h2>
           <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>1. Send en kort beskrivelse via tilbudstid.</li>
@@ -112,7 +112,7 @@ export default function GulvKoebenhavnOmegnPage() {
         </article>
       </section>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Pris</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
           Prisen afhænger af gulvtype, areal og behandling. Se vores{" "}
@@ -139,7 +139,7 @@ export default function GulvKoebenhavnOmegnPage() {
         </p>
       </section>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           København, Frederiksberg, Østerbro, Nørrebro, Vesterbro, Valby, Vanløse, Amager, Hvidovre,
@@ -147,7 +147,7 @@ export default function GulvKoebenhavnOmegnPage() {
         </p>
       </section>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Efterbehandling der passer til brug</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
           Lak er typisk det mest slidstærke valg og ofte det mest praktiske i drift – især i gangarealer og travle hjem. Olie giver et mere naturligt udtryk og kan være en flot løsning, men kræver typisk mere løbende vedligehold. Sæbe giver et lyst og mat look, men stiller højere krav til korrekt rengøring og pleje for at holde sig pænt. Vi rådgiver ud fra dit gulv og din hverdag, så du vælger en løsning der både ser godt ud og fungerer i praksis.

@@ -47,7 +47,7 @@ export const metadata = buildMetadata({
 
 export default function GulvFrederiksbergPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning på Frederiksberg
@@ -71,7 +71,7 @@ export default function GulvFrederiksbergPage() {
         </div>
       </CityImageHero>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
@@ -86,8 +86,8 @@ export default function GulvFrederiksbergPage() {
         </ul>
       </section>
 
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Gulvslibning og opfriskning</li>
@@ -96,7 +96,7 @@ export default function GulvFrederiksbergPage() {
             <li>Udbedring af ridser og pletter</li>
           </ul>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Pris</h2>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
             Prisen afhænger af gulvtype, areal og behandling. Se vores{" "}
@@ -124,7 +124,7 @@ export default function GulvFrederiksbergPage() {
         </article>
       </section>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Frederiksberg C, Frederiksberg Have, Falkoner Allé, Gammel Kongevej, Fasanvej, Nordre

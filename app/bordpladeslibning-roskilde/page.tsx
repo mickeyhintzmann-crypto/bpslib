@@ -107,7 +107,7 @@ export const metadata = buildMetadata({
 
 export default function BordpladeRoskildePage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <PageHero
         withImageHero
         eyebrow="By-side"
@@ -115,7 +115,7 @@ export default function BordpladeRoskildePage() {
         intro="Vi hjælper i Roskilde med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Bordpladeslibning i Roskilde – når træet stadig er godt, men overfladen er træt
         </h2>
@@ -137,7 +137,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           De mest almindelige skader vi ser i Roskilde-køkkener
         </h2>
@@ -160,7 +160,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Kan den slibes? Hurtig afklaring på materiale
         </h2>
@@ -178,7 +178,7 @@ export default function BordpladeRoskildePage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Pris og vurdering i Roskilde – mest præcist via billeder
         </h2>
@@ -202,7 +202,7 @@ export default function BordpladeRoskildePage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Praktisk forløb: sådan gør vi det let for dig
         </h2>
@@ -218,7 +218,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Vi dækker Roskilde og nærområder</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Roskilde og planlægger efter område og opgavens omfang, så tiderne bliver
@@ -234,7 +234,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Roskilde</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Roskilde møder vi ofte huse og rækkehuse med køkkenbordplader, der er slidte efter
@@ -259,9 +259,9 @@ export default function BordpladeRoskildePage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Mini-case fra Roskilde</h2>
-        <div className="mt-4 rounded-2xl border border-border/70 bg-white/70 p-5 text-sm text-muted-foreground">
+        <div className="mt-4 city-surface city-surface--panel rounded-[24px] p-5 text-sm text-muted-foreground md:p-6">
           <ul className="grid gap-2">
             <li>
               <span className="font-semibold text-foreground">Problem:</span> Bordplade med
@@ -279,7 +279,7 @@ export default function BordpladeRoskildePage() {
         </div>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
         <ul className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
           <li>
@@ -307,8 +307,8 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Pris og tid</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Prisen afhænger af størrelse, tilstand og finish. En mindre bordplade klares typisk i 1
@@ -319,7 +319,7 @@ export default function BordpladeRoskildePage() {
             for eksempler.
           </p>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Vi sliber kun massive træbordplader. Er du i tvivl, så upload et kant- eller endebillede
@@ -332,7 +332,7 @@ export default function BordpladeRoskildePage() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Vi dækker blandt andet følgende områder og planlægger ruter for at holde tiden skarp:
@@ -342,7 +342,7 @@ export default function BordpladeRoskildePage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt: bordplader i Roskilde</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           I Roskilde ser vi ofte bordplader, der er blevet “trætte” af helt almindelig daglig brug: matte felter ved vask og komfur, små ridser fra køkkenarbejde og skjolder efter vand og varme. Når bordpladen er massiv træ, kan den i mange tilfælde bringes tilbage til et ensartet udtryk med korrekt slibning og en finish, der passer til brugen.
@@ -357,7 +357,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Praktisk forløb i Roskilde: rolig plan og pæn aflevering</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           For at forløbet bliver let for dig, afklarer vi de praktiske rammer tidligt: adgang, parkering og om bordpladen behandles på stedet. Vi beskytter området omkring bordpladen, arbejder struktureret og afslutter med en tydelig gennemgang, så du ved hvordan overfladen skal bruges og vedligeholdes bagefter.
@@ -369,7 +369,7 @@ export default function BordpladeRoskildePage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <p className="text-sm text-muted-foreground">
           Overvej også{" "}
           <Link href="/bordpladeslibning/olie-eller-lak" className="font-semibold text-primary">

@@ -92,7 +92,7 @@ export const metadata = buildMetadata({
 
 export default function BordpladeIshoejPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <PageHero
         withImageHero
         eyebrow="By-side"
@@ -100,7 +100,7 @@ export default function BordpladeIshoejPage() {
         intro="Vi hjælper i Ishøj med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Bordpladeslibning i Ishøj – når overfladen skal være ens igen
         </h2>
@@ -125,7 +125,7 @@ export default function BordpladeIshoejPage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Typiske problemer vi ser – og hvordan de håndteres
         </h2>
@@ -155,7 +155,7 @@ export default function BordpladeIshoejPage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">
           Praktisk i en travl hverdag: sådan planlægger vi i Ishøj
         </h2>
@@ -171,7 +171,7 @@ export default function BordpladeIshoejPage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Pris og vurdering via billeder (hurtigste vej)</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Prisen afhænger af bordpladens mål, tilstand og hvilken finish du ønsker. Den hurtigste
@@ -192,7 +192,7 @@ export default function BordpladeIshoejPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Massiv træ – sådan tjekker du det hurtigt</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi sliber kun massive træbordplader. Hvis du er i tvivl, så send et billede af kanten
@@ -207,7 +207,7 @@ export default function BordpladeIshoejPage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder tæt på Ishøj vi ofte kører i</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Ishøj og nærliggende områder og planlægger ruter, så tiderne bliver stabile.
@@ -222,7 +222,7 @@ export default function BordpladeIshoejPage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Ishøj</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Ishøj møder vi ofte rækkehuse og villaer med køkkenbordplader, der er slidte efter
@@ -247,9 +247,9 @@ export default function BordpladeIshoejPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Mini-case fra Ishøj</h2>
-        <div className="mt-4 rounded-2xl border border-border/70 bg-white/70 p-5 text-sm text-muted-foreground">
+        <div className="mt-4 city-surface city-surface--panel rounded-[24px] p-5 text-sm text-muted-foreground md:p-6">
           <ul className="grid gap-2">
             <li>
               <span className="font-semibold text-foreground">Problem:</span> Bordplade med matte
@@ -267,7 +267,7 @@ export default function BordpladeIshoejPage() {
         </div>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
         <ul className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
           <li>
@@ -295,8 +295,8 @@ export default function BordpladeIshoejPage() {
         </ul>
       </section>
 
-      <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Pris og tid</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Prisen afhænger af størrelse, tilstand og finish. En mindre bordplade klares typisk i 1
@@ -307,7 +307,7 @@ export default function BordpladeIshoejPage() {
             for eksempler.
           </p>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Vi sliber kun massive træbordplader. Er du i tvivl, så upload et kant- eller endebillede
@@ -320,7 +320,7 @@ export default function BordpladeIshoejPage() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Vi dækker blandt andet følgende områder og planlægger ruter for at holde tiden skarp:
@@ -331,7 +331,7 @@ export default function BordpladeIshoejPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <p className="text-sm text-muted-foreground">
           Overvej også{" "}
           <Link href="/bordpladeslibning/olie-eller-lak" className="font-semibold text-primary">

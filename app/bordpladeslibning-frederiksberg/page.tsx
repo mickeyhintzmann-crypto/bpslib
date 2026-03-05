@@ -67,7 +67,7 @@ export const metadata = buildMetadata({
 
 export default function BordpladeFrederiksbergPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <PageHero
         withImageHero
         eyebrow="By-side"
@@ -75,7 +75,7 @@ export default function BordpladeFrederiksbergPage() {
         intro="Vi hjælper på Frederiksberg med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt på Frederiksberg</h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Frederiksberg har mange klassiske lejligheder og køkkener, hvor adgang og parkering kræver
@@ -100,9 +100,9 @@ export default function BordpladeFrederiksbergPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Mini-case fra Frederiksberg</h2>
-        <div className="mt-4 rounded-2xl border border-border/70 bg-white/70 p-5 text-sm text-muted-foreground">
+        <div className="mt-4 city-surface city-surface--panel rounded-[24px] p-5 text-sm text-muted-foreground md:p-6">
           <ul className="grid gap-2">
             <li>
               <span className="font-semibold text-foreground">Problem:</span> Slidt bøgeplade med
@@ -120,7 +120,7 @@ export default function BordpladeFrederiksbergPage() {
         </div>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
         <ul className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
           <li>
@@ -148,8 +148,8 @@ export default function BordpladeFrederiksbergPage() {
         </ul>
       </section>
 
-      <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Pris og tid</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Prisen afhænger af størrelse, tilstand og finish. En mindre bordplade klares typisk i 1
@@ -160,7 +160,7 @@ export default function BordpladeFrederiksbergPage() {
             for eksempler.
           </p>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Vi sliber kun massive træbordplader. Er du i tvivl, så upload et kant- eller endebillede
@@ -173,7 +173,7 @@ export default function BordpladeFrederiksbergPage() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Vi dækker blandt andet følgende områder og planlægger ruter for at holde tiden skarp:
@@ -184,7 +184,7 @@ export default function BordpladeFrederiksbergPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <p className="text-sm text-muted-foreground">
           Overvej også{" "}
           <Link href="/bordpladeslibning/olie-eller-lak" className="font-semibold text-primary">

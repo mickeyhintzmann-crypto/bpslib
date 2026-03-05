@@ -93,7 +93,7 @@ export const metadata = buildMetadata({
 
 export default function BordpladeKoebenhavnPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
       <PageHero
         withImageHero
         eyebrow="Region-hub"
@@ -101,7 +101,7 @@ export default function BordpladeKoebenhavnPage() {
         intro="Vi hjælper private og mindre erhverv i København og omegn med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
       />
 
-      <section className="rounded-2xl border border-border/70 bg-white/70 p-5 text-sm text-muted-foreground">
+      <section className="city-surface city-surface--panel rounded-[24px] p-5 text-sm text-muted-foreground md:p-6">
         <p>
           <Link href="/bordpladeslibning-sjaelland" className="font-semibold text-primary">
             bordpladeslibning på Sjælland
@@ -114,7 +114,7 @@ export default function BordpladeKoebenhavnPage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i København & omegn</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           I København & omegn ser vi mange bordplader, der er blevet slidte på de samme områder: rundt om vasken, foran komfuret og på de flader, der bruges mest i hverdagen. I stedet for at udskifte en ellers god massiv træbordplade, kan slibning og en korrekt finish ofte give et markant løft — både visuelt og praktisk.
@@ -129,7 +129,7 @@ export default function BordpladeKoebenhavnPage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Mini-case fra København & omegn</h2>
         <div className="mt-4 space-y-2 text-sm text-muted-foreground">
           <p><span className="font-semibold text-foreground">Problem:</span> Tørre, matte zoner ved vask og fine ridser på en massiv bordplade i en familiebolig.</p>
@@ -138,7 +138,7 @@ export default function BordpladeKoebenhavnPage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Hvad vi typisk hjælper med i omegnsområdet</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           De fleste opgaver er en kombination af flere ting. Her er de mest almindelige grunde til, at kunder kontakter os:
@@ -152,7 +152,7 @@ export default function BordpladeKoebenhavnPage() {
         </ul>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Pris, tid og planlægning</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Prisen afhænger af mål, tilstand og hvilken finish du vælger bagefter. Mange bordplader kan planlægges i et enkelt besøg, mens større eller mere slidte overflader kan kræve flere slots. Det vigtigste er, at vi afklarer omfang og forventninger før vi låser tid — så du ved, hvad du siger ja til.
@@ -162,7 +162,7 @@ export default function BordpladeKoebenhavnPage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ — sådan undgår du at spilde tid</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Vi sliber kun massive træbordplader. Hvis bordpladen er finér eller laminat, kan slibning være risikabelt eller umuligt. Den hurtigste afklaring er et billede af kanten eller enden (endetræ). Så kan vi ofte sige med det samme, om bordpladen er egnet.
@@ -172,7 +172,7 @@ export default function BordpladeKoebenhavnPage() {
         </p>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker i København & omegn</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           “København & omegn” dækker typisk kommuner og områder lige omkring byen. Vi planlægger ruter, så tiderne er stabile og du får et roligt forløb.
@@ -182,7 +182,7 @@ export default function BordpladeKoebenhavnPage() {
         </ul>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Det hjælper vi med</h2>
         <ul className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
           <li>
@@ -212,8 +212,8 @@ export default function BordpladeKoebenhavnPage() {
 
       <ProcessSteps />
 
-      <section className="grid gap-6 py-10 md:grid-cols-2 md:py-14">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+      <section className="city-grid-cards grid gap-6 md:grid-cols-2">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Pris og tid</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Prisen afhænger af størrelse, tilstand og finish. En mindre bordplade klares typisk i 1
@@ -224,7 +224,7 @@ export default function BordpladeKoebenhavnPage() {
             for eksempler.
           </p>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
+        <article className="city-surface city-surface--panel rounded-[28px] p-6">
           <h2 className="text-2xl font-semibold text-foreground">Kun massiv træ</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             Vi sliber kun massive træbordplader. Er du i tvivl, så upload et kant- eller endebillede
@@ -237,7 +237,7 @@ export default function BordpladeKoebenhavnPage() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">Serviceområder i København og omegn</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Vi dækker blandt andet disse områder og planlægger ruter for at holde tiden skarp:
@@ -248,7 +248,7 @@ export default function BordpladeKoebenhavnPage() {
         </p>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
         <p className="text-sm text-muted-foreground">
           Overvej også{" "}
           <Link href="/bordpladeslibning/olie-eller-lak" className="font-semibold text-primary">
