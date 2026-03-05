@@ -1,18 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { getAdminSessionFromRequest } from "@/lib/admin-auth";
 import { getSlotRangeForBooking } from "@/lib/admin-availability";
 import { toIsoDateRange } from "@/lib/admin/jobs";
+import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
-
-const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
-
-type EmployeeRow = {
-  id: string;
-  name: string;
-  email: string | null;
-  is_active: boolean;
-};
 
 type LeadRow = {
   id: string;
@@ -66,28 +57,23 @@ type AiQuoteResultRow = {
   admin_override: Record<string, unknown> | null;
 };
 
+type JobInvoiceRow = {
+  job_id: string;
+  status: string;
+  sent_at: string | null;
+};
+
+type DineroConnectionRow = {
+  organization_id: string;
+  is_active: boolean;
+  last_error: string | null;
+};
+
 const asSingleRelation = <T>(value: T | T[] | null | undefined): T | null => {
   if (Array.isArray(value)) {
     return value[0] || null;
   }
   return value || null;
-};
-
-const isMissingTable = (message: string | undefined, table: string) => {
-  const normalized = (message || "").toLowerCase();
-  return (
-    normalized.includes(`could not find the table 'public.${table}'`) ||
-    normalized.includes(`relation \"${table}\" does not exist`)
-  );
-};
-
-const isMissingColumn = (message: string | undefined, table: string, column: string) => {
-  const normalized = (message || "").toLowerCase();
-  return (
-    normalized.includes(`column ${table}.${column} does not exist`) ||
-    normalized.includes(`column \"${column}\" of relation \"${table}\" does not exist`) ||
-    normalized.includes(`could not find the '${column}' column of '${table}'`)
-  );
 };
 
 const parseIsoDate = (value: string | null) => {
@@ -166,66 +152,6 @@ const buildMapsUrl = (address: string | null, location: string | null) => {
     return null;
   }
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-};
-
-const getSessionEmployee = async (request: Request) => {
-  const session = getAdminSessionFromRequest(request);
-  if (!session || session.role !== "employee") {
-    return {
-      error: NextResponse.json({ message: "Ingen adgang." }, { status: 401 }),
-      session: null,
-      employee: null
-    };
-  }
-
-  const supabase = createSupabaseServiceClient();
-  const { data, error } = await supabase
-    .from("employees")
-    .select("id, name, email, is_active")
-    .ilike("email", session.email)
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    if (isMissingColumn(error.message, "employees", "email")) {
-      return {
-        error: NextResponse.json(
-          { message: `Employees-email mangler. Kør migrationen ${EMPLOYEE_PORTAL_MIGRATION}.` },
-          { status: 503 }
-        ),
-        session: null,
-        employee: null
-      };
-    }
-    if (isMissingTable(error.message, "employees")) {
-      return {
-        error: NextResponse.json(
-          { message: "Employees-tabellen mangler. Kør jobs-migrationen i Supabase." },
-          { status: 503 }
-        ),
-        session: null,
-        employee: null
-      };
-    }
-    return {
-      error: NextResponse.json({ message: error.message }, { status: 500 }),
-      session: null,
-      employee: null
-    };
-  }
-
-  if (!data || (data as EmployeeRow).is_active === false) {
-    return {
-      error: NextResponse.json(
-        { message: "Din medarbejderprofil mangler eller er inaktiv. Kontakt administrator." },
-        { status: 403 }
-      ),
-      session: null,
-      employee: null
-    };
-  }
-
-  return { error: null, session, employee: data as EmployeeRow };
 };
 
 export async function GET(request: Request) {
@@ -340,10 +266,44 @@ export async function GET(request: Request) {
       }
     }
 
+    const jobIds = jobs.map((job) => job.id);
+    let invoiceByJob = new Map<string, JobInvoiceRow>();
+    let dineroConnection: DineroConnectionRow | null = null;
+
+    if (jobIds.length > 0) {
+      const { data: invoiceRows, error: invoiceError } = await supabase
+        .from("job_invoices")
+        .select("job_id, status, sent_at")
+        .in("job_id", jobIds);
+
+      if (invoiceError && !isMissingTable(invoiceError.message, "job_invoices")) {
+        return NextResponse.json({ message: invoiceError.message }, { status: 500 });
+      }
+
+      if (Array.isArray(invoiceRows)) {
+        invoiceByJob = new Map(
+          (invoiceRows as JobInvoiceRow[]).map((row) => [row.job_id, row])
+        );
+      }
+    }
+
+    const { data: connectionRow, error: connectionError } = await supabase
+      .from("employee_dinero_connections")
+      .select("organization_id, is_active, last_error")
+      .eq("employee_id", employee.id)
+      .maybeSingle();
+
+    if (connectionError && !isMissingTable(connectionError.message, "employee_dinero_connections")) {
+      return NextResponse.json({ message: connectionError.message }, { status: 500 });
+    }
+
+    dineroConnection = (connectionRow || null) as DineroConnectionRow | null;
+
     const jobItems = jobs.map((job) => {
       const lead = job.lead as LeadRow | null;
       const price = job.lead_id ? priceByLeadId.get(job.lead_id) : undefined;
       const mapsUrl = buildMapsUrl(job.address, job.location || lead?.location || null);
+      const invoiceRow = invoiceByJob.get(job.id) || null;
 
       return {
         id: job.id,
@@ -368,7 +328,9 @@ export async function GET(request: Request) {
         priceMin: price?.min ?? null,
         priceMax: price?.max ?? null,
         priceLabel: formatPriceRange(price?.min ?? null, price?.max ?? null),
-        mapsUrl
+        mapsUrl,
+        invoiceStatus: invoiceRow?.status || null,
+        invoicedAt: invoiceRow?.sent_at || null
       };
     });
 
@@ -409,7 +371,9 @@ export async function GET(request: Request) {
           priceMin: null,
           priceMax: null,
           priceLabel: formatTotalPrice(booking.price_total),
-          mapsUrl: buildMapsUrl(booking.address, leadLocation)
+          mapsUrl: buildMapsUrl(booking.address, leadLocation),
+          invoiceStatus: null,
+          invoicedAt: null
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -423,7 +387,10 @@ export async function GET(request: Request) {
         employee: {
           id: employee.id,
           name: employee.name,
-          email: employee.email
+          email: employee.email,
+          dineroConnected: Boolean(dineroConnection?.is_active && dineroConnection?.organization_id),
+          dineroOrganizationId: dineroConnection?.organization_id || null,
+          dineroLastError: dineroConnection?.last_error || null
         },
         range: { from: fromIso, to: toIso },
         items

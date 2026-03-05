@@ -29,6 +29,8 @@ type JobItem = {
   priceMax: number | null;
   priceLabel: string;
   mapsUrl: string | null;
+  invoiceStatus: string | null;
+  invoicedAt: string | null;
 };
 
 type AvailabilityType = "sick" | "vacation" | "personal";
@@ -45,7 +47,14 @@ type AvailabilityItem = {
 type JobsResponse = {
   items?: JobItem[];
   message?: string;
-  employee?: { name: string; email: string | null };
+  employee?: {
+    id: string;
+    name: string;
+    email: string | null;
+    dineroConnected: boolean;
+    dineroOrganizationId: string | null;
+    dineroLastError: string | null;
+  };
 };
 
 type AvailabilityResponse = {
@@ -190,6 +199,24 @@ const combineDateAndTimeToIso = (dateKey: string, hhmm: string) => {
   return new Date(year, month - 1, day, hour, minute, 0, 0).toISOString();
 };
 
+const inferDefaultPriceExVat = (job: JobItem | null) => {
+  if (!job) {
+    return 0;
+  }
+  if (typeof job.priceMax === "number" && job.priceMax > 0) {
+    return Math.round(job.priceMax);
+  }
+  if (typeof job.priceMin === "number" && job.priceMin > 0) {
+    return Math.round(job.priceMin);
+  }
+  const digits = (job.priceLabel || "").replace(/[^\d]/g, "");
+  if (!digits) {
+    return 0;
+  }
+  const parsed = Number.parseInt(digits, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 export const EmployeeCalendar = () => {
   const router = useRouter();
 
@@ -212,6 +239,23 @@ export const EmployeeCalendar = () => {
   const [absenceBusy, setAbsenceBusy] = useState(false);
   const [absenceError, setAbsenceError] = useState("");
   const [absenceMessage, setAbsenceMessage] = useState("");
+  const [dineroConnected, setDineroConnected] = useState(false);
+  const [dineroOrganizationId, setDineroOrganizationId] = useState("");
+  const [dineroApiKey, setDineroApiKey] = useState("");
+  const [dineroBusy, setDineroBusy] = useState(false);
+  const [dineroError, setDineroError] = useState("");
+  const [dineroMessage, setDineroMessage] = useState("");
+  const [completeBusy, setCompleteBusy] = useState(false);
+  const [completeError, setCompleteError] = useState("");
+  const [completeMessage, setCompleteMessage] = useState("");
+  const [showCompleteForm, setShowCompleteForm] = useState(false);
+  const [invoiceCustomerName, setInvoiceCustomerName] = useState("");
+  const [invoiceCustomerEmail, setInvoiceCustomerEmail] = useState("");
+  const [invoiceCustomerPhone, setInvoiceCustomerPhone] = useState("");
+  const [invoiceCustomerAddress, setInvoiceCustomerAddress] = useState("");
+  const [invoiceDescription, setInvoiceDescription] = useState("");
+  const [invoiceAmountExVat, setInvoiceAmountExVat] = useState("");
+  const [invoiceVatPercent, setInvoiceVatPercent] = useState("25");
 
   const period = useMemo(() => {
     const base = startOfDay(anchorDate);
@@ -362,6 +406,9 @@ export const EmployeeCalendar = () => {
 
       setJobs(jobsItems);
       setEmployeeName(jobsPayload.employee?.name || "Medarbejder");
+      setDineroConnected(Boolean(jobsPayload.employee?.dineroConnected));
+      setDineroOrganizationId(jobsPayload.employee?.dineroOrganizationId || "");
+      setDineroError(jobsPayload.employee?.dineroLastError || "");
       setSelectedJobId((current) => {
         if (current && jobsItems.some((item) => item.id === current)) {
           return current;
@@ -383,6 +430,12 @@ export const EmployeeCalendar = () => {
   useEffect(() => {
     setAbsenceDateKey(toDateKey(anchorDate));
   }, [anchorDate]);
+
+  useEffect(() => {
+    setShowCompleteForm(false);
+    setCompleteError("");
+    setCompleteMessage("");
+  }, [selectedJobId]);
 
   const logout = async () => {
     try {
@@ -493,6 +546,124 @@ export const EmployeeCalendar = () => {
       setAbsenceError("Netværksfejl ved sletning.");
     } finally {
       setAbsenceBusy(false);
+    }
+  };
+
+  const connectDinero = async () => {
+    if (!dineroOrganizationId.trim() || !dineroApiKey.trim()) {
+      setDineroError("Udfyld både organization-id og API-nøgle.");
+      return;
+    }
+
+    setDineroBusy(true);
+    setDineroError("");
+    setDineroMessage("");
+
+    try {
+      const response = await fetch("/api/employee/dinero", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organizationId: dineroOrganizationId.trim(),
+          apiKey: dineroApiKey.trim()
+        })
+      });
+      const payload = (await response.json()) as { message?: string; connected?: boolean };
+      if (!response.ok) {
+        setDineroError(payload.message || "Kunne ikke forbinde Dinero.");
+        return;
+      }
+
+      setDineroConnected(Boolean(payload.connected));
+      setDineroApiKey("");
+      setDineroMessage("Dinero er nu forbundet.");
+      await load();
+    } catch (connectError) {
+      console.error(connectError);
+      setDineroError("Netværksfejl ved Dinero-opsætning.");
+    } finally {
+      setDineroBusy(false);
+    }
+  };
+
+  const disconnectDinero = async () => {
+    setDineroBusy(true);
+    setDineroError("");
+    setDineroMessage("");
+    try {
+      const response = await fetch("/api/employee/dinero", { method: "DELETE" });
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setDineroError(payload.message || "Kunne ikke frakoble Dinero.");
+        return;
+      }
+      setDineroConnected(false);
+      setDineroMessage("Dinero er frakoblet.");
+      await load();
+    } catch (disconnectError) {
+      console.error(disconnectError);
+      setDineroError("Netværksfejl ved frakobling.");
+    } finally {
+      setDineroBusy(false);
+    }
+  };
+
+  const openCompleteForm = () => {
+    if (!selectedJob || selectedJob.id.startsWith("booking:")) {
+      setCompleteError("Vælg et tildelt job for at afslutte og fakturere.");
+      return;
+    }
+    const defaultAmount = inferDefaultPriceExVat(selectedJob);
+    setInvoiceCustomerName(selectedJob.lead?.name || "");
+    setInvoiceCustomerEmail(selectedJob.lead?.email || "");
+    setInvoiceCustomerPhone(selectedJob.lead?.phone || "");
+    setInvoiceCustomerAddress(selectedJob.address || selectedJob.location || selectedJob.lead?.location || "");
+    setInvoiceDescription(`${selectedJob.title}${selectedJob.service ? ` (${selectedJob.service})` : ""}`);
+    setInvoiceAmountExVat(defaultAmount > 0 ? String(defaultAmount) : "");
+    setInvoiceVatPercent("25");
+    setCompleteError("");
+    setCompleteMessage("");
+    setShowCompleteForm(true);
+  };
+
+  const submitCompleteJob = async () => {
+    if (!selectedJob || selectedJob.id.startsWith("booking:")) {
+      setCompleteError("Kun jobs kan afsluttes herfra.");
+      return;
+    }
+
+    setCompleteBusy(true);
+    setCompleteError("");
+    setCompleteMessage("");
+    try {
+      const response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: invoiceCustomerName,
+          customerEmail: invoiceCustomerEmail,
+          customerPhone: invoiceCustomerPhone,
+          customerAddress: invoiceCustomerAddress,
+          description: invoiceDescription,
+          amountExVat: invoiceAmountExVat,
+          vatPercent: invoiceVatPercent
+        })
+      });
+
+      const payload = (await response.json()) as { message?: string; alreadySent?: boolean };
+      if (!response.ok) {
+        setCompleteError(payload.message || "Kunne ikke afslutte opgaven.");
+        return;
+      }
+
+      setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
+      setShowCompleteForm(false);
+      await load();
+    } catch (completeRequestError) {
+      console.error(completeRequestError);
+      setCompleteError("Netværksfejl ved afslutning af opgave.");
+    } finally {
+      setCompleteBusy(false);
     }
   };
 
@@ -616,6 +787,53 @@ export const EmployeeCalendar = () => {
           </div>
         </div>
         <p className="mt-3 text-sm font-semibold text-foreground">{period.label}</p>
+      </section>
+
+      <section className="mb-4 rounded-2xl border border-border bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Dinero fakturering</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Status: {dineroConnected ? `Forbundet (${dineroOrganizationId || "ukendt org"})` : "Ikke forbundet"}
+            </p>
+          </div>
+          {dineroConnected ? (
+            <Button variant="outline" onClick={disconnectDinero} disabled={dineroBusy}>
+              {dineroBusy ? "Frakobler..." : "Frakobl Dinero"}
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs text-muted-foreground">Organization-id</span>
+            <input
+              value={dineroOrganizationId}
+              onChange={(event) => setDineroOrganizationId(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              placeholder="Dinero organization id"
+            />
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs text-muted-foreground">Dinero API-nøgle</span>
+            <input
+              type="password"
+              value={dineroApiKey}
+              onChange={(event) => setDineroApiKey(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              placeholder={dineroConnected ? "Indtast ny nøgle for at opdatere" : "Indsæt API-nøgle"}
+            />
+          </label>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button onClick={connectDinero} disabled={dineroBusy}>
+            {dineroBusy ? "Gemmer..." : dineroConnected ? "Opdater Dinero-forbindelse" : "Forbind Dinero"}
+          </Button>
+        </div>
+
+        {dineroError ? <p className="mt-2 text-xs font-medium text-red-700">{dineroError}</p> : null}
+        {dineroMessage ? <p className="mt-2 text-xs font-medium text-emerald-700">{dineroMessage}</p> : null}
       </section>
 
       {error ? <p className="mb-4 text-sm font-medium text-red-700">{error}</p> : null}
@@ -860,6 +1078,14 @@ export const EmployeeCalendar = () => {
                   <strong>Status:</strong> {selectedJob.status}
                 </p>
                 <p>
+                  <strong>Faktura:</strong>{" "}
+                  {selectedJob.invoiceStatus === "sent"
+                    ? `Sendt${selectedJob.invoicedAt ? ` (${formatDateTime(selectedJob.invoicedAt)})` : ""}`
+                    : selectedJob.invoiceStatus === "failed"
+                      ? "Fejlede"
+                      : "Ikke sendt"}
+                </p>
+                <p>
                   <strong>Service:</strong> {selectedJob.service || "-"}
                 </p>
                 <p>
@@ -906,7 +1132,111 @@ export const EmployeeCalendar = () => {
                     Send email
                   </a>
                 ) : null}
+                {!selectedJob.id.startsWith("booking:") ? (
+                  <Button
+                    onClick={openCompleteForm}
+                    disabled={completeBusy || selectedJob.status === "cancelled" || !dineroConnected}
+                  >
+                    {selectedJob.status === "invoiced" ? "Se fakturaoplysninger" : "Afslut opgave og send faktura"}
+                  </Button>
+                ) : null}
               </div>
+
+              {!dineroConnected ? (
+                <p className="text-xs font-medium text-amber-700">
+                  Forbind Dinero ovenfor før du kan afslutte opgaver med automatisk faktura.
+                </p>
+              ) : null}
+              {completeError ? <p className="text-xs font-medium text-red-700">{completeError}</p> : null}
+              {completeMessage ? <p className="text-xs font-medium text-emerald-700">{completeMessage}</p> : null}
+
+              {showCompleteForm && !selectedJob.id.startsWith("booking:") ? (
+                <div className="space-y-3 rounded-xl border border-border p-4">
+                  <p className="text-sm font-semibold text-foreground">Afslut opgave og send faktura</p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Kundenavn</span>
+                      <input
+                        value={invoiceCustomerName}
+                        onChange={(event) => setInvoiceCustomerName(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Email</span>
+                      <input
+                        type="email"
+                        value={invoiceCustomerEmail}
+                        onChange={(event) => setInvoiceCustomerEmail(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Telefon</span>
+                      <input
+                        value={invoiceCustomerPhone}
+                        onChange={(event) => setInvoiceCustomerPhone(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Adresse</span>
+                      <input
+                        value={invoiceCustomerAddress}
+                        onChange={(event) => setInvoiceCustomerAddress(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm md:col-span-2">
+                      <span className="text-xs text-muted-foreground">Beskrivelse</span>
+                      <input
+                        value={invoiceDescription}
+                        onChange={(event) => setInvoiceDescription(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Pris ex. moms (DKK)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={invoiceAmountExVat}
+                        onChange={(event) => setInvoiceAmountExVat(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Moms %</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={invoiceVatPercent}
+                        onChange={(event) => setInvoiceVatPercent(event.target.value)}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={submitCompleteJob} disabled={completeBusy}>
+                      {completeBusy ? "Sender faktura..." : "Godkend og send faktura"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowCompleteForm(false);
+                        setCompleteError("");
+                      }}
+                      disabled={completeBusy}
+                    >
+                      Annuller
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Job note</p>
