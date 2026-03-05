@@ -41,7 +41,7 @@ const DenmarkMiniMap = () => (
     alt="Danmarkskort"
     loading="lazy"
     decoding="async"
-    className="mx-auto h-44 w-full max-w-[280px] object-contain"
+    className="mx-auto h-[240px] w-full max-w-[430px] object-contain lg:h-[272px]"
   />
 );
 
@@ -74,14 +74,9 @@ export const FooterCityCoverage = ({
 
   return (
     <section className="rounded-3xl border border-border/70 bg-transparent p-6 md:p-8">
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:items-start">
-        <div className="rounded-2xl border border-border/70 bg-transparent p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Dækning på Sjælland
-          </p>
-          <div className="mt-3">
-            <DenmarkMiniMap />
-          </div>
+      <div className="grid gap-8 lg:grid-cols-[360px_1fr] lg:items-start">
+        <div className="px-1">
+          <DenmarkMiniMap />
         </div>
 
         <div>
