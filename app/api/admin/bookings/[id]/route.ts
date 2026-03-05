@@ -29,6 +29,32 @@ type UpdatePayload = {
   price_vat?: unknown;
 };
 
+type BookingRow = {
+  id: string;
+  created_at: string | null;
+  status: string | null;
+  service_type: string | null;
+  source: string | null;
+  assigned_to: string | null;
+  customer_name: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  address: string | null;
+  postal_code: string | null;
+  city?: string | null;
+  date: string | null;
+  start_slot_index: number | null;
+  slot_count: number | null;
+  notes: string | null;
+  task_description?: string | null;
+  internal_note: string | null;
+  estimator_request_id?: string | null;
+  extras: unknown | null;
+  price_total?: number | null;
+  price_net?: number | null;
+  price_vat?: number | null;
+};
+
 const STATUS_FLOW = [
   "pending_confirmation",
   "new",
@@ -38,6 +64,14 @@ const STATUS_FLOW = [
   "cancelled",
   "pending"
 ] as const;
+const BOOKING_SELECT_WITH_CITY_TASK =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, estimator_request_id, extras, price_total, price_net, price_vat";
+const BOOKING_SELECT_WITH_CITY_TASK_NO_ESTIMATOR =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat";
+const BOOKING_SELECT_LEGACY =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, estimator_request_id, extras, price_total, price_net, price_vat";
+const BOOKING_SELECT_LEGACY_NO_ESTIMATOR =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat";
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
   const normalized = (message || "").toLowerCase();
@@ -50,6 +84,11 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
 const isMissingColumn = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return normalized.includes("column") && normalized.includes("does not exist");
+};
+
+const isMissingCityTaskColumns = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("bookings.city") || normalized.includes("bookings.task_description");
 };
 
 const isKnownStatus = (value: unknown): value is (typeof STATUS_FLOW)[number] =>
@@ -109,13 +148,18 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const supabase = createSupabaseServiceClient();
-    const { data, error } = await supabase
-      .from("bookings")
-      .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
-      )
-      .eq("id", params.id)
-      .single();
+    const fetchById = async (columns: string) => {
+      const response = await supabase.from("bookings").select(columns).eq("id", params.id).single();
+      return {
+        data: (response.data as BookingRow | null) ?? null,
+        error: response.error
+      };
+    };
+
+    let { data, error } = await fetchById(BOOKING_SELECT_WITH_CITY_TASK);
+    if (error && isMissingColumn(error.message) && isMissingCityTaskColumns(error.message)) {
+      ({ data, error } = await fetchById(BOOKING_SELECT_LEGACY));
+    }
 
     if (error || !data) {
       if (isMissingRelation(error?.message, "bookings")) {
@@ -128,9 +172,15 @@ export async function GET(request: Request, context: RouteContext) {
       return NextResponse.json({ message: "Du har ikke adgang til denne booking." }, { status: 403 });
     }
 
+    const startSlotIndex =
+      typeof data.start_slot_index === "number" && Number.isInteger(data.start_slot_index)
+        ? data.start_slot_index
+        : null;
+    const slotCount =
+      typeof data.slot_count === "number" && Number.isInteger(data.slot_count) ? data.slot_count : null;
     const slotRange =
-      data.date && Number.isInteger(data.start_slot_index) && Number.isInteger(data.slot_count)
-        ? getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)
+      data.date && startSlotIndex !== null && slotCount !== null
+        ? getSlotRangeForBooking(data.date, startSlotIndex, slotCount)
         : null;
 
     return NextResponse.json(
@@ -163,13 +213,18 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const supabase = createSupabaseServiceClient();
-    const { data: current, error: currentError } = await supabase
-      .from("bookings")
-      .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
-      )
-      .eq("id", params.id)
-      .single();
+    const fetchCurrent = async (columns: string) => {
+      const response = await supabase.from("bookings").select(columns).eq("id", params.id).single();
+      return {
+        data: (response.data as BookingRow | null) ?? null,
+        error: response.error
+      };
+    };
+
+    let { data: current, error: currentError } = await fetchCurrent(BOOKING_SELECT_WITH_CITY_TASK_NO_ESTIMATOR);
+    if (currentError && isMissingColumn(currentError.message) && isMissingCityTaskColumns(currentError.message)) {
+      ({ data: current, error: currentError } = await fetchCurrent(BOOKING_SELECT_LEGACY_NO_ESTIMATOR));
+    }
 
     if (currentError || !current) {
       if (isMissingRelation(currentError?.message, "bookings")) {
@@ -331,14 +386,36 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ message: "Ingen felter at opdatere." }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .from("bookings")
-      .update(updateData)
-      .eq("id", params.id)
-      .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
-      )
-      .single();
+    const updateBooking = async (updates: Record<string, unknown>, columns: string) => {
+      const response = await supabase
+        .from("bookings")
+        .update(updates)
+        .eq("id", params.id)
+        .select(columns)
+        .single();
+      return {
+        data: (response.data as BookingRow | null) ?? null,
+        error: response.error
+      };
+    };
+
+    let appliedChanges = { ...updateData };
+    let { data, error } = await updateBooking(appliedChanges, BOOKING_SELECT_WITH_CITY_TASK_NO_ESTIMATOR);
+
+    if (error && isMissingColumn(error.message) && isMissingCityTaskColumns(error.message)) {
+      const { city: _city, task_description: _taskDescription, ...legacyChanges } = appliedChanges;
+      if (Object.keys(legacyChanges).length === 0) {
+        return NextResponse.json(
+          {
+            message:
+              "Kolonnen city/opgavebeskrivelse mangler i databasen. Kør migrationen supabase/migrations/20260305_000120_booking_job_city_task_description.sql."
+          },
+          { status: 503 }
+        );
+      }
+      appliedChanges = legacyChanges;
+      ({ data, error } = await updateBooking(appliedChanges, BOOKING_SELECT_LEGACY_NO_ESTIMATOR));
+    }
 
     if (error || !data) {
       if (isMissingRelation(error?.message, "bookings")) {
@@ -357,9 +434,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ message: error?.message || "Kunne ikke opdatere booking." }, { status: 500 });
     }
 
+    const updatedStartSlotIndex =
+      typeof data.start_slot_index === "number" && Number.isInteger(data.start_slot_index)
+        ? data.start_slot_index
+        : null;
+    const updatedSlotCount =
+      typeof data.slot_count === "number" && Number.isInteger(data.slot_count) ? data.slot_count : null;
     const slotRange =
-      data.date && Number.isInteger(data.start_slot_index) && Number.isInteger(data.slot_count)
-        ? getSlotRangeForBooking(data.date, data.start_slot_index, data.slot_count)
+      data.date && updatedStartSlotIndex !== null && updatedSlotCount !== null
+        ? getSlotRangeForBooking(data.date, updatedStartSlotIndex, updatedSlotCount)
         : null;
 
     await auditLog({
@@ -369,7 +452,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       meta: {
         before: current,
         after: data,
-        changes: updateData
+        changes: appliedChanges
       },
       req: request,
       actor: session?.email,

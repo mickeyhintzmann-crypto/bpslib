@@ -20,6 +20,10 @@ const STATUS_FLOW = [
 const SOURCE_VALUES = ["normal", "acute", "manual", "estimator"] as const;
 const SERVICE_VALUES = ["bordplade", "gulv", "toemrer", "maler", "murer", "andet"] as const;
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+const BOOKING_SELECT_WITH_CITY_TASK =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat";
+const BOOKING_SELECT_LEGACY =
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat";
 
 type BookingRow = {
   id: string;
@@ -33,12 +37,12 @@ type BookingRow = {
   customer_email: string | null;
   address: string | null;
   postal_code: string | null;
-  city: string | null;
+  city?: string | null;
   date: string | null;
   start_slot_index: number | null;
   slot_count: number | null;
   notes: string | null;
-  task_description: string | null;
+  task_description?: string | null;
   internal_note: string | null;
   extras: unknown | null;
   price_total?: number | null;
@@ -78,6 +82,11 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
 const isMissingColumn = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
   return normalized.includes("column") && normalized.includes("does not exist");
+};
+
+const isMissingCityTaskColumns = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("bookings.city") || normalized.includes("bookings.task_description");
 };
 
 const parseStartSlotIndex = (payload: CreatePayload) => {
@@ -209,52 +218,65 @@ export async function GET(request: Request) {
 
     const supabase = createSupabaseServiceClient();
 
-    let query = supabase
-      .from("bookings")
-      .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat",
-        {
+    const buildListQuery = (columns: string) => {
+      let query = supabase
+        .from("bookings")
+        .select(columns, {
           count: "exact"
+        })
+        .order("date", { ascending: false })
+        .order("start_slot_index", { ascending: false })
+        .range(fromIndex, toIndex);
+
+      if (statusFilter) {
+        let values = [statusFilter];
+        if (statusFilter === "new") {
+          values = ["new", "pending_confirmation", "pending"];
+        } else if (statusFilter === "pending_confirmation") {
+          values = ["pending_confirmation", "pending"];
         }
-      )
-      .order("date", { ascending: false })
-      .order("start_slot_index", { ascending: false })
-      .range(fromIndex, toIndex);
-
-    if (statusFilter) {
-      let values = [statusFilter];
-      if (statusFilter === "new") {
-        values = ["new", "pending_confirmation", "pending"];
-      } else if (statusFilter === "pending_confirmation") {
-        values = ["pending_confirmation", "pending"];
+        query = query.in("status", values);
       }
-      query = query.in("status", values);
-    }
 
-    if (sourceFilter) {
-      query = query.eq("source", sourceFilter);
-    }
-
-    if (serviceFilter) {
-      query = query.eq("service_type", serviceFilter);
-    }
-
-    if (dateFrom && dateRegex.test(dateFrom)) {
-      query = query.gte("date", dateFrom);
-    }
-
-    if (dateTo && dateRegex.test(dateTo)) {
-      const next = addDaysToDateKey(dateTo, 1);
-      if (next) {
-        query = query.lt("date", next);
+      if (sourceFilter) {
+        query = query.eq("source", sourceFilter);
       }
-    }
 
-    if (session?.role === "employee") {
-      query = query.eq("assigned_to", session.id);
-    }
+      if (serviceFilter) {
+        query = query.eq("service_type", serviceFilter);
+      }
 
-    const { data, error, count } = await query;
+      if (dateFrom && dateRegex.test(dateFrom)) {
+        query = query.gte("date", dateFrom);
+      }
+
+      if (dateTo && dateRegex.test(dateTo)) {
+        const next = addDaysToDateKey(dateTo, 1);
+        if (next) {
+          query = query.lt("date", next);
+        }
+      }
+
+      if (session?.role === "employee") {
+        query = query.eq("assigned_to", session.id);
+      }
+
+      return query;
+    };
+
+    const runListQuery = async (columns: string) => {
+      const response = await buildListQuery(columns);
+      return {
+        data: (response.data as BookingRow[] | null) ?? null,
+        error: response.error,
+        count: response.count
+      };
+    };
+
+    let { data, error, count } = await runListQuery(BOOKING_SELECT_WITH_CITY_TASK);
+    if (error && isMissingColumn(error.message) && isMissingCityTaskColumns(error.message)) {
+      ({ data, error, count } = await runListQuery(BOOKING_SELECT_LEGACY));
+    }
 
     if (error) {
       if (isMissingRelation(error.message, "bookings")) {
@@ -263,7 +285,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    const items = ((data || []) as BookingRow[]).map((row) => {
+    const rows = Array.isArray(data) ? data : [];
+    const items = rows.map((row) => {
       const slotRange =
         row.date && Number.isInteger(row.start_slot_index) && Number.isInteger(row.slot_count)
           ? getSlotRangeForBooking(row.date, row.start_slot_index as number, row.slot_count as number)
@@ -279,8 +302,8 @@ export async function GET(request: Request) {
         name: row.customer_name,
         phone: row.customer_phone,
         postalCode: row.postal_code,
-        city: row.city,
-        taskDescription: row.task_description,
+        city: row.city ?? null,
+        taskDescription: row.task_description ?? null,
         slotStart: slotRange?.slotStartIso ?? null,
         slotEnd: slotRange?.slotEndIso ?? null,
         slotCount: row.slot_count ?? null,
@@ -398,36 +421,45 @@ export async function POST(request: Request) {
       priceNet = Math.round(totalParsed.value / 1.25);
       priceVat = totalParsed.value - priceNet;
     }
-    const { data, error } = await supabase
+    const insertPayload = {
+      service_type: service || "bordplade",
+      customer_name: name,
+      customer_phone: phone,
+      customer_email: email || null,
+      address: address || null,
+      postal_code: postalCode || null,
+      city: city || null,
+      notes: note || null,
+      task_description: taskDescription || note || null,
+      date,
+      start_slot_index: startSlotIndex,
+      slot_count: slotCount,
+      slot_start: slotRange.slotStartIso,
+      slot_end: slotRange.slotEndIso,
+      manage_token: randomUUID(),
+      status: "new",
+      source: "manual",
+      extras: service === "bordplade" && hasSelectedExtras(extras) ? extras : null,
+      assigned_to: assignedTo || null,
+      price_total: totalParsed.value,
+      price_net: priceNet,
+      price_vat: priceVat
+    };
+
+    let { data, error } = await supabase
       .from("bookings")
-      .insert({
-        service_type: service || "bordplade",
-        customer_name: name,
-        customer_phone: phone,
-        customer_email: email || null,
-        address: address || null,
-        postal_code: postalCode || null,
-        city: city || null,
-        notes: note || null,
-        task_description: taskDescription || note || null,
-        date,
-        start_slot_index: startSlotIndex,
-        slot_count: slotCount,
-        slot_start: slotRange.slotStartIso,
-        slot_end: slotRange.slotEndIso,
-        manage_token: randomUUID(),
-        status: "new",
-        source: "manual",
-        extras: service === "bordplade" && hasSelectedExtras(extras) ? extras : null,
-        assigned_to: assignedTo || null,
-        price_total: totalParsed.value,
-        price_net: priceNet,
-        price_vat: priceVat
-      })
-      .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
-      )
+      .insert(insertPayload)
+      .select(BOOKING_SELECT_WITH_CITY_TASK)
       .single();
+
+    if (error && isMissingColumn(error.message) && isMissingCityTaskColumns(error.message)) {
+      const { city: _city, task_description: _taskDescription, ...legacyInsertPayload } = insertPayload;
+      ({ data, error } = await supabase
+        .from("bookings")
+        .insert(legacyInsertPayload)
+        .select(BOOKING_SELECT_LEGACY)
+        .single());
+    }
 
     if (error || !data) {
       if (isMissingRelation(error?.message, "bookings")) {
