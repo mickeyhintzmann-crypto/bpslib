@@ -70,6 +70,7 @@ export default function BordpladeVestSydsjaellandPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16">
       <PageHero
+        withImageHero
         eyebrow="Region-hub"
         title="Bordpladeslibning i Vest- & Sydsjælland – kun massiv træ"
         intro="Vi hjælper i Vest- og Sydsjælland med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."

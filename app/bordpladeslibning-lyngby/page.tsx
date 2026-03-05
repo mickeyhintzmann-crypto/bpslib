@@ -69,6 +69,7 @@ export default function BordpladeLyngbyPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16">
       <PageHero
+        withImageHero
         eyebrow="By-side"
         title="Bordpladeslibning i Lyngby – kun massiv træ"
         intro="Vi hjælper i Lyngby med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."

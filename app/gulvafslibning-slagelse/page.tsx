@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { CityImageHero } from "@/components/layouts/CityImageHero";
+
 import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
@@ -63,8 +65,8 @@ export const metadata = buildMetadata({
 
 export default function GulvSlagelsePage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
-      <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-8">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+      <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning i Slagelse
         </h1>
@@ -89,7 +91,7 @@ export default function GulvSlagelsePage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
-      </section>
+      </CityImageHero>
 
       <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
         <h2 className="text-2xl font-semibold text-foreground">

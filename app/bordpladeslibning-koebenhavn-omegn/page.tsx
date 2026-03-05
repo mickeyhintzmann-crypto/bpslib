@@ -95,6 +95,7 @@ export default function BordpladeKoebenhavnPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16">
       <PageHero
+        withImageHero
         eyebrow="Region-hub"
         title="Bordpladeslibning i København & omegn – kun massiv træ"
         intro="Vi hjælper private og mindre erhverv i København og omegn med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."

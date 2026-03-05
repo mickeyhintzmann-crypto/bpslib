@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CityImageHero } from "@/components/layouts/CityImageHero";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
@@ -47,8 +48,8 @@ export const metadata = buildMetadata({
 
 export default function GulvVestSydsjaellandPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
-      <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-8">
+    <main className="mx-auto w-full max-w-6xl px-6 pb-16">
+      <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning i Vest- & Sydsjælland
         </h1>
@@ -67,7 +68,7 @@ export default function GulvVestSydsjaellandPage() {
             <Link href="/kontakt">Kontakt os</Link>
           </Button>
         </div>
-      </section>
+      </CityImageHero>
 
       <section className="mt-8 grid gap-6 md:grid-cols-2">
         <article className="rounded-3xl border border-border/70 bg-white/70 p-6">

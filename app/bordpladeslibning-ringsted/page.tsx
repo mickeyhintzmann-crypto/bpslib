@@ -69,6 +69,7 @@ export default function BordpladeRingstedPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16">
       <PageHero
+        withImageHero
         eyebrow="By-side"
         title="Bordpladeslibning i Ringsted – kun massiv træ"
         intro="Vi hjælper i Ringsted med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
