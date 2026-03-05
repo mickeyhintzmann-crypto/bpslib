@@ -129,7 +129,7 @@ export default function OmOsPage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
       <section className="rounded-3xl border border-border/70 bg-white/75 p-6 md:p-10">
-        <div className="grid gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+        <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-start">
           <div className="space-y-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Om BP Slib</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
@@ -152,15 +152,17 @@ export default function OmOsPage() {
               </Button>
             </div>
           </div>
-          <div className="overflow-hidden rounded-3xl border border-border/70 bg-muted/40">
-            <BpsImage
-              src={homeAssets.about}
-              alt="Bordpladeslibning udføres i køkkenmiljø"
-              width={1200}
-              height={800}
-              className="h-full w-full object-cover"
-              priority
-            />
+          <div className="md:pt-2">
+            <div className="overflow-hidden rounded-3xl border border-border/70 bg-muted/40 shadow-[0_16px_36px_hsl(20_30%_20%/0.12)]">
+              <BpsImage
+                src={homeAssets.about}
+                alt="Bordpladeslibning udføres i køkkenmiljø"
+                width={1200}
+                height={800}
+                className="h-[260px] w-full object-cover sm:h-[320px] md:h-[360px] lg:h-[400px]"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
