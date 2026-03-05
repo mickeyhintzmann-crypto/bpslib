@@ -71,19 +71,27 @@ export default function GulvBallerupPage() {
         </div>
       </CityImageHero>
 
-      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
-        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          <li>
-            <span className="font-semibold text-foreground">Problem:</span> Slidt trægulv med ridser og ujævn glans.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Løsning:</span> Slibning i trin og ny finish efter ønsket udtryk.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Resultat:</span> Jævnt gulv med roligt udtryk og bedre holdbarhed.
-          </li>
-        </ul>
+      <section className="mt-8 overflow-hidden rounded-[30px] border border-border/70 bg-[linear-gradient(145deg,hsl(34_60%_98%),hsl(0_0%_100%))] p-6 shadow-[0_20px_44px_hsl(24_24%_18%/0.08)] md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
+          <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            Før → under → efter
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Problem</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Slidt trægulv med ridser og ujævn glans.</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Løsning</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Slibning i trin og ny finish efter ønsket udtryk.</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Resultat</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Jævnt gulv med roligt udtryk og bedre holdbarhed.</p>
+          </article>
+        </div>
       </section>
 
       <section className="city-grid-cards grid gap-6 md:grid-cols-2">

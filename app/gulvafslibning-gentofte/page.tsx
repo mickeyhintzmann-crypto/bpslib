@@ -95,33 +95,51 @@ export default function GulvGentoftePage() {
         </div>
       </CityImageHero>
 
-      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Sådan planlægger vi gulvafslibning i Gentofte</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          I Gentofte ser vi ofte parket- og plankegulve, hvor finish og detaljegrad betyder meget for
-          helhedsindtrykket – især i stue, gang og rum med høj daglig brug. Vi starter med at vurdere
-          gulvtype og tilstand og ser særligt på slidzoner, ujævn glans og ridser i de mest
-          trafikerede områder. Derefter planlægger vi forløbet efter adgang, parkering og
-          rumfordeling, så du får en realistisk tidsplan og et resultat der bliver ensartet på tværs
-          af rummene. Målet er en proces uden overraskelser og en løsning, der holder i hverdagen.
-        </p>
+      <section className="mt-8 overflow-hidden rounded-[30px] border border-border/70 bg-[linear-gradient(145deg,hsl(36_55%_97%),hsl(0_0%_100%))] shadow-[0_20px_44px_hsl(24_24%_18%/0.08)]">
+        <div className="grid gap-6 p-6 md:p-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-8">
+          <div>
+            <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Planlægning
+            </span>
+            <h2 className="mt-4 text-2xl font-semibold text-foreground">
+              Sådan planlægger vi gulvafslibning i Gentofte
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+              I Gentofte ser vi ofte parket- og plankegulve, hvor finish og detaljegrad betyder meget for helhedsindtrykket – især i stue, gang og rum med høj daglig brug. Vi starter med at vurdere gulvtype og tilstand og ser særligt på slidzoner, ujævn glans og ridser i de mest trafikerede områder. Derefter planlægger vi forløbet efter adgang, parkering og rumfordeling, så du får en realistisk tidsplan og et resultat der bliver ensartet på tværs af rummene. Målet er en proces uden overraskelser og en løsning, der holder i hverdagen.
+            </p>
+          </div>
+          <aside className="grid gap-3 self-start rounded-2xl border border-border/70 bg-white/85 p-4 md:p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">Vi afklarer altid</h3>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Adgang og opgang/elevator</p>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Tidsvinduer og parkering</p>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Gulvtype, slidlag og finish</p>
+          </aside>
+        </div>
       </section>
 
       <ReferenceStrip />
 
-      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
-        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          <li>
-            <span className="font-semibold text-foreground">Udgangspunkt:</span> Parketgulv med slidbaner i gang/stue og små ridser fra daglig brug.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Løsning:</span> Slibning i trin + valg af finish, der passer til brugsmønster (ofte lak ved høj trafik).
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Resultat:</span> Mere ensartet glans, pænere overflade og bedre modstand i hverdagen.
-          </li>
-        </ul>
+      <section className="mt-8 overflow-hidden rounded-[30px] border border-border/70 bg-[linear-gradient(145deg,hsl(34_60%_98%),hsl(0_0%_100%))] p-6 shadow-[0_20px_44px_hsl(24_24%_18%/0.08)] md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
+          <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            Før → under → efter
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Problem</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Parketgulv med slidbaner i gang/stue og små ridser fra daglig brug.</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Løsning</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Slibning i trin + valg af finish, der passer til brugsmønster (ofte lak ved høj trafik).</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Resultat</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Mere ensartet glans, pænere overflade og bedre modstand i hverdagen.</p>
+          </article>
+        </div>
       </section>
 
       <section className="city-grid-cards grid gap-6 md:grid-cols-2">

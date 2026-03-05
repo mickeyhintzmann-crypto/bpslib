@@ -95,36 +95,51 @@ export default function GulvHolbaekPage() {
         </div>
       </CityImageHero>
 
-      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Sådan planlægger vi gulvafslibning i Holbæk
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          I Holbæk og omegn ser vi ofte opgaver, hvor gulvet har taget imod mange års hverdagsbrug
-          – især i stue, gang og rum med høj trafik. Vi starter med at vurdere gulvtype (parket,
-          plank eller sildeben), tilstand og slidlag, så vi kan vælge den rigtige proces uden
-          overraskelser. Derefter planlægger vi rækkefølge og tidsplan, så det passer til din
-          hverdag – og vi afklarer praktiske forhold som adgang, parkering og om opgaven med fordel
-          kan tages i etaper ved flere rum. Målet er et ensartet resultat og en finish der holder i
-          praksis.
-        </p>
+      <section className="mt-8 overflow-hidden rounded-[30px] border border-border/70 bg-[linear-gradient(145deg,hsl(36_55%_97%),hsl(0_0%_100%))] shadow-[0_20px_44px_hsl(24_24%_18%/0.08)]">
+        <div className="grid gap-6 p-6 md:p-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-8">
+          <div>
+            <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Planlægning
+            </span>
+            <h2 className="mt-4 text-2xl font-semibold text-foreground">
+              Sådan planlægger vi gulvafslibning i Holbæk
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+              I Holbæk og omegn ser vi ofte opgaver, hvor gulvet har taget imod mange års hverdagsbrug – især i stue, gang og rum med høj trafik. Vi starter med at vurdere gulvtype (parket, plank eller sildeben), tilstand og slidlag, så vi kan vælge den rigtige proces uden overraskelser. Derefter planlægger vi rækkefølge og tidsplan, så det passer til din hverdag – og vi afklarer praktiske forhold som adgang, parkering og om opgaven med fordel kan tages i etaper ved flere rum. Målet er et ensartet resultat og en finish der holder i praksis.
+            </p>
+          </div>
+          <aside className="grid gap-3 self-start rounded-2xl border border-border/70 bg-white/85 p-4 md:p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">Vi afklarer altid</h3>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Adgang og opgang/elevator</p>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Tidsvinduer og parkering</p>
+            <p className="rounded-xl border border-border/70 bg-white px-3 py-2 text-sm text-foreground">Gulvtype, slidlag og finish</p>
+          </aside>
+        </div>
       </section>
 
       <ReferenceStrip />
 
-      <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
-        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          <li>
-            <span className="font-semibold text-foreground">Udgangspunkt:</span> Plankegulv med synlige ridser, slidfelter og ujævn glans.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Løsning:</span> Slibning i trin + finishvalg ud fra brug (lak ved høj slid, olie ved naturligt look).
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Resultat:</span> Ensartet overflade og et gulv der er nemmere at vedligeholde.
-          </li>
-        </ul>
+      <section className="mt-8 overflow-hidden rounded-[30px] border border-border/70 bg-[linear-gradient(145deg,hsl(34_60%_98%),hsl(0_0%_100%))] p-6 shadow-[0_20px_44px_hsl(24_24%_18%/0.08)] md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="city-gulv-example-heading text-2xl font-semibold text-foreground">Eksempel på opgave i området</h2>
+          <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            Før → under → efter
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Problem</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Plankegulv med synlige ridser, slidfelter og ujævn glans.</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Løsning</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Slibning i trin + finishvalg ud fra brug (lak ved høj slid, olie ved naturligt look).</p>
+          </article>
+          <article className="rounded-2xl border border-border/70 bg-white/90 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Resultat</p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground">Ensartet overflade og et gulv der er nemmere at vedligeholde.</p>
+          </article>
+        </div>
       </section>
 
       <section className="city-grid-cards grid gap-6 md:grid-cols-2">
