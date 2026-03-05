@@ -32,7 +32,7 @@ export const CasesCategoryClient = ({ cases, category, title, subtitle }: CasesC
     if (!openCase) {
       return [];
     }
-    return dedupe([...(openCase.gallery ?? []), openCase.afterSrc ?? "", openCase.beforeSrc ?? ""]);
+    return dedupe([openCase.frontSrc ?? "", ...(openCase.gallery ?? []), openCase.afterSrc ?? "", openCase.beforeSrc ?? ""]);
   }, [openCase]);
 
   const activeImage = openCaseImages[activeImageIndex] ?? null;
@@ -88,7 +88,7 @@ export const CasesCategoryClient = ({ cases, category, title, subtitle }: CasesC
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {cases.map((item) => {
-            const cover = item.afterSrc ?? item.gallery[0] ?? item.beforeSrc;
+            const cover = item.frontSrc ?? item.afterSrc ?? item.gallery[0] ?? item.beforeSrc;
             if (!cover) {
               return null;
             }

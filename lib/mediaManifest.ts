@@ -14,6 +14,7 @@ export type CasesManifestItem = {
   id: string;
   caseId: string;
   category: CasesManifestCategory;
+  frontSrc: string | null;
   beforeSrc: string | null;
   afterSrc: string | null;
   gallery: string[];
@@ -219,6 +220,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Bøg Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_before_boeg_hvid_olie.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case_002_koekken_boeg_hvid_olie/case-005_koekken_after_boeg_hvid_olie.jpeg",
     "gallery": [
@@ -232,6 +234,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Egetræ Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": null,
     "afterSrc": "/media/cases:bordplade/case-001_egetræ_natur_olie/after.1.JPG",
     "gallery": [
@@ -245,6 +248,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Egetræ Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
     "gallery": [
@@ -258,6 +262,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
     "gallery": [
@@ -271,6 +276,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Egetræ Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": null,
     "afterSrc": "/media/cases:bordplade/case-002_egetræ_natur_olie/after.1.JPG",
     "gallery": [
@@ -284,6 +290,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Valnød Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_before.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_after.jpeg",
     "gallery": [
@@ -297,6 +304,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Gummitræ Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_before.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_after.jpeg",
     "gallery": [
@@ -310,6 +318,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Valnød Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/before.1.JPG",
     "afterSrc": "/media/cases:bordplade/case-003_valnoed_natur_olie/after.1.jpeg",
     "gallery": [
@@ -325,6 +334,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Egetræ Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/before.2.JPG",
     "afterSrc": "/media/cases:bordplade/case-004_egetrae_hvid_olie/after.2.JPG",
     "gallery": [
@@ -338,6 +348,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Egetræ Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_before.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_after.jpeg",
     "gallery": [
@@ -351,6 +362,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Egetræ Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/before.1.jpeg",
     "afterSrc": "/media/cases:bordplade/case-005_egetrae_natur_olie/after.1.jpeg",
     "gallery": [
@@ -366,6 +378,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Gummitræ Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/before.1.JPG",
     "afterSrc": "/media/cases:bordplade/case-006_gummitrae_hvid_olie/after.1.JPG",
     "gallery": [
@@ -383,6 +396,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Valnød Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/Before..jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg",
     "gallery": [
@@ -396,6 +410,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
     "gallery": [
@@ -409,6 +424,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Valnød Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/before.1.jpeg",
     "afterSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/after.1.jpeg",
     "gallery": [
@@ -429,6 +445,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Ask Hvid Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/before..jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg",
     "gallery": [
@@ -442,6 +459,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
     "gallery": [
@@ -455,6 +473,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Spisebord Teak Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
     "gallery": [
@@ -468,6 +487,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Spisebord",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
     "gallery": [
@@ -481,6 +501,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Valnød Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG",
     "afterSrc": "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/after.jpeg",
     "gallery": [
@@ -494,6 +515,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "bordplade",
     "title": "Køkken Mahogni Natur Olie",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg",
     "gallery": [
@@ -507,6 +529,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Stairs",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-001_stairs/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-001_stairs/after.01.jpg",
     "gallery": [
@@ -520,6 +543,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Dark Wood",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-002_dark_wood/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-002_dark_wood/after.01.jpg",
     "gallery": [
@@ -533,6 +557,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Fyrtræ",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg",
     "gallery": [
@@ -546,6 +571,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Fernis",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-004_fernis/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-004_fernis/after.01.jpg",
     "gallery": [
@@ -559,6 +585,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Fernis Stairs",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-005_fernis_stairs/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-005_fernis_stairs/after.01.jpg",
     "gallery": [
@@ -572,6 +599,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Old",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-006_old/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-006_old/after.01.jpg",
     "gallery": [
@@ -585,6 +613,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvafslibning",
     "title": "Fyrtræ",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/galleries:gulv:before-after/case-007_fyrtrae/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-007_fyrtrae/after.01.jpg",
     "gallery": [
@@ -598,6 +627,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Vinyl",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-001_vinyl/before.01.jpg",
     "afterSrc": "/media/cases:gulvbelaegning/case-001_vinyl/after.01.JPG",
     "gallery": [
@@ -612,6 +642,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Spartel",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-002_spartel/before.01.jpg",
     "afterSrc": "/media/cases:gulvbelaegning/case-002_spartel/after.01.jpg",
     "gallery": [
@@ -625,6 +656,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildeben",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-003_sildeben/before.01.jpg",
     "afterSrc": "/media/cases:gulvbelaegning/case-003_sildeben/after.01.jpg",
     "gallery": [
@@ -642,6 +674,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildeben",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-004_sildeben/before.JPG",
     "afterSrc": "/media/cases:gulvbelaegning/case-004_sildeben/after.jpg",
     "gallery": [
@@ -655,6 +688,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Epoxy",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": null,
     "afterSrc": null,
     "gallery": [
@@ -667,6 +701,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildeben",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-006_sildeben/before.01.JPG",
     "afterSrc": "/media/cases:gulvbelaegning/case-006_sildeben/after.01.JPG",
     "gallery": [
@@ -687,6 +722,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Parket",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": "/media/cases:gulvbelaegning/case-007_parket/before.01.JPG",
     "afterSrc": "/media/cases:gulvbelaegning/case-007_parket/after.01.JPG",
     "gallery": [
@@ -707,6 +743,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildebensbelægning",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": null,
     "afterSrc": null,
     "gallery": [
@@ -726,6 +763,7 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildebensbelægning",
     "location": null,
+    "frontSrc": null,
     "beforeSrc": null,
     "afterSrc": null,
     "gallery": [

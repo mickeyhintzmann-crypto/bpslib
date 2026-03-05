@@ -79,7 +79,7 @@ const caseGalleryItemsWithImages = gulvbelaegningCases.slice(0, 4).map((item, in
   summary:
     "Eksempel på gulvbelægning med fokus på underlag, korrekt opbygning og holdbar afslutning i den daglige drift.",
   image: {
-    src: item.afterSrc ?? item.gallery[0] ?? galleryGulvbelaegning[index] ?? "",
+    src: item.frontSrc ?? item.afterSrc ?? item.gallery[0] ?? galleryGulvbelaegning[index] ?? "",
     alt: `${item.title} gulvbelægning case`
   }
 })).filter((item) => Boolean(item.image.src));

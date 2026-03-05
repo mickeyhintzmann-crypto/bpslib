@@ -79,9 +79,6 @@ export const FooterCityCoverage = ({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Dækning på Sjælland
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Kompakt oversigt over by-links. Alle URL&apos;er er uændrede.
-          </p>
           <div className="mt-3">
             <DenmarkMiniMap />
           </div>

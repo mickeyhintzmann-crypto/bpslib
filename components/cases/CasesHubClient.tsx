@@ -53,7 +53,7 @@ export const CasesHubClient = ({ cases, enterpriseCases }: CasesHubClientProps) 
     if (!openCase) {
       return [];
     }
-    return dedupe([...(openCase.gallery ?? []), openCase.afterSrc ?? "", openCase.beforeSrc ?? ""]);
+    return dedupe([openCase.frontSrc ?? "", ...(openCase.gallery ?? []), openCase.afterSrc ?? "", openCase.beforeSrc ?? ""]);
   }, [openCase]);
 
   const activeImage = openCaseImages[activeImageIndex] ?? null;
