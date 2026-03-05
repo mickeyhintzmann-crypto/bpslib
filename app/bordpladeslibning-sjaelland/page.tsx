@@ -212,27 +212,27 @@ const fixedCaseGalleryImageSet: Array<
   | undefined
 > = [
   {
-    src: "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
+    src: "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/Before..jpg",
     alt: "Køkkenbord før slibning med skjolder ved vask",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg",
     hoverAlt: "Køkkenbord efter slibning med ensartet finish"
   },
   {
-    src: "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
+    src: "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/before..jpg",
     alt: "Træbordplade før slibning med fine ridser og ujævn glans",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg",
     hoverAlt: "Træbordplade efter slibning med roligt og ensartet udtryk"
   },
   {
-    src: "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
+    src: "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg",
     alt: "Massiv bordplade før slibning med varmepletter og misfarvning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
     hoverAlt: "Massiv bordplade efter slibning med forbedret finish"
   },
   {
-    src: "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
+    src: "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
     alt: "Spisebord før slibning",
-    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
+    hoverSrc: "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
     hoverAlt: "Spisebord efter slibning"
   }
 ];
