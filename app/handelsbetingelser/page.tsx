@@ -21,15 +21,20 @@ export default function HandelsbetingelserPage() {
           Nedenfor finder du en kort version først og en udvidet version efterfølgende.
           Formålet er, at vilkårene er lette at forstå før booking.
         </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Vilkårene gælder med forbehold for ufravigelig dansk lovgivning, herunder
+          forbrugerbeskyttelsesregler.
+        </p>
       </section>
 
       <section className="mt-6 rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
         <h2 className="text-xl font-semibold text-foreground">Kort version (one screen)</h2>
         <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
           <li>Gratis afbud eller ombooking indtil 24 timer før aftalt starttid.</li>
-          <li>Ved afbud senere end 24 timer kan der opkræves gebyr efter konkret vurdering.</li>
-          <li>Akutte tider har fast pris og følger samme 24-timers afbudsregel.</li>
+          <li>Ved afbud eller ombooking senere end 24 timer opkræves 30% af den aftalte pris.</li>
+          <li>Reglen om 30% gebyr gælder ikke for akutte tider.</li>
           <li>Kunden skal rydde bordpladen og sikre adgang/parkering inden opstart.</li>
+          <li>Pris fra AI-prisberegner er vejledende, ikke et bindende endeligt tilbud.</li>
           <li>Betaling sker efter aftale i forbindelse med bekræftelse af opgaven.</li>
         </ul>
         <div className="mt-5 flex flex-wrap gap-3">
@@ -60,14 +65,14 @@ export default function HandelsbetingelserPage() {
           </p>
           <ul className="mt-4 space-y-2">
             <li>Aflys eller ombook senest 24 timer før den aftalte starttid.</li>
-            <li>
-              Ved senere aflysning eller ombooking kan det være svært at tilbyde tiden til andre.
-            </li>
+            <li>Ved aflysning eller ombooking senere end 24 timer opkræves et gebyr på 30% af den aftalte pris.</li>
+            <li>Gebyret faktureres som afbuds-/ombookingsgebyr for reserveret tid og planlagt kapacitet.</li>
+            <li>Reglen om 30% gebyr gælder ikke for akutte tider.</li>
             <li>
               Ved forsinkelse: ring hurtigst muligt. Ved større forsinkelser kan tiden blive flyttet.
             </li>
             <li>Hvis vi flytter tiden, kontakter vi dig hurtigst muligt og tilbyder en ny tid.</li>
-            <li>Akutte tider følger samme mulighed og regler. Giv besked så tidligt som muligt.</li>
+            <li>Giv altid besked hurtigst muligt, så vi kan minimere ventetid og planlægge bedst muligt.</li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button asChild variant="secondary">
@@ -85,18 +90,27 @@ export default function HandelsbetingelserPage() {
         <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
           <h2 className="text-xl font-semibold text-foreground">Afbud og ombooking</h2>
           <p className="mt-3">
-            Afbud eller ombooking er gratis indtil 24 timer før den aftalte tid. Ved afbud senere
-            end 24 timer kan der opkræves gebyr, fordi tiden ofte ikke kan fyldes med kort varsel.
-            Vi forsøger altid at finde en fair løsning i dialog med dig.
+            Afbud eller ombooking er gratis indtil 24 timer før den aftalte tid. Ved afbud eller
+            ombooking senere end 24 timer opkræves 30% af den aftalte pris, da den reserverede tid
+            som udgangspunkt ikke kan fyldes med kort varsel.
           </p>
         </article>
 
         <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
           <h2 className="text-xl font-semibold text-foreground">Akutte tider</h2>
           <p className="mt-3">
-            Akutte tider udbydes til fast pris og med hurtig planlægning. Samme regler for afbud
-            og ombooking gælder: gratis indtil 24 timer før. Hvis en valgt akut tid bliver optaget
-            før endelig bekræftelse, tilbyder vi den næste ledige mulighed.
+            Akutte tider udbydes til fast pris og med hurtig planlægning. Reglen om 30% gebyr ved
+            afbud/ombooking under 24 timer gælder ikke for akutte tider. Hvis en valgt akut tid
+            bliver optaget før endelig bekræftelse, tilbyder vi den næste ledige mulighed.
+          </p>
+        </article>
+
+        <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
+          <h2 className="text-xl font-semibold text-foreground">Prisvurdering via AI</h2>
+          <p className="mt-3">
+            Prisvurderinger via AI-prisberegneren er vejledende estimater baseret på de oplysninger
+            og billeder, der er indsendt. Endelig pris fastsættes først, når opgaven er gennemgået
+            og omfang/materiale er bekræftet.
           </p>
         </article>
 

@@ -42,14 +42,7 @@ export const Footer = () => {
       <div className="mx-auto w-full max-w-[1180px] px-6 py-14">
         <div className="flex flex-col gap-6 border-b border-stone-700 pb-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <BpsImage
-              src="/media/logo.bpslib/bpslib.logo.png"
-              alt={`${siteConfig.companyName} logo`}
-              width={260}
-              height={92}
-              className="h-14 w-auto max-w-[260px] object-contain brightness-0 invert md:h-16"
-            />
-            <p className="mt-3 max-w-xl text-sm text-stone-300">
+            <p className="max-w-xl text-sm text-stone-300">
               Bordplade i massiv træ, gulv og øvrige fag med tydelig plan, hurtig dialog og solid udførelse.
             </p>
           </div>
@@ -92,6 +85,13 @@ export const Footer = () => {
               <p>Hverdage: {siteConfig.openingHours.weekdays}</p>
               <p>Weekend: {siteConfig.openingHours.weekend}</p>
             </div>
+            <BpsImage
+              src="/media/logo.bpslib/bpslib.logo.png"
+              alt={`${siteConfig.companyName} logo`}
+              width={780}
+              height={276}
+              className="mt-4 h-auto w-full max-w-[340px] object-contain brightness-0 invert"
+            />
           </section>
 
           <section>

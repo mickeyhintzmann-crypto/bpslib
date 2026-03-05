@@ -15,14 +15,14 @@ const LogoRailItem = ({ src, alt, compact = false }: { src: string; alt: string;
   const isRigshospitalLogo = /rigshospital/i.test(alt);
   const isSkatteministerietLogo = /skatteministeriet/i.test(alt);
   const itemClass = compact
-    ? "logo-marquee-item flex min-w-[180px] items-center justify-center px-5 py-1 md:min-w-[240px] md:px-7 md:py-1.5"
+    ? "logo-marquee-item flex min-w-[160px] items-center justify-center px-4 py-0 md:min-w-[220px] md:px-6 md:py-0.5"
     : "logo-marquee-item flex min-w-[154px] items-center justify-center px-6 py-1.5 md:min-w-[210px] md:px-7 md:py-2";
   const sizeClass = compact
     ? isRigshospitalLogo
-      ? "max-h-[46px] max-w-[176px] md:max-h-[60px] md:max-w-[231px]"
+      ? "max-h-[38px] max-w-[150px] md:max-h-[50px] md:max-w-[198px]"
       : isSkatteministerietLogo
-        ? "max-h-[133px] max-w-[391px] md:max-h-[168px] md:max-w-[506px]"
-      : "max-h-[96px] max-w-[283px] md:max-h-[122px] md:max-w-[367px]"
+        ? "max-h-[88px] max-w-[260px] md:max-h-[114px] md:max-w-[340px]"
+      : "max-h-[68px] max-w-[220px] md:max-h-[88px] md:max-w-[300px]"
     : isRigshospitalLogo
       ? "max-h-[38px] max-w-[144px] md:max-h-[49px] md:max-w-[190px]"
       : isSkatteministerietLogo
@@ -128,26 +128,26 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
   }
 
   return (
-    <Section className="py-4 md:py-5" eyebrow="Udvalgte referencer">
-      <div className="surface-panel rounded-[30px] p-4 md:p-5">
-        <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+    <Section className="py-3 md:py-4" eyebrow="Udvalgte referencer">
+      <div className="surface-panel rounded-[30px] p-3 md:p-4">
+        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <h2 className="text-2xl font-semibold text-foreground md:text-[2rem]">
+            <h2 className="text-xl font-semibold leading-tight text-foreground md:text-[1.8rem]">
               Dokumenteret arbejde for professionelle kunder
             </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-[0.95rem]">
               Et udvalg af virksomheder og institutioner vi har udført opgaver for.
             </p>
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
-            <span className="rounded-full border border-border/70 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <span className="rounded-full border border-border/70 bg-white px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {clientLogos.length} enterprise referencer
             </span>
           </div>
         </div>
 
-        <div className="relative mt-4 overflow-hidden py-0.5">
+        <div className="relative mt-3 overflow-hidden py-0">
           <div className="logo-marquee-mask pointer-events-none absolute inset-y-0 left-0 z-[2] w-12" />
           <div className="logo-marquee-mask logo-marquee-mask-right pointer-events-none absolute inset-y-0 right-0 z-[2] w-12" />
 
@@ -160,15 +160,15 @@ export const ClientLogoWall = ({ variant = "prominent" }: ClientLogoWallProps) =
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button asChild size="sm" className="h-9 px-5">
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm" className="h-8 px-4">
             <Link href="/referencer">Se alle referencer</Link>
           </Button>
           <Button
             asChild
             size="sm"
             variant="secondary"
-            className="h-9 px-5"
+            className="h-8 px-4"
           >
             <Link href="/cases">Se cases</Link>
           </Button>

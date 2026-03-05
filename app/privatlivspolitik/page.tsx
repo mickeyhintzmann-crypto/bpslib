@@ -37,10 +37,34 @@ export default function PrivatlivspolitikPage() {
 
       <section className="space-y-6 py-10 text-sm leading-relaxed text-muted-foreground md:text-base">
         <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
+          <h2 className="text-xl font-semibold text-foreground">Dataansvarlig</h2>
+          <p className="mt-3">
+            BP Slib (BPSLIB) er dataansvarlig for behandling af personoplysninger i forbindelse med
+            henvendelser, booking, opgaveløsning og fakturering.
+          </p>
+          <ul className="mt-3 space-y-2">
+            <li>Virksomhed: {siteConfig.companyName}</li>
+            <li>CVR: {siteConfig.cvr}</li>
+            <li>
+              Email:{" "}
+              <a href={`mailto:${siteConfig.email}`} className="font-medium text-foreground hover:text-primary">
+                {siteConfig.email}
+              </a>
+            </li>
+            <li>
+              Telefon:{" "}
+              <a href={`tel:${siteConfig.phone}`} className="font-medium text-foreground hover:text-primary">
+                {siteConfig.phoneDisplay}
+              </a>
+            </li>
+          </ul>
+        </article>
+
+        <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
           <h2 className="text-xl font-semibold text-foreground">Hvilke data indsamler vi?</h2>
           <ul className="mt-3 space-y-2">
             <li>Kontaktoplysninger: navn, telefon og eventuelt email.</li>
-            <li>Bookingoplysninger: adresse/postnr, ønsket tidspunkt og praktiske noter.</li>
+            <li>Bookingoplysninger: adresse/postnr, ønsket tidspunkt, by og opgavebeskrivelse.</li>
             <li>Billeder til vurdering i prisberegneren.</li>
           </ul>
         </article>
@@ -51,7 +75,27 @@ export default function PrivatlivspolitikPage() {
             <li>At vurdere om bordpladen er massiv træ og kan slibes.</li>
             <li>At sende tilbud eller prisvurdering på den konkrete opgave.</li>
             <li>At planlægge og gennemføre booking og kundeservice.</li>
+            <li>At håndtere afbud/ombooking og eventuel gebyrhåndtering efter gældende vilkår.</li>
+            <li>At udstede faktura og opfylde lovpligtige bogføringskrav.</li>
           </ul>
+        </article>
+
+        <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
+          <h2 className="text-xl font-semibold text-foreground">Retsgrundlag (GDPR art. 6)</h2>
+          <ul className="mt-3 space-y-2">
+            <li>Art. 6(1)(b): Behandling nødvendig for at indgå/opfylde aftale om ydelsen.</li>
+            <li>Art. 6(1)(c): Behandling nødvendig for at overholde retlige forpligtelser (fx bogføring).</li>
+            <li>Art. 6(1)(f): Legitim interesse i drift, dokumentation og kundeservice.</li>
+          </ul>
+        </article>
+
+        <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
+          <h2 className="text-xl font-semibold text-foreground">AI-prisberegner og automatisering</h2>
+          <p className="mt-3">
+            AI-prisberegneren bruges som støtteværktøj til en indledende prisvurdering. Estimatet
+            er vejledende og udgør ikke en automatisk afgørelse med retsvirkning. Endelig pris og
+            tilbud fastsættes på baggrund af konkret gennemgang af opgaven.
+          </p>
         </article>
 
         <article className="rounded-3xl border border-border/70 bg-white/75 p-6">
@@ -60,7 +104,8 @@ export default function PrivatlivspolitikPage() {
             Billeder i prisberegneren bruges kun til vurdering af opgaven og slettes automatisk efter
             {" "}
             <span className="font-semibold text-foreground">{siteConfig.estimatorRetentionDays} dage</span>.
-            Øvrige data opbevares kun så længe det er nødvendigt for dialog, opgaveforløb og lovpligtige krav.
+            Øvrige data opbevares kun så længe det er nødvendigt for dialog, opgaveforløb og
+            lovpligtige krav, herunder bogføringsregler.
           </p>
         </article>
 
@@ -87,6 +132,10 @@ export default function PrivatlivspolitikPage() {
               {siteConfig.phoneDisplay}
             </a>
             .
+          </p>
+          <p className="mt-3">
+            Du har også ret til at klage til Datatilsynet, hvis du mener, at behandlingen af dine
+            personoplysninger ikke sker i overensstemmelse med gældende regler.
           </p>
         </article>
       </section>
