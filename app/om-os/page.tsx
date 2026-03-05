@@ -157,9 +157,10 @@ export default function OmOsPage() {
               <BpsImage
                 src={homeAssets.about}
                 alt="Bordpladeslibning udføres i køkkenmiljø"
-                width={1200}
-                height={800}
-                className="h-[260px] w-full object-cover sm:h-[320px] md:h-[360px] lg:h-[400px]"
+                width={1024}
+                height={500}
+                className="block h-auto w-full object-cover"
+                style={{ width: "100%", height: "auto" }}
                 priority
               />
             </div>
