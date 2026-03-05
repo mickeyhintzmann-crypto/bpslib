@@ -508,13 +508,13 @@ a {
   }
 
   .city-service-page .city-surface--panel:has(> .city-bordplade-local-heading) p a {
-    margin: 0 0.1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.1rem;
-    padding: 0.34rem 0.86rem;
-    border-radius: 12px;
+    display: inline-block;
+    margin: 0 0.12rem;
+    padding: 0.2rem 0.66rem;
+    line-height: 1.18;
+    vertical-align: baseline;
+    white-space: nowrap;
+    border-radius: 10px;
     border: 1px solid hsl(var(--primary) / 0.58);
     background: linear-gradient(180deg, hsl(var(--primary)), hsl(20 92% 48%));
     color: hsl(var(--primary-foreground));
@@ -522,7 +522,7 @@ a {
     text-decoration: none;
     box-shadow:
       0 1px 1px hsl(20 40% 20% / 0.08),
-      0 10px 18px hsl(var(--primary) / 0.22);
+      0 8px 14px hsl(var(--primary) / 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   }
 
