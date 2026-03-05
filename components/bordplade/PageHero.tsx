@@ -23,21 +23,31 @@ export const PageHero = ({
   withImageHero = false,
   heroBackgroundImage = defaultBordpladeHeroImage
 }: PageHeroProps) => {
+  const isImageHero = withImageHero;
   const content = (
     <div className="space-y-5">
       {eyebrow ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <p
+          className={`text-xs font-semibold uppercase tracking-[0.2em] ${
+            isImageHero ? "text-foreground/75" : "text-muted-foreground"
+          }`}
+        >
           {eyebrow}
         </p>
       ) : null}
       <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
         {title}
       </h1>
-      <p className="max-w-3xl text-base text-muted-foreground md:text-lg">{intro}</p>
+      <p className={`max-w-3xl text-base md:text-lg ${isImageHero ? "text-foreground/90" : "text-muted-foreground"}`}>
+        {intro}
+      </p>
       <CtaRow showAkutteTider={showAkutteTider} />
-      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+      <div className={`flex flex-wrap gap-3 text-xs ${isImageHero ? "text-foreground/80" : "text-muted-foreground"}`}>
         {trustItems.map((item) => (
-          <span key={item} className="rounded-full border border-border/70 px-3 py-1">
+          <span
+            key={item}
+            className={`rounded-full px-3 py-1 ${isImageHero ? "border border-white/55 bg-white/36" : "border border-border/70"}`}
+          >
             {item}
           </span>
         ))}
