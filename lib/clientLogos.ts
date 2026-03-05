@@ -4,28 +4,28 @@
 
 export const clientLogos = [
   {
-    "src": "/media/logos/clients/brdr.price.tivoli.logo.svg",
-    "alt": "Brdr Price Tivoli logo"
-  },
-  {
     "src": "/media/logos/clients/fairway.logo.svg",
     "alt": "Fairway logo"
   },
   {
-    "src": "/media/logos/clients/rigshospitalets.patienthotel.logo.svg",
-    "alt": "Rigshospitalets Patienthotel logo"
+    "src": "/media/logos/clients/logo.brdr.price.svg",
+    "alt": "Logo Brdr Price logo"
   },
   {
-    "src": "/media/logos/clients/sengeloesekro.logo.svg",
-    "alt": "Sengeloesekro logo"
+    "src": "/media/logos/clients/logo.rigshospitalet.png",
+    "alt": "Logo Rigshospitalet logo"
   },
   {
-    "src": "/media/logos/clients/skatteministeriet.logo.svg",
-    "alt": "Skatteministeriet logo"
+    "src": "/media/logos/clients/logo.sengeloesekro.svg",
+    "alt": "Logo Sengeloesekro logo"
   },
   {
-    "src": "/media/logos/clients/vibenshuset.logo.svg",
-    "alt": "Vibenshuset logo"
+    "src": "/media/logos/clients/logo.skatteministeriet.svg",
+    "alt": "Logo Skatteministeriet logo"
+  },
+  {
+    "src": "/media/logos/clients/logo.vibenshuset.svg",
+    "alt": "Logo Vibenshuset logo"
   }
 ] as const;
 

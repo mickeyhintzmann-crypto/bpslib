@@ -17,7 +17,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-001:vibenshuset",
     "clientId": "case-001:vibenshuset",
     "clientName": "Vibenshuset",
-    "clientLogoSrc": "/media/logos/clients/vibenshuset.logo.svg",
+    "clientLogoSrc": "/media/logos/clients/logo.vibenshuset.svg",
     "title": "Opgave for Vibenshuset",
     "coverSrc": "/media/cases/enterprise/case-001%3Avibenshuset/vibenhus%3Acase-001%3A12-after.JPG",
     "imageSrcs": [
@@ -51,7 +51,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-002:brdr.price.tivoli",
     "clientId": "case-002:brdr.price.tivoli",
     "clientName": "Brdr Price Tivoli",
-    "clientLogoSrc": "/media/logos/clients/brdr.price.tivoli.logo.svg",
+    "clientLogoSrc": "/media/logos/clients/logo.brdr.price.svg",
     "title": "Opgave for Brdr Price Tivoli",
     "coverSrc": "/media/cases/enterprise/case-002%3Abrdr.price.tivoli/brdr.price%3Acase-002%3A02-after.jpg",
     "imageSrcs": [
@@ -87,7 +87,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-004:sengeloese-kro",
     "clientId": "case-004:sengeloese-kro",
     "clientName": "Sengeloese Kro",
-    "clientLogoSrc": "/media/logos/clients/sengeloesekro.logo.svg",
+    "clientLogoSrc": "/media/logos/clients/logo.sengeloesekro.svg",
     "title": "Opgave for Sengeloese Kro",
     "coverSrc": "/media/cases/enterprise/case-004%3Asengeloese-kro/sengeloese-kro%3Acase-003%3A01-after.jpg",
     "imageSrcs": [
@@ -101,7 +101,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-005:skatteministeriet",
     "clientId": "case-005:skatteministeriet",
     "clientName": "Skatteministeriet",
-    "clientLogoSrc": "/media/logos/clients/skatteministeriet.logo.svg",
+    "clientLogoSrc": "/media/logos/clients/logo.skatteministeriet.svg",
     "title": "Opgave for Skatteministeriet",
     "coverSrc": "/media/cases/enterprise/case-005%3Askatteministeriet/skatteministeriet%3Acase-005%3A07-afte.jpg",
     "imageSrcs": [
@@ -143,7 +143,7 @@ export const enterpriseCases: EnterpriseCase[] = [
     "id": "case-006:rigshospitalets.patienthotel",
     "clientId": "case-006:rigshospitalets.patienthotel",
     "clientName": "Rigshospitalets Patienthotel",
-    "clientLogoSrc": "/media/logos/clients/rigshospitalets.patienthotel.logo.svg",
+    "clientLogoSrc": "/media/logos/clients/logo.rigshospitalet.png",
     "title": "Opgave for Rigshospitalets Patienthotel",
     "coverSrc": "/media/cases/enterprise/case-006%3Arigshospitalets.patienthotel/rigshospitalets-patienthotel%3Acase-006%3A02-after..jpg",
     "imageSrcs": [

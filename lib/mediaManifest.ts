@@ -88,11 +88,6 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
     "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg"
   },
   {
-    "caseId": "case-001_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg"
-  },
-  {
     "caseId": "case-002_koekken__valnoed_natur_olie",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_before.jpeg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-002_koekken__valnoed_natur_olie/case-002_koekken_after.jpeg"
@@ -133,11 +128,6 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
     "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken_valnoed_natur_olie/after..jpg"
   },
   {
-    "caseId": "case-006_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg"
-  },
-  {
     "caseId": "case-007_valnoed_natur_olie",
     "beforeSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/before.1.jpeg",
     "afterSrc": "/media/cases:bordplade/case-007_valnoed_natur_olie/after.1.jpeg"
@@ -148,19 +138,9 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
     "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken_ask_hvid_olie/after..jpg"
   },
   {
-    "caseId": "case-008_koekken",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg"
-  },
-  {
     "caseId": "case-009_spisebord_teak_natur_olie",
     "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
     "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg"
-  },
-  {
-    "caseId": "case-009_spisebord",
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg"
   },
   {
     "caseId": "case-010_koekken_valnoed_natur_olie",
@@ -175,49 +155,29 @@ export const beforeAfterBordplade: BeforeAfterItem[] = [
 ];
 
 export const galleryGulv: string[] = [
-  "/media/featured:gulv/1.JPG",
   "/media/featured:gulv/2.JPG",
   "/media/featured:gulv/3.JPG",
   "/media/featured:gulv/4.jpg",
-  "/media/featured:gulv/20211108_135502.jpg",
-  "/media/featured:gulv/20221009_103907.jpg",
-  "/media/featured:gulv/20221209_112140.jpg",
-  "/media/featured:gulv/20221212_111740.jpg",
   "/media/featured:gulv/20221212_111817.jpg",
   "/media/featured:gulv/20221212_111845.jpg",
-  "/media/featured:gulv/20230111_080639.jpg",
-  "/media/featured:gulv/20230202_135624.jpg",
   "/media/featured:gulv/20230219_193820.jpg",
   "/media/featured:gulv/20230311_122438.jpg",
-  "/media/featured:gulv/20230311_122449.jpg",
-  "/media/featured:gulv/20230311_164716.jpg",
-  "/media/featured:gulv/1000000516.JPG",
-  "/media/featured:gulv/A335EF2A-B264-434E-B6C3-6ACF21663A1F.JPG",
-  "/media/featured:gulv/CF20992B-1620-4828-8F41-FF424E698B48.JPG",
-  "/media/featured:gulv/FB_IMG_1668166013640.jpg",
-  "/media/featured:gulv/FB_IMG_1668166018025.jpg",
   "/media/featured:gulv/FB_IMG_1668201336587.jpg",
-  "/media/featured:gulv/received_583538716870503.jpeg",
-  "/media/featured:gulv/received_917537392566684.jpeg"
+  "/media/featured:gulv/feature.1.jpg",
+  "/media/featured:gulv/feature.2.jpeg",
+  "/media/featured:gulv/feature3.JPG",
+  "/media/featured:gulv/header.jpg",
+  "/media/featured:gulv/received_583538716870503.jpeg"
 ];
 
 export const galleryBordplade: string[] = [
   "/media/featured:bordplade/20210302_093123.jpg",
   "/media/featured:bordplade/20210302_160950.jpg",
   "/media/featured:bordplade/20210308_105216.jpg",
-  "/media/featured:bordplade/20210311_085121.jpg",
   "/media/featured:bordplade/20210320_105853.jpg",
-  "/media/featured:bordplade/1000000212.JPG",
   "/media/featured:bordplade/1000000214.JPG",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-1-v2.JPG",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-1-v3.jpg",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-1.JPG",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-2-v2.JPG",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-2-v3.jpg",
-  "/media/featured:bordplade/case-001-egetrae-natur-olie-2.JPG",
   "/media/featured:bordplade/IMG_3383 3.jpeg",
   "/media/featured:bordplade/IMG_3602.jpeg",
-  "/media/featured:bordplade/IMG_3607.jpeg",
   "/media/featured:bordplade/IMG_3737 3.jpeg"
 ];
 
@@ -269,20 +229,6 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
       "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg"
-    ]
-  },
-  {
-    "id": "bordplade:case-001_koekken",
-    "caseId": "case-001_koekken",
-    "category": "bordplade",
-    "title": "Køkken",
-    "location": null,
-    "frontSrc": null,
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
-    "gallery": [
-      "/media/galleries:bordplade:before-after/case-001_koekken/after.jpg",
-      "/media/galleries:bordplade:before-after/case-001_koekken/before.jpg"
     ]
   },
   {
@@ -420,20 +366,6 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
-    "id": "bordplade:case-006_koekken",
-    "caseId": "case-006_koekken",
-    "category": "bordplade",
-    "title": "Køkken",
-    "location": null,
-    "frontSrc": null,
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
-    "gallery": [
-      "/media/galleries:bordplade:before-after/case-006_koekken/after.jpg",
-      "/media/galleries:bordplade:before-after/case-006_koekken/before.jpg"
-    ]
-  },
-  {
     "id": "bordplade:case-007_valnoed_natur_olie",
     "caseId": "case-007_valnoed_natur_olie",
     "category": "bordplade",
@@ -469,20 +401,6 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
-    "id": "bordplade:case-008_koekken",
-    "caseId": "case-008_koekken",
-    "category": "bordplade",
-    "title": "Køkken",
-    "location": null,
-    "frontSrc": null,
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
-    "gallery": [
-      "/media/galleries:bordplade:before-after/case-008_koekken/after.jpg",
-      "/media/galleries:bordplade:before-after/case-008_koekken/before.jpg"
-    ]
-  },
-  {
     "id": "bordplade:case-009_spisebord_teak_natur_olie",
     "caseId": "case-009_spisebord_teak_natur_olie",
     "category": "bordplade",
@@ -494,20 +412,6 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
       "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg"
-    ]
-  },
-  {
-    "id": "bordplade:case-009_spisebord",
-    "caseId": "case-009_spisebord",
-    "category": "bordplade",
-    "title": "Spisebord",
-    "location": null,
-    "frontSrc": null,
-    "beforeSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg",
-    "afterSrc": "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
-    "gallery": [
-      "/media/galleries:bordplade:before-after/case-009_spisebord/after.jpg",
-      "/media/galleries:bordplade:before-after/case-009_spisebord/before.jpg"
     ]
   },
   {
@@ -857,12 +761,17 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Sildeben",
     "location": null,
-    "frontSrc": null,
-    "beforeSrc": "/media/cases:gulvbelaegning/case-004_sildeben/before.JPG",
-    "afterSrc": "/media/cases:gulvbelaegning/case-004_sildeben/after.jpg",
+    "frontSrc": "/media/cases:gulvbelaegning/case-004_sildeben/after1.front.JPG",
+    "beforeSrc": "/media/cases:gulvbelaegning/case-004_sildeben/before.1.JPG",
+    "afterSrc": "/media/cases:gulvbelaegning/case-004_sildeben/after.3.jpg",
     "gallery": [
-      "/media/cases:gulvbelaegning/case-004_sildeben/after.jpg",
-      "/media/cases:gulvbelaegning/case-004_sildeben/before.JPG"
+      "/media/cases:gulvbelaegning/case-004_sildeben/after.3.jpg",
+      "/media/cases:gulvbelaegning/case-004_sildeben/after.4.jpg",
+      "/media/cases:gulvbelaegning/case-004_sildeben/after.5.jpg",
+      "/media/cases:gulvbelaegning/case-004_sildeben/after1.front.JPG",
+      "/media/cases:gulvbelaegning/case-004_sildeben/after2.jpg",
+      "/media/cases:gulvbelaegning/case-004_sildeben/before.1.JPG",
+      "/media/cases:gulvbelaegning/case-004_sildeben/process.jpg"
     ]
   },
   {
@@ -871,11 +780,19 @@ export const casesManifest: CasesManifestItem[] = [
     "category": "gulvbelaegning",
     "title": "Epoxy",
     "location": null,
-    "frontSrc": null,
+    "frontSrc": "/media/cases:gulvbelaegning/case-005_epoxy/after.2.front.JPG",
     "beforeSrc": null,
-    "afterSrc": null,
+    "afterSrc": "/media/cases:gulvbelaegning/case-005_epoxy/after.1.JPG",
     "gallery": [
-      "/media/cases:gulvbelaegning/case-005_epoxy/case-005_epoxy_01.JPG"
+      "/media/cases:gulvbelaegning/case-005_epoxy/after.1.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/after.2.front.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/after.3.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.1_Spartlet.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.2_Spartlet.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.3_Sandet.jpg",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.4.detail_Sandet.JPG",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.5_sandet.jpg",
+      "/media/cases:gulvbelaegning/case-005_epoxy/process.6_Maling.jpg"
     ]
   },
   {
