@@ -73,7 +73,7 @@ export const guides: GuideItem[] = [
     title: "Gulvslibning vs gulvafhøvling",
     excerpt: "Hvornår er slibning nok, og hvornår kræver gulvet afhøvling?",
     readTimeMin: 6,
-    image: "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg",
+    image: "/media/featured:gulv/feature.1.jpg",
     imageAlt: "Trægulv under renovering"
   },
   {
@@ -82,7 +82,7 @@ export const guides: GuideItem[] = [
     title: "Lak, olie eller sæbe til gulv?",
     excerpt: "Forskelle i udtryk, vedligehold og holdbarhed.",
     readTimeMin: 5,
-    image: "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg",
+    image: "/media/featured:gulv/feature.2.jpeg",
     imageAlt: "Gulvfinish i forskelligt lys"
   },
   {
@@ -91,7 +91,7 @@ export const guides: GuideItem[] = [
     title: "Ridser i gulv: løsninger",
     excerpt: "Hvad der kan slibes væk, og hvornår man bør renovere hele gulvet.",
     readTimeMin: 4,
-    image: "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG",
+    image: "/media/featured:gulv/20230311_122438.jpg",
     imageAlt: "Ridser i trægulv"
   },
   {

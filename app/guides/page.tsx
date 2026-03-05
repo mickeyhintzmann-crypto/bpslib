@@ -13,8 +13,8 @@ export const metadata = buildMetadata({
 
 const guideSectionImages = {
   bordplade: "/media/featured:bordplade/20210308_105216.jpg",
-  gulv: "/media/featured:bordplade/20210320_105853.jpg",
-  gulvlaegning: "/media/featured:bordplade/20210302_160950.jpg",
+  gulv: "/media/featured:gulv/header.jpg",
+  gulvlaegning: "/media/featured:gulvbelaegning/1000000509.JPG",
   microcement: "/media/featured:bordplade/IMG_3602.jpeg"
 } as const;
 
@@ -148,7 +148,7 @@ export default function GuidesPage() {
           <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/20">
             <img
               src={guideSectionImages.gulv}
-              alt="Bordplade i køkken med tydelig træstruktur"
+              alt="Nyslebet trægulv med ensartet finish"
               className="h-full min-h-[200px] w-full object-cover"
               loading="lazy"
             />
@@ -176,7 +176,7 @@ export default function GuidesPage() {
           <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/20">
             <img
               src={guideSectionImages.gulvlaegning}
-              alt="Massiv bordplade med varm trætone"
+              alt="Gulvbelægning med tydelig træstruktur"
               className="h-full min-h-[200px] w-full object-cover"
               loading="lazy"
             />
