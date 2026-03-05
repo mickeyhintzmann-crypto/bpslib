@@ -65,7 +65,7 @@ export const metadata = buildMetadata({
 export default function GulvKoebenhavnOmegnPage() {
   return (
     <CityServicePage category="gulv">
-      <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
+      <CityImageHero backgroundImage="/media/featured%3Agulv/2.JPG">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning i København & omegn
         </h1>
