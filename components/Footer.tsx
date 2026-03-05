@@ -45,9 +45,9 @@ export const Footer = () => {
             <BpsImage
               src="/media/logo.bpslib/bpslib.logo.png"
               alt={`${siteConfig.companyName} logo`}
-              width={170}
-              height={50}
-              className="h-10 w-auto"
+              width={260}
+              height={92}
+              className="h-14 w-auto max-w-[260px] object-contain brightness-0 invert md:h-16"
             />
             <p className="mt-3 max-w-xl text-sm text-stone-300">
               Bordplade i massiv træ, gulv og øvrige fag med tydelig plan, hurtig dialog og solid udførelse.
