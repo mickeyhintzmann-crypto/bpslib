@@ -35,14 +35,29 @@ export const beforeAfterGulv: BeforeAfterItem[] = [
     "afterSrc": "/media/galleries:gulv:before-after/case-002_dark_wood/after.01.jpg"
   },
   {
+    "caseId": "case-002_Plankegulv_hvid_lud",
+    "beforeSrc": "/media/cases:gulv/case-002_Plankegulv_hvid_lud/before.1.jpg",
+    "afterSrc": "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.1.jpg"
+  },
+  {
     "caseId": "case-003_fyrtrae",
     "beforeSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg"
   },
   {
+    "caseId": "case-003_Plankegulv_Hvid_lud",
+    "beforeSrc": "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/before.1.jpg",
+    "afterSrc": "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/after:front.jpg"
+  },
+  {
     "caseId": "case-004_fernis",
     "beforeSrc": "/media/galleries:gulv:before-after/case-004_fernis/before.01.jpg",
     "afterSrc": "/media/galleries:gulv:before-after/case-004_fernis/after.01.jpg"
+  },
+  {
+    "caseId": "case-004_Sildeben_natur_olie",
+    "beforeSrc": "/media/cases:gulv/case-004_Sildeben_natur_olie/before.1.JPG",
+    "afterSrc": "/media/cases:gulv/case-004_Sildeben_natur_olie/after.1.jpg"
   },
   {
     "caseId": "case-005_fernis_stairs",
@@ -524,6 +539,27 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "gulvafslibning:case-001_Boldens_Gaard_hvid_saebe",
+    "caseId": "case-001_Boldens_Gaard_hvid_saebe",
+    "category": "gulvafslibning",
+    "title": "Boldens Gård Hvid Sæbe",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/7.front.jpg",
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/1.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/2.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/3.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/4.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/5.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/6.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/7.front.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/8.jpg",
+      "/media/cases:gulv/case-001_Boldens_Gaard_hvid_saebe/9.jpg"
+    ]
+  },
+  {
     "id": "gulvafslibning:case-001_stairs",
     "caseId": "case-001_stairs",
     "category": "gulvafslibning",
@@ -552,6 +588,27 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "gulvafslibning:case-002_Plankegulv_hvid_lud",
+    "caseId": "case-002_Plankegulv_hvid_lud",
+    "category": "gulvafslibning",
+    "title": "Plankegulv Hvid Lud",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-002_Plankegulv_hvid_lud/front.jpg",
+    "beforeSrc": "/media/cases:gulv/case-002_Plankegulv_hvid_lud/before.1.jpg",
+    "afterSrc": "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.1.jpg",
+    "gallery": [
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.1.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.2.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.4.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/after.5.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/before.1.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/before.2.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/detail.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/front.jpg",
+      "/media/cases:gulv/case-002_Plankegulv_hvid_lud/progress.jpg"
+    ]
+  },
+  {
     "id": "gulvafslibning:case-003_fyrtrae",
     "caseId": "case-003_fyrtrae",
     "category": "gulvafslibning",
@@ -563,6 +620,23 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:gulv:before-after/case-003_fyrtrae/after.01.jpg",
       "/media/galleries:gulv:before-after/case-003_fyrtrae/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-003_Plankegulv_Hvid_lud",
+    "caseId": "case-003_Plankegulv_Hvid_lud",
+    "category": "gulvafslibning",
+    "title": "Plankegulv Hvid Lud",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/after:front.jpg",
+    "beforeSrc": "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/before.1.jpg",
+    "afterSrc": "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/after:front.jpg",
+    "gallery": [
+      "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/after:front.jpg",
+      "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/before.1.jpg",
+      "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/before.2.jpg",
+      "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/detail.jpg",
+      "/media/cases:gulv/case-003_Plankegulv_Hvid_lud/progress.jpg"
     ]
   },
   {
@@ -580,6 +654,27 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "gulvafslibning:case-004_Sildeben_natur_olie",
+    "caseId": "case-004_Sildeben_natur_olie",
+    "category": "gulvafslibning",
+    "title": "Sildeben Natur Olie",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-004_Sildeben_natur_olie/progress:front.jpg",
+    "beforeSrc": "/media/cases:gulv/case-004_Sildeben_natur_olie/before.1.JPG",
+    "afterSrc": "/media/cases:gulv/case-004_Sildeben_natur_olie/after.1.jpg",
+    "gallery": [
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/after.1.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/after.2.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/after.3.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/after.4.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/before.1.JPG",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/before.2.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/before.4.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/before3.jpg",
+      "/media/cases:gulv/case-004_Sildeben_natur_olie/progress:front.jpg"
+    ]
+  },
+  {
     "id": "gulvafslibning:case-005_fernis_stairs",
     "caseId": "case-005_fernis_stairs",
     "category": "gulvafslibning",
@@ -591,6 +686,25 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:gulv:before-after/case-005_fernis_stairs/after.01.jpg",
       "/media/galleries:gulv:before-after/case-005_fernis_stairs/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-005_Parketgulv_natur_lak",
+    "caseId": "case-005_Parketgulv_natur_lak",
+    "category": "gulvafslibning",
+    "title": "Parketgulv Natur Lak",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-005_Parketgulv_natur_lak/front.jpg",
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/1.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/2.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/3.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/4.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/5.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/detail.jpg",
+      "/media/cases:gulv/case-005_Parketgulv_natur_lak/front.jpg"
     ]
   },
   {
@@ -608,6 +722,23 @@ export const casesManifest: CasesManifestItem[] = [
     ]
   },
   {
+    "id": "gulvafslibning:case-006_Plankegulv_natur_lak",
+    "caseId": "case-006_Plankegulv_natur_lak",
+    "category": "gulvafslibning",
+    "title": "Plankegulv Natur Lak",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-006_Plankegulv_natur_lak/front.jpg",
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-006_Plankegulv_natur_lak/1.jpg",
+      "/media/cases:gulv/case-006_Plankegulv_natur_lak/2.jpg",
+      "/media/cases:gulv/case-006_Plankegulv_natur_lak/3.jpg",
+      "/media/cases:gulv/case-006_Plankegulv_natur_lak/detail.jpg",
+      "/media/cases:gulv/case-006_Plankegulv_natur_lak/front.jpg"
+    ]
+  },
+  {
     "id": "gulvafslibning:case-007_fyrtrae",
     "caseId": "case-007_fyrtrae",
     "category": "gulvafslibning",
@@ -619,6 +750,58 @@ export const casesManifest: CasesManifestItem[] = [
     "gallery": [
       "/media/galleries:gulv:before-after/case-007_fyrtrae/after.01.jpg",
       "/media/galleries:gulv:before-after/case-007_fyrtrae/before.01.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-007_Sildeben_Dark_coco_olie",
+    "caseId": "case-007_Sildeben_Dark_coco_olie",
+    "category": "gulvafslibning",
+    "title": "Sildeben Dark Coco Olie",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/front.1.jpg",
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/2.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/3.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/4.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/5.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/6.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/7.detail.jpg",
+      "/media/cases:gulv/case-007_Sildeben_Dark_coco_olie/front.1.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-008_Plankegulv_natur_lak",
+    "caseId": "case-008_Plankegulv_natur_lak",
+    "category": "gulvafslibning",
+    "title": "Plankegulv Natur Lak",
+    "location": null,
+    "frontSrc": "/media/cases:gulv/case-008_Plankegulv_natur_lak/4.front.jpg",
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/1.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/2.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/3.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/4.front.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/5.detail.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/6.jpg",
+      "/media/cases:gulv/case-008_Plankegulv_natur_lak/7.jpg"
+    ]
+  },
+  {
+    "id": "gulvafslibning:case-009_Sildeben_natur_olie",
+    "caseId": "case-009_Sildeben_natur_olie",
+    "category": "gulvafslibning",
+    "title": "Sildeben Natur Olie",
+    "location": null,
+    "frontSrc": null,
+    "beforeSrc": null,
+    "afterSrc": null,
+    "gallery": [
+      "/media/cases:gulv/case-009_Sildeben_natur_olie/20230404_173732.jpg",
+      "/media/cases:gulv/case-009_Sildeben_natur_olie/20230404_175409.jpg"
     ]
   },
   {
