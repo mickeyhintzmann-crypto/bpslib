@@ -178,21 +178,6 @@ export default function EmployeeLoginPage() {
         </Button>
       </div>
 
-      <section className="space-y-3 rounded-2xl border border-border/70 bg-white/70 p-6">
-        <h2 className="text-base font-semibold text-foreground">Guide: Forbind Dinero</h2>
-        <p className="text-sm text-muted-foreground">
-          Brug denne korte guide første gang, eller hvis Organization-id/API-nøgle skal opdateres.
-        </p>
-        <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground">
-          <li>Log ind og gå til boksen <strong>Dinero fakturering</strong> på kalender-siden.</li>
-          <li>Find dit <strong>Organization-id</strong> og en gyldig <strong>Dinero API-nøgle</strong> i Dinero.</li>
-          <li>Indsæt begge felter og klik <strong>Forbind Dinero</strong>.</li>
-          <li>Når status viser <strong>Forbundet</strong>, er opsætningen færdig.</li>
-        </ol>
-        <p className="text-xs text-muted-foreground">
-          Sikkerhed: Del ikke API-nøglen i mail/chat. Ved tvivl, opret en ny nøgle i Dinero og opdater forbindelsen.
-        </p>
-      </section>
     </main>
   );
 }

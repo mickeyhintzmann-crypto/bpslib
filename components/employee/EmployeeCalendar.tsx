@@ -848,6 +848,18 @@ export const EmployeeCalendar = () => {
           </Button>
         </div>
 
+        <div className="mt-4 rounded-xl border border-border/70 bg-muted/30 p-3">
+          <h3 className="text-sm font-semibold text-foreground">Guide: Forbind Dinero</h3>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-foreground">
+            <li>Find dit <strong>Organization-id</strong> og en gyldig <strong>Dinero API-nøgle</strong> i Dinero.</li>
+            <li>Indsæt begge felter ovenfor og klik <strong>Forbind Dinero</strong>.</li>
+            <li>Når status viser <strong>Forbundet</strong>, er opsætningen færdig.</li>
+          </ol>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Sikkerhed: Del ikke API-nøglen i mail/chat. Ved tvivl, opret en ny nøgle i Dinero og opdater forbindelsen.
+          </p>
+        </div>
+
         {dineroError ? <p className="mt-2 text-xs font-medium text-red-700">{dineroError}</p> : null}
         {dineroMessage ? <p className="mt-2 text-xs font-medium text-emerald-700">{dineroMessage}</p> : null}
       </section>
