@@ -95,7 +95,7 @@ export default function GulvKoebenhavnOmegnPage() {
 
       <section className="city-grid-cards grid gap-6 md:grid-cols-2">
         <article className="city-surface city-surface--panel rounded-[28px] p-6">
-          <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
+          <h2 className="city-gulv-services-heading text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Gulvslibning og opfriskning</li>
             <li>Afhøvling ved dybe skader</li>
@@ -114,7 +114,7 @@ export default function GulvKoebenhavnOmegnPage() {
       </section>
 
       <section className="mt-8 city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris</h2>
+        <h2 className="city-gulv-price-heading text-2xl font-semibold text-foreground">Pris</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
           Prisen afhænger af gulvtype, areal og behandling. Se vores{" "}
           <Link href="/gulvafslibning/pris" className="font-medium text-foreground hover:text-primary">

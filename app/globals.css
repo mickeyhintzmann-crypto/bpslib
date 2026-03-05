@@ -217,6 +217,124 @@ a {
     box-shadow: 0 12px 26px hsl(20 30% 20% / 0.16);
   }
 
+  .city-gulv-example-heading,
+  .city-gulv-services-heading,
+  .city-gulv-price-heading {
+    position: relative;
+    padding-left: 0.95rem;
+  }
+
+  .city-gulv-example-heading::before,
+  .city-gulv-services-heading::before,
+  .city-gulv-price-heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    bottom: 0.2em;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(18 92% 52%));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-gulv-example-heading) {
+    background:
+      radial-gradient(120% 120% at 100% 0%, hsl(var(--secondary) / 0.44) 0%, transparent 54%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(34 46% 98% / 0.89));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-gulv-example-heading) ul {
+    display: grid;
+    gap: 0.72rem;
+    margin-top: 1.1rem;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-gulv-example-heading) ul li + li {
+    margin-top: 0 !important;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-gulv-example-heading) ul li {
+    padding: 0.72rem 0.86rem;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(0 0% 100% / 0.85);
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-gulv-example-heading) ul li > span {
+    margin-right: 0.28rem;
+    color: hsl(var(--foreground));
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) {
+    background:
+      radial-gradient(130% 120% at 0% 0%, hsl(154 56% 78% / 0.2) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(35 46% 98% / 0.88));
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) ul li + li {
+    margin-top: 0 !important;
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) ul li {
+    position: relative;
+    padding: 0.68rem 0.82rem 0.68rem 2rem;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(0 0% 100% / 0.88);
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) ul li::before {
+    content: "";
+    position: absolute;
+    left: 0.76rem;
+    top: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: hsl(var(--primary) / 0.82);
+    transform: translateY(-50%);
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-price-heading) {
+    background:
+      radial-gradient(130% 120% at 100% 0%, hsl(var(--secondary) / 0.35) 0%, transparent 58%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(34 48% 98% / 0.88));
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-price-heading) p {
+    margin-top: 0.95rem;
+    padding: 0.92rem 0.96rem;
+    border-radius: 15px;
+    border: 1px solid hsl(var(--border) / 0.74);
+    background: hsl(0 0% 100% / 0.84);
+  }
+
+  .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-price-heading) p a {
+    display: inline-flex;
+    align-items: center;
+    margin: 0.08rem 0.08rem;
+    padding: 0.1rem 0.52rem;
+    border: 1px solid hsl(var(--border) / 0.72);
+    border-radius: 999px;
+    background: hsl(var(--secondary) / 0.5);
+    font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+
+  @media (max-width: 900px) {
+    .city-service-page .city-grid-cards > :where(article):has(> .city-gulv-services-heading) ul {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .city-service-page section.py-10 {
     border: 1px solid hsl(var(--border) / 0.72);
     border-radius: 26px;
