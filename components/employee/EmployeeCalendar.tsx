@@ -217,6 +217,22 @@ const inferDefaultPriceExVat = (job: JobItem | null) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const compactText = (value: string | null | undefined) => (value || "").replace(/\s+/g, " ").trim();
+
+const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
+
+const buildDefaultInvoiceDescription = (job: JobItem) => {
+  const details = compactText(job.notes) || compactText(job.lead?.message);
+  const parts = [job.title];
+  if (job.service) {
+    parts.push(`Service: ${job.service}`);
+  }
+  if (details) {
+    parts.push(`Opgave: ${truncate(details, 280)}`);
+  }
+  return parts.join(" · ");
+};
+
 export const EmployeeCalendar = () => {
   const router = useRouter();
 
@@ -618,7 +634,7 @@ export const EmployeeCalendar = () => {
     setInvoiceCustomerEmail(selectedJob.lead?.email || "");
     setInvoiceCustomerPhone(selectedJob.lead?.phone || "");
     setInvoiceCustomerAddress(selectedJob.address || selectedJob.location || selectedJob.lead?.location || "");
-    setInvoiceDescription(`${selectedJob.title}${selectedJob.service ? ` (${selectedJob.service})` : ""}`);
+    setInvoiceDescription(buildDefaultInvoiceDescription(selectedJob));
     setInvoiceAmountExVat(defaultAmount > 0 ? String(defaultAmount) : "");
     setInvoiceVatPercent("25");
     setCompleteError("");
@@ -890,9 +906,13 @@ export const EmployeeCalendar = () => {
                         type="button"
                         onClick={() => {
                           if (occupancy.kind === "job") {
+                            if (!occupancy.job.id.startsWith("booking:")) {
+                              router.push(`/medarbejder/opgaver/${encodeURIComponent(occupancy.job.id)}`);
+                              return;
+                            }
                             setSelectedJobId(occupancy.job.id);
                             setAbsenceError("");
-                            setAbsenceMessage(`Åbnede opgave i slot ${slot.label}.`);
+                            setAbsenceMessage(`Åbnede booking i slot ${slot.label}.`);
                             return;
                           }
                           if (occupancy.kind === "closed") {
@@ -942,7 +962,13 @@ export const EmployeeCalendar = () => {
                           <button
                             key={`job-${event.id}-${event.startAt}`}
                             type="button"
-                            onClick={() => setSelectedJobId(event.id)}
+                            onClick={() => {
+                              if (!event.id.startsWith("booking:")) {
+                                router.push(`/medarbejder/opgaver/${encodeURIComponent(event.id)}`);
+                                return;
+                              }
+                              setSelectedJobId(event.id);
+                            }}
                             className={`w-full rounded-lg border px-2 py-2 text-left ${
                               event.selected ? "border-primary bg-primary/5" : "border-border"
                             }`}

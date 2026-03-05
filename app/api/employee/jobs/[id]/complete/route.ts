@@ -25,6 +25,7 @@ type JobRow = {
     email: string | null;
     phone: string | null;
     location: string | null;
+    message: string | null;
   } | null;
 };
 
@@ -57,6 +58,25 @@ const asNumber = (value: unknown) => {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+};
+
+const compactText = (value: string | null | undefined) => (value || "").replace(/\s+/g, " ").trim();
+
+const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
+
+const buildDefaultInvoiceDescription = (job: JobRow) => {
+  const notes = compactText(job.notes);
+  const leadMessage = compactText(job.lead?.message || "");
+  const detail = notes || leadMessage;
+
+  const parts = [job.title];
+  if (job.service) {
+    parts.push(`Service: ${job.service}`);
+  }
+  if (detail) {
+    parts.push(`Opgave: ${truncate(detail, 280)}`);
+  }
+  return parts.join(" · ");
 };
 
 const resolveId = async (context: RouteContext) => {
@@ -105,7 +125,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { data: jobData, error: jobError } = await supabase
       .from("jobs")
       .select(
-        "id, title, service, status, lead_id, notes, assigned_employee_id, lead:lead_id(id,name,email,phone,location)"
+        "id, title, service, status, lead_id, notes, assigned_employee_id, lead:lead_id(id,name,email,phone,location,message)"
       )
       .eq("id", id)
       .eq("assigned_employee_id", employee.id)
@@ -183,11 +203,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
       customerEmail,
       customerPhone,
       customerAddress,
-      description,
+      description: description || buildDefaultInvoiceDescription(job),
       amountExVat,
       vatPercent,
       currency: "DKK"
     };
+
+    const resolvedDescription = requestPayload.description;
 
     try {
       const invoiceResult = await createAndSendDineroInvoice({
@@ -202,7 +224,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         invoice: {
           customerEmail,
           jobId: job.id,
-          description: description || `${job.title} (${job.service || "service"})`,
+          description: resolvedDescription,
           amountExVat,
           vatPercent,
           currency: "DKK"
@@ -221,7 +243,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         amount_ex_vat: amountExVat,
         vat_percent: vatPercent,
         currency: "DKK",
-        description: description || `${job.title} (${job.service || "service"})`,
+        description: resolvedDescription,
         dinero_contact_id: invoiceResult.contactId,
         dinero_invoice_id: invoiceResult.invoiceId,
         dinero_invoice_number: invoiceResult.invoiceNumber,
@@ -280,7 +302,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
           amount_ex_vat: amountExVat,
           vat_percent: vatPercent,
           currency: "DKK",
-          description: description || `${job.title} (${job.service || "service"})`,
+          description: resolvedDescription,
           error_message: message,
           request_payload: requestPayload
         },

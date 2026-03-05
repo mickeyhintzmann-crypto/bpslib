@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "AI træning", href: "/admin/ai-traening", roles: ["owner", "admin"] },
   { label: "Brugere & roller", href: "/admin/medarbejdere", roles: ["owner"] },
   { label: "Cases", href: "/admin/cases", roles: ["owner", "admin"] },
+  { label: "Job-billeder", href: "/admin/job-media", roles: ["owner", "admin"] },
   { label: "Økonomi", href: "/admin/okonomi", roles: ["owner", "viewer"] },
   { label: "Audit log", href: "/admin/audit", roles: ["owner", "admin"] },
   { label: "Indstillinger", href: "/admin/indstillinger", roles: ["owner"] }
