@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BpsImage } from "@/components/BpsImage";
-import { brandAssets, trustAssets } from "@/lib/assets";
+import { trustAssets } from "@/lib/assets";
 import { footerRegistry } from "@/lib/site-registry";
 import { siteConfig } from "@/lib/site-config";
 
@@ -43,7 +43,7 @@ export const Footer = () => {
         <div className="flex flex-col gap-6 border-b border-stone-700 pb-8 md:flex-row md:items-center md:justify-between">
           <div>
             <BpsImage
-              src={brandAssets.logo}
+              src="/media/logo.bpslib/bpslib.logo.png"
               alt={`${siteConfig.companyName} logo`}
               width={170}
               height={50}
