@@ -156,7 +156,7 @@ export default function BordpladeKoebenhavnPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           Guide:{" "}
           <Link href="/bordpladeslibning/kan-det-slibes" className="font-semibold text-primary">
-            /bordpladeslibning/kan-det-slibes
+            Se guide
           </Link>
         </p>
       </section>
@@ -174,13 +174,13 @@ export default function BordpladeKoebenhavnPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           Se priseksempler:{" "}
           <Link href="/bordpladeslibning/pris" className="font-semibold text-primary">
-            /bordpladeslibning/pris
+            Se priser
           </Link>
         </p>
         <p className="text-sm text-muted-foreground">
           Få vurdering via billeder:{" "}
           <Link href="/bordpladeslibning/prisberegner" className="font-semibold text-primary">
-            /bordpladeslibning/prisberegner
+            Start prisberegner
           </Link>
         </p>
       </section>
