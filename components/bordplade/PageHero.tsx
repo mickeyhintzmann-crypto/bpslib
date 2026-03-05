@@ -9,7 +9,6 @@ type PageHeroProps = {
   trustItems?: string[];
   withImageHero?: boolean;
   heroBackgroundImage?: string;
-  showFeatureShowcase?: boolean;
 };
 
 const defaultTrust = ["15+ års erfaring", "Kun massiv træ", "Svar hurtigt"];
@@ -22,12 +21,8 @@ export const PageHero = ({
   showAkutteTider = true,
   trustItems = defaultTrust,
   withImageHero = false,
-  heroBackgroundImage = defaultBordpladeHeroImage,
-  showFeatureShowcase
+  heroBackgroundImage = defaultBordpladeHeroImage
 }: PageHeroProps) => {
-  const shouldShowFeatureShowcase =
-    showFeatureShowcase ?? eyebrow?.trim().toLowerCase() === "by-side";
-
   const content = (
     <div className="space-y-5">
       {eyebrow ? (
@@ -51,15 +46,7 @@ export const PageHero = ({
   );
 
   if (withImageHero) {
-    return (
-      <CityImageHero
-        backgroundImage={heroBackgroundImage}
-        featureCategory="bordplade"
-        showFeatureShowcase={shouldShowFeatureShowcase}
-      >
-        {content}
-      </CityImageHero>
-    );
+    return <CityImageHero backgroundImage={heroBackgroundImage}>{content}</CityImageHero>;
   }
 
   return (

@@ -8,6 +8,7 @@ import {
   buildFaqSchema,
   buildServiceSchema
 } from "@/components/seo/StructuredData";
+import { CityServicePage } from "@/components/layouts/CityServicePage";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -92,7 +93,7 @@ export const metadata = buildMetadata({
 
 export default function BordpladeKoebenhavnPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
+    <CityServicePage category="bordplade">
       <PageHero
         withImageHero
         eyebrow="By-side"
@@ -346,6 +347,6 @@ export default function BordpladeKoebenhavnPage() {
       <StructuredData data={serviceSchema} />
       <StructuredData data={buildFaqSchema(faqItems)} />
       <StructuredData data={breadcrumbSchema} />
-    </main>
+    </CityServicePage>
   );
 }

@@ -135,10 +135,18 @@ a {
 
   .city-service-page {
     padding-top: clamp(1.15rem, 2.4vw, 1.8rem);
+    background:
+      radial-gradient(120% 60% at 0% 0%, hsl(var(--secondary) / 0.22) 0%, transparent 62%),
+      radial-gradient(120% 60% at 100% 100%, hsl(var(--primary) / 0.09) 0%, transparent 64%);
+    border-radius: 30px;
   }
 
   .city-service-page > :not(:first-child) {
     margin-top: clamp(1.2rem, 2.3vw, 1.95rem);
+  }
+
+  .city-service-page > :where(section, .city-grid-cards, .city-feature-showcase, .city-feature-band, .city-feature-gallery) {
+    margin-top: 0 !important;
   }
 
   .city-service-page .city-surface--panel {
@@ -175,6 +183,11 @@ a {
 
   .city-service-page .city-grid-cards > :where(article, div) {
     border-radius: 24px;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.95), hsl(34 44% 98% / 0.82));
+    border: 1px solid hsl(var(--border) / 0.72);
+    box-shadow:
+      0 2px 2px hsl(20 30% 20% / 0.02),
+      0 16px 32px hsl(20 30% 20% / 0.08);
   }
 
   .city-feature-showcase {
@@ -189,5 +202,37 @@ a {
 
   .city-feature-showcase :where(figure) {
     box-shadow: 0 12px 28px hsl(20 30% 20% / 0.18);
+  }
+
+  .city-feature-band {
+    background:
+      radial-gradient(120% 100% at 100% 0%, hsl(var(--primary) / 0.08) 0%, transparent 54%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(35 48% 98% / 0.9));
+  }
+
+  .city-feature-gallery {
+    background:
+      radial-gradient(110% 100% at 0% 0%, hsl(var(--secondary) / 0.42) 0%, transparent 58%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(34 44% 98% / 0.89));
+  }
+
+  .city-feature-band :where(figure),
+  .city-feature-gallery :where(figure) {
+    box-shadow: 0 12px 26px hsl(20 30% 20% / 0.16);
+  }
+
+  .city-service-page section.py-10 {
+    border: 1px solid hsl(var(--border) / 0.72);
+    border-radius: 26px;
+    padding: clamp(1.2rem, 2.2vw, 1.9rem);
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.94), hsl(34 44% 98% / 0.86));
+    box-shadow:
+      0 2px 2px hsl(20 30% 20% / 0.02),
+      0 16px 32px hsl(20 30% 20% / 0.08);
+  }
+
+  .city-service-page section.py-10 .mt-6 > :where(div) {
+    border: 1px solid hsl(var(--border) / 0.75);
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.94), hsl(35 44% 98% / 0.83));
   }
 }

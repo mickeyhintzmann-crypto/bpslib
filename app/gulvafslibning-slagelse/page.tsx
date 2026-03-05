@@ -6,6 +6,7 @@ import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
 import { StructuredData, buildFaqSchema } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
+import { CityServicePage } from "@/components/layouts/CityServicePage";
 import { buildMetadata } from "@/lib/seo";
 
 const faqItems = [
@@ -65,7 +66,7 @@ export const metadata = buildMetadata({
 
 export default function GulvSlagelsePage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 pb-20 city-service-page">
+    <CityServicePage category="gulv">
       <CityImageHero backgroundImage="/media/featured%3Agulv/20230219_193820.jpg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning i Slagelse
@@ -180,6 +181,6 @@ export default function GulvSlagelsePage() {
       />
 
       <StructuredData data={buildFaqSchema(faqItems)} />
-    </main>
+    </CityServicePage>
   );
 }
