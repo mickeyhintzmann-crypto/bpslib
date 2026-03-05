@@ -29,12 +29,12 @@ const perks = [
 
 const estimatorPreviewImages = [
   {
-    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-1-v3.jpg",
-    alt: "Køkkenbordplade i massiv træ, vinkel 1"
+    src: "/media/featured:bordplade/20210302_160950.jpg",
+    alt: "Køkkenbordplade i massiv træ med naturlig finish"
   },
   {
-    src: "/media/featured%3Abordplade/case-001-egetrae-natur-olie-2-v3.jpg",
-    alt: "Køkkenbordplade i massiv træ, vinkel 2"
+    src: "/media/featured:bordplade/20210320_105853.jpg",
+    alt: "Detalje af slebet bordplade i køkkenmiljø"
   }
 ] as const;
 
