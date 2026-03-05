@@ -308,6 +308,201 @@ a {
     color: hsl(var(--foreground));
   }
 
+  .city-bordplade-material-heading,
+  .city-bordplade-price-heading,
+  .city-bordplade-plan-heading,
+  .city-bordplade-area-heading,
+  .city-bordplade-local-heading {
+    position: relative;
+    padding-left: 0.95rem;
+  }
+
+  .city-bordplade-material-heading::before,
+  .city-bordplade-price-heading::before,
+  .city-bordplade-plan-heading::before,
+  .city-bordplade-area-heading::before,
+  .city-bordplade-local-heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    bottom: 0.2em;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(18 92% 52%));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-material-heading) {
+    background:
+      radial-gradient(130% 100% at 0% 0%, hsl(var(--secondary) / 0.48) 0%, transparent 54%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(36 50% 98% / 0.89));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-material-heading) p {
+    max-width: 72ch;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-material-heading) p:last-of-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+    padding: 0.58rem 0.7rem;
+    border-radius: 12px;
+    border: 1px solid hsl(var(--border) / 0.76);
+    background: hsl(0 0% 100% / 0.86);
+    color: hsl(var(--foreground));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-material-heading) p:last-of-type a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.54rem;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(var(--secondary) / 0.56);
+    color: hsl(var(--foreground));
+    font-weight: 700;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-price-heading) {
+    background:
+      radial-gradient(120% 100% at 100% 0%, hsl(var(--primary) / 0.12) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(34 50% 98% / 0.9));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-price-heading) p:first-of-type {
+    max-width: 74ch;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-price-heading) p + p {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.34rem;
+    margin-top: 0.7rem;
+    margin-right: 0.45rem;
+    padding: 0.56rem 0.7rem;
+    border-radius: 12px;
+    border: 1px solid hsl(var(--border) / 0.76);
+    background: hsl(0 0% 100% / 0.86);
+    color: hsl(var(--foreground));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-price-heading) p + p a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.56rem;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(var(--secondary) / 0.56);
+    color: hsl(var(--foreground));
+    font-weight: 700;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) {
+    background:
+      radial-gradient(130% 120% at 0% 0%, hsl(154 48% 84% / 0.22) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(35 48% 98% / 0.9));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) p {
+    max-width: 74ch;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) ul {
+    display: grid;
+    gap: 0.72rem;
+    margin-top: 1.08rem;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) ul li + li {
+    margin-top: 0 !important;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) ul li {
+    position: relative;
+    padding: 0.74rem 0.84rem 0.74rem 2rem;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border) / 0.74);
+    background: hsl(0 0% 100% / 0.86);
+    color: hsl(var(--foreground));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-plan-heading) ul li::before {
+    content: "";
+    position: absolute;
+    left: 0.76rem;
+    top: 0.86rem;
+    width: 0.66rem;
+    height: 0.66rem;
+    border-radius: 999px;
+    background: hsl(var(--primary) / 0.82);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.14);
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-area-heading) {
+    background:
+      radial-gradient(125% 100% at 100% 0%, hsl(var(--secondary) / 0.42) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(34 50% 98% / 0.9));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-area-heading) p {
+    max-width: 70ch;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-area-heading) ul li + li {
+    margin-top: 0 !important;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-area-heading) ul li {
+    position: relative;
+    padding: 0.66rem 0.8rem 0.66rem 1.86rem;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(0 0% 100% / 0.88);
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-area-heading) ul li::before {
+    content: "";
+    position: absolute;
+    left: 0.72rem;
+    top: 0.82rem;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 2px;
+    background: hsl(var(--primary) / 0.78);
+    transform: rotate(45deg);
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-local-heading) {
+    background:
+      radial-gradient(120% 120% at 0% 0%, hsl(var(--secondary) / 0.46) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.97), hsl(34 48% 98% / 0.9));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-local-heading) p {
+    max-width: 75ch;
+    margin-top: 0.9rem;
+    padding: 0.88rem 0.95rem;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border) / 0.74);
+    background: hsl(0 0% 100% / 0.86);
+    color: hsl(var(--muted-foreground));
+  }
+
+  .city-service-page .city-surface--panel:has(> .city-bordplade-local-heading) p a {
+    margin: 0 0.1rem;
+    padding: 0.08rem 0.38rem;
+    border-radius: 8px;
+    border: 1px solid hsl(var(--border) / 0.72);
+    background: hsl(var(--secondary) / 0.56);
+    color: hsl(var(--foreground));
+    font-weight: 700;
+  }
+
   .city-gulv-example-heading,
   .city-gulv-services-heading,
   .city-gulv-price-heading {

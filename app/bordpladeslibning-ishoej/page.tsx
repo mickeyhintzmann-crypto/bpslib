@@ -158,7 +158,7 @@ export default function BordpladeIshoejPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-plan-heading text-2xl font-semibold text-foreground">
           Praktisk i en travl hverdag: sådan planlægger vi i Ishøj
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -174,7 +174,9 @@ export default function BordpladeIshoejPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris og vurdering via billeder (hurtigste vej)</h2>
+        <h2 className="city-bordplade-price-heading text-2xl font-semibold text-foreground">
+          Pris og vurdering via billeder (hurtigste vej)
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Prisen afhænger af bordpladens mål, tilstand og hvilken finish du ønsker. Den hurtigste
           vurdering får du ved at sende billeder — så kan vi typisk afklare både muligheder og næste
@@ -195,7 +197,9 @@ export default function BordpladeIshoejPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Massiv træ – sådan tjekker du det hurtigt</h2>
+        <h2 className="city-bordplade-material-heading text-2xl font-semibold text-foreground">
+          Massiv træ – sådan tjekker du det hurtigt
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi sliber kun massive træbordplader. Hvis du er i tvivl, så send et billede af kanten
           eller enden af bordpladen (endetræ). Det er ofte nok til at afklare, om slibning er
@@ -210,7 +214,9 @@ export default function BordpladeIshoejPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Områder tæt på Ishøj vi ofte kører i</h2>
+        <h2 className="city-bordplade-area-heading text-2xl font-semibold text-foreground">
+          Områder tæt på Ishøj vi ofte kører i
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Ishøj og nærliggende områder og planlægger ruter, så tiderne bliver stabile.
         </p>
@@ -225,7 +231,9 @@ export default function BordpladeIshoejPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Ishøj</h2>
+        <h2 className="city-bordplade-local-heading text-2xl font-semibold text-foreground">
+          Lokal indsigt i Ishøj
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Ishøj møder vi ofte rækkehuse og villaer med køkkenbordplader, der er slidte efter
           daglig brug. Adgang og parkering kan variere fra kvarter til kvarter, så vi planlægger

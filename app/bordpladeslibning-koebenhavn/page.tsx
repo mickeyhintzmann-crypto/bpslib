@@ -145,7 +145,9 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Materialet først: massiv træ eller finér?</h2>
+        <h2 className="city-bordplade-material-heading text-2xl font-semibold text-foreground">
+          Materialet først: massiv træ eller finér?
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Det vigtigste spørgsmål før vi planlægger slibning, er opbygningen. Massive træbordplader
           kan ofte slibes flere gange over levetiden, mens finér kan have et meget tyndt toplag. Et
@@ -160,7 +162,9 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris i København – få den mest præcist via billeder</h2>
+        <h2 className="city-bordplade-price-heading text-2xl font-semibold text-foreground">
+          Pris i København – få den mest præcist via billeder
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Prisen afhænger af mål, skader og finishvalg. I København er den hurtigste proces næsten
           altid at starte med en billedvurdering: så kan vi vurdere opbygning, arbejdsomfang og
@@ -182,7 +186,7 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-plan-heading text-2xl font-semibold text-foreground">
           Praktisk plan i København: adgang, tid og en pæn aflevering
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -199,7 +203,7 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-area-heading text-2xl font-semibold text-foreground">
           Vi dækker København og bydele med kort planlægning
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -217,7 +221,9 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i København</h2>
+        <h2 className="city-bordplade-local-heading text-2xl font-semibold text-foreground">
+          Lokal indsigt i København
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Mange af vores opgaver i København er køkkenbordplader i lejligheder, hvor adgang og
           parkering skal planlægges smart. Vi tilpasser tidspunktet, så der er ro omkring opgangen,

@@ -163,7 +163,7 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-material-heading text-2xl font-semibold text-foreground">
           Kan den slibes? Hurtig afklaring på materiale
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -181,7 +181,7 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-price-heading text-2xl font-semibold text-foreground">
           Pris og vurdering i Roskilde – mest præcist via billeder
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -205,7 +205,7 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-plan-heading text-2xl font-semibold text-foreground">
           Praktisk forløb: sådan gør vi det let for dig
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -221,7 +221,9 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Vi dækker Roskilde og nærområder</h2>
+        <h2 className="city-bordplade-area-heading text-2xl font-semibold text-foreground">
+          Vi dækker Roskilde og nærområder
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Roskilde og planlægger efter område og opgavens omfang, så tiderne bliver
           stabile.
@@ -237,7 +239,9 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Roskilde</h2>
+        <h2 className="city-bordplade-local-heading text-2xl font-semibold text-foreground">
+          Lokal indsigt i Roskilde
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Roskilde møder vi ofte huse og rækkehuse med køkkenbordplader, der er slidte efter
           daglig brug. Adgang og parkering kan variere fra kvarter til kvarter, så vi planlægger

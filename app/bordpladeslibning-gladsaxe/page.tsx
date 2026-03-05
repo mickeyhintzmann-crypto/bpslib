@@ -142,7 +142,9 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Kan den slibes? Sådan afklarer vi det hurtigt</h2>
+        <h2 className="city-bordplade-material-heading text-2xl font-semibold text-foreground">
+          Kan den slibes? Sådan afklarer vi det hurtigt
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Det første vi afklarer, er om bordpladen er massiv træ. Ved finér kan toplaget være meget
           tyndt, og så kan slibning være risikabelt, hvis skaderne sidder dybt. Et billede af kanten
@@ -158,7 +160,9 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris og vurdering – mest præcist via billeder</h2>
+        <h2 className="city-bordplade-price-heading text-2xl font-semibold text-foreground">
+          Pris og vurdering – mest præcist via billeder
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Prisen afhænger af bordpladens mål, skadernes dybde og hvilken finish du ønsker. Vi kan
           typisk give en langt mere præcis vurdering, når vi har set bordpladen i godt lys — både
@@ -179,7 +183,7 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-plan-heading text-2xl font-semibold text-foreground">
           Praktisk: sådan forbereder du området (hurtigt og nemt)
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -197,7 +201,9 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Områder omkring Gladsaxe vi ofte dækker</h2>
+        <h2 className="city-bordplade-area-heading text-2xl font-semibold text-foreground">
+          Områder omkring Gladsaxe vi ofte dækker
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Gladsaxe og nærliggende områder og planlægger ruter, så tiderne er stabile.
         </p>
@@ -212,7 +218,9 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Gladsaxe</h2>
+        <h2 className="city-bordplade-local-heading text-2xl font-semibold text-foreground">
+          Lokal indsigt i Gladsaxe
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Gladsaxe møder vi ofte rækkehuse og villaer med solide køkkenbordplader, hvor adgang og
           parkering kan variere fra kvarter til kvarter. Vi tilpasser tidsplanen, så arbejdet

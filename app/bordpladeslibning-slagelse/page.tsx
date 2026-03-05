@@ -145,7 +145,7 @@ export default function BordpladeSlagelsePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-material-heading text-2xl font-semibold text-foreground">
           Sådan vurderer vi om din bordplade kan slibes
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -163,7 +163,9 @@ export default function BordpladeSlagelsePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris og tilbud i Slagelse – hurtigst via billeder</h2>
+        <h2 className="city-bordplade-price-heading text-2xl font-semibold text-foreground">
+          Pris og tilbud i Slagelse – hurtigst via billeder
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Prisen afhænger af mål, tilstand og finish. Vi kan give et langt mere præcist svar, når
           vi har set bordpladen i godt lys. Derfor anbefaler vi at starte med billeder — så sparer
@@ -184,7 +186,9 @@ export default function BordpladeSlagelsePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Praktisk forløb: hvad du kan forvente</h2>
+        <h2 className="city-bordplade-plan-heading text-2xl font-semibold text-foreground">
+          Praktisk forløb: hvad du kan forvente
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi gør forløbet så enkelt som muligt. Du får at vide, hvad der skal være ryddet, hvordan
           vi beskytter området, og hvad du kan forvente undervejs. Ved aflevering gennemgår vi
@@ -198,7 +202,9 @@ export default function BordpladeSlagelsePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Områder omkring Slagelse vi ofte dækker</h2>
+        <h2 className="city-bordplade-area-heading text-2xl font-semibold text-foreground">
+          Områder omkring Slagelse vi ofte dækker
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Vi dækker Slagelse og nærliggende byer/områder og planlægger ruter, så tiderne er stabile.
         </p>
@@ -213,7 +219,9 @@ export default function BordpladeSlagelsePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokal indsigt i Slagelse</h2>
+        <h2 className="city-bordplade-local-heading text-2xl font-semibold text-foreground">
+          Lokal indsigt i Slagelse
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           I Slagelse møder vi ofte huse og rækkehuse med køkkenbordplader, der er slidte efter
           daglig brug. Adgang og parkering kan variere fra kvarter til kvarter, så vi planlægger
