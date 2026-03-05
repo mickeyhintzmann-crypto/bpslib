@@ -72,6 +72,7 @@ export default function BordpladeAmagerPage() {
     <CityServicePage category="bordplade">
       <PageHero
         withImageHero
+        heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_6.jpeg"
         eyebrow="Region-hub"
         title="Bordpladeslibning på Amager – kun massiv træ"
         intro="Vi hjælper på Amager med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."

@@ -71,6 +71,7 @@ export default function BordpladeHilleroedPage() {
     <CityServicePage category="bordplade">
       <PageHero
         withImageHero
+        heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_6.jpeg"
         eyebrow="By-side"
         title="Bordpladeslibning i Hillerød – kun massiv træ"
         intro="Vi hjælper i Hillerød med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
