@@ -10,7 +10,7 @@ export type GuideItem = {
   imageAlt?: string;
 };
 
-const fallbackImage = "/images/guides/guide-default.jpg";
+const fallbackImage = "/media/featured:bordplade/20210302_160950.jpg";
 
 export const guides: GuideItem[] = [
   {
@@ -19,7 +19,7 @@ export const guides: GuideItem[] = [
     title: "Hvornår skal man slibe en bordplade?",
     excerpt: "Tegnene på at overfladen trænger til en opfriskning eller fuld slibning.",
     readTimeMin: 5,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/before.jpg",
     imageAlt: "Bordplade der vurderes inden slibning"
   },
   {
@@ -28,7 +28,7 @@ export const guides: GuideItem[] = [
     title: "Hvad koster bordpladeslibning?",
     excerpt: "Overblik over de faktorer der påvirker prisen og hvad du typisk kan forvente.",
     readTimeMin: 4,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-001_koekken_egetrae_hvid_olie/after.jpg",
     imageAlt: "Prisoversigt for bordpladeslibning"
   },
   {
@@ -37,7 +37,7 @@ export const guides: GuideItem[] = [
     title: "Skjolder på bordplade: årsager og løsninger",
     excerpt: "Vand, varme og olie giver skjolder, men de fleste kan behandles.",
     readTimeMin: 6,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/before.jpg",
     imageAlt: "Skjolder på træbordplade før behandling"
   },
   {
@@ -46,7 +46,7 @@ export const guides: GuideItem[] = [
     title: "Ridser i bordpladen: hvad kan reddes?",
     excerpt: "Lette ridser kan ofte fjernes, dybere skader kræver mere arbejde.",
     readTimeMin: 5,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-009_spisebord_teak_natur_olie/after.jpg",
     imageAlt: "Ridser i bordplade inden slibning"
   },
   {
@@ -55,7 +55,7 @@ export const guides: GuideItem[] = [
     title: "Olie eller lak: vælg rigtigt",
     excerpt: "Sammenligning af look, slidstyrke og vedligehold.",
     readTimeMin: 7,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_before.jpeg",
     imageAlt: "Forskellige finish-udtryk på bordplade"
   },
   {
@@ -64,7 +64,7 @@ export const guides: GuideItem[] = [
     title: "Brændemærker/varmepletter: kan det slibes væk?",
     excerpt: "Hvordan vi vurderer dybde og redder overfladen på massiv træ.",
     readTimeMin: 5,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-004_koekken_egetrae_hvid_olie/case-004_koekken_after.jpeg",
     imageAlt: "Varmeplet på træbordplade før behandling"
   },
   {
@@ -73,7 +73,7 @@ export const guides: GuideItem[] = [
     title: "Gulvslibning vs gulvafhøvling",
     excerpt: "Hvornår er slibning nok, og hvornår kræver gulvet afhøvling?",
     readTimeMin: 6,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/before.jpeg",
     imageAlt: "Trægulv under renovering"
   },
   {
@@ -82,7 +82,7 @@ export const guides: GuideItem[] = [
     title: "Lak, olie eller sæbe til gulv?",
     excerpt: "Forskelle i udtryk, vedligehold og holdbarhed.",
     readTimeMin: 5,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-011_koekken_mahogni_natur_olie/after.jpeg",
     imageAlt: "Gulvfinish i forskelligt lys"
   },
   {
@@ -91,7 +91,7 @@ export const guides: GuideItem[] = [
     title: "Ridser i gulv: løsninger",
     excerpt: "Hvad der kan slibes væk, og hvornår man bør renovere hele gulvet.",
     readTimeMin: 4,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/before.JPG",
     imageAlt: "Ridser i trægulv"
   },
   {
@@ -100,7 +100,7 @@ export const guides: GuideItem[] = [
     title: "Kan din bordplade slibes? massiv vs finér/laminat",
     excerpt: "Sådan ser du forskel på materialer, og hvad vi kan hjælpe med.",
     readTimeMin: 6,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-010_koekken_valnoed_natur_olie/after.jpeg",
     imageAlt: "Kant på bordplade der viser materiale"
   },
   {
@@ -109,7 +109,7 @@ export const guides: GuideItem[] = [
     title: "Vælg finish: mat/naturlig vs slidstærk",
     excerpt: "Find det rigtige match til brug og forventninger.",
     readTimeMin: 5,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_before.jpeg",
     imageAlt: "Bordplade med mat finish"
   },
   {
@@ -118,7 +118,7 @@ export const guides: GuideItem[] = [
     title: "Sådan forbereder du hjemmet før vi kommer",
     excerpt: "Enkle forberedelser gør arbejdet hurtigere og mere effektivt.",
     readTimeMin: 4,
-    image: fallbackImage,
+    image: "/media/galleries:bordplade:before-after/case-003_koekken_gummitrae_hvid_olie/case-003_koekken_after.jpeg",
     imageAlt: "Køkken klar til håndværkerbesøg"
   }
 ];
