@@ -17,7 +17,10 @@ type UpdatePayload = {
   startSlot?: unknown;
   start_slot_index?: unknown;
   slot_count?: unknown;
+  city?: unknown;
   note?: unknown;
+  taskDescription?: unknown;
+  task_description?: unknown;
   internalNote?: unknown;
   extras?: unknown;
   assigned_to?: unknown;
@@ -109,7 +112,7 @@ export async function GET(request: Request, context: RouteContext) {
     const { data, error } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, estimator_request_id, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -163,7 +166,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { data: current, error: currentError } = await supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
       )
       .eq("id", params.id)
       .single();
@@ -195,6 +198,27 @@ export async function PATCH(request: Request, context: RouteContext) {
         updateData.notes = payload.note.trim();
       } else {
         return NextResponse.json({ message: "Note skal være tekst." }, { status: 400 });
+      }
+    }
+
+    if ("taskDescription" in payload || "task_description" in payload) {
+      const incoming = "taskDescription" in payload ? payload.taskDescription : payload.task_description;
+      if (incoming === null || incoming === "") {
+        updateData.task_description = null;
+      } else if (typeof incoming === "string") {
+        updateData.task_description = incoming.trim();
+      } else {
+        return NextResponse.json({ message: "Opgavebeskrivelse skal være tekst." }, { status: 400 });
+      }
+    }
+
+    if ("city" in payload) {
+      if (payload.city === null || payload.city === "") {
+        updateData.city = null;
+      } else if (typeof payload.city === "string") {
+        updateData.city = payload.city.trim();
+      } else {
+        return NextResponse.json({ message: "By skal være tekst." }, { status: 400 });
       }
     }
 
@@ -312,7 +336,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       .update(updateData)
       .eq("id", params.id)
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
       )
       .single();
 
@@ -325,6 +349,7 @@ export async function PATCH(request: Request, context: RouteContext) {
           {
             message:
               "Kolonner til admin-bookings mangler i databasen. Kør migrationerne i supabase/migrations/20260208_000007_bookings_admin_columns.sql og 20260208_000015_booking_extras.sql."
+              + " Kør også supabase/migrations/20260305_000120_booking_job_city_task_description.sql."
           },
           { status: 503 }
         );

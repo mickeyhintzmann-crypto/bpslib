@@ -7,6 +7,7 @@ import { buildJobNotificationTemplate } from "@/lib/notify/templates";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
+const JOB_CITY_TASK_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -38,9 +39,11 @@ type JobRow = {
   lead_id: string | null;
   title: string;
   service: string | null;
+  city: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  task_description: string | null;
   status: string;
   start_at: string;
   end_at: string;
@@ -82,6 +85,11 @@ const isMissingTable = (message: string | undefined, table: string) => {
   );
 };
 
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
+};
+
 const resolveId = async (context: RouteContext) => {
   const params = await context.params;
   return params?.id || "";
@@ -98,9 +106,11 @@ const toItem = (row: JobRow) => {
     leadId: row.lead_id,
     title: row.title,
     service: row.service,
+    city: row.city,
     location: row.location,
     address: row.address,
     notes: row.notes,
+    taskDescription: row.task_description,
     status: row.status,
     startAt: row.start_at,
     endAt: row.end_at,
@@ -130,7 +140,7 @@ const toItem = (row: JobRow) => {
 };
 
 const JOB_SELECT =
-  "id, created_at, updated_at, lead_id, title, service, location, address, notes, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color), lead:lead_id(id,name,email,phone,location,message,source,service)";
+  "id, created_at, updated_at, lead_id, title, service, city, location, address, notes, task_description, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color), lead:lead_id(id,name,email,phone,location,message,source,service)";
 
 const PATCH_NOTIFY_FIELDS = ["assigned_employee_id", "start_at", "end_at", "status"] as const;
 
@@ -155,6 +165,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
           {
             message: `Jobs-tabellen mangler. Kør migrationen ${JOBS_SCHEMA_MIGRATION}.`
           },
+          { status: 503 }
+        );
+      }
+      if (isMissingColumn(error?.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_CITY_TASK_MIGRATION}.` },
           { status: 503 }
         );
       }
@@ -209,6 +225,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (Object.prototype.hasOwnProperty.call(payload, "location")) {
       updates.location = asOptionalString(payload.location);
+      if (!Object.prototype.hasOwnProperty.call(payload, "city")) {
+        updates.city = asOptionalString(payload.location);
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, "city")) {
+      updates.city = asOptionalString(payload.city);
     }
 
     if (Object.prototype.hasOwnProperty.call(payload, "address")) {
@@ -217,6 +240,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (Object.prototype.hasOwnProperty.call(payload, "notes")) {
       updates.notes = asOptionalString(payload.notes);
+      if (!Object.prototype.hasOwnProperty.call(payload, "task_description")) {
+        updates.task_description = asOptionalString(payload.notes);
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, "task_description")) {
+      updates.task_description = asOptionalString(payload.task_description);
     }
 
     if (Object.prototype.hasOwnProperty.call(payload, "assigned_employee_id")) {
@@ -279,6 +309,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           {
             message: `Jobs-tabellen mangler. Kør migrationen ${JOBS_SCHEMA_MIGRATION}.`
           },
+          { status: 503 }
+        );
+      }
+      if (isMissingColumn(error?.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_CITY_TASK_MIGRATION}.` },
           { status: 503 }
         );
       }

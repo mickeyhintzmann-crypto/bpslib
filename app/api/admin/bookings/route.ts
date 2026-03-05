@@ -33,10 +33,12 @@ type BookingRow = {
   customer_email: string | null;
   address: string | null;
   postal_code: string | null;
+  city: string | null;
   date: string | null;
   start_slot_index: number | null;
   slot_count: number | null;
   notes: string | null;
+  task_description: string | null;
   internal_note: string | null;
   extras: unknown | null;
   price_total?: number | null;
@@ -55,7 +57,9 @@ type CreatePayload = {
   email?: unknown;
   address?: unknown;
   postal_code?: unknown;
+  city?: unknown;
   note?: unknown;
+  task_description?: unknown;
   extras?: unknown;
   assigned_to?: unknown;
   price_total?: unknown;
@@ -208,7 +212,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("bookings")
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat",
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat",
         {
           count: "exact"
         }
@@ -275,6 +279,8 @@ export async function GET(request: Request) {
         name: row.customer_name,
         phone: row.customer_phone,
         postalCode: row.postal_code,
+        city: row.city,
+        taskDescription: row.task_description,
         slotStart: slotRange?.slotStartIso ?? null,
         slotEnd: slotRange?.slotEndIso ?? null,
         slotCount: row.slot_count ?? null,
@@ -314,7 +320,10 @@ export async function POST(request: Request) {
     const email = typeof payload.email === "string" ? payload.email.trim() : "";
     const address = typeof payload.address === "string" ? payload.address.trim() : "";
     const postalCode = typeof payload.postal_code === "string" ? payload.postal_code.trim() : "";
+    const city = typeof payload.city === "string" ? payload.city.trim() : "";
     const note = typeof payload.note === "string" ? payload.note.trim() : "";
+    const taskDescription =
+      typeof payload.task_description === "string" ? payload.task_description.trim() : "";
     const service = typeof payload.service === "string" ? payload.service.trim() : "bordplade";
     const extras = sanitizeExtras(payload.extras);
     const assignedTo = typeof payload.assigned_to === "string" ? payload.assigned_to.trim() : "";
@@ -398,7 +407,9 @@ export async function POST(request: Request) {
         customer_email: email || null,
         address: address || null,
         postal_code: postalCode || null,
+        city: city || null,
         notes: note || null,
+        task_description: taskDescription || note || null,
         date,
         start_slot_index: startSlotIndex,
         slot_count: slotCount,
@@ -414,7 +425,7 @@ export async function POST(request: Request) {
         price_vat: priceVat
       })
       .select(
-        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat"
+        "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat"
       )
       .single();
 
@@ -427,6 +438,7 @@ export async function POST(request: Request) {
           {
             message:
               "Kolonner til admin-bookings mangler i databasen. Kør migrationerne i supabase/migrations/20260208_000007_bookings_admin_columns.sql og 20260208_000015_booking_extras.sql."
+              + " Kør også supabase/migrations/20260305_000120_booking_job_city_task_description.sql."
           },
           { status: 503 }
         );

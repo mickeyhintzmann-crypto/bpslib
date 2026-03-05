@@ -58,6 +58,8 @@ export const BookingCreateAdmin = () => {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
   const [note, setNote] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [priceTotal, setPriceTotal] = useState("");
@@ -109,6 +111,8 @@ export const BookingCreateAdmin = () => {
           email: email.trim() ? email.trim() : null,
           address: address.trim() ? address.trim() : null,
           postal_code: postalCode.trim() ? postalCode.trim() : null,
+          city: city.trim() ? city.trim() : null,
+          task_description: taskDescription.trim() ? taskDescription.trim() : null,
           note: note.trim() ? note.trim() : null,
           assigned_to: assignedTo.trim() ? assignedTo.trim() : null,
           price_total: toNullableNumber(priceTotal),
@@ -308,6 +312,14 @@ export const BookingCreateAdmin = () => {
               className="h-10 rounded-md border border-border bg-white px-3 text-sm"
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase text-muted-foreground">By (valgfri)</label>
+            <input
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+            />
+          </div>
           <div className="space-y-2 md:col-span-2">
             <label className="text-xs font-semibold uppercase text-muted-foreground">
               Tildel medarbejder (valgfri)
@@ -371,6 +383,17 @@ export const BookingCreateAdmin = () => {
               placeholder="600"
             />
           </label>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase text-muted-foreground">
+            Opgavebeskrivelse (til faktura)
+          </label>
+          <textarea
+            value={taskDescription}
+            onChange={(event) => setTaskDescription(event.target.value)}
+            className="min-h-[120px] rounded-md border border-border bg-white px-3 py-2 text-sm"
+          />
         </div>
 
         <div className="space-y-2">

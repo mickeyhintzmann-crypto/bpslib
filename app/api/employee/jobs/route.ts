@@ -5,6 +5,8 @@ import { toIsoDateRange } from "@/lib/admin/jobs";
 import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
+const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
+
 type LeadRow = {
   id: string;
   name: string | null;
@@ -21,9 +23,11 @@ type JobRow = {
   status: string;
   start_at: string;
   end_at: string;
+  city: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  task_description: string | null;
   lead_id: string | null;
   lead: LeadRow | LeadRow[] | null;
 };
@@ -37,10 +41,12 @@ type BookingRow = {
   slot_count: number | null;
   address: string | null;
   postal_code: string | null;
+  city: string | null;
   customer_name: string | null;
   customer_phone: string | null;
   customer_email: string | null;
   notes: string | null;
+  task_description: string | null;
   price_total: number | null;
 };
 
@@ -154,6 +160,11 @@ const buildMapsUrl = (address: string | null, location: string | null) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 };
 
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
+};
+
 export async function GET(request: Request) {
   try {
     const { error: sessionError, session, employee } = await getSessionEmployee(request);
@@ -173,7 +184,7 @@ export async function GET(request: Request) {
       supabase
         .from("jobs")
         .select(
-          "id, title, service, status, start_at, end_at, location, address, notes, lead_id, lead:lead_id(id,name,email,phone,location,message)"
+          "id, title, service, status, start_at, end_at, city, location, address, notes, task_description, lead_id, lead:lead_id(id,name,email,phone,location,message)"
         )
         .eq("assigned_employee_id", employee.id)
         .gte("start_at", fromIso)
@@ -182,7 +193,7 @@ export async function GET(request: Request) {
       supabase
         .from("bookings")
         .select(
-          "id, service_type, status, date, start_slot_index, slot_count, address, postal_code, customer_name, customer_phone, customer_email, notes, price_total"
+          "id, service_type, status, date, start_slot_index, slot_count, address, postal_code, city, customer_name, customer_phone, customer_email, notes, task_description, price_total"
         )
         .eq("assigned_to", session.id)
         .gte("date", fromDateKey)
@@ -198,6 +209,12 @@ export async function GET(request: Request) {
           { status: 503 }
         );
       }
+      if (isMissingColumn(jobsResult.error.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_BOOKING_CITY_MIGRATION}.` },
+          { status: 503 }
+        );
+      }
       return NextResponse.json({ message: jobsResult.error.message }, { status: 500 });
     }
 
@@ -205,6 +222,12 @@ export async function GET(request: Request) {
       if (isMissingTable(bookingsResult.error.message, "bookings")) {
         return NextResponse.json(
           { message: "Bookings-tabellen mangler i databasen." },
+          { status: 503 }
+        );
+      }
+      if (isMissingColumn(bookingsResult.error.message)) {
+        return NextResponse.json(
+          { message: `Bookings-felter mangler. Kør migrationen ${JOB_BOOKING_CITY_MIGRATION}.` },
           { status: 503 }
         );
       }
@@ -312,9 +335,11 @@ export async function GET(request: Request) {
         status: job.status,
         startAt: job.start_at,
         endAt: job.end_at,
+        city: job.city || job.location || lead?.location || null,
         location: job.location,
         address: job.address,
         notes: job.notes,
+        taskDescription: job.task_description,
         lead: lead
           ? {
               id: lead.id,
@@ -349,7 +374,8 @@ export async function GET(request: Request) {
           return null;
         }
 
-        const leadLocation = booking.postal_code || null;
+        const leadLocation = booking.city || booking.postal_code || null;
+        const taskDescription = booking.task_description || booking.notes || null;
         return {
           id: `booking:${booking.id}`,
           title: booking.service_type || "Booking",
@@ -357,16 +383,18 @@ export async function GET(request: Request) {
           status: booking.status || "new",
           startAt: slot.slotStartIso,
           endAt: slot.slotEndIso,
+          city: booking.city || null,
           location: leadLocation,
           address: booking.address,
-          notes: booking.notes,
+          notes: taskDescription,
+          taskDescription,
           lead: {
             id: `booking:${booking.id}`,
             name: booking.customer_name,
             email: booking.customer_email,
             phone: booking.customer_phone,
             location: leadLocation,
-            message: booking.notes
+            message: taskDescription
           },
           priceMin: null,
           priceMax: null,

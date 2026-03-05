@@ -7,6 +7,7 @@ import { buildJobNotificationTemplate } from "@/lib/notify/templates";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
+const JOB_CITY_TASK_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
 
 type EmployeeRelation = {
   id: string;
@@ -23,9 +24,11 @@ type JobRow = {
   lead_id: string | null;
   title: string;
   service: string | null;
+  city: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  task_description: string | null;
   status: string;
   start_at: string;
   end_at: string;
@@ -46,6 +49,11 @@ const isMissingTable = (message: string | undefined, table: string) => {
     normalized.includes(`could not find the table 'public.${table}'`) ||
     normalized.includes(`relation \"${table}\" does not exist`)
   );
+};
+
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
 };
 
 const asSingleRelation = <T>(value: T | T[] | null | undefined): T | null => {
@@ -73,9 +81,11 @@ const toItem = (row: JobRow) => ({
   leadId: row.lead_id,
   title: row.title,
   service: row.service,
+  city: row.city,
   location: row.location,
   address: row.address,
   notes: row.notes,
+  taskDescription: row.task_description,
   status: row.status,
   startAt: row.start_at,
   endAt: row.end_at,
@@ -109,7 +119,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("jobs")
       .select(
-        "id, created_at, updated_at, lead_id, title, service, location, address, notes, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color)"
+        "id, created_at, updated_at, lead_id, title, service, city, location, address, notes, task_description, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color)"
       )
       .gte("start_at", fromIso)
       .lte("start_at", toIso)
@@ -131,6 +141,12 @@ export async function GET(request: Request) {
           {
             message: `Jobs-tabellen mangler. Kør migrationen ${JOBS_SCHEMA_MIGRATION}.`
           },
+          { status: 503 }
+        );
+      }
+      if (isMissingColumn(error.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_CITY_TASK_MIGRATION}.` },
           { status: 503 }
         );
       }
@@ -192,9 +208,11 @@ export async function POST(request: Request) {
       .insert({
         title,
         service: serviceRaw || null,
+        city: asOptionalString(payload.city) ?? asOptionalString(payload.location),
         location: asOptionalString(payload.location),
         address: asOptionalString(payload.address),
         notes: asOptionalString(payload.notes),
+        task_description: asOptionalString(payload.task_description) ?? asOptionalString(payload.notes),
         status,
         start_at: startAt,
         end_at: endAt,
@@ -202,7 +220,7 @@ export async function POST(request: Request) {
         lead_id: asOptionalString(payload.lead_id)
       })
       .select(
-        "id, created_at, updated_at, lead_id, title, service, location, address, notes, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color)"
+        "id, created_at, updated_at, lead_id, title, service, city, location, address, notes, task_description, status, start_at, end_at, assigned_employee_id, employee:assigned_employee_id(id,name,role,is_active,calendar_color)"
       )
       .single();
 
@@ -212,6 +230,12 @@ export async function POST(request: Request) {
           {
             message: `Jobs-tabellen mangler. Kør migrationen ${JOBS_SCHEMA_MIGRATION}.`
           },
+          { status: 503 }
+        );
+      }
+      if (isMissingColumn(error?.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_CITY_TASK_MIGRATION}.` },
           { status: 503 }
         );
       }

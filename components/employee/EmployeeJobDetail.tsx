@@ -35,9 +35,11 @@ type JobItem = {
   status: string;
   startAt: string;
   endAt: string;
+  city?: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  taskDescription?: string | null;
   lead: JobLead | null;
   priceLabel: string;
   mapsUrl: string | null;
@@ -335,7 +337,7 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
             <strong>Prisinterval:</strong> {item.priceLabel}
           </p>
           <p>
-            <strong>Adresse:</strong> {item.address || item.location || "-"}
+            <strong>Adresse:</strong> {item.address || item.city || item.location || "-"}
           </p>
           <p>
             <strong>Kunde:</strong> {item.lead?.name || "-"}
@@ -373,7 +375,9 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
 
         <div className="mt-4 rounded-xl border border-border/70 bg-muted/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Opgavebeskrivelse</p>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{item.notes || item.lead?.message || "-"}</p>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+            {item.taskDescription || item.notes || item.lead?.message || "-"}
+          </p>
         </div>
       </section>
 

@@ -36,10 +36,12 @@ type BookingItem = {
   customer_email: string | null;
   address: string | null;
   postal_code: string | null;
+  city: string | null;
   slot_start: string;
   slot_end: string;
   slot_count?: number | null;
   notes: string | null;
+  task_description: string | null;
   internal_note: string | null;
   estimator_request_id: string | null;
   extras: BordpladeExtras | null;
@@ -113,7 +115,9 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
   const [item, setItem] = useState<BookingItem | null>(null);
   const [status, setStatus] = useState<(typeof STATUS_FLOW)[number]>("new");
   const [note, setNote] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
   const [internalNote, setInternalNote] = useState("");
+  const [city, setCity] = useState("");
   const [moveDate, setMoveDate] = useState("");
   const [moveStart, setMoveStart] = useState<(typeof SLOT_TIMES)[number]>(SLOT_TIMES[0]);
   const [moveSlotCount, setMoveSlotCount] = useState("1");
@@ -140,7 +144,9 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
         : "new"
     );
     setNote(nextItem.notes || "");
+    setTaskDescription(nextItem.task_description || "");
     setInternalNote(nextItem.internal_note || "");
+    setCity(nextItem.city || "");
     setMoveDate(dateKeyFromIso(nextItem.slot_start));
     const slotStartTime = timeFromIso(nextItem.slot_start);
     if (SLOT_TIMES.includes(slotStartTime as (typeof SLOT_TIMES)[number])) {
@@ -281,6 +287,8 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
 
   const handleSaveNotes = () => {
     updateBooking({
+      city: city.trim() ? city.trim() : null,
+      taskDescription: taskDescription.trim() ? taskDescription.trim() : null,
       note: note.trim() ? note.trim() : null,
       internalNote: internalNote.trim() ? internalNote.trim() : null
     });
@@ -380,6 +388,9 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
                 <span className="font-semibold text-foreground">Postnr.:</span> {item.postal_code || "Ikke angivet"}
               </p>
               <p>
+                <span className="font-semibold text-foreground">By:</span> {item.city || "Ikke angivet"}
+              </p>
+              <p>
                 <span className="font-semibold text-foreground">Dato:</span> {formatDate(item.slot_start)}
               </p>
               <p>
@@ -403,6 +414,10 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
               <p>
                 <span className="font-semibold text-foreground">Moms:</span>{" "}
                 {item.price_vat ? `${item.price_vat} kr.` : "Ikke angivet"}
+              </p>
+              <p className="sm:col-span-2">
+                <span className="font-semibold text-foreground">Opgavebeskrivelse:</span>{" "}
+                {item.task_description || "Ikke angivet"}
               </p>
               <p className="sm:col-span-2">
                 <span className="font-semibold text-foreground">Note:</span> {item.notes || "Ingen note"}
@@ -600,6 +615,24 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">Noter</p>
               <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase text-muted-foreground">By</label>
+                  <input
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase text-muted-foreground">
+                    Opgavebeskrivelse (til faktura)
+                  </label>
+                  <textarea
+                    value={taskDescription}
+                    onChange={(event) => setTaskDescription(event.target.value)}
+                    className="min-h-[120px] rounded-md border border-border bg-white px-3 py-2 text-sm"
+                  />
+                </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase text-muted-foreground">Kundenote</label>
                   <textarea

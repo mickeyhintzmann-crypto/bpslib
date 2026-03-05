@@ -6,6 +6,7 @@ import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const DINERO_MIGRATION = "supabase/migrations/20260305_000100_employee_dinero_invoicing.sql";
+const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -17,7 +18,11 @@ type JobRow = {
   service: string | null;
   status: string;
   lead_id: string | null;
+  city: string | null;
+  location: string | null;
+  address: string | null;
   notes: string | null;
+  task_description: string | null;
   assigned_employee_id: string | null;
   lead: {
     id: string;
@@ -65,11 +70,16 @@ const compactText = (value: string | null | undefined) => (value || "").replace(
 const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 
 const buildDefaultInvoiceDescription = (job: JobRow) => {
+  const city = compactText(job.city || job.location || "");
+  const taskDescription = compactText(job.task_description);
   const notes = compactText(job.notes);
   const leadMessage = compactText(job.lead?.message || "");
-  const detail = notes || leadMessage;
+  const detail = taskDescription || notes || leadMessage;
 
   const parts = [job.title];
+  if (city) {
+    parts.push(`By: ${city}`);
+  }
   if (job.service) {
     parts.push(`Service: ${job.service}`);
   }
@@ -82,6 +92,11 @@ const buildDefaultInvoiceDescription = (job: JobRow) => {
 const resolveId = async (context: RouteContext) => {
   const params = await context.params;
   return params?.id || "";
+};
+
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
 };
 
 export async function POST(request: NextRequest, context: RouteContext) {
@@ -125,7 +140,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { data: jobData, error: jobError } = await supabase
       .from("jobs")
       .select(
-        "id, title, service, status, lead_id, notes, assigned_employee_id, lead:lead_id(id,name,email,phone,location,message)"
+        "id, title, service, status, lead_id, city, location, address, notes, task_description, assigned_employee_id, lead:lead_id(id,name,email,phone,location,message)"
       )
       .eq("id", id)
       .eq("assigned_employee_id", employee.id)
@@ -134,6 +149,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (jobError || !jobData) {
       if (isMissingTable(jobError?.message, "jobs")) {
         return NextResponse.json({ message: "Jobs-tabellen mangler i databasen." }, { status: 503 });
+      }
+      if (isMissingColumn(jobError?.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_BOOKING_CITY_MIGRATION}.` },
+          { status: 503 }
+        );
       }
       return NextResponse.json({ message: jobError?.message || "Job ikke fundet." }, { status: 404 });
     }

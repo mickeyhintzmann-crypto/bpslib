@@ -4,6 +4,7 @@ import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305_000110_employee_job_media_uploads.sql";
+const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -25,9 +26,11 @@ type JobRow = {
   status: string;
   start_at: string;
   end_at: string;
+  city: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  task_description: string | null;
   lead_id: string | null;
   lead: LeadRow | LeadRow[] | null;
 };
@@ -90,14 +93,21 @@ const truncate = (value: string, max: number) => (value.length > max ? `${value.
 const buildDefaultInvoiceDescription = (job: {
   title: string;
   service: string | null;
+  city: string | null;
+  taskDescription: string | null;
   notes: string | null;
   leadMessage: string | null;
 }) => {
+  const city = compactText(job.city);
+  const taskDescription = compactText(job.taskDescription);
   const notes = compactText(job.notes);
   const leadMessage = compactText(job.leadMessage);
-  const detail = notes || leadMessage;
+  const detail = taskDescription || notes || leadMessage;
 
   const parts = [job.title];
+  if (city) {
+    parts.push(`By: ${city}`);
+  }
   if (job.service) {
     parts.push(`Service: ${job.service}`);
   }
@@ -167,6 +177,24 @@ const buildMapsUrl = (address: string | null, location: string | null) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 };
 
+const joinAddressParts = (...parts: Array<string | null | undefined>) => {
+  const seen = new Set<string>();
+  const values: string[] = [];
+  parts.forEach((part) => {
+    const normalized = compactText(part);
+    if (!normalized) {
+      return;
+    }
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    values.push(normalized);
+  });
+  return values.join(", ");
+};
+
 const parseStoredImages = (images: unknown): StoredImage[] => {
   if (!Array.isArray(images)) {
     return [];
@@ -199,6 +227,11 @@ const parseStoredImages = (images: unknown): StoredImage[] => {
   return parsed;
 };
 
+const isMissingColumn = (message: string | undefined) => {
+  const normalized = (message || "").toLowerCase();
+  return normalized.includes("column") && normalized.includes("does not exist");
+};
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { error, employee } = await getSessionEmployee(request);
@@ -216,7 +249,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const [{ data: jobData, error: jobError }, { data: connectionData, error: connectionError }] = await Promise.all([
       supabase
         .from("jobs")
-        .select("id,title,service,status,start_at,end_at,location,address,notes,lead_id,lead:lead_id(id,name,email,phone,location,message)")
+        .select("id,title,service,status,start_at,end_at,city,location,address,notes,task_description,lead_id,lead:lead_id(id,name,email,phone,location,message)")
         .eq("id", id)
         .eq("assigned_employee_id", employee.id)
         .single(),
@@ -230,6 +263,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     if (jobError || !jobData) {
       if (isMissingTable(jobError?.message, "jobs")) {
         return NextResponse.json({ message: "Jobs-tabellen mangler i databasen." }, { status: 503 });
+      }
+      if (isMissingColumn(jobError?.message)) {
+        return NextResponse.json(
+          { message: `Jobs-felter mangler. Kør migrationen ${JOB_BOOKING_CITY_MIGRATION}.` },
+          { status: 503 }
+        );
       }
       return NextResponse.json({ message: jobError?.message || "Job blev ikke fundet." }, { status: 404 });
     }
@@ -334,6 +373,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const invoiceDescription = buildDefaultInvoiceDescription({
       title: job.title,
       service: job.service,
+      city: job.city || job.location || lead?.location || null,
+      taskDescription: job.task_description,
       notes: job.notes,
       leadMessage: lead?.message || null
     });
@@ -349,9 +390,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
           status: job.status,
           startAt: job.start_at,
           endAt: job.end_at,
+          city: job.city,
           location: job.location,
           address: job.address,
           notes: job.notes,
+          taskDescription: job.task_description,
           lead: lead
             ? {
                 id: lead.id,
@@ -396,7 +439,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           customerName: lead?.name || "",
           customerEmail: lead?.email || "",
           customerPhone: lead?.phone || "",
-          customerAddress: job.address || job.location || lead?.location || "",
+          customerAddress: joinAddressParts(job.address, job.city, job.location || lead?.location),
           description: invoiceDescription,
           amountExVat: defaultAmount,
           vatPercent: 25

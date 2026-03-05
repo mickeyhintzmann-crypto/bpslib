@@ -21,9 +21,11 @@ type JobItem = {
   status: string;
   startAt: string;
   endAt: string;
+  city?: string | null;
   location: string | null;
   address: string | null;
   notes: string | null;
+  taskDescription?: string | null;
   lead: JobLead | null;
   priceMin: number | null;
   priceMax: number | null;
@@ -222,8 +224,12 @@ const compactText = (value: string | null | undefined) => (value || "").replace(
 const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 
 const buildDefaultInvoiceDescription = (job: JobItem) => {
-  const details = compactText(job.notes) || compactText(job.lead?.message);
+  const city = compactText(job.city || job.location || job.lead?.location);
+  const details = compactText(job.taskDescription) || compactText(job.notes) || compactText(job.lead?.message);
   const parts = [job.title];
+  if (city) {
+    parts.push(`By: ${city}`);
+  }
   if (job.service) {
     parts.push(`Service: ${job.service}`);
   }
@@ -231,6 +237,24 @@ const buildDefaultInvoiceDescription = (job: JobItem) => {
     parts.push(`Opgave: ${truncate(details, 280)}`);
   }
   return parts.join(" · ");
+};
+
+const joinAddressParts = (...parts: Array<string | null | undefined>) => {
+  const seen = new Set<string>();
+  const values: string[] = [];
+  parts.forEach((part) => {
+    const normalized = compactText(part);
+    if (!normalized) {
+      return;
+    }
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    values.push(normalized);
+  });
+  return values.join(", ");
 };
 
 export const EmployeeCalendar = () => {
@@ -337,7 +361,7 @@ export const EmployeeCalendar = () => {
           endAt: job.endAt,
           startMs,
           title: job.title,
-          subtitle: `${job.address || job.location || "Adresse mangler"}`,
+          subtitle: `${job.address || job.city || job.location || "Adresse mangler"}`,
           selected: job.id === selectedJobId
         });
         map.set(key, bucket);
@@ -633,7 +657,9 @@ export const EmployeeCalendar = () => {
     setInvoiceCustomerName(selectedJob.lead?.name || "");
     setInvoiceCustomerEmail(selectedJob.lead?.email || "");
     setInvoiceCustomerPhone(selectedJob.lead?.phone || "");
-    setInvoiceCustomerAddress(selectedJob.address || selectedJob.location || selectedJob.lead?.location || "");
+    setInvoiceCustomerAddress(
+      joinAddressParts(selectedJob.address, selectedJob.city, selectedJob.location || selectedJob.lead?.location)
+    );
     setInvoiceDescription(buildDefaultInvoiceDescription(selectedJob));
     setInvoiceAmountExVat(defaultAmount > 0 ? String(defaultAmount) : "");
     setInvoiceVatPercent("25");
@@ -1145,7 +1171,7 @@ export const EmployeeCalendar = () => {
                   <strong>Email:</strong> {selectedJob.lead?.email || "-"}
                 </p>
                 <p>
-                  <strong>Lokation:</strong> {selectedJob.lead?.location || selectedJob.location || "-"}
+                  <strong>Lokation:</strong> {selectedJob.city || selectedJob.lead?.location || selectedJob.location || "-"}
                 </p>
               </div>
 
@@ -1278,7 +1304,9 @@ export const EmployeeCalendar = () => {
 
               <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Job note</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{selectedJob.notes || "-"}</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+                  {selectedJob.taskDescription || selectedJob.notes || "-"}
+                </p>
               </div>
             </div>
           )}
