@@ -134,19 +134,35 @@ a {
   }
 
   .city-service-page {
-    padding-top: 1.25rem;
+    padding-top: clamp(1.15rem, 2.4vw, 1.8rem);
   }
 
   .city-service-page > :not(:first-child) {
-    margin-top: clamp(1.15rem, 2.2vw, 1.8rem);
+    margin-top: clamp(1.2rem, 2.3vw, 1.95rem);
   }
 
   .city-service-page .city-surface--panel {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(30 44% 99% / 0.9));
     border: 1px solid hsl(var(--border) / 0.74);
     box-shadow:
       0 2px 2px hsl(20 30% 20% / 0.02),
       0 18px 38px hsl(20 30% 20% / 0.08);
+  }
+
+  .city-service-page .city-surface--panel::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.42), transparent);
+  }
+
+  .city-service-page .city-surface--panel :where(h2) {
+    letter-spacing: -0.018em;
   }
 
   .city-service-page .city-surface--panel :where(p, li) {
@@ -159,5 +175,19 @@ a {
 
   .city-service-page .city-grid-cards > :where(article, div) {
     border-radius: 24px;
+  }
+
+  .city-feature-showcase {
+    border: 1px solid hsl(var(--border) / 0.72);
+    background:
+      radial-gradient(140% 120% at 0% 0%, hsl(var(--secondary) / 0.48) 0%, transparent 55%),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(30 44% 99% / 0.88));
+    box-shadow:
+      0 2px 2px hsl(20 30% 20% / 0.02),
+      0 20px 44px hsl(20 30% 20% / 0.11);
+  }
+
+  .city-feature-showcase :where(figure) {
+    box-shadow: 0 12px 28px hsl(20 30% 20% / 0.18);
   }
 }

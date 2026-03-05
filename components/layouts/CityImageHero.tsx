@@ -1,11 +1,32 @@
 import { type ReactNode } from "react";
 
+import { CityFeatureShowcase } from "@/components/layouts/CityFeatureShowcase";
+
+type CityFeatureCategory = "bordplade" | "gulv";
+
 type CityImageHeroProps = {
   backgroundImage: string;
   children: ReactNode;
+  featureCategory?: CityFeatureCategory;
+  showFeatureShowcase?: boolean;
 };
 
-export const CityImageHero = ({ backgroundImage, children }: CityImageHeroProps) => {
+const inferFeatureCategory = (backgroundImage: string): CityFeatureCategory => {
+  if (backgroundImage.toLowerCase().includes("bordplade")) {
+    return "bordplade";
+  }
+
+  return "gulv";
+};
+
+export const CityImageHero = ({
+  backgroundImage,
+  children,
+  featureCategory,
+  showFeatureShowcase = true
+}: CityImageHeroProps) => {
+  const category = featureCategory ?? inferFeatureCategory(backgroundImage);
+
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden border-b border-border/50">
       <div
@@ -26,6 +47,7 @@ export const CityImageHero = ({ backgroundImage, children }: CityImageHeroProps)
         <div className="max-w-3xl rounded-3xl border border-white/85 bg-white/97 p-6 text-foreground shadow-[0_30px_54px_hsl(228_30%_8%/0.34)] backdrop-blur-[1px] md:p-9">
           {children}
         </div>
+        {showFeatureShowcase ? <CityFeatureShowcase category={category} /> : null}
       </div>
     </section>
   );
