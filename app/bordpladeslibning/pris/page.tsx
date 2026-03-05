@@ -150,9 +150,9 @@ const breadcrumbSchema = buildBreadcrumbSchema([
 ]);
 
 export const metadata = buildMetadata({
-  title: "Pris på bordpladeslibning i massiv træ",
+  title: "Bordpladeslibning | Få pris via billeder | AI prisberegner",
   description:
-    "Se prisfaktorer, eksempler og slots for bordpladeslibning i massiv træ. Få præcis pris via billeder eller book tid direkte.",
+    "Få en pris på bordpladeslibning ved at uploade billeder af din bordplade. Vores AI beregner et hurtigt prisestimat på få minutter.",
   path: "/bordpladeslibning/pris"
 });
 

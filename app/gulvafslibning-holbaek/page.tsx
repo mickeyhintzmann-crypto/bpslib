@@ -58,9 +58,9 @@ const faqItems = [
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Holbæk | Uforpligtende tilbud | BP Slib",
+  title: "Gulvafslibning Holbæk | Pris på gulvslibning | Gratis tilbud",
   description:
-    "Gulvafslibning i Holbæk og omegn. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erfaring fra større kunder som Rigshospitalets Patienthotel og Skatteministeriet. Book tilbudstid.",
+    "Se hvad gulvafslibning typisk koster og få et gratis tilbud på dit gulv i Holbæk. Professionel slibning af trægulve.",
   path: "/gulvafslibning-holbaek"
 });
 

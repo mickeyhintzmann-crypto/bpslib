@@ -6,9 +6,9 @@ import { CONTACT_PHONE_DISPLAY, CONTACT_TEL_HREF } from "@/lib/contact";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "AI-prisberegner",
+  title: "Bordpladeslibning | Beregn pris via billeder | AI vurdering",
   description:
-    "AI-prisberegner til bordplader. Upload 3-6 billeder og få et realistisk overslag på ca. 2 min. Kun massiv træ.",
+    "Upload 3-6 billeder og få et AI-prisestimat på bordpladeslibning på ca. 2 minutter. Kun massiv træ. Gratis og uforpligtende.",
   path: "/bordpladeslibning/prisberegner"
 });
 

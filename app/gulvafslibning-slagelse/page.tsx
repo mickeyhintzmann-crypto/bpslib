@@ -58,9 +58,9 @@ const faqItems = [
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Slagelse | Uforpligtende tilbud | BP Slib",
+  title: "Gulvafslibning Slagelse | Få pris på dit trægulv",
   description:
-    "Gulvafslibning i Slagelse, Korsør og Skælskør. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erhvervserfaring fra bl.a. Rigshospitalets Patienthotel og Tivoli. Book tilbudstid.",
+    "Vi tilbyder professionel gulvafslibning i Slagelse. Få en pris på dit trægulv og et uforpligtende tilbud.",
   path: "/gulvafslibning-slagelse"
 });
 

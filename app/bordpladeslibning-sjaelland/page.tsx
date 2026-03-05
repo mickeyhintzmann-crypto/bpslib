@@ -265,9 +265,9 @@ const breadcrumbSchema = buildBreadcrumbSchema([
 ]);
 
 export const metadata = buildMetadata({
-  title: "Bordpladeslibning på Sjælland | Slibning & behandling af bordplader",
+  title: "Bordpladeslibning | AI prisberegner | Få pris på 2 min",
   description:
-    "Bordpladeslibning i massiv træ på hele Sjælland. Få pris via billeder, book tid eller se akutte tider.",
+    "Brug vores AI prisberegner til bordpladeslibning. Upload billeder af din bordplade og få et hurtigt prisestimat på cirka 2 minutter.",
   path: "/bordpladeslibning-sjaelland"
 });
 

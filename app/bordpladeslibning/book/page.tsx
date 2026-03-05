@@ -14,9 +14,9 @@ import { buildMetadata } from "@/lib/seo";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 export const metadata = buildMetadata({
-  title: "Book bordpladeslibning",
+  title: "Bordpladeslibning pris | Beregn pris via billeder | AI",
   description:
-    "Book tid til bordpladeslibning i massiv træ. Vælg dato og tidspunkt i en enkel kalender og få bekræftelse efter vurdering.",
+    "Vil du vide hvad bordpladeslibning koster? Upload billeder og få et AI-beregnet prisestimat på få minutter. Gratis og uforpligtende.",
   path: "/bordpladeslibning/book"
 });
 

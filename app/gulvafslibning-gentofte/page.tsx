@@ -58,9 +58,9 @@ const faqItems = [
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Gentofte | Uforpligtende tilbud | BP Slib",
+  title: "Gulvafslibning Gentofte | Hvad koster det? | Få pris",
   description:
-    "Gulvafslibning i Gentofte, Hellerup og Charlottenlund. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erhvervserfaring fra bl.a. Rigshospitalets Patienthotel og Tivoli. Book tilbudstid.",
+    "Hvad koster gulvafslibning i Gentofte? Få en hurtig prisvurdering og et gratis tilbud på dit gulv fra et professionelt gulvfirma.",
   path: "/gulvafslibning-gentofte"
 });
 

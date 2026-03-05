@@ -58,9 +58,9 @@ const faqItems = [
 ];
 
 export const metadata = buildMetadata({
-  title: "Gulvafslibning i Roskilde | Uforpligtende tilbud | BP Slib",
+  title: "Gulvafslibning Roskilde | Få pris på dit gulv | Gratis tilbud",
   description:
-    "Gulvafslibning i Roskilde og Trekroner. Uforpligtende tilbud baseret på gulvtype, m² og finish. Erfaring fra bl.a. Rigshospitalets Patienthotel og Brdr. Price Tivoli. Book tilbudstid.",
+    "Professionel gulvafslibning i Roskilde. Få en hurtig prisvurdering på dit gulv og et gratis tilbud. Vi genskaber dine trægulve flot igen.",
   path: "/gulvafslibning-roskilde"
 });
 
