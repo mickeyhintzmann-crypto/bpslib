@@ -46,7 +46,11 @@ export const PageHero = ({
   );
 
   if (withImageHero) {
-    return <CityImageHero backgroundImage={heroBackgroundImage}>{content}</CityImageHero>;
+    return (
+      <CityImageHero backgroundImage={heroBackgroundImage} panelTransparent>
+        {content}
+      </CityImageHero>
+    );
   }
 
   return (
