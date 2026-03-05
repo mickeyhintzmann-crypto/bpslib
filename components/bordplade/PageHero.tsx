@@ -26,7 +26,7 @@ export const PageHero = ({
   const isImageHero = withImageHero;
   const content = (
     <div className="space-y-5">
-      {eyebrow ? (
+      {eyebrow && eyebrow !== "By-side" ? (
         <p
           className={`text-xs font-semibold uppercase tracking-[0.2em] ${
             isImageHero ? "text-foreground/75" : "text-muted-foreground"

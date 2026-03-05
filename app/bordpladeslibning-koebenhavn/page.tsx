@@ -103,7 +103,7 @@ export default function BordpladeKoebenhavnPage() {
       />
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-story-heading text-2xl font-semibold text-foreground">
           Bordpladeslibning i København – når køkkenbordet skal være pænt i dagslys
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -124,7 +124,7 @@ export default function BordpladeKoebenhavnPage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-issues-heading text-2xl font-semibold text-foreground">
           Typiske københavner-problemer: vaskezonen, varme og “grå” overflader
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">

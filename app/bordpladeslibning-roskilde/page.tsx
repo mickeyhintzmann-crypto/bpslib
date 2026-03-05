@@ -118,7 +118,7 @@ export default function BordpladeRoskildePage() {
       />
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-story-heading text-2xl font-semibold text-foreground">
           Bordpladeslibning i Roskilde – når træet stadig er godt, men overfladen er træt
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -140,7 +140,7 @@ export default function BordpladeRoskildePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-issues-heading text-2xl font-semibold text-foreground">
           De mest almindelige skader vi ser i Roskilde-køkkener
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">

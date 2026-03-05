@@ -103,7 +103,7 @@ export default function BordpladeGladsaxePage() {
       />
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="city-bordplade-story-heading text-2xl font-semibold text-foreground">
           Bordpladeslibning i Gladsaxe – fokus på finish, kanter og detaljer
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -125,7 +125,9 @@ export default function BordpladeGladsaxePage() {
       </section>
 
       <section className="city-surface city-surface--panel rounded-[28px] p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Typiske opgaver vi udfører i Gladsaxe</h2>
+        <h2 className="city-bordplade-issues-heading text-2xl font-semibold text-foreground">
+          Typiske opgaver vi udfører i Gladsaxe
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           De fleste kontakter os, når bordpladen er svær at holde pæn – eller når de vil skifte til
           en finish, der passer bedre til hverdagen.
