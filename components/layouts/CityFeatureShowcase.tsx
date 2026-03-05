@@ -253,8 +253,8 @@ const FEATURE_GALLERY_COPY: Record<
   { title: string; subtitle: string; cta: { label: string; href: string } }
 > = {
   bordplade: {
-    title: "Flere feature-billeder fra bordpladeopgaver",
-    subtitle: "Et ekstra visuelt lag, så siden føles levende fra top til bund.",
+    title: "Bordpladeslibning cases: før/efter billeder af massiv træ",
+    subtitle: "Se udvalgte bordpladeopgaver med fokus på slibning, finish og ensartet resultat i køkkenmiljø.",
     cta: { label: "Se alle bordplade-cases", href: "/bordpladeslibning/cases" }
   },
   gulv: {
