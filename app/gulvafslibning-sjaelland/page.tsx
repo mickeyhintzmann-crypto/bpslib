@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { ReferenceStrip } from "@/components/ReferenceStrip";
 import { FaqSection } from "@/components/bordplade/FaqSection";
@@ -8,6 +9,7 @@ import { BeforeAfterGrid } from "@/components/media/BeforeAfterGrid";
 import { CaseGallery } from "@/components/media/CaseGallery";
 import { MidPageCTA } from "@/components/marketing/MidPageCTA";
 import { ProblemCards } from "@/components/marketing/ProblemCards";
+import { Button } from "@/components/ui/button";
 import { beforeAfterGulv, galleryGulv } from "@/lib/mediaManifest";
 import { buildMetadata } from "@/lib/seo";
 
@@ -191,346 +193,285 @@ export default function GulvHubPage() {
   return (
     <ServicePageLayout
       title="Gulvafslibning på Sjælland"
-      subtitle="Vi hjælper med gulvafslibning på hele Sjælland. Du får et uforpligtende tilbud baseret på gulvtype, areal og ønsket finish. Vi planlægger realistisk og giver dig en klar forventning til både pris og proces."
+      subtitle="Vi hjælper med gulvafslibning på hele Sjælland. Du får et uforpligtende tilbud, klar plan for forløb og rådgivning om den finish der passer til din hverdag."
+      heroBackgroundImage="/media/featured%3Agulv/header.jpg"
       bullets={[
-        "Gulvafslibning & gulvslibning på hele Sjælland",
-        "Rådgivning om efterbehandling: lak, olie eller sæbe",
-        "Plan og tørretid afklares før start"
+        "Gulvafslibning & gulvslibning i hele regionen",
+        "Lak, olie eller sæbe valgt efter brug og vedligehold",
+        "Realistisk tidsplan med klar tørretid",
+        "Støvkontrol, afdækning og tydelig aflevering"
       ]}
       primaryCta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
       secondaryCta={{ label: "Kontakt os", href: "/kontakt" }}
     >
+      <section className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Sjælland i fokus</p>
+          <h2 className="mt-3 text-2xl font-semibold text-foreground md:text-[2rem]">
+            Gulvafslibning der både er visuelt flot og praktisk i drift
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+            Vi arbejder på tværs af Sjælland med alt fra lejligheder i byen til større huse, hvor
+            planlægning og finishvalg er afgørende for et stabilt resultat. Vores mål er ikke kun et
+            flot gulv på dag 1, men et gulv der fungerer i daglig brug.
+          </p>
+          <ul className="mt-5 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              Tydelig afklaring af gulvtype, slidlag og forventet resultat
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              Trinvis slibning uden at fjerne mere materiale end nødvendigt
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              Finish anbefalet efter trafik, rengøring og vedligehold
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              Klar plan for tørretid og hvornår rummene kan tages i brug
+            </li>
+          </ul>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button asChild size="sm" className="h-10 px-4">
+              <Link href="/tilbudstid">Book tilbudstid</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 px-4">
+              <Link href="/gulvafslibning/pris">Se prisfaktorer</Link>
+            </Button>
+          </div>
+        </article>
+
+        <article className="grid gap-4">
+          <div className="relative min-h-[250px] overflow-hidden rounded-3xl border border-border/70">
+            <Image
+              src="/media/featured:gulv/feature.2.jpeg"
+              alt="Gulvafslibning på trægulv i stort rum"
+              fill
+              sizes="(max-width: 1023px) 100vw, 36vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-transparent to-transparent" />
+            <p className="absolute bottom-4 left-4 right-4 text-sm font-semibold text-white">
+              Samme varme stil som hovedsiden med større billedfokus
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="relative min-h-[150px] overflow-hidden rounded-2xl border border-border/70">
+              <Image
+                src="/media/featured:gulv/20221212_111845.jpg"
+                alt="Nyligt slebet trægulv med naturlig finish"
+                fill
+                sizes="(max-width: 767px) 100vw, 18vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="relative min-h-[150px] overflow-hidden rounded-2xl border border-border/70">
+              <Image
+                src="/media/featured:gulv/20230219_193820.jpg"
+                alt="Gulvopgave med ensartet overflade efter behandling"
+                fill
+                sizes="(max-width: 767px) 100vw, 18vw"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        </article>
+      </section>
+
       <ProblemCards
         title="Typiske gulv-problemer vi løser"
-        subtitle="Målet er et roligt, ensartet gulv og en efterbehandling der fungerer i din hverdag."
+        subtitle="Målet er et roligt, ensartet gulv med en behandling der holder i hverdagen."
         items={problemCardsItems}
       />
 
+      <section className="grid gap-6 md:grid-cols-2">
+        <article className="rounded-3xl border border-sky-200/70 bg-gradient-to-br from-sky-100/80 via-white to-cyan-100/75 p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Afslibning eller gulvafhøvling? Vi starter med det mindst indgribende
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+            De fleste gulve kan løses med en korrekt slibning, men meget dybe skader eller store
+            ujævnheder kan kræve afhøvling. Vi vurderer altid gulvet først, så processen passer til
+            stand og ikke bliver hårdere end nødvendigt.
+          </p>
+          <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+            <li>Almindeligt slid, ridser og mat overflade: typisk slibning</li>
+            <li>Store niveauforskelle og dybe skader: vurdering for afhøvling</li>
+            <li>Anbefaling baseret på holdbarhed og realistisk slutresultat</li>
+          </ul>
+        </article>
+
+        <article className="rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-100/80 via-white to-orange-100/75 p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Finishvalg bestemmer hverdagen: lak, olie eller sæbe
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+            Valget af finish styrer både udtryk, rengøring og vedligehold. Derfor rådgiver vi ud fra
+            hvor rummene bruges mest, så gulvet holder sig pænt i praksis og ikke kun lige efter
+            aflevering.
+          </p>
+          <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+            <li>Lak: robust og ofte nemmest i drift</li>
+            <li>Olie: naturligt look med mere løbende vedligehold</li>
+            <li>Sæbe: klassisk mat udtryk med faste plejerutiner</li>
+          </ul>
+        </article>
+      </section>
+
       <CaseGallery
-        title="Eksempler på typiske gulvopgaver"
-        subtitle="Et hurtigt overblik over opgavetyper vi ofte planlægger, før vi aftaler proces, efterbehandling og tidsplan."
+        title="Feature-cases fra gulvopgaver"
+        subtitle="Udvalgte opgaver der viser forskellen før og efter, og hvordan plan + behandling løfter helhedsindtrykket."
         items={caseGalleryItemsWithImages}
         cta={{ label: "Book tilbudstid", href: "/tilbudstid" }}
       />
+
+      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <article className="relative min-h-[320px] overflow-hidden rounded-3xl border border-border/70">
+          <Image
+            src="/media/featured:gulv/feature3.JPG"
+            alt="Sildebensgulv efter professionel afslibning"
+            fill
+            sizes="(max-width: 1023px) 100vw, 40vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/10 to-transparent" />
+          <div className="absolute bottom-0 p-5 text-white">
+            <p className="text-xs uppercase tracking-[0.14em] text-white/80">Planlagt forløb</p>
+            <p className="mt-2 text-base font-semibold">
+              Et ensartet resultat starter med god plan før maskinerne tændes
+            </p>
+          </div>
+        </article>
+
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-foreground">Sådan foregår et typisk gulvforløb</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+            Vi tilpasser rækkefølgen efter gulvtype, adgang og antal rum. Du får en tydelig plan med
+            realistisk tid, så du ved hvad der sker før, under og efter opgaven.
+          </p>
+          <ol className="mt-5 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              1. Afdækning, adgang og praktisk afklaring
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              2. Trinvis slibning tilpasset gulvets stand
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              3. Kantarbejde og ensartning af helhedsudtryk
+            </li>
+            <li className="rounded-2xl border border-border/70 bg-background/85 p-3">
+              4. Efterbehandling og klar tørretidsplan
+            </li>
+          </ol>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button asChild variant="outline" size="sm" className="h-10 px-4">
+              <Link href="/gulvafslibning/gulvslibning">Læs om gulvslibning</Link>
+            </Button>
+            <Button asChild size="sm" className="h-10 px-4">
+              <Link href="/tilbudstid">Få konkret tidsplan</Link>
+            </Button>
+          </div>
+        </article>
+      </section>
 
       <BeforeAfterGrid
         title="Før & efter: trægulve"
         items={beforeAfterGulvPreview}
       />
 
+      <section className="grid gap-6 md:grid-cols-3">
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6">
+          <h3 className="text-xl font-semibold text-foreground">Lak</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Et robust valg til rum med høj trafik, hvor nem rengøring prioriteres.
+          </p>
+          <Button asChild variant="outline" size="sm" className="mt-4 h-10 px-4">
+            <Link href="/gulvafslibning/lak">Læs om lak</Link>
+          </Button>
+        </article>
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6">
+          <h3 className="text-xl font-semibold text-foreground">Olie</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Naturligt udtryk og dybde i træet, med behov for løbende pleje.
+          </p>
+          <Button asChild variant="outline" size="sm" className="mt-4 h-10 px-4">
+            <Link href="/gulvafslibning/olie">Læs om olie</Link>
+          </Button>
+        </article>
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6">
+          <h3 className="text-xl font-semibold text-foreground">Sæbe</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Lyst, mat look der kan være flot, men kræver konsekvent vedligehold.
+          </p>
+          <Button asChild variant="outline" size="sm" className="mt-4 h-10 px-4">
+            <Link href="/gulvafslibning/saebe">Læs om sæbe</Link>
+          </Button>
+        </article>
+      </section>
+
       <MidPageCTA
-        title="Vil du have en plan og et konkret næste skridt?"
-        subtitle="Fortæl kort om gulvet og rummene, så planlægger vi forløb og tørretid realistisk."
+        title="Vil du have en konkret plan på dit gulv?"
+        subtitle="Fortæl kort om m², gulvtype og ønsket finish, så vender vi tilbage med næste skridt."
         primary={{ label: "Book tilbudstid", href: "/tilbudstid" }}
         secondary={{ label: "Se cases", href: "/cases" }}
       />
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Gulvafslibning og gulvslibning på Sjælland – samme behov, forskellige ord
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Mange søger på “gulvafslibning Sjælland”, mens andre skriver “gulvslibning Sjælland”
-          eller “slibning af trægulv”. Det dækker i praksis det samme: at fjerne den slidte
-          overflade, udjævne udtrykket og gøre gulvet klar til ny behandling.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi starter altid med at vurdere gulvtype, slid og forventninger, så afslibning af gulv
-          bliver planlagt rigtigt fra første dag – både ift. finish og tørretid.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Afslibning af gulv: fornyer overfladen og gør gulvet ensartet igen</li>
-          <li>Slibning af trægulv: fjerner slidte zoner og reducerer ridser og ujævn glans</li>
-          <li>Efterbehandling af gulv: afgør hvor nemt gulvet bliver at holde pænt i hverdagen</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Afslibning eller gulvafhøvling? (kort teaser der afklarer)</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Gulvafhøvling er typisk først relevant, når almindelig slibning ikke er nok – fx ved
-          store niveauforskelle, meget dybe skader eller gamle belægninger der kræver en grovere
-          proces. Derfor ser vi altid på gulvets stand før vi anbefaler afhøvling, så du ikke ender
-          med en unødigt hård behandling.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          I mange tilfælde kan en korrekt, trinvis slibning give et flot resultat med mindre indgreb
-          i træet.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Afhøvling kan være relevant ved meget dybe skader eller store ujævnheder</li>
-          <li>Slibning er ofte nok ved almindeligt slid, ridser og ujævn glans</li>
-          <li>Vi anbefaler processen ud fra resultat + holdbarhed, ikke bare “mest muligt”</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Efterbehandling af gulv – det der bestemmer drift og vedligehold</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Efterbehandlingen er det, der afgør om gulvet bliver “nemt” eller “krævende” i daglig
-          drift. Nogle ønsker et varmt, naturligt udtryk og accepterer mere løbende pleje, mens
-          andre vil have en overflade der kræver mindst muligt i hverdagen.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi rådgiver ud fra rummets brug (entré, køkken, stue, børn/kæledyr), så du vælger en
-          løsning der giver mening på dag 30 – ikke kun på dag 1.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Lak: ofte nem i drift og typisk mindre løbende pleje</li>
-          <li>Olie: naturligt udtryk, men kræver mere vedligehold over tid</li>
-          <li>Sæbe: klassisk, lyst look – kræver korrekt rutine for at holde sig pænt</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Hvornår giver gulvafslibning mest værdi?</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Gulvafslibning giver typisk mest værdi, når gulvet stadig er solidt, men overfladen er
-          slidt. Målet er ikke “perfektion i laboratorielys”, men et gulv der ser roligt ud i
-          hverdagen og er realistisk at vedligeholde.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Når gangzoner er slidte og gulvet ser mat og ujævnt ud</li>
-          <li>Når ridser og mærker gør overfladen urolig i dagslys</li>
-          <li>Når du vil skifte finish for at få en mere praktisk hverdag</li>
-          <li>Når du vil løfte helhedsindtrykket uden at udskifte gulvet</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Gulvafslibning på Sjælland – når gulvet skal være pænt og praktisk igen
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Trægulve kan holde i mange år, men overfladen tager imod slid: ridser, matte felter,
-          misfarvninger og et udtryk der bliver “uroligt” i lyset. Gulvafslibning handler om at
-          genskabe en ensartet overflade og vælge en behandling, der passer til rummets brug.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          På Sjælland hjælper vi både lejligheder og huse — og vi planlægger forløbet, så det
-          fungerer med adgang, møbler og tørretider.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Ensartet udtryk: færre synlige ridser og roligere overflade i dagslys</li>
-          <li>Rådgivning om finish ud fra drift og vedligehold (olie/lak/sæbe)</li>
-          <li>Realistisk plan for tørretid og hvornår gulvet kan tages i brug</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Typiske problemer vi løser</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Mange kontakter os, når gulvet stadig er “godt” i træet, men overfladen ikke længere er
-          pæn i hverdagen.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Ridser og mærker fra daglig trafik, stole og legetøj</li>
-          <li>Matte/slidte gangzoner hvor overfladen er slidt ned</li>
-          <li>Misfarvninger og pletter (fx ved sol/brug)</li>
-          <li>Ujævn glans og et “plettet” udtryk efter ældre behandling</li>
-          <li>Gulve der er svære at holde pæne med almindelig rengøring</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Sådan foregår gulvafslibning (kort og realistisk)</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Vi arbejder trinvis og tilpasser processen til gulvtype, slitage og den finish du ønsker
-          bagefter. Målet er et gulv der føles ens, ser ens ud og er til at leve med.
-        </p>
-        <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>1. Kort afklaring af gulvtype, slitage og ønsker til finish</li>
-          <li>2. Forberedelse: afdækning og praktisk plan (møbler/adgang)</li>
-          <li>3. Trinvis slibning ud fra gulvets stand (uden at slibe mere end nødvendigt)</li>
-          <li>4. Kant- og detaljearbejde, så helhedsindtrykket bliver pænt</li>
-          <li>5. Behandling: olie/lak/sæbe afhængigt af brug og vedligehold</li>
-          <li>6. Aflevering: gennemgang + råd til brug og pleje</li>
-        </ol>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Valg af finish: olie, lak eller sæbe?</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Finishvalget betyder meget for både udtryk og hverdagsdrift. Nogle vil have et varmt,
-          naturligt look, andre vil have en overflade der er nem at holde pæn med mindst muligt
-          løbende arbejde. Vi rådgiver ud fra rummets belastning og dine forventninger.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Lak: ofte nem i drift og kræver typisk mindre løbende pleje</li>
-          <li>Olie: naturligt udtryk, men kræver mere vedligehold over tid</li>
-          <li>Sæbe: klassisk look, men kræver korrekt pleje for at holde sig pænt</li>
-          <li>Det rigtige valg afhænger af brug (børn, kæledyr, meget trafik, køkken/entré)</li>
-        </ul>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris: hvad påvirker den?</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Prisen på gulvafslibning afhænger primært af gulvets stand, antal m² og hvilken behandling
-          du vælger bagefter. Derudover betyder det noget, hvor mange rum der er, om der er mange
-          kanter/overgange, og hvordan adgangen er.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Gulvets stand (hvor meget der skal rettes op)</li>
-          <li>Antal m² og antal rum/overgange</li>
-          <li>Valg af behandling (olie/lak/sæbe)</li>
-          <li>Praktiske forhold: adgang, møbler og planlægning</li>
-        </ul>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Se også vores lokale sider for{" "}
-          <Link href="/gulvafslibning-koebenhavn" className="font-medium text-foreground hover:text-primary">
-            København
-          </Link>{" "}
-          og{" "}
-          <Link
-            href="/gulvafslibning-koebenhavn-omegn"
-            className="font-medium text-foreground hover:text-primary"
-          >
-            omegn
-          </Link>
-          , hvis du vil have en mere målrettet beskrivelse.
-        </p>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Lokale gulv-sider (hurtig vej til dit område)</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Hvis du vil læse en side der matcher dit område, kan du starte her:
-        </p>
-        <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <Link href="/gulvafslibning-koebenhavn" className="font-medium text-foreground hover:text-primary">
-            /gulvafslibning-koebenhavn
-          </Link>
-          <Link
-            href="/gulvafslibning-koebenhavn-omegn"
-            className="font-medium text-foreground hover:text-primary"
-          >
-            /gulvafslibning-koebenhavn-omegn
-          </Link>
-          <Link href="/gulvafslibning-roskilde" className="font-medium text-foreground hover:text-primary">
-            /gulvafslibning-roskilde
-          </Link>
-          <Link href="/gulvafslibning-gentofte" className="font-medium text-foreground hover:text-primary">
-            /gulvafslibning-gentofte
-          </Link>
-          <Link href="/gulvafslibning-slagelse" className="font-medium text-foreground hover:text-primary">
-            /gulvafslibning-slagelse
-          </Link>
-          <Link href="/gulvafslibning-holbaek" className="font-medium text-foreground hover:text-primary">
-            /gulvafslibning-holbaek
-          </Link>
-        </div>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Praktisk før vi går i gang (så det bliver nemt for dig)</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Det vigtigste er, at vi afklarer adgang og plan. Nogle vælger at tage ét rum ad gangen,
-          andre tager hele boligen. Vi tilpasser forløbet efter din hverdag og rummenes brug.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-          <li>Vi aftaler om møbler flyttes, eller om vi arbejder i etaper</li>
-          <li>Du får besked om tørretid og hvornår gulvet kan bruges igen</li>
-          <li>Vi afslutter med en tydelig gennemgang og råd til vedligehold</li>
-        </ul>
-      </section>
-
       <ReferenceStrip />
 
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h2 className="text-2xl font-semibold text-foreground">Hvad vi hjælper med</h2>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li>Gulvslibning og opfriskning af slidte gulve</li>
-            <li>Vurdering af om afhøvling er nødvendig</li>
-            <li>Efterbehandling med lak, olie eller sæbe</li>
-            <li>Udbedring af ridser, pletter og misfarvning</li>
-            <li>Parket, plankegulve og sildeben</li>
+      <section className="grid gap-6 md:grid-cols-2">
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-foreground">Pris og plan uden gætteri</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+            Vi vurderer pris ud fra m², stand, antal rum og valgt behandling. Når vi kender
+            forudsætningerne, får du en plan med tydelig rækkefølge og realistisk tørretid.
+          </p>
+          <ul className="mt-4 grid gap-3 text-sm text-muted-foreground">
+            <li>Prisfaktorer gennemgås før opstart</li>
+            <li>Etaper kan planlægges, så boligen stadig fungerer</li>
+            <li>Tydelig forventning til brug af gulvet efter behandling</li>
           </ul>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button asChild variant="outline" size="sm" className="h-10 px-4">
+              <Link href="/gulvafslibning/pris">Se pris-side</Link>
+            </Button>
+            <Button asChild size="sm" className="h-10 px-4">
+              <Link href="/tilbudstid">Book tilbudstid</Link>
+            </Button>
+          </div>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h2 className="text-2xl font-semibold text-foreground">Sådan foregår det</h2>
-          <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li>1. Du booker en tilbudstid og beskriver opgaven kort.</li>
-            <li>2. Vi afklarer gulvtype, behandling og praktiske forhold.</li>
-            <li>3. Du modtager et tilbud og en konkret tidsplan.</li>
-          </ol>
-        </article>
-      </section>
 
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Hvornår er slibning nok?</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Slibning er ofte tilstrækkeligt ved almindeligt slid, matte overflader og overfladiske
-          skader. Ved dybe hak, ujævnheder eller meget tykke behandlinger kan der være behov for
-          ekstra forarbejde. Læs mere om processen på{" "}
-          <Link href="/gulvafslibning/gulvslibning" className="font-medium text-foreground hover:text-primary">
-            gulvslibning
-          </Link>
-          , eller få hjælp til skader som{" "}
-          <Link href="/gulvafslibning/ridser" className="font-medium text-foreground hover:text-primary">
-            ridser og pletter
-          </Link>
-          .
-        </p>
-      </section>
-
-      <section className="mt-8 grid gap-6 md:grid-cols-3">
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h3 className="text-lg font-semibold text-foreground">Lak</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Slidstærk overflade der tåler hverdagens brug.
+        <article className="rounded-3xl border border-border/70 bg-white/80 p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-foreground">Lokale sider og områder</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+            Vi dækker hele Sjælland og har lokale sider med by-specifikke forhold, så du hurtigt kan
+            finde relevant info om dit område.
           </p>
-          <Link href="/gulvafslibning/lak" className="mt-3 inline-flex text-sm font-medium text-foreground hover:text-primary">
-            Læs om lak
-          </Link>
-        </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h3 className="text-lg font-semibold text-foreground">Olie</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Naturligt udtryk med god mulighed for løbende vedligehold.
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-koebenhavn">København</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-koebenhavn-omegn">København & omegn</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-roskilde">Roskilde</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-slagelse">Slagelse</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-gentofte">Gentofte</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-10 justify-start px-4">
+              <Link href="/gulvafslibning-holbaek">Holbæk</Link>
+            </Button>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Se også samlet områdeoversigt på{" "}
+            <Link href="/gulvafslibning/omraader" className="font-medium text-foreground hover:text-primary">
+              gulvafslibning/omraader
+            </Link>
+            .
           </p>
-          <Link href="/gulvafslibning/olie" className="mt-3 inline-flex text-sm font-medium text-foreground hover:text-primary">
-            Læs om olie
-          </Link>
         </article>
-        <article className="rounded-3xl border border-border/70 bg-white/70 p-6">
-          <h3 className="text-lg font-semibold text-foreground">Sæbe</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Lys, mat finish som kræver mere regelmæssig pleje.
-          </p>
-          <Link href="/gulvafslibning/saebe" className="mt-3 inline-flex text-sm font-medium text-foreground hover:text-primary">
-            Læs om sæbe
-          </Link>
-        </article>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Pris og tilbud</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Prisen påvirkes af gulvtype, mængden af slibning, antal rum og ønsket efterbehandling. Se
-          prisfaktorer på{" "}
-          <Link href="/gulvafslibning/pris" className="font-medium text-foreground hover:text-primary">
-            gulvafslibning/pris
-          </Link>
-          , og book en tilbudstid hvis du ønsker en konkret vurdering.
-        </p>
-      </section>
-
-      <section className="mt-8 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-        <h2 className="text-2xl font-semibold text-foreground">Områder vi dækker</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Vi dækker hele Sjælland og planlægger opgaver efter område og tilgængelighed. Se alle
-          områder på{" "}
-          <Link href="/gulvafslibning/omraader" className="font-medium text-foreground hover:text-primary">
-            gulvafslibning/omraader
-          </Link>
-          .
-        </p>
-        <p className="mt-3 text-sm text-muted-foreground">
-          København, Frederiksberg, Roskilde, Køge, Næstved, Slagelse, Holbæk, Hillerød, Gentofte og
-          omegn.
-        </p>
       </section>
 
       <FaqSection
