@@ -30,7 +30,7 @@ export const CityImageHero = ({
           <div className="overflow-hidden rounded-[33px] border border-white/30 bg-[linear-gradient(165deg,hsl(0_0%_100%/0.98)_0%,hsl(37_60%_96%/0.95)_72%,hsl(35_58%_94%/0.92)_100%)]">
             <div
               aria-hidden="true"
-              className="h-1.5 w-full bg-[linear-gradient(90deg,hsl(var(--primary)/0.92)_0%,hsl(33_98%_63%/0.82)_42%,hsl(197_92%_56%/0.62)_100%)]"
+              className="h-1.5 w-full bg-transparent"
             />
             <div className="p-6 text-foreground md:p-9">{children}</div>
           </div>

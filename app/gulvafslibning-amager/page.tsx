@@ -50,7 +50,7 @@ export const metadata = buildMetadata({
 export default function GulvAmagerPage() {
   return (
     <CityServicePage category="gulv">
-      <CityImageHero backgroundImage="/media/featured%3Agulv/2.JPG">
+      <CityImageHero backgroundImage="/media/featured%3Agulv/feature.2.jpeg">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Gulvafslibning på Amager
         </h1>

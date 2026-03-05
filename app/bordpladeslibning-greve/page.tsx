@@ -71,7 +71,7 @@ export default function BordpladeGrevePage() {
     <CityServicePage category="bordplade">
       <PageHero
         withImageHero
-        heroBackgroundImage="/media/galleries%3Abordplade%3Asingles%3Ahero/singles%3Ahero_6.jpeg"
+        heroBackgroundImage="/media/featured%3Agulv/feature.2.jpeg"
         eyebrow="By-side"
         title="Bordpladeslibning i Greve – kun massiv træ"
         intro="Vi hjælper i Greve med slibning, genopfriskning og finish af massiv træbordplader. Du får et enkelt forløb, klare anbefalinger og gennemsigtig pris."
