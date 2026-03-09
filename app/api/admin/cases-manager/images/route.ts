@@ -8,7 +8,7 @@ const IMAGE_KINDS = ["before", "after", "wide", "detail"] as const;
 const CASE_IMAGES_BUCKET = "case-images";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302_000021_admin_cases_schema.sql";
+const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302000021_admin_cases_schema.sql";
 
 type ImageKind = (typeof IMAGE_KINDS)[number];
 

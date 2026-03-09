@@ -5,7 +5,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
 
 const CASE_CATEGORIES = ["bordplade", "gulvafslibning", "gulvbelaegning"] as const;
-const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302_000021_admin_cases_schema.sql";
+const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302000021_admin_cases_schema.sql";
 const CASE_IMAGES_BUCKET = "case-images";
 
 type CaseCategory = (typeof CASE_CATEGORIES)[number];

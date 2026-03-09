@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getAdminSessionFromRequest } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
+const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304000070_employee_portal_email.sql";
 
 export type EmployeeSessionRow = {
   id: string;

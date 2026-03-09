@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
-const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
+const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302000040_admin_jobs_calendar_schema.sql";
+const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304000070_employee_portal_email.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

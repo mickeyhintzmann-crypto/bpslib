@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305_000110_employee_job_media_uploads.sql";
-const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
+const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305000110_employee_job_media_uploads.sql";
+const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305000120_booking_job_city_task_description.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

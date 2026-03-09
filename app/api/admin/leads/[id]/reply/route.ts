@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { logEmail, sendMail } from "@/lib/mailer";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const LEADS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000030_admin_leads_schema.sql";
+const LEADS_SCHEMA_MIGRATION = "supabase/migrations/20260302000030_admin_leads_schema.sql";
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
 type RouteContext = {

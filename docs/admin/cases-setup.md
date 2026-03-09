@@ -29,7 +29,7 @@ Repo bruger SQL-migrationer i `supabase/migrations/`.
 
 Ny migration for cases/admin:
 
-- `supabase/migrations/20260302_000021_admin_cases_schema.sql`
+- `supabase/migrations/20260302000021_admin_cases_schema.sql`
 
 Kør enten:
 

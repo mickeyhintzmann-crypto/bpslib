@@ -4,9 +4,9 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { generateActivationCode } from "@/lib/employee-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304_000080_employee_password_setup.sql";
-const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
-const ADMIN_RBAC_MIGRATION = "supabase/migrations/20260210_000018_admin_rbac.sql";
+const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304000080_employee_password_setup.sql";
+const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304000070_employee_portal_email.sql";
+const ADMIN_RBAC_MIGRATION = "supabase/migrations/20260210000018_admin_rbac.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

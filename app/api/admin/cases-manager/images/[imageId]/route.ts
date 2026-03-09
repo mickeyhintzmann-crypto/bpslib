@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const CASE_IMAGES_BUCKET = "case-images";
-const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302_000021_admin_cases_schema.sql";
+const CASES_SCHEMA_MIGRATION = "supabase/migrations/20260302000021_admin_cases_schema.sql";
 
 type RouteContext = {
   params: Promise<{ imageId: string }>;

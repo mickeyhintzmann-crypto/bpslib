@@ -4,8 +4,8 @@ import { getAdminSessionFromRequest } from "@/lib/admin-auth";
 import { toIsoDateRange } from "@/lib/admin/jobs";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304_000070_employee_portal_email.sql";
-const EMPLOYEE_UNAVAILABILITY_MIGRATION = "supabase/migrations/20260304_000090_employee_unavailability.sql";
+const EMPLOYEE_EMAIL_MIGRATION = "supabase/migrations/20260304000070_employee_portal_email.sql";
+const EMPLOYEE_UNAVAILABILITY_MIGRATION = "supabase/migrations/20260304000090_employee_unavailability.sql";
 
 type EmployeeRow = {
   id: string;

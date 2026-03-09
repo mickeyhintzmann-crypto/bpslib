@@ -126,8 +126,8 @@ export const AdminDashboard = () => {
           {error.toLowerCase().includes("bookings") ? (
             <p className="mt-2 text-xs text-red-600">
               Kør migrationerne:{" "}
-              <code>supabase/migrations/20260207_000000_bookings_base.sql</code> og{" "}
-              <code>supabase/migrations/20260208_000007_bookings_admin_columns.sql</code>
+              <code>supabase/migrations/20260207000000_bookings_base.sql</code> og{" "}
+              <code>supabase/migrations/20260208000008_bookings_admin_columns.sql</code>
             </p>
           ) : null}
         </div>

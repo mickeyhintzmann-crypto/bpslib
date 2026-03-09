@@ -226,7 +226,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Kolonner mangler i bookings-tabellen. Kør migrationen supabase/migrations/20260209_000017_estimator_ai.sql."
+              "Kolonner mangler i bookings-tabellen. Kør migrationen supabase/migrations/20260209000017_estimator_ai.sql."
           },
           { status: 503 }
         );

@@ -24,7 +24,7 @@ const MAX_IMAGES = 6;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 40 * 1024 * 1024;
 const AI_CONTROL_ROOM_MIGRATION =
-  "supabase/migrations/20260302_000050_ai_estimator_control_room.sql";
+  "supabase/migrations/20260302000050_ai_estimator_control_room.sql";
 
 const isMissingEstimatorTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
@@ -250,7 +250,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Prisberegneren er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208_000001_estimator_requests.sql."
+              "Prisberegneren er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208000001_estimator_requests.sql."
           },
           { status: 503 }
         );

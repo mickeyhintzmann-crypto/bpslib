@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305_000110_employee_job_media_uploads.sql";
+const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305000110_employee_job_media_uploads.sql";
 const ALLOWED_STATUS = new Set(["pending", "approved", "rejected"]);
 const ALLOWED_USAGE = new Set(["social_ads", "website", "both"]);
 

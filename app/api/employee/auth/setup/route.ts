@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { hashPassword } from "@/lib/employee-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304_000080_employee_password_setup.sql";
-const ADMIN_RBAC_MIGRATION = "supabase/migrations/20260210_000018_admin_rbac.sql";
+const EMPLOYEE_PORTAL_MIGRATION = "supabase/migrations/20260304000080_employee_password_setup.sql";
+const ADMIN_RBAC_MIGRATION = "supabase/migrations/20260210000018_admin_rbac.sql";
 
 type Payload = {
   email?: unknown;

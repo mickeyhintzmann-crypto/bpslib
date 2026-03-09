@@ -121,7 +121,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Kontaktformularen er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260302_000030_admin_leads_schema.sql."
+              "Kontaktformularen er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260302000030_admin_leads_schema.sql."
           },
           { status: 503 }
         );

@@ -314,7 +314,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Prisberegneren er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208_000001_estimator_requests.sql."
+              "Prisberegneren er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208000001_estimator_requests.sql."
           },
           { status: 503 }
         );

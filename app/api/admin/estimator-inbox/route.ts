@@ -127,7 +127,7 @@ export async function GET(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Estimator inbox er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208_000001_estimator_requests.sql."
+              "Estimator inbox er ikke klargjort i databasen endnu. Kør migrationen i supabase/migrations/20260208000001_estimator_requests.sql."
           },
           { status: 503 }
         );

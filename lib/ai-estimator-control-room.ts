@@ -1,5 +1,5 @@
 export const AI_CONTROL_ROOM_MIGRATION =
-  "supabase/migrations/20260302_000050_ai_estimator_control_room.sql";
+  "supabase/migrations/20260302000050_ai_estimator_control_room.sql";
 
 export const AI_SERVICES = [
   "bordplade",

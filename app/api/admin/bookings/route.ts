@@ -469,8 +469,8 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Kolonner til admin-bookings mangler i databasen. Kør migrationerne i supabase/migrations/20260208_000007_bookings_admin_columns.sql og 20260208_000015_booking_extras.sql."
-              + " Kør også supabase/migrations/20260305_000120_booking_job_city_task_description.sql."
+              "Kolonner til admin-bookings mangler i databasen. Kør migrationerne i supabase/migrations/20260208000008_bookings_admin_columns.sql og 20260208000016_booking_extras.sql."
+              + " Kør også supabase/migrations/20260305000120_booking_job_city_task_description.sql."
           },
           { status: 503 }
         );

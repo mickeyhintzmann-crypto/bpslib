@@ -111,7 +111,7 @@ export async function GET(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Tabellen employee_unavailability mangler i databasen. Kør migrationen supabase/migrations/20260304_000090_employee_unavailability.sql."
+              "Tabellen employee_unavailability mangler i databasen. Kør migrationen supabase/migrations/20260304000090_employee_unavailability.sql."
           },
           { status: 503 }
         );

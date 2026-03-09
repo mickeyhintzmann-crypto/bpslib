@@ -9,7 +9,7 @@ type Payload = {
   email?: unknown;
 };
 
-const EMPLOYEE_PASSWORD_MIGRATION = "supabase/migrations/20260304_000080_employee_password_setup.sql";
+const EMPLOYEE_PASSWORD_MIGRATION = "supabase/migrations/20260304000080_employee_password_setup.sql";
 
 const isMissingColumn = (message: string | undefined, table: string, column: string) => {
   const normalized = (message || "").toLowerCase();
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Tabellen admin_users mangler i databasen. Kør migrationen supabase/migrations/20260210_000018_admin_rbac.sql."
+              "Tabellen admin_users mangler i databasen. Kør migrationen supabase/migrations/20260210000018_admin_rbac.sql."
           },
           { status: 503 }
         );

@@ -15,7 +15,7 @@ const SERVICE_VALUES = [
   "andet"
 ] as const;
 
-const LEADS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000030_admin_leads_schema.sql";
+const LEADS_SCHEMA_MIGRATION = "supabase/migrations/20260302000030_admin_leads_schema.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

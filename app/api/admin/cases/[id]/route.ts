@@ -93,7 +93,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         return NextResponse.json(
           {
             message:
-              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208_000014_cases.sql i Supabase."
+              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208000015_cases.sql i Supabase."
           },
           { status: 503 }
         );
@@ -175,7 +175,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         return NextResponse.json(
           {
             message:
-              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208_000014_cases.sql i Supabase."
+              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208000015_cases.sql i Supabase."
           },
           { status: 503 }
         );
@@ -244,7 +244,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         return NextResponse.json(
           {
             message:
-              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208_000014_cases.sql i Supabase."
+              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208000015_cases.sql i Supabase."
           },
           { status: 503 }
         );

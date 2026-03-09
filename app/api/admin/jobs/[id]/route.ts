@@ -6,8 +6,8 @@ import { sendEmail } from "@/lib/notify/email";
 import { buildJobNotificationTemplate } from "@/lib/notify/templates";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302_000040_admin_jobs_calendar_schema.sql";
-const JOB_CITY_TASK_MIGRATION = "supabase/migrations/20260305_000120_booking_job_city_task_description.sql";
+const JOBS_SCHEMA_MIGRATION = "supabase/migrations/20260302000040_admin_jobs_calendar_schema.sql";
+const JOB_CITY_TASK_MIGRATION = "supabase/migrations/20260305000120_booking_job_city_task_description.sql";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

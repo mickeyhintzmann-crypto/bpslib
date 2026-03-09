@@ -15,9 +15,9 @@
 
 ## Supabase klargøring (MVP)
 - Kør SQL-migrationen i Supabase SQL Editor:
-- `supabase/migrations/20260208_000001_estimator_requests.sql`
-- `supabase/migrations/20260208_000002_estimator_admin_columns.sql`
-- `supabase/migrations/20260208_000003_estimator_booking_links.sql`
+- `supabase/migrations/20260208000001_estimator_requests.sql`
+- `supabase/migrations/20260208000002_estimator_admin_columns.sql`
+- `supabase/migrations/20260208000003_estimator_booking_links.sql`
 - Migrationen opretter:
 - `public.estimator_requests`
 - Storage bucket `estimator-images` (private)

@@ -4,7 +4,7 @@ import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { slugify } from "@/lib/slugify";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305_000110_employee_job_media_uploads.sql";
+const JOB_MEDIA_MIGRATION = "supabase/migrations/20260305000110_employee_job_media_uploads.sql";
 const JOB_MEDIA_BUCKET = "job-media";
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);

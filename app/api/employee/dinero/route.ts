@@ -5,7 +5,7 @@ import { encryptSecret } from "@/lib/encryption";
 import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-const DINERO_MIGRATION = "supabase/migrations/20260305_000100_employee_dinero_invoicing.sql";
+const DINERO_MIGRATION = "supabase/migrations/20260305000100_employee_dinero_invoicing.sql";
 
 const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 

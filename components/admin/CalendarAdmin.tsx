@@ -784,8 +784,8 @@ export const CalendarAdmin = () => {
             <p className="font-semibold">{error}</p>
             {errorIsMissingTable ? (
               <p className="mt-2 text-xs text-red-600">
-                Kør migrationen: <code>supabase/migrations/20260208_000008_day_overrides.sql</code> og{" "}
-                <code>supabase/migrations/20260304_000090_employee_unavailability.sql</code>
+                Kør migrationen: <code>supabase/migrations/20260208000009_day_overrides.sql</code> og{" "}
+                <code>supabase/migrations/20260304000090_employee_unavailability.sql</code>
               </p>
             ) : null}
           </div>

@@ -134,7 +134,7 @@ export async function GET(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208_000014_cases.sql i Supabase."
+              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208000015_cases.sql i Supabase."
           },
           { status: 503 }
         );
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208_000014_cases.sql i Supabase."
+              "Cases-tabellen mangler. Kør migrationen supabase/migrations/20260208000015_cases.sql i Supabase."
           },
           { status: 503 }
         );
