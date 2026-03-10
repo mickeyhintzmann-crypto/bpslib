@@ -5,9 +5,13 @@
   "/floorSanding": "/gulvafslibning-sjaelland",
   "/BordpladeSlibningRoskilde": "/bordpladeslibning-roskilde",
   "/TableSandingCopenhagen": "/bordpladeslibning-koebenhavn",
+  "/TableSandingRoskilde": "/bordpladeslibning-roskilde",
   "/About": "/om-os",
   "/about": "/om-os",
+  "/Home": "/",
   "/References": "/cases",
+  "/SlibningAfBordplade": "/bordpladeslibning-sjaelland",
+  "/Terms": "/handelsbetingelser",
   "/contact": "/kontakt",
   "/Contact": "/kontakt",
   "/gulvbelaegning-sjaelland": "/gulvlaegning-sjaelland"
