@@ -45,6 +45,9 @@ export const AnalyticsBootstrap = () => {
         track("contact_call_click", {
           source_path: window.location.pathname
         });
+        if (typeof window.fbq === "function") {
+          window.fbq("track", "Contact");
+        }
         return;
       }
 
