@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const COOKIE_NAME = "cookie_consent";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
@@ -25,12 +25,13 @@ const setCookie = (name: string, value: string) => {
 };
 
 export const CookieConsentBanner = () => {
-  const [visible, setVisible] = useState(() => {
-    if (typeof document === "undefined") {
-      return false;
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!getCookie(COOKIE_NAME)) {
+      setVisible(true);
     }
-    return !getCookie(COOKIE_NAME);
-  });
+  }, []);
 
   if (!visible) {
     return null;
