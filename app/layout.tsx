@@ -89,7 +89,7 @@ export default async function RootLayout({
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '3551381571684975');
-              ${hasConsent ? "fbq('track', 'PageView');" : ""}
+              fbq('track', 'PageView');
             `}
           </Script>
         ) : null}
