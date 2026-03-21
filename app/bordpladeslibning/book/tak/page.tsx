@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { MetaLeadEvent } from "@/components/MetaLeadEvent";
 
 type BookTakPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
@@ -59,6 +60,7 @@ export default async function BookTakPage({ searchParams }: BookTakPageProps) {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-16">
+      <MetaLeadEvent />
       <section className="space-y-5 rounded-3xl border border-border/70 bg-white/70 p-6 md:p-10">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Tak - vi har modtaget din forespørgsel
