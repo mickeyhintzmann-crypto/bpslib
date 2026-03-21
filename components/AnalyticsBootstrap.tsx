@@ -42,12 +42,16 @@ export const AnalyticsBootstrap = () => {
 
       const href = anchor.getAttribute("href") || "";
       if (href.startsWith("tel:")) {
+        event.preventDefault();
         track("contact_call_click", {
           source_path: window.location.pathname
         });
         if (typeof window.fbq === "function") {
           window.fbq("track", "Contact");
         }
+        setTimeout(() => {
+          window.location.href = href;
+        }, 300);
         return;
       }
 
