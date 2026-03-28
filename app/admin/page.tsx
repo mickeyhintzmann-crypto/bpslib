@@ -7,14 +7,10 @@ export const metadata: Metadata = {
   description: "Dashboard for drift og overblik.",
   robots: {
     index: false,
-    follow: false
-  }
+    follow: false,
+  },
 };
 
 export default function AdminPage() {
-  return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-10">
-      <AdminDashboard />
-    </main>
-  );
+  return <AdminDashboard />;
 }

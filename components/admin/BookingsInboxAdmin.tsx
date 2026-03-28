@@ -5,6 +5,20 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { useAdminSession } from "@/components/admin/AdminSessionContext";
+import {
+  CalendarDays,
+  RefreshCw,
+  Plus,
+  Search,
+  Filter,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  User,
+  Phone,
+  MapPin,
+} from "lucide-react";
 
 const STATUS_FLOW = [
   "pending_confirmation",
@@ -12,7 +26,7 @@ const STATUS_FLOW = [
   "confirmed",
   "in_progress",
   "done",
-  "cancelled"
+  "cancelled",
 ] as const;
 const SOURCE_VALUES = ["normal", "acute", "manual", "estimator"] as const;
 const SERVICE_VALUES = ["bordplade", "gulv", "toemrer", "maler", "murer", "andet"] as const;
@@ -46,38 +60,26 @@ type ListResponse = {
 };
 
 const formatDate = (iso: string | null) => {
-  if (!iso) {
-    return "-";
-  }
+  if (!iso) return "-";
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("da-DK", { dateStyle: "short" }).format(date);
 };
 
 const formatTime = (iso: string | null) => {
-  if (!iso) {
-    return "-";
-  }
+  if (!iso) return "-";
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("da-DK", { timeStyle: "short" }).format(date);
 };
 
 const slotCountFromRange = (slotStart: string | null, slotEnd: string | null) => {
-  if (!slotStart || !slotEnd) {
-    return null;
-  }
+  if (!slotStart || !slotEnd) return null;
   const startTime = slotStart.slice(11, 16);
   const endTime = slotEnd.slice(11, 16);
   const startIndex = SLOT_TIMES.indexOf(startTime as (typeof SLOT_TIMES)[number]);
   const endIndex = SLOT_END_TIMES.indexOf(endTime as (typeof SLOT_END_TIMES)[number]);
-  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-    return null;
-  }
+  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) return null;
   return endIndex - startIndex + 1;
 };
 
@@ -88,26 +90,36 @@ const STATUS_LABELS: Record<string, string> = {
   confirmed: "Bekræftet",
   in_progress: "I gang",
   done: "Udført",
-  cancelled: "Annulleret"
+  cancelled: "Annulleret",
 };
 
-const statusClassName = (status: string | null) => {
-  const normalized = status?.toLowerCase() || "";
-  if (normalized === "done") return "bg-green-50 text-green-700 border-green-200";
-  if (normalized === "confirmed") return "bg-blue-50 text-blue-700 border-blue-200";
-  if (normalized === "in_progress") return "bg-amber-50 text-amber-700 border-amber-200";
-  if (normalized === "cancelled") return "bg-red-50 text-red-700 border-red-200";
-  return "bg-neutral-50 text-neutral-700 border-border";
+const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
+  done: { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-500" },
+  confirmed: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
+  in_progress: { bg: "bg-violet-50", text: "text-violet-700", dot: "bg-violet-500" },
+  cancelled: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-400" },
+  new: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  pending_confirmation: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  pending: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+};
+
+const StatusBadge = ({ status }: { status: string | null }) => {
+  const config = statusConfig[status || ""] || { bg: "bg-neutral-50", text: "text-neutral-600", dot: "bg-neutral-400" };
+  const label = STATUS_LABELS[status || ""] || status || "-";
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${config.bg} ${config.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {label}
+    </span>
+  );
 };
 
 const formatPrice = (value?: number | null) => {
-  if (typeof value !== "number") {
-    return "-";
-  }
+  if (typeof value !== "number") return "-";
   return new Intl.NumberFormat("da-DK", {
     style: "currency",
     currency: "DKK",
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(value);
 };
 
@@ -138,17 +150,12 @@ export const BookingsInboxAdmin = () => {
       params.set("status", statusFilter);
       params.set("source", sourceFilter);
       params.set("service", serviceFilter);
-      if (dateFrom) {
-        params.set("from", dateFrom);
-      }
-      if (dateTo) {
-        params.set("to", dateTo);
-      }
+      if (dateFrom) params.set("from", dateFrom);
+      if (dateTo) params.set("to", dateTo);
       params.set("page", String(page));
       params.set("limit", "50");
 
       const response = await fetch(`/api/admin/bookings?${params.toString()}`, { cache: "no-store" });
-
       const payload = (await response.json()) as ListResponse;
       if (!response.ok || !payload.items) {
         setItems([]);
@@ -209,14 +216,7 @@ export const BookingsInboxAdmin = () => {
   const searchLower = searchTerm.trim().toLowerCase();
   const visibleItems = searchLower
     ? items.filter((item) => {
-        const haystack = [
-          item.name,
-          item.phone,
-          item.postalCode,
-          item.service,
-          item.source,
-          item.status
-        ]
+        const haystack = [item.name, item.phone, item.postalCode, item.service, item.source, item.status]
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
@@ -224,171 +224,164 @@ export const BookingsInboxAdmin = () => {
       })
     : items;
 
+  const hasActiveFilters =
+    statusFilter !== "alle" || sourceFilter !== "alle" || serviceFilter !== "alle" || dateFrom || dateTo || searchTerm;
+
   return (
-    <section className="space-y-6 rounded-2xl border border-border/70 bg-white/70 p-6 md:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-foreground">Bookinger</h1>
-          <p className="text-sm text-muted-foreground">Overblik over alle bookinger.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
-            <Link href="/admin/bookings/new">Ny booking</Link>
-          </Button>
-          <Button onClick={() => loadList()} disabled={loading}>
-            {loading ? "Henter..." : "Opdater"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_1fr]">
-        <select
-          value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value);
-            setPage(1);
-          }}
-          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-        >
-          <option value="alle">Alle statuser</option>
-          {STATUS_FLOW.map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
-        <select
-          value={sourceFilter}
-          onChange={(event) => {
-            setSourceFilter(event.target.value);
-            setPage(1);
-          }}
-          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-        >
-          <option value="alle">Alle kilder</option>
-          {SOURCE_VALUES.map((source) => (
-            <option key={source} value={source}>
-              {source}
-            </option>
-          ))}
-        </select>
-        <select
-          value={serviceFilter}
-          onChange={(event) => {
-            setServiceFilter(event.target.value);
-            setPage(1);
-          }}
-          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-        >
-          <option value="alle">Alle services</option>
-          {SERVICE_VALUES.map((service) => (
-            <option key={service} value={service}>
-              {service}
-            </option>
-          ))}
-        </select>
-        <div className="grid grid-cols-2 gap-2">
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(event) => {
-              setDateFrom(event.target.value);
-              setPage(1);
-            }}
-            className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-          />
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(event) => {
-              setDateTo(event.target.value);
-              setPage(1);
-            }}
-            className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        <input
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-          placeholder="Søg navn, telefon, postnr..."
-          className="h-10 min-w-[220px] rounded-md border border-border bg-white px-3 text-sm"
-        />
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const today = new Date();
-              const yyyy = today.getFullYear();
-              const mm = `${today.getMonth() + 1}`.padStart(2, "0");
-              const dd = `${today.getDate()}`.padStart(2, "0");
-              const dateKey = `${yyyy}-${mm}-${dd}`;
-              setDateFrom(dateKey);
-              setDateTo(dateKey);
-              setPage(1);
-            }}
-          >
-            I dag
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const today = new Date();
-              const yyyy = today.getFullYear();
-              const mm = `${today.getMonth() + 1}`.padStart(2, "0");
-              const dd = `${today.getDate()}`.padStart(2, "0");
-              const dateFromValue = `${yyyy}-${mm}-${dd}`;
-              const future = new Date(today);
-              future.setDate(today.getDate() + 7);
-              const fyyyy = future.getFullYear();
-              const fmm = `${future.getMonth() + 1}`.padStart(2, "0");
-              const fdd = `${future.getDate()}`.padStart(2, "0");
-              const dateToValue = `${fyyyy}-${fmm}-${fdd}`;
-              setDateFrom(dateFromValue);
-              setDateTo(dateToValue);
-              setPage(1);
-            }}
-          >
-            Næste 7 dage
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setDateFrom("");
-              setDateTo("");
-              setStatusFilter("alle");
-              setSourceFilter("alle");
-              setServiceFilter("alle");
-              setSearchTerm("");
-              setPage(1);
-            }}
-          >
-            Nulstil
-          </Button>
-        </div>
-      </div>
-
-      {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          <p className="font-semibold">{error}</p>
-          {error.toLowerCase().includes("bookings") ? (
-            <p className="mt-2 text-xs text-red-600">
-              Kør migrationerne:{" "}
-              <code>supabase/migrations/20260207000000_bookings_base.sql</code> og{" "}
-              <code>supabase/migrations/20260208000008_bookings_admin_columns.sql</code>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl bg-orange-50 p-2.5">
+            <CalendarDays className="h-5 w-5 text-orange-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Bookinger</h1>
+            <p className="text-sm text-muted-foreground">
+              {total !== null ? `${total} bookinger totalt` : "Overblik over alle bookinger"}
             </p>
-          ) : null}
+          </div>
         </div>
-      ) : null}
-      {usersError ? <p className="text-xs text-amber-700">{usersError}</p> : null}
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/admin/bookings/new">
+              <Plus className="h-3.5 w-3.5" />
+              Ny booking
+            </Link>
+          </Button>
+          <Button onClick={() => loadList()} disabled={loading} variant="outline" className="gap-2">
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Opdater
+          </Button>
+        </div>
+      </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border">
-        <div className="hidden grid-cols-[1fr_0.9fr_0.7fr_1fr_1fr_1.1fr_1.1fr_0.9fr_1fr_1fr] gap-2 bg-muted/60 px-4 py-3 text-xs font-semibold uppercase text-muted-foreground md:grid">
+      {/* Filters */}
+      <div className="rounded-2xl border border-border/40 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <Filter className="h-3.5 w-3.5" />
+          Filtre
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="h-10 rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+          >
+            <option value="alle">Alle statuser</option>
+            {STATUS_FLOW.map((s) => (
+              <option key={s} value={s}>{STATUS_LABELS[s] || s}</option>
+            ))}
+          </select>
+          <select
+            value={sourceFilter}
+            onChange={(e) => { setSourceFilter(e.target.value); setPage(1); }}
+            className="h-10 rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+          >
+            <option value="alle">Alle kilder</option>
+            {SOURCE_VALUES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <select
+            value={serviceFilter}
+            onChange={(e) => { setServiceFilter(e.target.value); setPage(1); }}
+            className="h-10 rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+          >
+            <option value="alle">Alle services</option>
+            {SERVICE_VALUES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+              className="h-10 rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+              className="h-10 rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+            />
+          </div>
+        </div>
+
+        {/* Search + quick filters */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="relative min-w-[240px] flex-1 sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Søg navn, telefon, postnr..."
+              className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 pl-9 pr-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const today = new Date();
+                const dateKey = today.toISOString().slice(0, 10);
+                setDateFrom(dateKey);
+                setDateTo(dateKey);
+                setPage(1);
+              }}
+              className="rounded-lg bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-orange-50 hover:text-orange-700"
+            >
+              I dag
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const today = new Date();
+                const future = new Date(today);
+                future.setDate(today.getDate() + 7);
+                setDateFrom(today.toISOString().slice(0, 10));
+                setDateTo(future.toISOString().slice(0, 10));
+                setPage(1);
+              }}
+              className="rounded-lg bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-orange-50 hover:text-orange-700"
+            >
+              Næste 7 dage
+            </button>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDateFrom("");
+                  setDateTo("");
+                  setStatusFilter("alle");
+                  setSourceFilter("alle");
+                  setServiceFilter("alle");
+                  setSearchTerm("");
+                  setPage(1);
+                }}
+                className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Nulstil
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Errors */}
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p className="font-semibold">{error}</p>
+        </div>
+      )}
+      {usersError && <p className="text-xs text-amber-700">{usersError}</p>}
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-2xl border border-border/40 bg-white shadow-sm">
+        {/* Desktop header */}
+        <div className="hidden grid-cols-[1fr_0.8fr_0.6fr_0.9fr_0.9fr_1.1fr_1fr_0.8fr_0.9fr_1fr] gap-2 border-b border-border/40 bg-muted/30 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground md:grid">
           <span>Dato</span>
           <span>Start</span>
           <span>Slots</span>
@@ -400,10 +393,13 @@ export const BookingsInboxAdmin = () => {
           <span>Pris</span>
           <span>Status</span>
         </div>
-        <div className="divide-y divide-border/70 bg-white/70">
+        <div className="divide-y divide-border/30">
           {visibleItems.length === 0 ? (
-            <div className="px-4 py-6 text-sm text-muted-foreground">
-              {loading ? "Henter bookinger..." : "Ingen bookinger matcher dine filtre."}
+            <div className="flex flex-col items-center py-12 text-center">
+              <CalendarDays className="mb-3 h-10 w-10 text-muted-foreground/20" />
+              <p className="text-sm font-medium text-muted-foreground">
+                {loading ? "Henter bookinger..." : "Ingen bookinger matcher dine filtre."}
+              </p>
             </div>
           ) : (
             visibleItems.map((item) => {
@@ -413,39 +409,54 @@ export const BookingsInboxAdmin = () => {
                 <Link
                   key={item.id}
                   href={`/admin/bookings/${item.id}`}
-                  className="block px-4 py-4 text-sm text-foreground hover:bg-muted/40"
+                  className="block transition hover:bg-orange-50/30"
                 >
-                  <div className="hidden grid-cols-[1fr_0.9fr_0.7fr_1fr_1fr_1.1fr_1.1fr_0.9fr_1fr_1fr] gap-2 md:grid">
-                    <span>{formatDate(item.slotStart)}</span>
-                    <span>{formatTime(item.slotStart)}</span>
-                    <span>{item.slotCount ?? slotCountFromRange(item.slotStart, item.slotEnd) ?? "-"}</span>
-                    <span>{item.service || "-"}</span>
-                    <span>{item.source || "-"}</span>
-                    <span>{item.name || "-"}</span>
-                    <span>{item.phone || "-"}</span>
-                    <span>{item.postalCode || "-"}</span>
-                    <span>{formatPrice(item.priceTotal)}</span>
-                    <span className={`inline-flex items-center justify-center rounded-full border px-2 py-1 text-xs ${statusClassName(item.status)}`}>
-                      {statusText}
-                    </span>
+                  {/* Desktop row */}
+                  <div className="hidden grid-cols-[1fr_0.8fr_0.6fr_0.9fr_0.9fr_1.1fr_1fr_0.8fr_0.9fr_1fr] items-center gap-2 px-5 py-3.5 text-sm md:grid">
+                    <span className="font-medium text-foreground">{formatDate(item.slotStart)}</span>
+                    <span className="text-muted-foreground">{formatTime(item.slotStart)}</span>
+                    <span className="text-muted-foreground">{item.slotCount ?? slotCountFromRange(item.slotStart, item.slotEnd) ?? "-"}</span>
+                    <span className="text-muted-foreground">{item.service || "-"}</span>
+                    <span className="text-muted-foreground">{item.source || "-"}</span>
+                    <span className="font-medium text-foreground">{item.name || "-"}</span>
+                    <span className="text-muted-foreground">{item.phone || "-"}</span>
+                    <span className="text-muted-foreground">{item.postalCode || "-"}</span>
+                    <span className="font-medium text-foreground">{formatPrice(item.priceTotal)}</span>
+                    <StatusBadge status={item.status} />
                   </div>
-                  <div className="space-y-2 md:hidden">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold">
-                        {item.name || "Ukendt"} · {formatDate(item.slotStart)}
-                      </p>
-                      <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs ${statusClassName(item.status)}`}>
-                        {statusText}
-                      </span>
+
+                  {/* Mobile card */}
+                  <div className="space-y-2 px-4 py-4 md:hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-foreground">{item.name || "Ukendt"}</p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(item.slotStart)} · {formatTime(item.slotStart)}
+                        </div>
+                      </div>
+                      <StatusBadge status={item.status} />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(item.slotStart)} · {item.service || "-"} · {item.source || "-"}
-                    </p>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span>{item.phone || "-"}</span>
-                      <span>{item.postalCode || "-"}</span>
-                      {assignedName ? <span>Tildelt: {assignedName}</span> : null}
-                      {item.priceTotal ? <span>Pris: {formatPrice(item.priceTotal)}</span> : null}
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {item.service && (
+                        <span className="rounded-md bg-muted/50 px-2 py-0.5 font-medium">{item.service}</span>
+                      )}
+                      {item.phone && (
+                        <span className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" /> {item.phone}
+                        </span>
+                      )}
+                      {item.postalCode && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {item.postalCode}
+                        </span>
+                      )}
+                      {assignedName && (
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" /> {assignedName}
+                        </span>
+                      )}
+                      {item.priceTotal ? <span className="font-medium text-foreground">{formatPrice(item.priceTotal)}</span> : null}
                     </div>
                   </div>
                 </Link>
@@ -455,30 +466,36 @@ export const BookingsInboxAdmin = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
+      {/* Pagination */}
+      <div className="flex items-center justify-between rounded-2xl border border-border/40 bg-white px-5 py-3 shadow-sm">
+        <span className="text-sm text-muted-foreground">
           Side {page}
           {total !== null ? ` af ${Math.max(1, Math.ceil(total / 50))}` : ""}
+          {total !== null ? ` · ${total} resultater` : ""}
         </span>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
+            className="gap-1"
           >
+            <ChevronLeft className="h-3.5 w-3.5" />
             Forrige
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((prev) => prev + 1)}
+            onClick={() => setPage((p) => p + 1)}
             disabled={!hasNextPage}
+            className="gap-1"
           >
             Næste
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
-    </section>
+    </div>
   );
 };

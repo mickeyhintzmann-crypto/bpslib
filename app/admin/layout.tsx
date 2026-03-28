@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { adminSessionCookieName, verifyAdminSessionToken } from "@/lib/admin-auth";
@@ -9,34 +8,21 @@ export const metadata: Metadata = {
   robots: {
     index: false,
     follow: false,
-    nocache: true
-  }
+    nocache: true,
+  },
 };
 
 export default async function AdminLayout({
-  children
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  const headerList = await headers();
-  const pathHint =
-    headerList.get("x-pathname") ||
-    headerList.get("x-nextjs-route") ||
-    headerList.get("x-invoke-path") ||
-    headerList.get("x-matched-path") ||
-    headerList.get("x-next-url") ||
-    headerList.get("next-url") ||
-    "";
-  const isLoginRoute = pathHint.includes("/admin/login");
-
   const sessionToken = (await cookies()).get(adminSessionCookieName)?.value;
   const session = verifyAdminSessionToken(sessionToken);
 
-  if (!isLoginRoute && !session) {
-    redirect("/admin/login");
-  }
-
-  if (isLoginRoute) {
+  // If no valid session, render children directly (login page)
+  // Middleware handles the redirect for non-login routes
+  if (!session) {
     return children;
   }
 

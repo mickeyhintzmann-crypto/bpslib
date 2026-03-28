@@ -5,6 +5,19 @@ import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { JOB_SERVICE_VALUES, JOB_STATUS_VALUES, type JobService, type JobStatus } from "@/lib/admin/jobs";
+import {
+  Briefcase,
+  RefreshCw,
+  Plus,
+  Filter,
+  Pencil,
+  Trash2,
+  X,
+  Clock,
+  MapPin,
+  User,
+  Save,
+} from "lucide-react";
 
 type EmployeeItem = {
   id: string;
@@ -38,15 +51,8 @@ type JobItem = {
   } | null;
 };
 
-type JobsResponse = {
-  items?: JobItem[];
-  message?: string;
-};
-
-type EmployeesResponse = {
-  items?: EmployeeItem[];
-  message?: string;
-};
+type JobsResponse = { items?: JobItem[]; message?: string };
+type EmployeesResponse = { items?: EmployeeItem[]; message?: string };
 
 type LeadPrefill = {
   id: string;
@@ -57,12 +63,21 @@ type LeadPrefill = {
 };
 
 const statusLabels: Record<JobStatus, string> = {
-  unassigned: "Unassigned",
-  scheduled: "Scheduled",
-  in_progress: "In progress",
-  done: "Done",
-  invoiced: "Invoiced",
-  cancelled: "Cancelled"
+  unassigned: "Ikke tildelt",
+  scheduled: "Planlagt",
+  in_progress: "I gang",
+  done: "Udført",
+  invoiced: "Faktureret",
+  cancelled: "Annulleret",
+};
+
+const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
+  unassigned: { bg: "bg-neutral-100", text: "text-neutral-600", dot: "bg-neutral-400" },
+  scheduled: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
+  in_progress: { bg: "bg-violet-50", text: "text-violet-700", dot: "bg-violet-500" },
+  done: { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-500" },
+  invoiced: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  cancelled: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-400" },
 };
 
 const serviceLabels: Record<JobService, string> = {
@@ -73,7 +88,18 @@ const serviceLabels: Record<JobService, string> = {
   maler: "Maler",
   toemrer: "Tømrer",
   murer: "Murer",
-  andet: "Andet"
+  andet: "Andet",
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const config = statusConfig[status] || statusConfig.unassigned;
+  const label = statusLabels[status as JobStatus] || status;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${config.bg} ${config.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {label}
+    </span>
+  );
 };
 
 type RangePreset = "today" | "week" | "next14";
@@ -82,48 +108,30 @@ const getRangeByPreset = (preset: RangePreset) => {
   const from = new Date();
   from.setHours(0, 0, 0, 0);
   const to = new Date(from);
-
-  if (preset === "today") {
-    to.setHours(23, 59, 59, 999);
-  } else if (preset === "week") {
-    to.setDate(to.getDate() + 6);
-    to.setHours(23, 59, 59, 999);
-  } else {
-    to.setDate(to.getDate() + 13);
-    to.setHours(23, 59, 59, 999);
-  }
-
+  if (preset === "today") { to.setHours(23, 59, 59, 999); }
+  else if (preset === "week") { to.setDate(to.getDate() + 6); to.setHours(23, 59, 59, 999); }
+  else { to.setDate(to.getDate() + 13); to.setHours(23, 59, 59, 999); }
   return { fromIso: from.toISOString(), toIso: to.toISOString() };
 };
 
 const toInputDateTime = (iso: string) => {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
+  if (Number.isNaN(date.getTime())) return "";
   const offsetMinutes = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offsetMinutes * 60000);
   return local.toISOString().slice(0, 16);
 };
 
 const fromInputDateTime = (value: string) => {
-  if (!value) {
-    return null;
-  }
+  if (!value) return null;
   const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
+  if (Number.isNaN(parsed.getTime())) return null;
   return parsed.toISOString();
 };
 
 const formatDateTime = (iso: string) => {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "Ukendt";
-  }
-
+  if (Number.isNaN(date.getTime())) return "Ukendt";
   return new Intl.DateTimeFormat("da-DK", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
 
@@ -133,7 +141,6 @@ const makeInitialForm = () => {
   start.setHours(start.getHours() + 1);
   const end = new Date(start);
   end.setHours(end.getHours() + 2);
-
   return {
     title: "",
     service: "andet" as JobService,
@@ -144,9 +151,12 @@ const makeInitialForm = () => {
     location: "",
     address: "",
     notes: "",
-    leadId: ""
+    leadId: "",
   };
 };
+
+const inputClass =
+  "mt-1 h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100";
 
 export const JobsManager = () => {
   const searchParams = useSearchParams();
@@ -171,7 +181,7 @@ export const JobsManager = () => {
   const [saveError, setSaveError] = useState("");
 
   const employeeOptions = useMemo(
-    () => employees.filter((employee) => employee.isActive || employee.id === form.assignedEmployeeId),
+    () => employees.filter((e) => e.isActive || e.id === form.assignedEmployeeId),
     [employees, form.assignedEmployeeId]
   );
 
@@ -179,46 +189,29 @@ export const JobsManager = () => {
     try {
       const response = await fetch("/api/admin/employees?all=1", { cache: "no-store" });
       const payload = (await response.json()) as EmployeesResponse;
-      if (!response.ok || !payload.items) {
-        return;
-      }
+      if (!response.ok || !payload.items) return;
       setEmployees(payload.items);
-    } catch (fetchError) {
-      console.error(fetchError);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const loadJobs = async () => {
     setLoading(true);
     setError("");
-
     try {
       const { fromIso, toIso } = getRangeByPreset(rangePreset);
-      const params = new URLSearchParams({
-        from: fromIso,
-        to: toIso
-      });
-
-      if (statusFilter !== "alle") {
-        params.set("status", statusFilter);
-      }
-
-      if (employeeFilter !== "alle") {
-        params.set("employeeId", employeeFilter);
-      }
-
+      const params = new URLSearchParams({ from: fromIso, to: toIso });
+      if (statusFilter !== "alle") params.set("status", statusFilter);
+      if (employeeFilter !== "alle") params.set("employeeId", employeeFilter);
       const response = await fetch(`/api/admin/jobs?${params.toString()}`, { cache: "no-store" });
       const payload = (await response.json()) as JobsResponse;
-
       if (!response.ok || !payload.items) {
         setJobs([]);
         setError(payload.message || "Kunne ikke hente jobs.");
         return;
       }
-
       setJobs(payload.items);
-    } catch (fetchError) {
-      console.error(fetchError);
+    } catch (e) {
+      console.error(e);
       setJobs([]);
       setError("Netværksfejl ved hentning af jobs.");
     } finally {
@@ -226,77 +219,33 @@ export const JobsManager = () => {
     }
   };
 
-  useEffect(() => {
-    loadEmployees();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    loadJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rangePreset, statusFilter, employeeFilter]);
+  useEffect(() => { loadEmployees(); }, []);
+  useEffect(() => { loadJobs(); }, [rangePreset, statusFilter, employeeFilter]);
 
   useEffect(() => {
     const loadLeadPrefill = async () => {
-      if (!leadIdFromQuery) {
-        setLeadPrefill(null);
-        return;
-      }
-
+      if (!leadIdFromQuery) { setLeadPrefill(null); return; }
       setLeadPrefillBusy(true);
       try {
         const response = await fetch(`/api/admin/leads/${leadIdFromQuery}`, { cache: "no-store" });
-        const payload = (await response.json()) as {
-          item?: {
-            id: string;
-            name: string | null;
-            location: string | null;
-            message: string | null;
-            service: string | null;
-          };
-        };
-
-        if (!response.ok || !payload.item) {
-          setLeadPrefill(null);
-          return;
-        }
-
-        setLeadPrefill({
-          id: payload.item.id,
-          name: payload.item.name,
-          location: payload.item.location,
-          message: payload.item.message,
-          service: payload.item.service
-        });
-      } catch (prefillError) {
-        console.error(prefillError);
-        setLeadPrefill(null);
-      } finally {
-        setLeadPrefillBusy(false);
-      }
+        const payload = (await response.json()) as { item?: { id: string; name: string | null; location: string | null; message: string | null; service: string | null } };
+        if (!response.ok || !payload.item) { setLeadPrefill(null); return; }
+        setLeadPrefill({ id: payload.item.id, name: payload.item.name, location: payload.item.location, message: payload.item.message, service: payload.item.service });
+      } catch (e) { console.error(e); setLeadPrefill(null); }
+      finally { setLeadPrefillBusy(false); }
     };
-
     loadLeadPrefill();
   }, [leadIdFromQuery]);
 
   const openCreate = () => {
     const next = makeInitialForm();
-
     if (leadPrefill) {
       next.leadId = leadPrefill.id;
       next.location = leadPrefill.location || "";
-      if (leadPrefill.service && JOB_SERVICE_VALUES.includes(leadPrefill.service as JobService)) {
-        next.service = leadPrefill.service as JobService;
-      }
-
-      const noteParts = [
-        `Lead: ${leadPrefill.name || "Ukendt"}`,
-        leadPrefill.location ? `Lokation: ${leadPrefill.location}` : "",
-        leadPrefill.message ? `Besked: ${leadPrefill.message}` : ""
-      ].filter(Boolean);
+      if (leadPrefill.service && JOB_SERVICE_VALUES.includes(leadPrefill.service as JobService)) next.service = leadPrefill.service as JobService;
+      const noteParts = [`Lead: ${leadPrefill.name || "Ukendt"}`, leadPrefill.location ? `Lokation: ${leadPrefill.location}` : "", leadPrefill.message ? `Besked: ${leadPrefill.message}` : ""].filter(Boolean);
       next.notes = noteParts.join("\n");
     }
-
     setEditingId(null);
     setSaveError("");
     setForm(next);
@@ -316,7 +265,7 @@ export const JobsManager = () => {
       location: item.location || "",
       address: item.address || "",
       notes: item.notes || "",
-      leadId: item.leadId || ""
+      leadId: item.leadId || "",
     });
     setEditorOpen(true);
   };
@@ -324,153 +273,127 @@ export const JobsManager = () => {
   const saveJob = async () => {
     setSaving(true);
     setSaveError("");
-
     try {
       const startAtIso = fromInputDateTime(form.startAt);
       const endAtIso = fromInputDateTime(form.endAt);
-      if (!startAtIso || !endAtIso) {
-        setSaveError("Start/slut tidspunkt er ugyldigt.");
-        return;
-      }
-
+      if (!startAtIso || !endAtIso) { setSaveError("Start/slut tidspunkt er ugyldigt."); return; }
       const endpoint = editingId ? `/api/admin/jobs/${editingId}` : "/api/admin/jobs";
       const method = editingId ? "PATCH" : "POST";
-
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: form.title,
-          service: form.service,
-          status: form.status,
-          start_at: startAtIso,
-          end_at: endAtIso,
+          title: form.title, service: form.service, status: form.status,
+          start_at: startAtIso, end_at: endAtIso,
           assigned_employee_id: form.assignedEmployeeId || null,
-          location: form.location || null,
-          address: form.address || null,
-          notes: form.notes || null,
-          lead_id: form.leadId || null
-        })
+          location: form.location || null, address: form.address || null,
+          notes: form.notes || null, lead_id: form.leadId || null,
+        }),
       });
-
       const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setSaveError(payload.message || "Kunne ikke gemme job.");
-        return;
-      }
-
+      if (!response.ok) { setSaveError(payload.message || "Kunne ikke gemme job."); return; }
       setEditorOpen(false);
       setEditingId(null);
       setForm(makeInitialForm());
       await loadJobs();
-    } catch (persistError) {
-      console.error(persistError);
-      setSaveError("Netværksfejl ved gemning.");
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { console.error(e); setSaveError("Netværksfejl ved gemning."); }
+    finally { setSaving(false); }
   };
 
   const deleteJob = async (item: JobItem) => {
     const confirmed = window.confirm(`Slet job "${item.title}"?`);
-    if (!confirmed) {
-      return;
-    }
-
+    if (!confirmed) return;
     setSaving(true);
     setError("");
-
     try {
       const response = await fetch(`/api/admin/jobs/${item.id}`, { method: "DELETE" });
       const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setError(payload.message || "Kunne ikke slette job.");
-        return;
-      }
+      if (!response.ok) { setError(payload.message || "Kunne ikke slette job."); return; }
       await loadJobs();
-    } catch (deleteError) {
-      console.error(deleteError);
-      setError("Netværksfejl ved sletning.");
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { console.error(e); setError("Netværksfejl ved sletning."); }
+    finally { setSaving(false); }
   };
 
+  const rangeLabels: Record<RangePreset, string> = { today: "I dag", week: "Denne uge", next14: "Næste 14 dage" };
+
   return (
-    <section className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-foreground">Jobs</h1>
-          <p className="text-sm text-muted-foreground">Planlæg opgaver og tildel medarbejdere.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl bg-blue-50 p-2.5">
+            <Briefcase className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Jobs</h1>
+            <p className="text-sm text-muted-foreground">Planlæg opgaver og tildel medarbejdere.</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => loadJobs()} disabled={loading}>
-            {loading ? "Henter..." : "Opdater"}
+          <Button variant="outline" onClick={() => loadJobs()} disabled={loading} className="gap-2">
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Opdater
           </Button>
-          <Button onClick={openCreate}>Nyt job</Button>
+          <Button onClick={openCreate} className="gap-2">
+            <Plus className="h-3.5 w-3.5" />
+            Nyt job
+          </Button>
         </div>
       </div>
 
-      {leadPrefillBusy ? <p className="text-xs text-muted-foreground">Henter lead-prefill…</p> : null}
-      {leadPrefill ? (
-        <p className="text-xs text-muted-foreground">
-          Lead-prefill aktiv: <strong>{leadPrefill.id}</strong> (via query param)
-        </p>
-      ) : null}
+      {leadPrefillBusy && <p className="text-xs text-muted-foreground">Henter lead-prefill...</p>}
+      {leadPrefill && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-700">
+          Lead-prefill aktiv: <strong>{leadPrefill.name || leadPrefill.id}</strong>
+        </div>
+      )}
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <label className="text-sm text-muted-foreground">
-          Range
-          <select
-            value={rangePreset}
-            onChange={(event) => setRangePreset(event.target.value as RangePreset)}
-            className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-          >
-            <option value="today">Today</option>
-            <option value="week">This week</option>
-            <option value="next14">Next 14 days</option>
-          </select>
-        </label>
-
-        <label className="text-sm text-muted-foreground">
-          Status
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-          >
-            <option value="alle">Alle status</option>
-            {JOB_STATUS_VALUES.map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="text-sm text-muted-foreground">
-          Medarbejder
-          <select
-            value={employeeFilter}
-            onChange={(event) => setEmployeeFilter(event.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-          >
-            <option value="alle">Alle</option>
-            {employees.map((employee) => (
-              <option key={employee.id} value={employee.id}>
-                {employee.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      {/* Filters */}
+      <div className="rounded-2xl border border-border/40 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <Filter className="h-3.5 w-3.5" />
+          Filtre
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Periode</label>
+            <select value={rangePreset} onChange={(e) => setRangePreset(e.target.value as RangePreset)} className={inputClass}>
+              {(["today", "week", "next14"] as RangePreset[]).map((p) => (
+                <option key={p} value={p}>{rangeLabels[p]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Status</label>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={inputClass}>
+              <option value="alle">Alle status</option>
+              {JOB_STATUS_VALUES.map((s) => (
+                <option key={s} value={s}>{statusLabels[s]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Medarbejder</label>
+            <select value={employeeFilter} onChange={(e) => setEmployeeFilter(e.target.value)} className={inputClass}>
+              <option value="alle">Alle</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>{emp.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
-      {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p className="font-semibold">{error}</p>
+        </div>
+      )}
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-white">
-        <div className="grid grid-cols-[180px_1fr_140px_180px_1fr_150px] border-b border-border/70 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {/* Jobs table */}
+      <div className="overflow-hidden rounded-2xl border border-border/40 bg-white shadow-sm">
+        {/* Desktop header */}
+        <div className="hidden grid-cols-[160px_1fr_120px_140px_1fr_130px] gap-2 border-b border-border/40 bg-muted/30 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground lg:grid">
           <span>Tid</span>
           <span>Titel</span>
           <span>Status</span>
@@ -478,29 +401,83 @@ export const JobsManager = () => {
           <span>Lokation</span>
           <span>Handling</span>
         </div>
-        <div className="divide-y divide-border/60">
+        <div className="divide-y divide-border/30">
           {jobs.length === 0 ? (
-            <p className="px-4 py-6 text-sm text-muted-foreground">{loading ? "Henter jobs..." : "Ingen jobs i perioden."}</p>
+            <div className="flex flex-col items-center py-12 text-center">
+              <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/20" />
+              <p className="text-sm font-medium text-muted-foreground">
+                {loading ? "Henter jobs..." : "Ingen jobs i perioden."}
+              </p>
+            </div>
           ) : (
             jobs.map((item) => (
-              <div key={item.id} className="grid grid-cols-[180px_1fr_140px_180px_1fr_150px] items-center gap-2 px-4 py-3 text-sm">
-                <span className="text-muted-foreground">
-                  {formatDateTime(item.startAt)} → {formatDateTime(item.endAt)}
-                </span>
-                <div>
-                  <p className="font-medium text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.service ? serviceLabels[item.service as JobService] || item.service : "Ingen service"}</p>
+              <div key={item.id} className="transition hover:bg-blue-50/20">
+                {/* Desktop row */}
+                <div className="hidden grid-cols-[160px_1fr_120px_140px_1fr_130px] items-center gap-2 px-5 py-3.5 text-sm lg:grid">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{formatDateTime(item.startAt)}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.service ? serviceLabels[item.service as JobService] || item.service : "Ingen service"}
+                    </p>
+                  </div>
+                  <StatusBadge status={item.status} />
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <User className="h-3 w-3" />
+                    {item.employee?.name || "Ikke tildelt"}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    {item.location || "-"}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => openEdit(item)}
+                      className="rounded-lg p-2 text-muted-foreground transition hover:bg-blue-50 hover:text-blue-600"
+                      title="Redigér"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteJob(item)}
+                      disabled={saving}
+                      className="rounded-lg p-2 text-muted-foreground transition hover:bg-red-50 hover:text-red-600"
+                      title="Slet"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-                <span className="text-muted-foreground">{statusLabels[item.status as JobStatus] || item.status}</span>
-                <span className="text-muted-foreground">{item.employee?.name || "Unassigned"}</span>
-                <span className="text-muted-foreground">{item.location || "-"}</span>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => openEdit(item)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => deleteJob(item)} disabled={saving}>
-                    Delete
-                  </Button>
+
+                {/* Mobile card */}
+                <div className="space-y-2 px-4 py-4 lg:hidden">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-foreground">{item.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {item.service ? serviceLabels[item.service as JobService] || item.service : ""}
+                      </p>
+                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatDateTime(item.startAt)}</span>
+                    <span className="flex items-center gap-1"><User className="h-3 w-3" /> {item.employee?.name || "Ikke tildelt"}</span>
+                    {item.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {item.location}</span>}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button size="sm" variant="outline" onClick={() => openEdit(item)} className="gap-1.5">
+                      <Pencil className="h-3 w-3" /> Redigér
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => deleteJob(item)} disabled={saving} className="gap-1.5 text-red-600 hover:bg-red-50">
+                      <Trash2 className="h-3 w-3" /> Slet
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))
@@ -508,139 +485,117 @@ export const JobsManager = () => {
         </div>
       </div>
 
-      {editorOpen ? (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
-          <div className="h-full w-full max-w-2xl overflow-y-auto bg-white p-6 shadow-xl">
+      {/* Editor slide-over */}
+      {editorOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setEditorOpen(false)}
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            aria-label="Luk editor"
+          />
+          <div className="relative h-full w-full max-w-2xl overflow-y-auto border-l border-border/40 bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground">{editingId ? "Redigér job" : "Nyt job"}</h2>
-                <p className="text-sm text-muted-foreground">Opret eller redigér planlagte opgaver.</p>
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-blue-50 p-2">
+                  <Briefcase className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">
+                    {editingId ? "Redigér job" : "Nyt job"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {editingId ? "Opdater opgavens detaljer." : "Opret en ny planlagt opgave."}
+                  </p>
+                </div>
               </div>
-              <Button variant="outline" onClick={() => setEditorOpen(false)}>
-                Luk
-              </Button>
+              <button
+                type="button"
+                onClick={() => setEditorOpen(false)}
+                className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            {saveError ? <p className="mt-4 text-sm font-medium text-red-700">{saveError}</p> : null}
+            {saveError && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {saveError}
+              </div>
+            )}
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <label className="text-sm text-muted-foreground md:col-span-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:col-span-2">
                 Titel
                 <input
                   value={form.title}
-                  onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
+                  onChange={(e) => setForm((c) => ({ ...c, title: e.target.value }))}
+                  className={inputClass}
+                  placeholder="Fx. Gulvafslibning - Frederiksberg"
                 />
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Service
-                <select
-                  value={form.service}
-                  onChange={(event) => setForm((current) => ({ ...current, service: event.target.value as JobService }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                >
-                  {JOB_SERVICE_VALUES.map((service) => (
-                    <option key={service} value={service}>
-                      {serviceLabels[service]}
-                    </option>
-                  ))}
+                <select value={form.service} onChange={(e) => setForm((c) => ({ ...c, service: e.target.value as JobService }))} className={inputClass}>
+                  {JOB_SERVICE_VALUES.map((s) => <option key={s} value={s}>{serviceLabels[s]}</option>)}
                 </select>
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Status
-                <select
-                  value={form.status}
-                  onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as JobStatus }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                >
-                  {JOB_STATUS_VALUES.map((status) => (
-                    <option key={status} value={status}>
-                      {statusLabels[status]}
-                    </option>
-                  ))}
+                <select value={form.status} onChange={(e) => setForm((c) => ({ ...c, status: e.target.value as JobStatus }))} className={inputClass}>
+                  {JOB_STATUS_VALUES.map((s) => <option key={s} value={s}>{statusLabels[s]}</option>)}
                 </select>
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Start
-                <input
-                  type="datetime-local"
-                  value={form.startAt}
-                  onChange={(event) => setForm((current) => ({ ...current, startAt: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                <input type="datetime-local" value={form.startAt} onChange={(e) => setForm((c) => ({ ...c, startAt: e.target.value }))} className={inputClass} />
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Slut
-                <input
-                  type="datetime-local"
-                  value={form.endAt}
-                  onChange={(event) => setForm((current) => ({ ...current, endAt: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                <input type="datetime-local" value={form.endAt} onChange={(e) => setForm((c) => ({ ...c, endAt: e.target.value }))} className={inputClass} />
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Medarbejder
-                <select
-                  value={form.assignedEmployeeId}
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, assignedEmployeeId: event.target.value }))
-                  }
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                >
-                  <option value="">Unassigned</option>
-                  {employeeOptions.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.name}
-                    </option>
-                  ))}
+                <select value={form.assignedEmployeeId} onChange={(e) => setForm((c) => ({ ...c, assignedEmployeeId: e.target.value }))} className={inputClass}>
+                  <option value="">Ikke tildelt</option>
+                  {employeeOptions.map((emp) => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                 </select>
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Lead ID (valgfri)
-                <input
-                  value={form.leadId}
-                  onChange={(event) => setForm((current) => ({ ...current, leadId: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                <input value={form.leadId} onChange={(e) => setForm((c) => ({ ...c, leadId: e.target.value }))} className={inputClass} />
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Lokation
-                <input
-                  value={form.location}
-                  onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                <input value={form.location} onChange={(e) => setForm((c) => ({ ...c, location: e.target.value }))} className={inputClass} placeholder="Fx. København NV" />
               </label>
 
-              <label className="text-sm text-muted-foreground">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Adresse
-                <input
-                  value={form.address}
-                  onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3"
-                />
+                <input value={form.address} onChange={(e) => setForm((c) => ({ ...c, address: e.target.value }))} className={inputClass} placeholder="Fx. Nørrebrogade 42" />
               </label>
 
-              <label className="text-sm text-muted-foreground md:col-span-2">
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:col-span-2">
                 Noter
                 <textarea
                   value={form.notes}
-                  onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
-                  rows={5}
-                  className="mt-1 w-full rounded-md border border-border bg-white px-3 py-2"
+                  onChange={(e) => setForm((c) => ({ ...c, notes: e.target.value }))}
+                  rows={4}
+                  className="mt-1 w-full rounded-xl border border-border/60 bg-muted/20 px-3 py-2 text-sm transition focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-100"
                 />
               </label>
             </div>
 
-            <div className="mt-6 flex gap-3">
-              <Button onClick={saveJob} disabled={saving}>
+            <div className="mt-6 flex gap-3 border-t border-border/40 pt-6">
+              <Button onClick={saveJob} disabled={saving} className="gap-2">
+                <Save className="h-3.5 w-3.5" />
                 {saving ? "Gemmer..." : editingId ? "Gem ændringer" : "Opret job"}
               </Button>
               <Button variant="outline" onClick={() => setEditorOpen(false)}>
@@ -649,7 +604,7 @@ export const JobsManager = () => {
             </div>
           </div>
         </div>
-      ) : null}
-    </section>
+      )}
+    </div>
   );
 };
