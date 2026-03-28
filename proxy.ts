@@ -33,6 +33,20 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 307);
   }
 
+  // Admin auth: redirect to login if no session cookie (skip login page + auth API)
+  if (
+    pathname.startsWith("/admin") &&
+    pathname !== "/admin/login" &&
+    !pathname.startsWith("/api/admin/auth")
+  ) {
+    const sessionCookie = request.cookies.get("admin_session");
+    if (!sessionCookie?.value) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/login";
+      return NextResponse.redirect(url, 307);
+    }
+  }
+
   const normalized = normalizePath(pathname);
   const mappedTarget = getRedirectTarget(normalized);
 
