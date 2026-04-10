@@ -150,16 +150,21 @@ export const Footer = () => {
             ) : null}
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-3 border-t border-stone-700/80 pt-5 text-xs text-stone-400">
-            <span className="uppercase tracking-[0.28em] text-stone-500">Developed by</span>
+          <div className="mt-5 flex justify-center border-t border-stone-700/80 pt-5">
             <a
               href="https://www.vintorstudio.com/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Visit VintorStudio"
-              className="text-sm font-semibold tracking-[0.08em] text-stone-200 transition hover:text-primary"
+              className="group inline-flex items-center gap-3 rounded-full border border-stone-700 bg-stone-800/70 px-4 py-2.5 text-xs text-stone-400 shadow-sm shadow-black/20 backdrop-blur transition hover:border-primary/40 hover:bg-stone-800"
             >
-              VintorStudio
+              <span className="uppercase tracking-[0.28em] text-stone-500 transition group-hover:text-stone-400">
+                Developed by
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-primary/80 transition group-hover:scale-110" />
+              <span className="text-sm font-semibold tracking-[0.08em] text-stone-100 transition group-hover:text-primary">
+                VintorStudio
+              </span>
             </a>
           </div>
         </div>
