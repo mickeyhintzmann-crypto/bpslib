@@ -134,19 +134,34 @@ export const Footer = () => {
           </section>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-stone-700 pt-5 text-xs text-stone-400 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} {siteConfig.companyName}. Alle rettigheder forbeholdes.</p>
-          {siteConfig.anmeldHaandvaerker.enabled && siteConfig.anmeldHaandvaerker.profileUrl ? (
-            <Link href={siteConfig.anmeldHaandvaerker.profileUrl} target="_blank" rel="noopener noreferrer">
-              <BpsImage
-                src={trustAssets.anmeldHaandvaerkerBadge}
-                alt="Anmeld-håndværker badge"
-                width={220}
-                height={100}
-                className="h-8 w-auto"
-              />
-            </Link>
-          ) : null}
+        <div className="mt-8 border-t border-stone-700 pt-5">
+          <div className="flex flex-col gap-3 text-xs text-stone-400 md:flex-row md:items-center md:justify-between">
+            <p>© {new Date().getFullYear()} {siteConfig.companyName}. Alle rettigheder forbeholdes.</p>
+            {siteConfig.anmeldHaandvaerker.enabled && siteConfig.anmeldHaandvaerker.profileUrl ? (
+              <Link href={siteConfig.anmeldHaandvaerker.profileUrl} target="_blank" rel="noopener noreferrer">
+                <BpsImage
+                  src={trustAssets.anmeldHaandvaerkerBadge}
+                  alt="Anmeld-håndværker badge"
+                  width={220}
+                  height={100}
+                  className="h-8 w-auto"
+                />
+              </Link>
+            ) : null}
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-3 border-t border-stone-700/80 pt-5 text-xs text-stone-400">
+            <span className="uppercase tracking-[0.28em] text-stone-500">Developed by</span>
+            <a
+              href="https://www.vintorstudio.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit VintorStudio"
+              className="text-sm font-semibold tracking-[0.08em] text-stone-200 transition hover:text-primary"
+            >
+              VintorStudio
+            </a>
+          </div>
         </div>
       </div>
     </footer>
