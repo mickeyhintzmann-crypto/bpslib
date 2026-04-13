@@ -16,9 +16,9 @@ type ContactPayload = {
   utm?: unknown;
 };
 
-const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+import { normalizePhone } from "@/lib/customer-match";
 
-const normalizePhone = (value: string) => value.replace(/\s+/g, "");
+const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 const isValidPhone = (value: string) => /^[+0-9()\s-]{6,25}$/.test(value);
 

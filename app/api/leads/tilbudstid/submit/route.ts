@@ -18,9 +18,9 @@ type TilbudstidPayload = {
 const SERVICE_VALUES = ["gulv", "toemrer", "maler", "murer", "andet"] as const;
 type ServiceValue = (typeof SERVICE_VALUES)[number];
 
-const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+import { normalizePhone } from "@/lib/customer-match";
 
-const normalizePhone = (value: string) => value.replace(/\s+/g, "");
+const asString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 const isMissingLeadsTable = (message: string | undefined) => {
   const normalized = (message || "").toLowerCase();
