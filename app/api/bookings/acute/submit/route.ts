@@ -7,6 +7,7 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
+import { findOrCreateCustomer } from "@/lib/customer-match";
 
 type AcuteSubmitPayload = {
   date?: unknown;
@@ -259,6 +260,24 @@ export async function POST(request: Request) {
 
     const supabase = createSupabaseServiceClient();
     const manageToken = randomUUID();
+
+    // ─── Auto-match eller opret kunde ───
+    let customerId: string | null = null;
+    try {
+      const customerResult = await findOrCreateCustomer(supabase, {
+        name,
+        email: email || null,
+        phone,
+        postalCode,
+        address
+      });
+      if (customerResult.customerId) {
+        customerId = customerResult.customerId;
+      }
+    } catch (customerError) {
+      console.error("[acute_booking_submit] customer match failed:", customerError);
+    }
+
     const { data, error } = await supabase
       .from("bookings")
       .insert({
@@ -274,7 +293,8 @@ export async function POST(request: Request) {
         manage_token: manageToken,
         status: "confirmed",
         notes,
-        source: "acute"
+        source: "acute",
+        customer_id: customerId
       })
       .select("id")
       .single();

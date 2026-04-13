@@ -19,7 +19,32 @@ import {
   Zap,
   Phone,
   MapPin,
+  AlertTriangle,
+  CheckCircle2,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
+
+type ActionItem = {
+  id: string;
+  type: "booking" | "lead" | "estimator";
+  customer_name: string;
+  phone?: string;
+  created_at: string;
+  status?: string;
+};
+
+type ActionResponse = {
+  urgent_actions: ActionItem[];
+  today_tasks: ActionItem[];
+  kpis: {
+    new_leads_this_week: number;
+    new_leads_last_week: number;
+    conversion_rate: number;
+    avg_response_time_hours: number;
+    revenue_this_week: number;
+  };
+};
 
 type DashboardResponse = {
   counts?: {
@@ -89,6 +114,40 @@ const getGreeting = () => {
   return "God aften";
 };
 
+const getActionLink = (type: string, id: string): string => {
+  switch (type) {
+    case "booking":
+      return `/admin/bookings/${id}`;
+    case "lead":
+      return `/admin/leads?open=${id}`;
+    case "estimator":
+      return `/admin/estimator?open=${id}`;
+    default:
+      return "#";
+  }
+};
+
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case "booking":
+      return CalendarDays;
+    case "lead":
+      return MessageSquare;
+    case "estimator":
+      return Calculator;
+    default:
+      return Clock;
+  }
+};
+
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat("da-DK", {
+    style: "currency",
+    currency: "DKK",
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
   new: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
   pending: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
@@ -152,10 +211,16 @@ const QUICK_ACTIONS = [
   { label: "Medarbejdere", href: "/admin/employees", icon: Users, color: "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" },
 ];
 
+const Skeleton = ({ className = "" }: { className?: string }) => (
+  <div className={`animate-pulse rounded-lg bg-muted/40 ${className}`} />
+);
+
 export const AdminDashboard = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingActions, setLoadingActions] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState<DashboardResponse | null>(null);
+  const [actionData, setActionData] = useState<ActionResponse | null>(null);
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -179,8 +244,24 @@ export const AdminDashboard = () => {
     }
   };
 
+  const loadActions = async () => {
+    setLoadingActions(true);
+    try {
+      const response = await fetch("/api/admin/dashboard/actions", { cache: "no-store" });
+      if (response.ok) {
+        const payload = (await response.json()) as ActionResponse;
+        setActionData(payload);
+      }
+    } catch (error) {
+      console.error("Error loading actions:", error);
+    } finally {
+      setLoadingActions(false);
+    }
+  };
+
   useEffect(() => {
     loadDashboard();
+    loadActions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -189,6 +270,10 @@ export const AdminDashboard = () => {
     estimatorsNew: 0,
     bookingsToday: 0,
     bookingsNext7: 0,
+  };
+
+  const handleRefresh = async () => {
+    await Promise.all([loadDashboard(), loadActions()]);
   };
 
   return (
@@ -202,13 +287,13 @@ export const AdminDashboard = () => {
           <p className="mt-1 text-sm text-muted-foreground">Her er dit overblik over driften lige nu.</p>
         </div>
         <Button
-          onClick={() => loadDashboard()}
-          disabled={loading}
+          onClick={() => handleRefresh()}
+          disabled={loading || loadingActions}
           variant="outline"
           className="gap-2"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          {loading ? "Henter..." : "Opdater"}
+          <RefreshCw className={`h-3.5 w-3.5 ${loading || loadingActions ? "animate-spin" : ""}`} />
+          {loading || loadingActions ? "Henter..." : "Opdater"}
         </Button>
       </div>
 
@@ -219,202 +304,245 @@ export const AdminDashboard = () => {
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {KPI_CARDS.map((card) => {
-          const Icon = card.icon;
-          const value = counts[card.key];
-          return (
-            <Link
-              key={card.key}
-              href={card.href}
-              className="group relative overflow-hidden rounded-2xl border border-border/40 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
-                  <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
-                </div>
-                <div className={`rounded-xl ${card.lightBg} p-2.5`}>
-                  <Icon className={`h-5 w-5 bg-gradient-to-br ${card.gradient} bg-clip-text`} style={{ color: "transparent", backgroundClip: "text", WebkitBackgroundClip: "text" }} />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1 text-xs font-medium text-muted-foreground transition group-hover:text-orange-600">
-                <span>Se detaljer</span>
-                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-              </div>
-              {/* Decorative gradient */}
-              <div className={`absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br ${card.gradient} opacity-[0.06] transition group-hover:opacity-[0.12]`} />
-            </Link>
-          );
-        })}
+      {/* Section 1: Urgent Actions (Red accent) */}
+      <div className="rounded-2xl border-2 border-red-200 bg-white p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-lg bg-red-50 p-2">
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Akutte handlinger</h2>
+        </div>
+        {loadingActions ? (
+          <div className="space-y-2">
+            {[...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="h-12" />
+            ))}
+          </div>
+        ) : (actionData?.urgent_actions || []).length === 0 ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-emerald-700">
+            <CheckCircle2 className="h-5 w-5" />
+            <p className="font-medium">Ingen akutte handlinger</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {actionData?.urgent_actions.map((action) => {
+              const Icon = getTypeIcon(action.type);
+              const link = getActionLink(action.type, action.id);
+              return (
+                <Link
+                  key={`${action.type}-${action.id}`}
+                  href={link}
+                  className="group flex items-center gap-3 rounded-xl border border-border/40 bg-white px-4 py-3 transition hover:border-red-200 hover:bg-red-50/20"
+                >
+                  <div className="rounded-lg bg-red-50 p-2">
+                    <Icon className="h-4 w-4 text-red-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">{action.customer_name}</p>
+                    {action.phone && (
+                      <p className="text-xs text-muted-foreground">{action.phone}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {formatRelativeTime(action.created_at)}
+                    </span>
+                    {action.status && <StatusDot status={action.status} />}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Quick actions */}
+      {/* Section 2: Today's Tasks (Yellow/Amber accent) */}
+      <div className="rounded-2xl border-2 border-amber-200 bg-white p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-lg bg-amber-50 p-2">
+            <Clock className="h-5 w-5 text-amber-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Dagens opgaver</h2>
+        </div>
+        {loadingActions ? (
+          <div className="space-y-2">
+            {[...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="h-12" />
+            ))}
+          </div>
+        ) : (actionData?.today_tasks || []).length === 0 ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-emerald-700">
+            <CheckCircle2 className="h-5 w-5" />
+            <p className="font-medium">Alle opgaver er afsluttet</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {actionData?.today_tasks.map((task) => {
+              const Icon = getTypeIcon(task.type);
+              const link = getActionLink(task.type, task.id);
+              return (
+                <Link
+                  key={`${task.type}-${task.id}`}
+                  href={link}
+                  className="group flex items-center gap-3 rounded-xl border border-border/40 bg-white px-4 py-3 transition hover:border-amber-200 hover:bg-amber-50/20"
+                >
+                  <div className="rounded-lg bg-amber-50 p-2">
+                    <Icon className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">{task.customer_name}</p>
+                    {task.phone && (
+                      <p className="text-xs text-muted-foreground">{task.phone}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {formatRelativeTime(task.created_at)}
+                    </span>
+                    {task.status && <StatusDot status={task.status} />}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Section 3: KPIs Grid (Blue accent) */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-lg bg-blue-50 p-2">
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Overblik</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {loadingActions ? (
+            <>
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))}
+            </>
+          ) : actionData ? (
+            <>
+              {/* KPI 1: New Leads This Week */}
+              <div className="rounded-2xl border-2 border-blue-200 bg-white p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Nye leads denne uge</p>
+                    <p className="mt-2 text-3xl font-bold text-foreground">{actionData.kpis.new_leads_this_week}</p>
+                    <div className="mt-2 flex items-center gap-1 text-xs font-medium">
+                      {actionData.kpis.new_leads_this_week >= actionData.kpis.new_leads_last_week ? (
+                        <>
+                          <ArrowUp className="h-3 w-3 text-emerald-600" />
+                          <span className="text-emerald-600">
+                            {Math.round(
+                              ((actionData.kpis.new_leads_this_week - actionData.kpis.new_leads_last_week) /
+                                Math.max(actionData.kpis.new_leads_last_week, 1)) *
+                                100
+                            )}
+                            %
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <ArrowDown className="h-3 w-3 text-red-600" />
+                          <span className="text-red-600">
+                            {Math.round(
+                              ((actionData.kpis.new_leads_last_week - actionData.kpis.new_leads_this_week) /
+                                Math.max(actionData.kpis.new_leads_last_week, 1)) *
+                                100
+                            )}
+                            %
+                          </span>
+                        </>
+                      )}
+                      <span className="text-muted-foreground">vs. sidste uge</span>
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-blue-50 p-3">
+                    <MessageSquare className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 2: Conversion Rate */}
+              <div className="rounded-2xl border-2 border-blue-200 bg-white p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Konverteringsrate</p>
+                    <p className="mt-2 text-3xl font-bold text-foreground">
+                      {actionData.kpis.conversion_rate.toFixed(1)}%
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">Af leads til booking</p>
+                  </div>
+                  <div className="rounded-xl bg-blue-50 p-3">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 3: Average Response Time */}
+              <div className="rounded-2xl border-2 border-blue-200 bg-white p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Gns. svartid</p>
+                    <p className="mt-2 text-3xl font-bold text-foreground">
+                      {actionData.kpis.avg_response_time_hours.toFixed(1)}h
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">Timer</p>
+                  </div>
+                  <div className="rounded-xl bg-blue-50 p-3">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 4: Revenue This Week */}
+              <div className="rounded-2xl border-2 border-blue-200 bg-white p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Omsætning denne uge</p>
+                    <p className="mt-2 text-3xl font-bold text-foreground">
+                      {formatCurrency(actionData.kpis.revenue_this_week)}
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">DKK</p>
+                  </div>
+                  <div className="rounded-xl bg-blue-50 p-3">
+                    <Calculator className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Quick Action Buttons Section Header */}
       <div>
         <div className="mb-3 flex items-center gap-2">
           <Zap className="h-4 w-4 text-orange-500" />
           <h2 className="text-sm font-semibold text-foreground">Hurtige handlinger</h2>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${action.color}`}
-              >
-                <Icon className="h-4 w-4" />
-                {action.label}
-              </Link>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Content grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Upcoming bookings */}
-        <div className="rounded-2xl border border-border/40 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-orange-50 p-1.5">
-                <CalendarDays className="h-4 w-4 text-orange-600" />
-              </div>
-              <h2 className="text-sm font-semibold text-foreground">Næste bookinger</h2>
-            </div>
-            <Link href="/admin/bookings" className="text-xs font-medium text-orange-600 hover:text-orange-700">
-              Se alle
+      {/* Quick action buttons */}
+      <div className="flex flex-wrap gap-2">
+        {QUICK_ACTIONS.map((action) => {
+          const Icon = action.icon;
+          return (
+            <Link
+              key={action.href}
+              href={action.href}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${action.color}`}
+            >
+              <Icon className="h-4 w-4" />
+              {action.label}
             </Link>
-          </div>
-          <div className="space-y-2">
-            {(data?.upcomingBookings || []).length === 0 ? (
-              <div className="flex flex-col items-center py-6 text-center">
-                <CalendarDays className="mb-2 h-8 w-8 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">Ingen bookinger fundet.</p>
-              </div>
-            ) : (
-              data?.upcomingBookings?.map((booking) => (
-                <Link
-                  key={booking.id}
-                  href={`/admin/bookings/${booking.id}`}
-                  className="group block rounded-xl border border-border/40 bg-white px-4 py-3 transition hover:border-orange-200 hover:bg-orange-50/30"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {booking.customer_name || "Ukendt kunde"}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {formatDateTime(booking.slot_start)}
-                      </div>
-                    </div>
-                    <StatusDot status={booking.status} />
-                  </div>
-                  {booking.source && (
-                    <p className="mt-1.5 text-[11px] font-medium text-muted-foreground/70">
-                      {booking.source}
-                    </p>
-                  )}
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Latest leads */}
-        <div className="rounded-2xl border border-border/40 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-blue-50 p-1.5">
-                <MessageSquare className="h-4 w-4 text-blue-600" />
-              </div>
-              <h2 className="text-sm font-semibold text-foreground">Nye leads</h2>
-            </div>
-            <Link href="/admin/leads" className="text-xs font-medium text-blue-600 hover:text-blue-700">
-              Se alle
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {(data?.latestLeads || []).length === 0 ? (
-              <div className="flex flex-col items-center py-6 text-center">
-                <MessageSquare className="mb-2 h-8 w-8 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">Ingen nye leads.</p>
-              </div>
-            ) : (
-              data?.latestLeads?.map((lead) => (
-                <Link
-                  key={lead.id}
-                  href={`/admin/leads/${lead.id}`}
-                  className="group block rounded-xl border border-border/40 bg-white px-4 py-3 transition hover:border-blue-200 hover:bg-blue-50/30"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{lead.name}</p>
-                      <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {lead.phone}
-                        </span>
-                        <span className="rounded-md bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium">
-                          {lead.service}
-                        </span>
-                      </div>
-                    </div>
-                    <StatusDot status={lead.status} />
-                  </div>
-                  <p className="mt-1.5 text-[11px] text-muted-foreground/70">
-                    {formatRelativeTime(lead.created_at)}
-                  </p>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Latest estimators */}
-        <div className="rounded-2xl border border-border/40 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-violet-50 p-1.5">
-                <Calculator className="h-4 w-4 text-violet-600" />
-              </div>
-              <h2 className="text-sm font-semibold text-foreground">Nye estimatorer</h2>
-            </div>
-            <Link href="/admin/estimator" className="text-xs font-medium text-violet-600 hover:text-violet-700">
-              Se alle
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {(data?.latestEstimators || []).length === 0 ? (
-              <div className="flex flex-col items-center py-6 text-center">
-                <Calculator className="mb-2 h-8 w-8 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">Ingen nye estimatorer.</p>
-              </div>
-            ) : (
-              data?.latestEstimators?.map((estimator) => (
-                <Link
-                  key={estimator.id}
-                  href="/admin/estimator"
-                  className="group block rounded-xl border border-border/40 bg-white px-4 py-3 transition hover:border-violet-200 hover:bg-violet-50/30"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{estimator.name}</p>
-                      <p className="mt-1 text-[11px] text-muted-foreground/70">
-                        {formatRelativeTime(estimator.created_at)}
-                      </p>
-                    </div>
-                    <StatusDot status={estimator.status} />
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
+          );
+        })}
       </div>
+
     </div>
   );
 };

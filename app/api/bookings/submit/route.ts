@@ -10,6 +10,7 @@ import { siteConfig } from "@/lib/site-config";
 import { getSiteUrl } from "@/lib/site-url";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
+import { findOrCreateCustomer } from "@/lib/customer-match";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const validPhoneRegex = /^[+0-9()\s-]{6,25}$/;
@@ -165,6 +166,23 @@ export async function POST(request: Request) {
     const supabase = createSupabaseServiceClient();
     const manageToken = randomUUID();
 
+    // ─── Auto-match eller opret kunde ───
+    let customerId: string | null = null;
+    try {
+      const customerResult = await findOrCreateCustomer(supabase, {
+        name,
+        email: email || null,
+        phone,
+        postalCode,
+        address
+      });
+      if (customerResult.customerId) {
+        customerId = customerResult.customerId;
+      }
+    } catch (customerError) {
+      console.error("[booking_submit] customer match failed:", customerError);
+    }
+
     let priceEstimateMin: number | null = null;
     let priceEstimateMax: number | null = null;
 
@@ -205,7 +223,8 @@ export async function POST(request: Request) {
         extras: hasSelectedExtras(extras) ? extras : null,
         estimator_request_id: estimatorRequestId || null,
         price_estimate_min: priceEstimateMin,
-        price_estimate_max: priceEstimateMax
+        price_estimate_max: priceEstimateMax,
+        customer_id: customerId
       })
       .select("id")
       .single();

@@ -8,6 +8,7 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
+import { findOrCreateCustomer } from "@/lib/customer-match";
 import { sendEmail } from "@/lib/notify/email";
 import { buildNewAiQuoteTemplate } from "@/lib/notify/templates";
 
@@ -224,6 +225,22 @@ export async function POST(request: Request) {
     const retentionDeleteAt = new Date();
     retentionDeleteAt.setDate(retentionDeleteAt.getDate() + siteConfig.estimatorRetentionDays);
 
+    // ─── Auto-match eller opret kunde ───
+    let customerId: string | null = null;
+    try {
+      const customerResult = await findOrCreateCustomer(supabase, {
+        name: fields.navn,
+        phone: fields.telefon,
+        email: fields.email || null,
+        postalCode: fields.postalCode || null
+      });
+      if (customerResult.customerId) {
+        customerId = customerResult.customerId;
+      }
+    } catch (customerError) {
+      console.error("[estimator_submit] customer match failed:", customerError);
+    }
+
     const aiEstimate = await estimateAiPrice(supabase, { fields, extras: null });
     const aiStatus = aiEstimate ? "estimated" : "manual";
 
@@ -240,7 +257,8 @@ export async function POST(request: Request) {
         retention_delete_at: retentionDeleteAt.toISOString(),
         ai_price_min: aiEstimate?.min ?? null,
         ai_price_max: aiEstimate?.max ?? null,
-        ai_status: aiStatus
+        ai_status: aiStatus,
+        customer_id: customerId
       })
       .select("id")
       .single();

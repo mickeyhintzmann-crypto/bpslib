@@ -31,6 +31,8 @@ import {
   X,
   BarChart3,
   Clock,
+  Inbox,
+  Contact,
 } from "lucide-react";
 
 type NavItem = {
@@ -56,8 +58,10 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    title: "Salg & kunder",
+    title: "Kunder & salg",
     items: [
+      { label: "Inbox (samlet)", href: "/admin/inbox", roles: ["owner", "admin", "viewer"], icon: Inbox },
+      { label: "Kunder", href: "/admin/customers", roles: ["owner", "admin", "viewer"], icon: Contact },
       { label: "Kundehenvendelser", href: "/admin/leads", roles: ["owner", "admin", "viewer"], icon: MessageSquare },
       { label: "Prisberegner", href: "/admin/estimator", roles: ["owner", "admin", "viewer"], icon: Calculator },
       { label: "AI Prisberegner", href: "/admin/ai-estimator", roles: ["owner", "admin"], icon: Brain },
