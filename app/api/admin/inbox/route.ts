@@ -92,7 +92,7 @@ const matchesSearch = (item: UnifiedItem, query: string): boolean => {
 
 export async function GET(request: Request) {
   try {
-    const { error: authError } = requireAdmin(request, ["owner", "admin"]);
+    const { error: authError } = requireAdmin(request, ["owner", "admin", "viewer"]);
     if (authError) {
       return authError;
     }

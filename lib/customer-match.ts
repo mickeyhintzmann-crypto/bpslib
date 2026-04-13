@@ -20,12 +20,14 @@ export type CustomerRecord = {
 };
 
 /**
- * Normaliser telefonnummer til sammenligning.
- * Fjerner mellemrum, parenteser, bindestreger og landekode "+45".
+ * Normaliser telefonnummer til sammenligning og lagring.
+ * Fjerner mellemrum, parenteser, bindestreger og dansk landekode "+45"/"0045".
+ * Bruges BÅDE til match-opslag OG til lagring i customers-tabellen,
+ * så telefonnumre altid er konsistente.
  */
-const normalizePhone = (phone: string | null | undefined): string => {
+export const normalizePhone = (phone: string | null | undefined): string => {
   if (!phone) return "";
-  let cleaned = phone.replace(/[\s()-]/g, "");
+  let cleaned = phone.replace(/[\s()\-–—]/g, "");
   // Fjern dansk landekode
   if (cleaned.startsWith("+45")) {
     cleaned = cleaned.slice(3);
@@ -47,7 +49,7 @@ const normalizeEmail = (email: string | null | undefined): string => {
  * Matchlogik:
  * 1. Søg på telefonnummer (primær nøgle)
  * 2. Søg på email (sekundær nøgle)
- * 3. Ingen match → opret ny kunde
+ * 3. Ingen match → opret ny kunde via upsert (race-condition safe)
  *
  * Ved match: opdaterer felter der er tomme med nye værdier.
  */
@@ -64,7 +66,6 @@ export const findOrCreateCustomer = async (
 
   // Hvis hverken telefon eller email, kan vi ikke matche
   if (!phone && !email) {
-    // Opret en ny kunde uden unikke nøgler
     const { data, error } = await supabase
       .from("customers")
       .insert({
@@ -84,7 +85,7 @@ export const findOrCreateCustomer = async (
     return { customerId: data.id, isNew: true, error: null };
   }
 
-  // 1. Søg på telefon
+  // 1. Søg på telefon (normaliseret)
   let existing: CustomerRecord | null = null;
 
   if (phone) {
@@ -133,7 +134,8 @@ export const findOrCreateCustomer = async (
     return { customerId: existing.id, isNew: false, error: null };
   }
 
-  // 4. Ingen match → opret ny kunde
+  // 4. Ingen match → opret via upsert for at undgå race conditions
+  //    Prøv insert; hvis unique constraint fejler, hent eksisterende.
   const { data, error } = await supabase
     .from("customers")
     .insert({
@@ -149,29 +151,31 @@ export const findOrCreateCustomer = async (
     .single();
 
   if (error || !data) {
-    // Mulig race condition: en anden request oprettede kunden lige nu
-    // Prøv at matche igen
-    if (phone) {
-      const { data: retryData } = await supabase
-        .from("customers")
-        .select("id")
-        .eq("phone", phone)
-        .maybeSingle();
+    // Unique constraint violation → en anden request oprettede kunden
+    const isUniqueViolation = (error?.message || "").includes("duplicate key") ||
+      (error?.code === "23505");
 
-      if (retryData) {
-        return { customerId: retryData.id, isNew: false, error: null };
+    if (isUniqueViolation) {
+      // Hent den eksisterende kunde
+      if (phone) {
+        const { data: retryData } = await supabase
+          .from("customers")
+          .select("id")
+          .eq("phone", phone)
+          .maybeSingle();
+        if (retryData) {
+          return { customerId: retryData.id, isNew: false, error: null };
+        }
       }
-    }
-
-    if (email) {
-      const { data: retryData } = await supabase
-        .from("customers")
-        .select("id")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (retryData) {
-        return { customerId: retryData.id, isNew: false, error: null };
+      if (email) {
+        const { data: retryData } = await supabase
+          .from("customers")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
+        if (retryData) {
+          return { customerId: retryData.id, isNew: false, error: null };
+        }
       }
     }
 

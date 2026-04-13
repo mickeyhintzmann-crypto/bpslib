@@ -2,7 +2,7 @@ import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/sup
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/notify/email";
 import { buildNewLeadTemplate } from "@/lib/notify/templates";
-import { findOrCreateCustomer } from "@/lib/customer-match";
+import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
 
 const SOURCE_VALUES = ["form", "ai_quote", "booking", "manual", "import"] as const;
 const SERVICE_VALUES = [
@@ -176,7 +176,7 @@ export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadInta
     service: normalizeService(input.service),
     name: cleanContactField(input.name),
     email: cleanContactField(input.email),
-    phone: cleanContactField(input.phone),
+    phone: normalizePhone(input.phone) || cleanContactField(input.phone),
     location: cleanContactField(input.location),
     message: cleanContactField(input.message),
     page_url: cleanContactField(input.pageUrl),

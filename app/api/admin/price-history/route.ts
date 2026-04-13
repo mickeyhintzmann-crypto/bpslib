@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
+/**
+ * Escaper specialtegn i ILIKE-mønstre så brugerinput ikke kan
+ * ændre query-logikken. %, _ og \ er reserverede i PostgreSQL ILIKE.
+ */
+const escapeIlikePattern = (input: string): string =>
+  input.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+
 const parsePositiveInt = (value: string | null, fallback: number) => {
   if (!value) {
     return fallback;
@@ -56,7 +63,7 @@ export async function GET(request: Request) {
       .select("id, service_type, postal_code, price_total, created_at")
       .eq("status", "done")
       .not("price_total", "is", null)
-      .ilike("service_type", `%${service}%`)
+      .ilike("service_type", `%${escapeIlikePattern(service)}%`)
       .order("created_at", { ascending: false })
       .limit(limit);
 
@@ -102,7 +109,7 @@ export async function GET(request: Request) {
            ai_price_max,
            bookings(price_total)`
         )
-        .ilike("service_type", `%${service}%`)
+        .ilike("service_type", `%${escapeIlikePattern(service)}%`)
         .not("ai_price_min", "is", null)
         .not("ai_price_max", "is", null);
 
@@ -169,7 +176,7 @@ export async function GET(request: Request) {
          ai_price_max,
          bookings(price_total)`
       )
-      .ilike("service_type", `%${service}%`)
+      .ilike("service_type", `%${escapeIlikePattern(service)}%`)
       .not("ai_price_min", "is", null)
       .not("ai_price_max", "is", null);
 

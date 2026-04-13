@@ -5,6 +5,13 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
+/**
+ * Escaper specialtegn i ILIKE-mønstre så brugerinput ikke kan
+ * ændre query-logikken. %, _ og \ er reserverede i PostgreSQL ILIKE.
+ */
+const escapeIlikePattern = (input: string): string =>
+  input.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+
 const parsePositiveInt = (value: string | null, fallback: number) => {
   if (!value) {
     return fallback;
@@ -83,7 +90,7 @@ export async function GET(request: Request) {
       .range(from, to);
 
     if (q) {
-      const safeSearch = q.replace(/[(),%]/g, " ").trim();
+      const safeSearch = escapeIlikePattern(q.replace(/[()]/g, " ").trim());
       if (safeSearch) {
         query = query.or(
           `name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`

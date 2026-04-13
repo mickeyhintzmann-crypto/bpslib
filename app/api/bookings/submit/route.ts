@@ -10,7 +10,7 @@ import { siteConfig } from "@/lib/site-config";
 import { getSiteUrl } from "@/lib/site-url";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
-import { findOrCreateCustomer } from "@/lib/customer-match";
+import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const validPhoneRegex = /^[+0-9()\s-]{6,25}$/;
@@ -206,7 +206,7 @@ export async function POST(request: Request) {
       .from("bookings")
       .insert({
         customer_name: name,
-        customer_phone: phone,
+        customer_phone: normalizePhone(phone) || phone,
         customer_email: email || null,
         address,
         postal_code: postalCode,

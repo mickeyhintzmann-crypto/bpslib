@@ -7,7 +7,7 @@ import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
-import { findOrCreateCustomer } from "@/lib/customer-match";
+import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
 
 type AcuteSubmitPayload = {
   date?: unknown;
@@ -282,7 +282,7 @@ export async function POST(request: Request) {
       .from("bookings")
       .insert({
         customer_name: name,
-        customer_phone: phone,
+        customer_phone: normalizePhone(phone) || phone,
         customer_email: email || null,
         service_type: "bordplade",
         date,
