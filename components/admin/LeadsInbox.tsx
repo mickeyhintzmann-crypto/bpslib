@@ -331,14 +331,34 @@ export const LeadsInbox = () => {
         setReplyMessage("Tak for din henvendelse. Vi har gennemgået din prisberegning og vender tilbage med pris og næste skridt.");
       }
     } else if (detail.source === "booking") {
-      setReplySubject(`Vedr. din booking hos BP Slib${name ? ` – ${name}` : ""}`);
-      setReplyMessage("Tak for din booking. Vi bekræfter tid hurtigst muligt. Hvis tiden skal flyttes, kontakter vi dig med forslag.");
+      setReplySubject(`Bekræftelse af booking hos BP Slib${name ? ` – ${name}` : ""}`);
+      const booking = detailContext?.booking;
+      const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : null;
+      const dateLine = booking?.date ? `Dato: ${booking.date}` : "";
+      const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
+      const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
+      setReplyMessage(
+        [
+          `Hej ${name},`,
+          "",
+          "Tak for din booking hos BP Slib. Vi bekræfter hermed følgende:",
+          "",
+          dateLine,
+          timeLine,
+          addressLine,
+          "",
+          "Har du spørgsmål inden da, er du velkommen til at kontakte os.",
+          "",
+          "Med venlig hilsen",
+          "BP Slib"
+        ].filter(Boolean).join("\n")
+      );
     } else {
       setReplySubject(`Tak for din henvendelse${name ? ` – ${name}` : ""}`);
       setReplyMessage("Tak for din henvendelse. Vi vender tilbage hurtigst muligt med næste skridt.");
     }
     setReplyStatusAfter("awaiting_customer");
-  }, [detail?.id, detail?.source, detailContext?.aiQuote?.priceMin, detailContext?.aiQuote?.priceMax]);
+  }, [detail?.id, detail?.source, detailContext?.aiQuote?.priceMin, detailContext?.aiQuote?.priceMax, detailContext?.booking?.id]);
 
   const saveStatusAndService = async () => {
     if (!detail) {
@@ -575,6 +595,8 @@ export const LeadsInbox = () => {
           )
         );
       }
+      setReplySubject("");
+      setReplyMessage("");
       setJobSuccessMessage("Svar sendt til kunden og logget i historik.");
     } catch (error) {
       console.error(error);
@@ -854,7 +876,14 @@ export const LeadsInbox = () => {
                           <strong>Dato:</strong> {short(detailContext.booking.date, "-")}
                         </p>
                         <p>
-                          <strong>Slots:</strong> {detailContext.booking.slotCount ?? "-"}
+                          <strong>Tidspunkt:</strong>{" "}
+                          {detailContext.booking.startSlotIndex === 0
+                            ? "08:00"
+                            : detailContext.booking.startSlotIndex === 1
+                              ? "11:00"
+                              : detailContext.booking.startSlotIndex === 2
+                                ? "13:30"
+                                : "-"}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
