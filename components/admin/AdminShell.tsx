@@ -14,13 +14,7 @@ import {
   Users,
   MessageSquare,
   Calculator,
-  Brain,
-  GraduationCap,
-  UserCog,
-  FolderOpen,
-  Image,
   DollarSign,
-  FileText,
   Settings,
   LogOut,
   Home,
@@ -29,9 +23,7 @@ import {
   ChevronLeft,
   Menu,
   X,
-  BarChart3,
   Clock,
-  Inbox,
   Contact,
 } from "lucide-react";
 
@@ -49,40 +41,27 @@ type NavGroup = {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    title: "Oversigt",
+    title: "Dagligt",
     items: [
-      { label: "Dashboard", href: "/admin", roles: ["owner", "admin", "employee", "viewer"], icon: LayoutDashboard },
+      { label: "Overblik", href: "/admin", roles: ["owner", "admin", "employee", "viewer"], icon: LayoutDashboard },
       { label: "Bookinger", href: "/admin/bookings", roles: ["owner", "admin", "employee", "viewer"], icon: CalendarDays },
+      { label: "Prisberegner", href: "/admin/estimator", roles: ["owner", "admin", "viewer"], icon: Calculator },
+      { label: "Henvendelser", href: "/admin/leads", roles: ["owner", "admin", "viewer"], icon: MessageSquare },
+    ],
+  },
+  {
+    title: "Drift",
+    items: [
       { label: "Kalender", href: "/admin/kalender", roles: ["owner", "admin"], icon: Clock },
       { label: "Jobs", href: "/admin/jobs", roles: ["owner", "admin", "viewer"], icon: Briefcase },
-    ],
-  },
-  {
-    title: "Kunder & salg",
-    items: [
-      { label: "Inbox (samlet)", href: "/admin/inbox", roles: ["owner", "admin", "viewer"], icon: Inbox },
       { label: "Kunder", href: "/admin/customers", roles: ["owner", "admin", "viewer"], icon: Contact },
-      { label: "Kundehenvendelser", href: "/admin/leads", roles: ["owner", "admin", "viewer"], icon: MessageSquare },
-      { label: "Prisberegner", href: "/admin/estimator", roles: ["owner", "admin", "viewer"], icon: Calculator },
-      { label: "AI Prisberegner", href: "/admin/ai-estimator", roles: ["owner", "admin"], icon: Brain },
       { label: "Økonomi", href: "/admin/okonomi", roles: ["owner", "viewer"], icon: DollarSign },
-      { label: "Statistik", href: "/admin/statistik", roles: ["owner", "admin"], icon: BarChart3 },
-    ],
-  },
-  {
-    title: "Indhold",
-    items: [
-      { label: "Cases", href: "/admin/cases", roles: ["owner", "admin"], icon: FolderOpen },
-      { label: "Job-billeder", href: "/admin/job-media", roles: ["owner", "admin"], icon: Image },
-      { label: "AI træning", href: "/admin/ai-traening", roles: ["owner", "admin"], icon: GraduationCap },
     ],
   },
   {
     title: "System",
     items: [
       { label: "Medarbejdere", href: "/admin/employees", roles: ["owner", "admin"], icon: Users },
-      { label: "Brugere & roller", href: "/admin/medarbejdere", roles: ["owner"], icon: UserCog },
-      { label: "Audit log", href: "/admin/audit", roles: ["owner", "admin"], icon: FileText },
       { label: "Indstillinger", href: "/admin/indstillinger", roles: ["owner"], icon: Settings },
     ],
   },
