@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 import Script from "next/script";
@@ -11,6 +11,13 @@ import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { AnalyticsBootstrap } from "@/components/AnalyticsBootstrap";
 import { FooterCityCoverageSection } from "@/components/footer/FooterCityCoverageSection";
 import { getSiteUrl } from "@/lib/site-url";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: "BPSLIB",
