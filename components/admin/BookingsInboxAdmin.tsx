@@ -21,10 +21,8 @@ import {
 } from "lucide-react";
 
 const STATUS_FLOW = [
-  "pending_confirmation",
   "new",
   "confirmed",
-  "in_progress",
   "done",
   "cancelled",
 ] as const;
@@ -84,13 +82,13 @@ const slotCountFromRange = (slotStart: string | null, slotEnd: string | null) =>
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  pending_confirmation: "Afventer",
-  pending: "Afventer",
   new: "Ny",
+  pending_confirmation: "Ny",
+  pending: "Ny",
   confirmed: "Bekræftet",
-  in_progress: "I gang",
+  in_progress: "Bekræftet",
   done: "Udført",
-  cancelled: "Annulleret",
+  cancelled: "Aflyst",
 };
 
 const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {

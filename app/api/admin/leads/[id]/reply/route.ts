@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { wrapInEmailTemplate } from "@/lib/email-template";
 import { logEmail, sendMail } from "@/lib/mailer";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -92,11 +93,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const greetingName = asTrimmed(leadRow.name) || "kunde";
     const textBody = `Hej ${greetingName},\n\n${message}\n\nVenlig hilsen\nBP Slib`;
+    const htmlBody = wrapInEmailTemplate({
+      greeting: `Hej ${greetingName},`,
+      body: message,
+    });
 
     const sendResult = await sendMail({
       to: toEmail,
       subject,
-      text: textBody
+      text: textBody,
+      html: htmlBody
     });
 
     await logEmail({

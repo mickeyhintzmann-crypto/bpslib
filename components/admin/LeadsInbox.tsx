@@ -8,11 +8,11 @@ import { JobFormModal, type JobDraft } from "@/components/admin/JobFormModal";
 
 const STATUS_OPTIONS = [
   { value: "alle", label: "Alle status" },
-  { value: "new", label: "New" },
-  { value: "in_progress", label: "In progress" },
-  { value: "awaiting_customer", label: "Awaiting customer" },
-  { value: "won", label: "Won" },
-  { value: "lost", label: "Lost" }
+  { value: "new", label: "Ny" },
+  { value: "in_progress", label: "Under behandling" },
+  { value: "awaiting_customer", label: "Afventer kunde" },
+  { value: "won", label: "Afsluttet" },
+  { value: "lost", label: "Tabt" }
 ] as const;
 
 const SOURCE_OPTIONS = [
@@ -133,6 +133,14 @@ const statusClasses: Record<string, string> = {
   awaiting_customer: "bg-purple-100 text-purple-800",
   won: "bg-emerald-100 text-emerald-800",
   lost: "bg-rose-100 text-rose-800"
+};
+
+const statusLabels: Record<string, string> = {
+  new: "Ny",
+  in_progress: "Under behandling",
+  awaiting_customer: "Afventer kunde",
+  won: "Afsluttet",
+  lost: "Tabt"
 };
 
 const short = (value: string | null | undefined, fallback = "-") => {
@@ -330,29 +338,10 @@ export const LeadsInbox = () => {
       } else {
         setReplyMessage("Tak for din henvendelse. Vi har gennemgået din prisberegning og vender tilbage med pris og næste skridt.");
       }
-    } else if (detail.source === "booking") {
-      setReplySubject(`Bekræftelse af booking hos BP Slib${name ? ` – ${name}` : ""}`);
-      const booking = detailContext?.booking;
-      const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : null;
-      const dateLine = booking?.date ? `Dato: ${booking.date}` : "";
-      const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
-      const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
-      setReplyMessage(
-        [
-          `Hej ${name},`,
-          "",
-          "Tak for din booking hos BP Slib. Vi bekræfter hermed følgende:",
-          "",
-          dateLine,
-          timeLine,
-          addressLine,
-          "",
-          "Har du spørgsmål inden da, er du velkommen til at kontakte os.",
-          "",
-          "Med venlig hilsen",
-          "BP Slib"
-        ].filter(Boolean).join("\n")
-      );
+    } else if (detail.source === "booking" || detail.source === "acute") {
+      /* For bookinger: tom start — vælg skabelon nedenfor */
+      setReplySubject("");
+      setReplyMessage("");
     } else {
       setReplySubject(`Tak for din henvendelse${name ? ` – ${name}` : ""}`);
       setReplyMessage("Tak for din henvendelse. Vi vender tilbage hurtigst muligt med næste skridt.");
@@ -708,7 +697,7 @@ export const LeadsInbox = () => {
                         statusClasses[item.status] || "bg-slate-100 text-slate-700"
                       }`}
                     >
-                      {item.status}
+                      {statusLabels[item.status] || item.status}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -932,27 +921,14 @@ export const LeadsInbox = () => {
               <div className="space-y-3 rounded-xl border border-border/70 bg-white p-4">
                 <h3 className="text-base font-semibold text-foreground">Svar kunde (email)</h3>
                 <p className="text-xs text-muted-foreground">
-                  Sender email, logger outbound-besked og sætter status til valgt opfølgningsstatus.
+                  Sender email til kunden og logger beskeden.
                 </p>
-                <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                  <input
-                    value={replySubject}
-                    onChange={(event) => setReplySubject(event.target.value)}
-                    placeholder="Emne"
-                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                  />
-                  <select
-                    value={replyStatusAfter}
-                    onChange={(event) => setReplyStatusAfter(event.target.value)}
-                    className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                  >
-                    <option value="awaiting_customer">Awaiting customer</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="new">New</option>
-                    <option value="won">Won</option>
-                    <option value="lost">Lost</option>
-                  </select>
-                </div>
+                <input
+                  value={replySubject}
+                  onChange={(event) => setReplySubject(event.target.value)}
+                  placeholder="Emne"
+                  className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm"
+                />
                 <textarea
                   value={replyMessage}
                   onChange={(event) => setReplyMessage(event.target.value)}
@@ -960,24 +936,59 @@ export const LeadsInbox = () => {
                   placeholder="Skriv svar til kunden"
                   className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
                 />
+                <p className="text-xs text-muted-foreground">
+                  &quot;Hej {short(detail?.name, "kunde")}&quot; og signatur med logo tilføjes automatisk.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setReplyMessage("Tak for din henvendelse. Vi vender tilbage hurtigst muligt.")}
+                    onClick={() => {
+                      setReplySubject(`BP Slib – Vedr. din booking${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
+                      setReplyMessage(
+                        "Tak for din booking hos BP Slib.\nVi vender tilbage hurtigst muligt med den endelige bekræftelse på din booking."
+                      );
+                    }}
                   >
                     Standard svar
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() =>
+                    onClick={() => {
+                      const booking = detailContext?.booking;
+                      const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : null;
+                      const dateLine = booking?.date ? `Dato: ${booking.date}` : "";
+                      const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
+                      const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
+                      setReplySubject(`Bekræftelse af booking hos BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
                       setReplyMessage(
-                        "Tak for din henvendelse. Vi har mulighed for at tilbyde en ny tid. Svar gerne med hvilke dage/tidspunkter der passer dig bedst."
-                      )
-                    }
+                        [
+                          "Tak for din booking hos BP Slib.",
+                          "",
+                          "Vi bekræfter hermed følgende:",
+                          dateLine,
+                          timeLine,
+                          addressLine,
+                          "",
+                          "Har du spørgsmål inden da, er du velkommen til at kontakte os."
+                        ].filter(Boolean).join("\n")
+                      );
+                    }}
                   >
-                    Foreslå ny tid
+                    Bekræftelse
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setReplySubject(`Ombooking – BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
+                      setReplyMessage(
+                        "Den valgte tid er desværre allerede blevet booket, og vi kan derfor ikke bekræfte den.\n\nVi vil meget gerne tilbyde dig en ny tid i stedet.\nKontakt os gerne, så finder vi hurtigst muligt en anden tid, der passer dig."
+                      );
+                    }}
+                  >
+                    Ombooking
                   </Button>
                   <Button onClick={sendReplyEmail} disabled={replyBusy}>
                     {replyBusy ? "Sender..." : "Send svar"}
@@ -986,7 +997,7 @@ export const LeadsInbox = () => {
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-base font-semibold text-foreground">Messages & notes</h3>
+                <h3 className="text-base font-semibold text-foreground">Beskeder & noter</h3>
                 <div className="max-h-56 space-y-2 overflow-y-auto rounded-xl border border-border/70 bg-muted/20 p-3">
                   {messages.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Ingen beskeder endnu.</p>
