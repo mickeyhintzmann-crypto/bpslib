@@ -240,6 +240,14 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
                   <p className="text-sm text-amber-800/70">Vi gennemgår din booking og vender tilbage hurtigst muligt.</p>
                 </div>
               </div>
+              {booking.priceTotal ? (
+                <div className="mt-4 rounded-xl border-2 border-amber-400 bg-white px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Din aftalte pris</p>
+                  <p className="mt-1 text-2xl font-bold text-amber-900">
+                    {booking.priceTotal.toLocaleString("da-DK")} kr.
+                  </p>
+                </div>
+              ) : null}
               <div className="mt-4 rounded-xl bg-white/60 p-4 text-sm text-amber-900/80">
                 <p className="font-medium">Imens du venter:</p>
                 <ul className="mt-2 space-y-1.5">

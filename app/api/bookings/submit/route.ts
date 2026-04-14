@@ -190,19 +190,28 @@ export async function POST(request: Request) {
 
     let priceEstimateMin: number | null = null;
     let priceEstimateMax: number | null = null;
+    let priceTotal: number | null = null;
 
     if (estimatorRequestId) {
       const { data: estimatorData } = await supabase
         .from("estimator_requests")
-        .select("ai_price_min, ai_price_max")
+        .select("ai_price_min, ai_price_max, price_min, price_max, customer_approval_status")
         .eq("id", estimatorRequestId)
         .single();
       if (estimatorData) {
-        if (typeof estimatorData.ai_price_min === "number") {
-          priceEstimateMin = estimatorData.ai_price_min;
-        }
-        if (typeof estimatorData.ai_price_max === "number") {
-          priceEstimateMax = estimatorData.ai_price_max;
+        /* Hvis kunden har fået en bekræftet/justeret pris, brug den. Ellers fall back til AI-estimat. */
+        const approvedMin = typeof estimatorData.price_min === "number" ? estimatorData.price_min : null;
+        const approvedMax = typeof estimatorData.price_max === "number" ? estimatorData.price_max : null;
+        const isApproved = estimatorData.customer_approval_status === "approved" || estimatorData.customer_approval_status === "adjusted";
+
+        if (isApproved && approvedMin !== null && approvedMax !== null) {
+          priceEstimateMin = approvedMin;
+          priceEstimateMax = approvedMax;
+          /* Brug max-pris som price_total (gør den synlig på manage-siden) */
+          priceTotal = approvedMax;
+        } else {
+          if (typeof estimatorData.ai_price_min === "number") priceEstimateMin = estimatorData.ai_price_min;
+          if (typeof estimatorData.ai_price_max === "number") priceEstimateMax = estimatorData.ai_price_max;
         }
       }
     }
@@ -229,6 +238,7 @@ export async function POST(request: Request) {
         estimator_request_id: estimatorRequestId || null,
         price_estimate_min: priceEstimateMin,
         price_estimate_max: priceEstimateMax,
+        price_total: priceTotal,
         customer_id: customerId
       })
       .select("id")
