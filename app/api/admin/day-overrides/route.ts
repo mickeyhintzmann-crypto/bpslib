@@ -29,6 +29,20 @@ const normalizeOpenSlots = (value: unknown) => {
   return NaN;
 };
 
+const normalizeBlockedSlots = (value: unknown): number[] | null => {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value)) return null;
+  const result: number[] = [];
+  for (const entry of value) {
+    const num = typeof entry === "number" ? entry : typeof entry === "string" ? Number.parseInt(entry, 10) : NaN;
+    if (!Number.isInteger(num) || num < 0 || num > 2) {
+      return null;
+    }
+    if (!result.includes(num)) result.push(num);
+  }
+  return result.sort();
+};
+
 const isWeekendDateKey = (dateKey: string) => {
   if (!dateRegex.test(dateKey)) {
     return false;
@@ -62,7 +76,7 @@ export async function GET(request: Request) {
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("day_overrides")
-      .select("date, open_slots_count, show_on_acute_page, note, updated_at")
+      .select("date, open_slots_count, show_on_acute_page, note, blocked_slot_indices, updated_at")
       .gte("date", from)
       .lte("date", to)
       .order("date", { ascending: true });
@@ -102,6 +116,14 @@ export async function PUT(request: Request) {
     const note = typeof payload.note === "string" ? payload.note.trim() : "";
     const showOnAcute = typeof payload.show_on_acute_page === "boolean" ? payload.show_on_acute_page : null;
     const openSlotsCount = normalizeOpenSlots(payload.open_slots_count);
+    const blockedSlots = normalizeBlockedSlots(payload.blocked_slot_indices);
+
+    if (blockedSlots === null) {
+      return NextResponse.json(
+        { message: "blocked_slot_indices skal være en array af tal 0-2." },
+        { status: 400 }
+      );
+    }
 
     if (!dateRegex.test(date)) {
       return NextResponse.json(
@@ -137,11 +159,12 @@ export async function PUT(request: Request) {
           open_slots_count: normalizedOpenSlots,
           show_on_acute_page: normalizedShowOnAcute,
           note: note || null,
+          blocked_slot_indices: isWeekend ? [] : blockedSlots,
           updated_at: new Date().toISOString()
         },
         { onConflict: "date" }
       )
-      .select("date, open_slots_count, show_on_acute_page, note, updated_at")
+      .select("date, open_slots_count, show_on_acute_page, note, blocked_slot_indices, updated_at")
       .single();
 
     if (error || !data) {

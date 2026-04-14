@@ -10,6 +10,7 @@ type DayOverrideRow = {
   open_slots_count: number | null;
   show_on_acute_page: boolean | null;
   note: string | null;
+  blocked_slot_indices?: number[] | null;
 };
 
 type BookingRow = {
@@ -166,6 +167,13 @@ const openIndexesForOverride = (
       openIndexes = new Set(Array.from({ length: openSlotsCount }, (_, index) => index));
     }
 
+    // Fjern specifikt blokerede slots (fx kun 11:00 pga. sygdom)
+    if (Array.isArray(override.blocked_slot_indices)) {
+      for (const idx of override.blocked_slot_indices) {
+        openIndexes.delete(idx);
+      }
+    }
+
     if (respectAcuteVisibility && override.show_on_acute_page === false) {
       openIndexes = new Set();
     }
@@ -283,7 +291,7 @@ export const getAvailabilityRange = async ({
   const [overridesResult, bookingsResult] = await Promise.all([
     supabase
       .from("day_overrides")
-      .select("date, open_slots_count, show_on_acute_page, note")
+      .select("date, open_slots_count, show_on_acute_page, note, blocked_slot_indices")
       .gte("date", from)
       .lte("date", lastDateInclusive),
     supabase
@@ -428,7 +436,7 @@ export const checkBookingAvailability = async ({
   const supabase = createSupabaseServiceClient();
 
   const [overrideResult, bookingsResult] = await Promise.all([
-    supabase.from("day_overrides").select("date, open_slots_count, show_on_acute_page, note").eq("date", date),
+    supabase.from("day_overrides").select("date, open_slots_count, show_on_acute_page, note, blocked_slot_indices").eq("date", date),
     supabase
       .from("bookings")
       .select("id, date, start_slot_index, slot_count, status")

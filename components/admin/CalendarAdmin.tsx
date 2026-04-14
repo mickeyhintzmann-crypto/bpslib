@@ -15,6 +15,7 @@ type OverrideItem = {
   open_slots_count: number | null;
   show_on_acute_page: boolean | null;
   note: string | null;
+  blocked_slot_indices: number[] | null;
 };
 
 type BookingItem = {
@@ -69,6 +70,7 @@ type DaySettings = {
   openSlotsCount: number;
   showOnAcutePage: boolean;
   note: string;
+  blockedSlotIndices: number[];
 };
 
 type SlotActionState = {
@@ -241,7 +243,8 @@ const defaultDaySettings = (dateKey: string): DaySettings => {
   return {
     openSlotsCount: isWeekend ? 0 : 3,
     showOnAcutePage: !isWeekend,
-    note: ""
+    note: "",
+    blockedSlotIndices: []
   };
 };
 
@@ -542,7 +545,8 @@ export const CalendarAdmin = () => {
                 : typeof override.show_on_acute_page === "boolean"
                   ? override.show_on_acute_page
                   : currentSettings.showOnAcutePage,
-            note: override.note || ""
+            note: override.note || "",
+            blockedSlotIndices: weekend ? [] : Array.isArray(override.blocked_slot_indices) ? override.blocked_slot_indices : []
           };
         });
         return next;
@@ -586,7 +590,8 @@ export const CalendarAdmin = () => {
           date: selectedDateKey,
           open_slots_count: settings.openSlotsCount,
           show_on_acute_page: settings.showOnAcutePage,
-          note: settings.note.trim() ? settings.note.trim() : null
+          note: settings.note.trim() ? settings.note.trim() : null,
+          blocked_slot_indices: settings.blockedSlotIndices
         })
       });
 
@@ -615,13 +620,14 @@ export const CalendarAdmin = () => {
 
   const closeSlotByOverride = async (dateKey: string, slotIndex: number, slotLabel: string) => {
     const currentSettings = daySettings[dateKey] || defaultDaySettings(dateKey);
-    const currentOpenSlots = Math.max(0, Math.min(3, currentSettings.openSlotsCount));
-    const nextOpenSlots = Math.max(0, Math.min(currentOpenSlots, slotIndex));
+    const currentBlocked = Array.isArray(currentSettings.blockedSlotIndices) ? currentSettings.blockedSlotIndices : [];
 
-    if (nextOpenSlots === currentOpenSlots) {
+    if (currentBlocked.includes(slotIndex)) {
       setSlotActionMessage("Tiden er allerede lukket.");
       return;
     }
+
+    const nextBlocked = Array.from(new Set([...currentBlocked, slotIndex])).sort();
 
     setSlotActionBusy(true);
     setSlotActionMessage("");
@@ -632,9 +638,10 @@ export const CalendarAdmin = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           date: dateKey,
-          open_slots_count: nextOpenSlots,
+          open_slots_count: currentSettings.openSlotsCount,
           show_on_acute_page: currentSettings.showOnAcutePage,
-          note: currentSettings.note.trim() ? currentSettings.note.trim() : null
+          note: currentSettings.note.trim() ? currentSettings.note.trim() : null,
+          blocked_slot_indices: nextBlocked
         })
       });
 
@@ -644,13 +651,58 @@ export const CalendarAdmin = () => {
         return;
       }
 
-      updateDaySettings(dateKey, { openSlotsCount: nextOpenSlots });
+      updateDaySettings(dateKey, { blockedSlotIndices: nextBlocked });
       setSaveMessage(`Tid ${slotLabel} lukket.`);
       setTimeout(() => setSaveMessage(""), 1500);
       setSlotAction(null);
     } catch (closeError) {
       console.error(closeError);
       setSlotActionMessage("Netværksfejl ved lukning af tid.");
+    } finally {
+      setSlotActionBusy(false);
+    }
+  };
+
+  const reopenSlotByOverride = async (dateKey: string, slotIndex: number, slotLabel: string) => {
+    const currentSettings = daySettings[dateKey] || defaultDaySettings(dateKey);
+    const currentBlocked = Array.isArray(currentSettings.blockedSlotIndices) ? currentSettings.blockedSlotIndices : [];
+
+    if (!currentBlocked.includes(slotIndex)) {
+      setSlotActionMessage("Tiden er ikke lukket.");
+      return;
+    }
+
+    const nextBlocked = currentBlocked.filter((idx) => idx !== slotIndex);
+
+    setSlotActionBusy(true);
+    setSlotActionMessage("");
+
+    try {
+      const response = await fetch("/api/admin/day-overrides", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: dateKey,
+          open_slots_count: currentSettings.openSlotsCount,
+          show_on_acute_page: currentSettings.showOnAcutePage,
+          note: currentSettings.note.trim() ? currentSettings.note.trim() : null,
+          blocked_slot_indices: nextBlocked
+        })
+      });
+
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setSlotActionMessage(payload.message || "Kunne ikke genåbne tiden.");
+        return;
+      }
+
+      updateDaySettings(dateKey, { blockedSlotIndices: nextBlocked });
+      setSaveMessage(`Tid ${slotLabel} genåbnet.`);
+      setTimeout(() => setSaveMessage(""), 1500);
+      setSlotAction(null);
+    } catch (closeError) {
+      console.error(closeError);
+      setSlotActionMessage("Netværksfejl ved genåbning af tid.");
     } finally {
       setSlotActionBusy(false);
     }
@@ -936,7 +988,8 @@ export const CalendarAdmin = () => {
                       const slotLabel = SLOT_TIMES[slotIndex] || `${slotIndex + 1}`;
                       const slotBooking = getBookingForSlot(dayBookingsForSlots, slotIndex);
                       const slotAbsence = getSlotAbsenceForDay(day.dateKey, slotIndex);
-                      const slotOpenByOverride = slotIndex < openSlots;
+                      const blockedList = Array.isArray(settings.blockedSlotIndices) ? settings.blockedSlotIndices : [];
+                      const slotOpenByOverride = slotIndex < openSlots && !blockedList.includes(slotIndex);
                       const slotAvailable = slotOpenByOverride && !slotBooking && !slotAbsence;
                       const isRed = !slotAvailable;
                       const absenceSummary = slotAbsence
@@ -1254,7 +1307,19 @@ export const CalendarAdmin = () => {
                     {slotActionBusy ? "Lukker tid..." : "Luk tid"}
                   </Button>
                   {!slotAction.isWeekend && !slotAction.slotOpenByOverride ? (
-                    <p className="text-xs text-muted-foreground">Denne tid er allerede lukket.</p>
+                    <>
+                      <Button
+                        variant="outline"
+                        className="w-full border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        disabled={slotActionBusy}
+                        onClick={() =>
+                          reopenSlotByOverride(slotAction.dateKey, slotAction.slotIndex, slotAction.slotLabel)
+                        }
+                      >
+                        {slotActionBusy ? "Genåbner tid..." : "Genåbn tid"}
+                      </Button>
+                      <p className="text-xs text-muted-foreground">Denne tid er lukket.</p>
+                    </>
                   ) : null}
                 </>
               )}
