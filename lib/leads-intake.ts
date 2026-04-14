@@ -2,6 +2,7 @@ import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/sup
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/notify/email";
 import { buildNewLeadTemplate } from "@/lib/notify/templates";
+import { sendMail } from "@/lib/mailer";
 import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
 
 const SOURCE_VALUES = ["form", "ai_quote", "booking", "manual", "import"] as const;
@@ -219,6 +220,54 @@ export const insertLeadIntake = async (input: LeadIntakeInput, options: LeadInta
     };
   }
 
+  /* ─── Notify owners via SMTP (comma-separated emails supported) ─── */
+  const notifyRecipients = (process.env.LEAD_NOTIFY_EMAIL || "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+
+  if (notifyRecipients.length > 0) {
+    try {
+      const sourceLabel = source === "ai_quote" ? "Prisberegner" : source === "booking" ? "Booking" : "Kontaktform";
+      const priorityLabel = priority === "urgent" ? "AKUT" : priority === "high" ? "Vigtig" : "Normal";
+      const adminUrl = `https://bpslib.dk/admin/leads`;
+
+      const textBody = [
+        `Ny henvendelse (${priorityLabel})`,
+        "",
+        `Navn: ${row.name || "-"}`,
+        `Telefon: ${row.phone || "-"}`,
+        `Email: ${row.email || "-"}`,
+        `Lokation: ${row.location || "-"}`,
+        `Kilde: ${sourceLabel}`,
+        `Service: ${row.service || "-"}`,
+        row.message ? `Besked: ${row.message}` : "",
+        "",
+        `Åbn i admin: ${adminUrl}`
+      ].filter(Boolean).join("\n");
+
+      const emailSubject = `${priorityLabel === "AKUT" ? "🔴 " : ""}Ny henvendelse: ${row.name || "Ukendt"} – ${sourceLabel}`;
+
+      // Send til alle modtagere parallelt
+      const results = await Promise.allSettled(
+        notifyRecipients.map((recipient) =>
+          sendMail({ to: recipient, subject: emailSubject, text: textBody })
+        )
+      );
+
+      for (const [i, result] of results.entries()) {
+        if (result.status === "rejected") {
+          console.error(`[lead_notify_smtp] failed for ${notifyRecipients[i]}:`, result.reason);
+        } else if (!result.value.ok) {
+          console.error(`[lead_notify_smtp] failed for ${notifyRecipients[i]}:`, result.value.error);
+        }
+      }
+    } catch (smtpNotifyError) {
+      console.error("[lead_notify_smtp] error:", smtpNotifyError);
+    }
+  }
+
+  /* ─── Optional: Resend-based notification (legacy) ─── */
   if ((process.env.NOTIFY_LEADS_ENABLED || "").toLowerCase() === "true") {
     try {
       const template = buildNewLeadTemplate({
