@@ -293,7 +293,7 @@ export async function POST(request: Request) {
         slot_start: slotRange.slotStartIso,
         slot_end: slotRange.slotEndIso,
         manage_token: manageToken,
-        status: "confirmed",
+        status: "pending",
         notes,
         source: "acute",
         customer_id: customerId
