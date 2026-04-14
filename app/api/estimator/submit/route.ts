@@ -11,6 +11,7 @@ import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 import { findOrCreateCustomer } from "@/lib/customer-match";
 import { sendEmail } from "@/lib/notify/email";
 import { buildNewAiQuoteTemplate } from "@/lib/notify/templates";
+import { analyzeEstimatorImages, type BordpladeFeatures } from "@/lib/vision-analyze";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -224,6 +225,25 @@ export async function POST(request: Request) {
 
     const retentionDeleteAt = new Date();
     retentionDeleteAt.setDate(retentionDeleteAt.getDate() + siteConfig.estimatorRetentionDays);
+
+    // ─── Vision-analyse: identificer vandfald og andre features ───
+    let visionFeatures: BordpladeFeatures | null = null;
+    try {
+      const imagePaths = uploadedImages.map((img) => img.path);
+      const visionResult = await analyzeEstimatorImages(imagePaths, service);
+      if (visionResult.ok) {
+        visionFeatures = visionResult.features;
+      } else {
+        console.warn("[estimator_submit] vision analysis skipped:", visionResult.error);
+      }
+    } catch (visionError) {
+      console.error("[estimator_submit] vision analysis failed:", visionError);
+    }
+
+    // Berig fields med vision-data
+    if (visionFeatures) {
+      (fields as Record<string, unknown>).visionFeatures = visionFeatures;
+    }
 
     // ─── Auto-match eller opret kunde ───
     let customerId: string | null = null;

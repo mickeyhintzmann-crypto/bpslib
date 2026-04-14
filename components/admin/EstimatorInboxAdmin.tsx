@@ -656,6 +656,32 @@ export const EstimatorInboxAdmin = () => {
                   {formatPriceInterval(detail.aiPriceMin, detail.aiPriceMax)}{" "}
                   {detail.aiStatus ? `(${detail.aiStatus})` : ""}
                 </p>
+                {(() => {
+                  const vf = detail.fields.visionFeatures as Record<string, unknown> | undefined;
+                  if (!vf) return null;
+                  return (
+                    <div className="sm:col-span-2 rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-1">
+                      <p className="text-sm font-semibold text-amber-800">Vision-analyse (GPT-4o)</p>
+                      {typeof vf.waterfallCount === "number" && vf.waterfallCount > 0 ? (
+                        <p className="text-sm text-amber-900">
+                          <span className="font-medium">Vandfald: {vf.waterfallCount}</span>
+                          {vf.waterfallDescription ? ` — ${vf.waterfallDescription}` : ""}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-amber-700">Ingen vandfald identificeret</p>
+                      )}
+                      <p className="text-sm text-amber-700">
+                        Bordplader: {typeof vf.boardCount === "number" ? vf.boardCount : "?"} ·{" "}
+                        Tilstand: {typeof vf.surfaceCondition === "string" ? vf.surfaceCondition : "?"} ·{" "}
+                        Træsort: {typeof vf.woodType === "string" ? vf.woodType : "ukendt"}
+                      </p>
+                      {vf.hasEdgeDamage ? <p className="text-sm text-red-700">Kantskader identificeret</p> : null}
+                      {vf.hasBurnMarks ? <p className="text-sm text-red-700">Brændemærker identificeret</p> : null}
+                      {vf.hasWaterStains ? <p className="text-sm text-red-700">Vandskjolder identificeret</p> : null}
+                      {vf.notes ? <p className="text-sm text-amber-700 italic">{String(vf.notes)}</p> : null}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="space-y-3">

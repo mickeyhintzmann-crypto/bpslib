@@ -293,6 +293,22 @@ export async function POST(request: Request, context: RouteContext) {
       .eq("id", params.id)
       .single();
 
+    /* ─── Auto-træning: Når sag lukkes/bookes uden rettet pris, bekræft AI-estimat ─── */
+    const beforeRow = beforeData as EstimatorDetailRow | null;
+    const isClosingOrBooking =
+      updateData.status === "Booket" || updateData.status === "Lukket";
+    const hasNoManualPrice =
+      !("price_min" in updateData) &&
+      beforeRow?.price_min === null &&
+      beforeRow?.ai_price_min !== null &&
+      beforeRow?.ai_price_max !== null;
+
+    if (isClosingOrBooking && hasNoManualPrice && beforeRow) {
+      // AI-estimat var korrekt — kopiér som verified prisdata til træning
+      updateData.price_min = beforeRow.ai_price_min;
+      updateData.price_max = beforeRow.ai_price_max;
+    }
+
     const { data, error } = await supabase
       .from("estimator_requests")
       .update(updateData)

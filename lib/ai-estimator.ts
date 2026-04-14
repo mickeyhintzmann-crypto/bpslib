@@ -30,6 +30,7 @@ export type EstimatorAiEstimate = {
   min: number;
   max: number;
   sampleCount: number;
+  waterfallSurcharge?: number;
 };
 
 export const ESTIMATOR_AI_DEFAULTS: EstimatorAiSettings = {
@@ -148,10 +149,51 @@ export const getEstimatorAiSettings = async (
   }
 };
 
+type VisionFeatures = {
+  waterfallCount?: number;
+  waterfallDescription?: string | null;
+  boardCount?: number;
+  surfaceCondition?: string;
+  [key: string]: unknown;
+};
+
 type EstimatorAiInput = {
   fields?: EstimatorFormFields | null;
   extras?: BordpladeExtras | null;
   service?: string | null;
+};
+
+/* ─── Vandfald-tillæg ─── */
+/* Basistillæg pr. vandfald. Justeres over tid via træningsdata med vandfald. */
+const WATERFALL_SURCHARGE_PER_UNIT = 800; // kr pr. vandfald (konservativt baseline)
+const WATERFALL_SURCHARGE_MAX = 4000; // maks tillæg uanset antal
+
+const getVisionFeatures = (input?: EstimatorAiInput): VisionFeatures | null => {
+  const raw = input?.fields as Record<string, unknown> | undefined;
+  if (!raw?.visionFeatures || typeof raw.visionFeatures !== "object") {
+    return null;
+  }
+  return raw.visionFeatures as VisionFeatures;
+};
+
+const calculateWaterfallSurcharge = (
+  visionFeatures: VisionFeatures | null,
+  waterfallSamples: Array<{ waterfallCount: number; surchargePerUnit: number }>
+): number => {
+  if (!visionFeatures || !visionFeatures.waterfallCount || visionFeatures.waterfallCount <= 0) {
+    return 0;
+  }
+
+  const count = visionFeatures.waterfallCount;
+
+  // Brug lært tillæg hvis vi har nok træningsdata med vandfald
+  if (waterfallSamples.length >= 3) {
+    const avgSurcharge = waterfallSamples.reduce((sum, s) => sum + s.surchargePerUnit, 0) / waterfallSamples.length;
+    return Math.min(Math.round(avgSurcharge * count), WATERFALL_SURCHARGE_MAX);
+  }
+
+  // Ellers brug baseline
+  return Math.min(WATERFALL_SURCHARGE_PER_UNIT * count, WATERFALL_SURCHARGE_MAX);
 };
 
 const ESTIMATOR_AI_SERVICES = [
@@ -474,10 +516,12 @@ export const estimateAiPrice = async (
     return buildFallbackEstimate(settings, targetService, input);
   }
 
+  const visionFeatures = getVisionFeatures(input);
+
   const [estimatorResult, aiReviewedResult] = await Promise.all([
     supabase
       .from("estimator_requests")
-      .select("price_min, price_max, fields")
+      .select("price_min, price_max, ai_price_min, ai_price_max, fields")
       .not("price_min", "is", null)
       .not("price_max", "is", null)
       .order("created_at", { ascending: false })
@@ -496,6 +540,9 @@ export const estimateAiPrice = async (
   }
 
   type SampleRow = { baseMid: number; profile: GulvProfile };
+  type WaterfallSample = { waterfallCount: number; surchargePerUnit: number };
+  const waterfallSamples: WaterfallSample[] = [];
+
   const estimatorSamples: SampleRow[] = (estimatorResult.data || [])
     .map((row) => {
       if (getServiceFromFields(row.fields) !== targetService) {
@@ -525,6 +572,26 @@ export const estimateAiPrice = async (
 
       if (!baseMid) {
         return null;
+      }
+
+      // ─── Lær vandfald-tillæg fra verificerede sager ───
+      if (targetService === "bordplade") {
+        const rowFields = row.fields as Record<string, unknown> | null;
+        const rowVision = rowFields?.visionFeatures as VisionFeatures | undefined;
+        if (rowVision?.waterfallCount && rowVision.waterfallCount > 0) {
+          // Beregn hvad tillægget var ift. AI's oprindelige estimat
+          const aiMin = parseSampleNumber((row as Record<string, unknown>).ai_price_min);
+          const aiMax = parseSampleNumber((row as Record<string, unknown>).ai_price_max);
+          const aiMid = aiMin !== null && aiMax !== null ? (aiMin + aiMax) / 2 : null;
+          const actualMid = (min + max) / 2;
+          if (aiMid !== null && actualMid > aiMid) {
+            const totalSurcharge = actualMid - aiMid;
+            waterfallSamples.push({
+              waterfallCount: rowVision.waterfallCount,
+              surchargePerUnit: totalSurcharge / rowVision.waterfallCount,
+            });
+          }
+        }
       }
 
       return { baseMid, profile };
@@ -661,6 +728,16 @@ export const estimateAiPrice = async (
     max = Math.round(baseMax * boardCount + extraRange.max);
   }
 
+  // ─── Vandfald-tillæg (kun bordplade) ───
+  const waterfallSurcharge = targetService === "bordplade"
+    ? calculateWaterfallSurcharge(visionFeatures, waterfallSamples)
+    : 0;
+
+  if (waterfallSurcharge > 0) {
+    min += waterfallSurcharge;
+    max += waterfallSurcharge;
+  }
+
   if (max - min < settings.interval) {
     max = min + settings.interval;
   }
@@ -680,6 +757,7 @@ export const estimateAiPrice = async (
   return {
     min,
     max,
-    sampleCount: activeSamples.length
+    sampleCount: activeSamples.length,
+    waterfallSurcharge: waterfallSurcharge > 0 ? waterfallSurcharge : undefined,
   };
 };
