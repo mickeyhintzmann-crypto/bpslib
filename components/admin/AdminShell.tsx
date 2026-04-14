@@ -25,6 +25,7 @@ import {
   X,
   Clock,
   Contact,
+  BrainCircuit,
 } from "lucide-react";
 
 type NavItem = {
@@ -62,6 +63,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: "System",
     items: [
       { label: "Medarbejdere", href: "/admin/employees", roles: ["owner", "admin"], icon: Users },
+      { label: "AI Optræning", href: "/admin/ai-traening", roles: ["owner", "admin"], icon: BrainCircuit },
       { label: "Indstillinger", href: "/admin/indstillinger", roles: ["owner"], icon: Settings },
     ],
   },
