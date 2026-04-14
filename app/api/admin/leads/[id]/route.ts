@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { ESTIMATOR_BUCKET } from "@/lib/estimator";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 const STATUS_VALUES = ["new", "in_progress", "awaiting_customer", "won", "lost"] as const;
@@ -209,6 +210,8 @@ const fetchLeadContext = async (
     manageToken: string | null;
     aiPriceMin: number | null;
     aiPriceMax: number | null;
+    images: Array<{ name: string; url: string | null }>;
+    visionFeatures: Record<string, unknown> | null;
   } | null = null;
 
   let booking: {
@@ -272,17 +275,19 @@ const fetchLeadContext = async (
 
       const { min, max } = extractPriceRange(resultRow);
 
-      /* Hent ekstra data fra estimator_requests (manage_token, approval status) */
+      /* Hent ekstra data fra estimator_requests (manage_token, approval status, billeder) */
       let estimatorId: string | null = null;
       let approvalStatus: string | null = null;
       let manageToken: string | null = null;
       let estAiMin: number | null = null;
       let estAiMax: number | null = null;
+      const estimatorImages: Array<{ name: string; url: string | null }> = [];
+      let visionFeatures: Record<string, unknown> | null = null;
 
       if (estimatorRequestId) {
         const estRow = await supabase
           .from("estimator_requests")
-          .select("id, customer_approval_status, manage_token, ai_price_min, ai_price_max, price_min, price_max")
+          .select("id, customer_approval_status, manage_token, ai_price_min, ai_price_max, price_min, price_max, images, fields")
           .eq("id", estimatorRequestId)
           .maybeSingle();
         if (!estRow.error && estRow.data) {
@@ -292,6 +297,40 @@ const fetchLeadContext = async (
           manageToken = typeof row.manage_token === "string" ? row.manage_token : null;
           estAiMin = typeof row.ai_price_min === "number" ? row.ai_price_min : null;
           estAiMax = typeof row.ai_price_max === "number" ? row.ai_price_max : null;
+
+          /* Vision-features fra fields */
+          const fields = (row.fields || {}) as Record<string, unknown>;
+          if (fields.visionFeatures && typeof fields.visionFeatures === "object") {
+            visionFeatures = fields.visionFeatures as Record<string, unknown>;
+          }
+
+          /* Generer signed URLs til billeder (15 min valid) */
+          const imagesRaw = Array.isArray(row.images) ? row.images : [];
+          const parsedImages: Array<{ path: string; name: string }> = [];
+          imagesRaw.forEach((img: unknown, idx: number) => {
+            if (img && typeof img === "object" && "path" in img) {
+              const item = img as { path?: unknown; name?: unknown };
+              if (typeof item.path === "string" && item.path.length > 0) {
+                parsedImages.push({
+                  path: item.path,
+                  name: typeof item.name === "string" ? item.name : `Billede ${idx + 1}`,
+                });
+              }
+            }
+          });
+
+          if (parsedImages.length > 0) {
+            const paths = parsedImages.map((p) => p.path);
+            const { data: signedData } = await supabase.storage
+              .from(ESTIMATOR_BUCKET)
+              .createSignedUrls(paths, 60 * 60);
+            parsedImages.forEach((p, idx) => {
+              estimatorImages.push({
+                name: p.name,
+                url: signedData?.[idx]?.signedUrl || null,
+              });
+            });
+          }
         }
       }
 
@@ -312,6 +351,8 @@ const fetchLeadContext = async (
         manageToken,
         aiPriceMin: estAiMin,
         aiPriceMax: estAiMax,
+        images: estimatorImages,
+        visionFeatures,
       };
     }
   }

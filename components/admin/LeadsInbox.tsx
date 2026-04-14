@@ -89,6 +89,8 @@ type LeadDetailResponse = {
       manageToken: string | null;
       aiPriceMin: number | null;
       aiPriceMax: number | null;
+      images: Array<{ name: string; url: string | null }>;
+      visionFeatures: Record<string, unknown> | null;
     } | null;
     booking?: {
       id: string;
@@ -948,6 +950,63 @@ export const LeadsInbox = () => {
                   {detailContext?.aiQuote?.summary ? (
                     <p className="text-sm text-muted-foreground">{detailContext.aiQuote.summary}</p>
                   ) : null}
+
+                  {/* Kundens billeder */}
+                  {detailContext?.aiQuote?.images && detailContext.aiQuote.images.length > 0 ? (
+                    <div className="rounded-lg border border-amber-300 bg-white p-3">
+                      <p className="text-xs font-semibold uppercase text-amber-900 mb-2">
+                        Kundens billeder ({detailContext.aiQuote.images.length})
+                      </p>
+                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {detailContext.aiQuote.images.map((img, idx) => (
+                          <a
+                            key={idx}
+                            href={img.url || "#"}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block aspect-square overflow-hidden rounded-md border border-border bg-muted hover:border-amber-500"
+                          >
+                            {img.url ? (
+                              <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                                Ingen preview
+                              </div>
+                            )}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Vision-analyse resultater */}
+                  {detailContext?.aiQuote?.visionFeatures ? (() => {
+                    const vf = detailContext.aiQuote.visionFeatures as Record<string, unknown>;
+                    return (
+                      <div className="rounded-lg border border-amber-300 bg-white p-3 space-y-1">
+                        <p className="text-xs font-semibold uppercase text-amber-900">Vision-analyse</p>
+                        {typeof vf.waterfallCount === "number" && vf.waterfallCount > 0 ? (
+                          <p className="text-sm">
+                            <span className="font-semibold">Vandfald: {vf.waterfallCount}</span>
+                            {typeof vf.waterfallDescription === "string" ? ` — ${vf.waterfallDescription}` : ""}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Ingen vandfald identificeret</p>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Bordplader: {typeof vf.boardCount === "number" ? vf.boardCount : "?"} ·{" "}
+                          Tilstand: {typeof vf.surfaceCondition === "string" ? vf.surfaceCondition : "?"} ·{" "}
+                          Træsort: {typeof vf.woodType === "string" ? vf.woodType : "ukendt"}
+                        </p>
+                        {vf.hasEdgeDamage ? <p className="text-sm text-red-700">Kantskader</p> : null}
+                        {vf.hasBurnMarks ? <p className="text-sm text-red-700">Brændemærker</p> : null}
+                        {vf.hasWaterStains ? <p className="text-sm text-red-700">Vandskjolder</p> : null}
+                        {typeof vf.notes === "string" && vf.notes ? (
+                          <p className="text-sm italic text-muted-foreground">{vf.notes}</p>
+                        ) : null}
+                      </div>
+                    );
+                  })() : null}
 
                   {/* Kunde-status */}
                   {detailContext?.aiQuote?.approvalStatus ? (
