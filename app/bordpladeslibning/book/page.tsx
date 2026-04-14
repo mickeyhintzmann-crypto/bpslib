@@ -194,7 +194,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
                 kr. de næste 14 dage, når der er ledige slots.
               </div>
             </div>
-            <div className="relative">
+            <div className="relative hidden lg:block">
               <BpsImage
                 src={homeAssets.booking}
                 alt="Bordpladeslibning i køkken"
