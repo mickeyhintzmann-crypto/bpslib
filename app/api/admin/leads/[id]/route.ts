@@ -80,6 +80,7 @@ type BookingRow = {
   postal_code: string | null;
   notes: string | null;
   price_total: number | null;
+  manage_token: string | null;
 };
 
 const asTrimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -220,6 +221,7 @@ const fetchLeadContext = async (
     postalCode: string | null;
     notes: string | null;
     priceTotal: number | null;
+    manageToken: string | null;
   } | null = null;
 
   const shouldFetchAi = lead.source === "ai_quote" || Boolean(estimatorRequestId);
@@ -288,7 +290,7 @@ const fetchLeadContext = async (
       const linkedBooking = await supabase
         .from("bookings")
         .select(
-          "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes, price_total"
+          "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes, price_total, manage_token"
         )
         .eq("id", bookingId)
         .maybeSingle();
@@ -303,7 +305,7 @@ const fetchLeadContext = async (
         const latestByPhone = await supabase
           .from("bookings")
           .select(
-            "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes, price_total"
+            "id, created_at, status, source, date, start_slot_index, slot_count, customer_name, customer_phone, customer_email, address, postal_code, notes, price_total, manage_token"
           )
           .eq("customer_phone", phone)
           .order("created_at", { ascending: false })
@@ -330,7 +332,8 @@ const fetchLeadContext = async (
         address: bookingRow.address,
         postalCode: bookingRow.postal_code,
         notes: bookingRow.notes,
-        priceTotal: bookingRow.price_total
+        priceTotal: bookingRow.price_total,
+        manageToken: bookingRow.manage_token
       };
     }
   }

@@ -100,6 +100,7 @@ type LeadDetailResponse = {
       postalCode: string | null;
       notes: string | null;
       priceTotal: number | null;
+      manageToken: string | null;
     } | null;
   };
   messages?: LeadMessageItem[];
@@ -921,6 +922,21 @@ export const LeadsInbox = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={async () => {
+                            await updateLinkedBookingStatus("cancelled");
+                            setReplySubject(`Ombooking – BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
+                            setReplyMessage(
+                              "Den valgte tid er desværre allerede blevet booket, og vi kan derfor ikke bekræfte den.\n\nVi vil meget gerne tilbyde dig en ny tid i stedet.\nKontakt os gerne, så finder vi hurtigst muligt en anden tid, der passer dig."
+                            );
+                          }}
+                          disabled={bookingActionBusy}
+                        >
+                          Ombook
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-200 text-red-700 hover:bg-red-50"
                           onClick={() => updateLinkedBookingStatus("cancelled")}
                           disabled={bookingActionBusy}
                         >
@@ -1013,26 +1029,24 @@ export const LeadsInbox = () => {
                     variant="outline"
                     onClick={() => {
                       const booking = detailContext?.booking;
-                      const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : null;
+                      const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : "";
                       const formattedDate = booking?.date ? booking.date.split("-").reverse().join("-") : "";
-                      const dateLine = formattedDate ? `Dato: ${formattedDate}` : "";
-                      const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
-                      const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
-                      const priceLine = booking?.priceTotal ? `Pris: ${booking.priceTotal}kr inkl moms.` : "";
+                      const addressParts = [booking?.address, booking?.postalCode].filter(Boolean).join(", ");
+                      const manageUrl = booking?.manageToken ? `https://bpslib.dk/booking/manage/${booking.manageToken}` : "";
+
+                      const details: string[] = [];
+                      if (formattedDate) details.push(`Dato: ${formattedDate}`);
+                      if (slotTime) details.push(`Tidspunkt: ${slotTime}`);
+                      if (addressParts) details.push(`Adresse: ${addressParts}`);
+                      if (booking?.priceTotal) details.push(`Pris: ${booking.priceTotal}kr`);
+
+                      let msg = "Tak for din booking hos BP Slib.\n\nVi bekræfter hermed følgende:\n";
+                      msg += details.join("\n");
+                      msg += "\n\nHar du spørgsmål inden da, er du velkommen til at kontakte os.";
+                      if (manageUrl) msg += `\n\nSe eller ændr din booking her: ${manageUrl}`;
+
                       setReplySubject(`Bekræftelse af booking hos BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
-                      setReplyMessage(
-                        [
-                          "Tak for din booking hos BP Slib.",
-                          "",
-                          "Vi bekræfter hermed følgende:",
-                          dateLine,
-                          timeLine,
-                          addressLine,
-                          priceLine,
-                          "",
-                          "Har du spørgsmål inden da, er du velkommen til at kontakte os."
-                        ].filter(Boolean).join("\n")
-                      );
+                      setReplyMessage(msg);
                     }}
                   >
                     Bekræftelse

@@ -27,7 +27,7 @@ export async function GET(request: Request, context: RouteContext) {
     const supabase = createSupabaseServiceClient();
     const { data, error } = await supabase
       .from("bookings")
-      .select("id, date, start_slot_index, slot_count, status")
+      .select("id, date, start_slot_index, slot_count, status, customer_name, address, postal_code, city, service_type, source, price_total, notes")
       .eq("manage_token", token)
       .single();
 
@@ -44,14 +44,25 @@ export async function GET(request: Request, context: RouteContext) {
         : null;
     const slotCount = data.slot_count || 1;
 
+    /* Return date + startTime separately so the client can display
+       Copenhagen time without UTC-offset confusion. */
     return NextResponse.json(
       {
         item: {
           id: data.id,
-          slotStart: slotRange?.slotStartIso ?? null,
-          slotEnd: slotRange?.slotEndIso ?? null,
+          date: data.date,
+          startTime: slotRange?.startTime ?? null,
+          endTime: slotRange?.endTime ?? null,
           slotCount,
-          status: data.status
+          status: data.status,
+          customerName: data.customer_name,
+          address: data.address,
+          postalCode: data.postal_code,
+          city: data.city,
+          serviceType: data.service_type,
+          source: data.source,
+          priceTotal: data.price_total,
+          notes: data.notes,
         }
       },
       { status: 200 }
