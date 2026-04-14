@@ -221,6 +221,9 @@ export const LeadsInbox = () => {
 
   const hasItems = items.length > 0;
 
+  const isAcuteBooking = (item: LeadListItem) =>
+    item.source === "booking" && (item.meta as Record<string, unknown>)?.endpoint === "/api/bookings/acute/submit";
+
   /* The API source param sent to the server – "acute" maps to "booking" on the API side */
   const apiSourceFilter = sourceFilter === "acute" ? "booking" : sourceFilter;
 
@@ -237,8 +240,6 @@ export const LeadsInbox = () => {
   }, [items, sourceFilter]);
 
   const selectedSummary = useMemo(() => items.find((item) => item.id === selectedId) || null, [items, selectedId]);
-  const isAcuteBooking = (item: LeadListItem) =>
-    item.source === "booking" && (item.meta as Record<string, unknown>)?.endpoint === "/api/bookings/acute/submit";
 
   const sourceCounts = useMemo(
     () => ({
