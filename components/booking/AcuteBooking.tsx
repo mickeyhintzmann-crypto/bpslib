@@ -213,6 +213,16 @@ export const AcuteBooking = ({
       return;
     }
 
+    if (!email.trim()) {
+      setErrorMessage("Indtast email (bruges til fakturering).");
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setErrorMessage("Email ser ikke gyldig ud.");
+      return;
+    }
+
     if (!ensureAvailability(selectedSlot)) {
       const fallback = nextThree.find(
         (slot) => !(slot.dateKey === selectedSlot.dateKey && slot.time === selectedSlot.time)
@@ -413,12 +423,14 @@ export const AcuteBooking = ({
             />
           </label>
           <label className="grid gap-2 text-sm text-foreground md:col-span-2">
-            Email (valgfri)
+            Email *
             <input
+              type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="h-10 rounded-md border border-border bg-white px-3"
               placeholder="din@mail.dk"
+              required
             />
           </label>
         </div>

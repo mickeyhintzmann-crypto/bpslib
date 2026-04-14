@@ -183,7 +183,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Skriv venligst et gyldigt telefonnummer." }, { status: 400 });
     }
 
-    if (email && !validEmailRegex.test(email)) {
+    if (!email) {
+      return NextResponse.json({ message: "Email er påkrævet (bruges til fakturering)." }, { status: 400 });
+    }
+
+    if (!validEmailRegex.test(email)) {
       return NextResponse.json({ message: "Email ser ikke gyldig ud." }, { status: 400 });
     }
 

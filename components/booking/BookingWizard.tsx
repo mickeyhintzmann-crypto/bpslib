@@ -373,6 +373,14 @@ export const BookingWizard = ({
         setErrorMessage("Indtast navn og telefonnummer.");
         return false;
       }
+      if (!email.trim()) {
+        setErrorMessage("Indtast email (bruges til fakturering).");
+        return false;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+        setErrorMessage("Email ser ikke gyldig ud.");
+        return false;
+      }
     }
 
     setErrorMessage("");
@@ -415,8 +423,8 @@ export const BookingWizard = ({
       return;
     }
 
-    if (!name.trim() || !phone.trim()) {
-      setErrorMessage("Indtast navn og telefonnummer.");
+    if (!name.trim() || !phone.trim() || !email.trim()) {
+      setErrorMessage("Indtast navn, telefonnummer og email.");
       return;
     }
 
@@ -830,12 +838,14 @@ export const BookingWizard = ({
               />
             </label>
             <label className="grid gap-2 text-sm text-foreground">
-              Email (valgfri)
+              Email *
               <input
+                type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="h-10 rounded-md border border-border bg-white/90 px-3"
                 placeholder="din@mail.dk"
+                required
               />
             </label>
             <div className="md:col-span-2 space-y-3">
