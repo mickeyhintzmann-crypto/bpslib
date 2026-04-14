@@ -56,10 +56,20 @@ export const sendBookingAutoReply = async (info: BookingInfo) => {
 
   /* ---- SMS ---- */
   if (info.customerPhone && hasTwilioConfig()) {
-    const smsBody = `Hej ${name},\n\n${STANDARD_MESSAGE}\n\nVenlig hilsen\nBP Slib`;
-    const smsResult = await sendSms({ to: info.customerPhone, body: smsBody });
+    try {
+      const smsBody = `Hej ${name},\n\n${STANDARD_MESSAGE}\n\nVenlig hilsen\nBP Slib`;
+      const smsResult = await sendSms({ to: info.customerPhone, body: smsBody });
 
-    results.push(smsResult.ok ? "sms_ok" : "sms_fail");
+      if (!smsResult.ok) {
+        console.error(`[booking-autoreply] SMS fejlede for ${info.bookingId}:`, smsResult.error);
+      }
+      results.push(smsResult.ok ? "sms_ok" : "sms_fail");
+    } catch (smsError) {
+      console.error(`[booking-autoreply] SMS undtagelse for ${info.bookingId}:`, smsError);
+      results.push("sms_error");
+    }
+  } else if (info.customerPhone) {
+    console.warn(`[booking-autoreply] Twilio ikke konfigureret – SMS sprunget over for ${info.bookingId}`);
   }
 
   return results;
