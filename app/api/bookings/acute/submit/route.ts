@@ -6,6 +6,7 @@ import { SLOT_TIMES, type SlotTime } from "@/lib/booking-schedule";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { sendBookingAutoReply } from "@/lib/booking-confirmation";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
 import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
 
@@ -355,21 +356,14 @@ export async function POST(request: Request) {
       });
     }
 
-    if (email) {
-      const customerResult = await sendMail({
-        to: email,
-        subject: "Bekræftelse på akut tid",
-        text: baseTextLines
-      });
-      await logEmail({
-        kind: "booking.acute",
-        to: email,
-        subject: "Bekræftelse på akut tid",
-        ok: customerResult.ok,
-        error: customerResult.error || null,
-        meta: { bookingId: data.id, recipient: "customer" }
-      });
-    }
+    /* Auto-reply to customer with branded email + SMS */
+    await sendBookingAutoReply({
+      bookingId: data.id,
+      customerName: name,
+      customerEmail: email || undefined,
+      customerPhone: phone || undefined,
+      source: "acute",
+    });
 
     return NextResponse.json({ ok: true, bookingId: data.id }, { status: 200 });
   } catch (error) {

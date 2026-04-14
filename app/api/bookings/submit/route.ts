@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { checkBookingAvailability, getSlotRangeForBooking } from "@/lib/admin-availability";
 import { SLOT_TIMES } from "@/lib/booking-schedule";
 import { formatExtrasSummary, hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
+import { sendBookingAutoReply } from "@/lib/booking-confirmation";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
@@ -321,21 +322,14 @@ export async function POST(request: Request) {
       });
     }
 
-    if (email) {
-      const customerResult = await sendMail({
-        to: email,
-        subject: "Tak - vi har modtaget din bookingforespørgsel",
-        text: baseTextLines
-      });
-      await logEmail({
-        kind: "booking.normal",
-        to: email,
-        subject: "Tak - vi har modtaget din bookingforespørgsel",
-        ok: customerResult.ok,
-        error: customerResult.error || null,
-        meta: { bookingId: data.id, recipient: "customer" }
-      });
-    }
+    /* Auto-reply to customer with branded email + SMS */
+    await sendBookingAutoReply({
+      bookingId: data.id,
+      customerName: name,
+      customerEmail: email || undefined,
+      customerPhone: phone || undefined,
+      source: "normal",
+    });
 
     return NextResponse.json({ ok: true, bookingId: data.id }, { status: 200 });
   } catch (error) {

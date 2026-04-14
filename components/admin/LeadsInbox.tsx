@@ -99,6 +99,7 @@ type LeadDetailResponse = {
       address: string | null;
       postalCode: string | null;
       notes: string | null;
+      priceTotal: number | null;
     } | null;
   };
   messages?: LeadMessageItem[];
@@ -210,6 +211,8 @@ export const LeadsInbox = () => {
   const [replySubject, setReplySubject] = useState("");
   const [replyMessage, setReplyMessage] = useState("");
   const [replyStatusAfter, setReplyStatusAfter] = useState("awaiting_customer");
+  const [replySendEmail, setReplySendEmail] = useState(true);
+  const [replySendSms, setReplySendSms] = useState(false);
   const [replyBusy, setReplyBusy] = useState(false);
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [jobDraft, setJobDraft] = useState<JobDraft | null>(null);
@@ -544,8 +547,16 @@ export const LeadsInbox = () => {
     if (!detail) {
       return;
     }
-    if (!replySubject.trim() || !replyMessage.trim()) {
-      setDetailError("Emne og besked skal udfyldes.");
+    if (!replySendEmail && !replySendSms) {
+      setDetailError("Vælg mindst én kanal (email eller SMS).");
+      return;
+    }
+    if (replySendEmail && !replySubject.trim()) {
+      setDetailError("Emne skal udfyldes for email.");
+      return;
+    }
+    if (!replyMessage.trim()) {
+      setDetailError("Besked skal udfyldes.");
       return;
     }
 
@@ -561,7 +572,9 @@ export const LeadsInbox = () => {
         body: JSON.stringify({
           subject: replySubject.trim(),
           message: replyMessage.trim(),
-          statusAfter: replyStatusAfter
+          statusAfter: replyStatusAfter,
+          sendEmail: replySendEmail,
+          sendSms: replySendSms
         })
       });
       const payload = (await response.json()) as {
@@ -929,6 +942,26 @@ export const LeadsInbox = () => {
                   placeholder="Emne"
                   className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm"
                 />
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={replySendEmail}
+                      onChange={(e) => setReplySendEmail(e.target.checked)}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                    Email{detail?.email ? ` (${short(detail.email)})` : ""}
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={replySendSms}
+                      onChange={(e) => setReplySendSms(e.target.checked)}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                    SMS{detail?.phone ? ` (${short(detail.phone)})` : ""}
+                  </label>
+                </div>
                 <textarea
                   value={replyMessage}
                   onChange={(event) => setReplyMessage(event.target.value)}
@@ -946,7 +979,7 @@ export const LeadsInbox = () => {
                     onClick={() => {
                       setReplySubject(`BP Slib – Vedr. din booking${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
                       setReplyMessage(
-                        "Tak for din booking hos BP Slib.\nVi vender tilbage hurtigst muligt med den endelige bekræftelse på din booking."
+                        "Tak for din booking hos BP Slib.\n\nVi vender tilbage hurtigst muligt med den endelige bekræftelse på din booking."
                       );
                     }}
                   >
@@ -961,6 +994,7 @@ export const LeadsInbox = () => {
                       const dateLine = booking?.date ? `Dato: ${booking.date}` : "";
                       const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
                       const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
+                      const priceLine = booking?.priceTotal ? `Pris: ${booking.priceTotal},- inkl. moms` : "";
                       setReplySubject(`Bekræftelse af booking hos BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
                       setReplyMessage(
                         [
@@ -970,6 +1004,7 @@ export const LeadsInbox = () => {
                           dateLine,
                           timeLine,
                           addressLine,
+                          priceLine,
                           "",
                           "Har du spørgsmål inden da, er du velkommen til at kontakte os."
                         ].filter(Boolean).join("\n")
