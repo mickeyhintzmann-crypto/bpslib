@@ -328,6 +328,7 @@ export async function POST(request: Request) {
       customerName: name,
       customerEmail: email || undefined,
       customerPhone: phone || undefined,
+      manageToken,
       source: "normal",
     });
 

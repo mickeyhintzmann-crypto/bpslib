@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Calendar, Clock, ArrowLeft, Copy, Check, User, Briefcase } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Phone, Mail, MapPin, Calendar, Clock, ArrowLeft, Copy, Check, User, Briefcase, Trash2 } from "lucide-react";
 
 import { useAdminSession } from "@/components/admin/AdminSessionContext";
 import { Button } from "@/components/ui/button";
@@ -139,7 +140,9 @@ const InfoRow = ({ icon, label, value, href }: { icon?: React.ReactNode; label: 
 
 export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
   const session = useAdminSession();
+  const router = useRouter();
   const canEdit = session?.role === "owner" || session?.role === "admin";
+  const [deleting, setDeleting] = useState(false);
 
   const [item, setItem] = useState<BookingItem | null>(null);
   const [status, setStatus] = useState<(typeof STATUS_FLOW)[number]>("new");
@@ -305,6 +308,33 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
 
   const handleSaveAssignment = () => {
     updateBooking({ assigned_to: assignedTo.trim() || null });
+  };
+
+  const handleDeleteBooking = async () => {
+    const confirmed = window.confirm(
+      `Er du sikker på du vil slette denne booking for ${item?.customer_name}? Dette kan ikke fortrydes.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+      const data = (await response.json()) as { ok?: boolean; message?: string };
+      if (!response.ok || !data.ok) {
+        setError(data.message || "Kunne ikke slette booking.");
+        return;
+      }
+      router.push("/admin/bookings");
+    } catch (deleteError) {
+      console.error(deleteError);
+      setError("Netværksfejl ved sletning af booking.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleSavePricing = () => {
@@ -656,6 +686,28 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
                 </Button>
               </div>
             </Section>
+          ) : null}
+
+          {/* Slet booking */}
+          {canEdit ? (
+            <div className="rounded-xl border border-red-200 bg-red-50/50 p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-red-800">Slet booking</h2>
+                  <p className="mt-1 text-xs text-red-600">Denne handling kan ikke fortrydes.</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-red-300 text-red-700 hover:bg-red-100"
+                  onClick={handleDeleteBooking}
+                  disabled={deleting || saving}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {deleting ? "Sletter..." : "Slet booking"}
+                </Button>
+              </div>
+            </div>
           ) : null}
         </div>
       ) : null}

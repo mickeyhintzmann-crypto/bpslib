@@ -12,8 +12,11 @@ type BookingInfo = {
   customerName: string;
   customerEmail?: string;
   customerPhone?: string;
+  manageToken?: string;
   source: "normal" | "acute";
 };
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bpslib.dk";
 
 const STANDARD_MESSAGE =
   "Tak for din booking hos BP Slib.\n\nVi vender tilbage hurtigst muligt med den endelige bekræftelse på din booking.";
@@ -27,12 +30,24 @@ export const sendBookingAutoReply = async (info: BookingInfo) => {
   const subject = `BP Slib – Vedr. din booking`;
   const results: string[] = [];
 
+  const manageLink = info.manageToken
+    ? `${SITE_URL}/booking/manage/${info.manageToken}`
+    : "";
+
+  const manageLine = manageLink
+    ? `\nAdministrer din booking her: ${manageLink}`
+    : "";
+
+  const manageHtml = manageLink
+    ? `<br><a href="${manageLink}" style="color:#c67a2e;text-decoration:underline;">Administrer din booking her</a>`
+    : "";
+
   /* ---- Email ---- */
   if (info.customerEmail) {
-    const textBody = `Hej ${name},\n\n${STANDARD_MESSAGE}\n\nVenlig hilsen\nBP Slib`;
+    const textBody = `Hej ${name},\n\n${STANDARD_MESSAGE}${manageLine}\n\nVenlig hilsen\nBP Slib`;
     const htmlBody = wrapInEmailTemplate({
       greeting: `Hej ${name},`,
-      body: STANDARD_MESSAGE,
+      body: `${STANDARD_MESSAGE}${manageHtml}`,
     });
 
     const emailResult = await sendMail({
@@ -57,7 +72,7 @@ export const sendBookingAutoReply = async (info: BookingInfo) => {
   /* ---- SMS ---- */
   if (info.customerPhone && hasTwilioConfig()) {
     try {
-      const smsBody = `Hej ${name},\n\n${STANDARD_MESSAGE}\n\nVenlig hilsen\nBP Slib`;
+      const smsBody = `Hej ${name},\n\n${STANDARD_MESSAGE}${manageLine}\n\nVenlig hilsen\nBP Slib`;
       const smsResult = await sendSms({ to: info.customerPhone, body: smsBody });
 
       if (!smsResult.ok) {

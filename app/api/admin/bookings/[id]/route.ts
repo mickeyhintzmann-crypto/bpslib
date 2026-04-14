@@ -474,3 +474,52 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ message: "Uventet fejl ved opdatering af booking." }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, context: RouteContext) {
+  try {
+    const params = await Promise.resolve(context.params);
+    const { session, error: authError } = requireAdmin(request, ["owner", "admin"]);
+    if (authError) {
+      return authError;
+    }
+
+    const supabase = createSupabaseServiceClient();
+
+    const { data: existing, error: fetchError } = await supabase
+      .from("bookings")
+      .select("id, customer_name, date, status")
+      .eq("id", params.id)
+      .single();
+
+    if (fetchError || !existing) {
+      return NextResponse.json({ message: "Booking blev ikke fundet." }, { status: 404 });
+    }
+
+    const { error: deleteError } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", params.id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        { message: deleteError.message || "Kunne ikke slette booking." },
+        { status: 500 }
+      );
+    }
+
+    await auditLog({
+      action: "booking.delete",
+      entityType: "booking",
+      entityId: existing.id,
+      meta: { deleted: existing },
+      req: request,
+      actor: session?.email,
+      role: session?.role
+    });
+
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "Uventet fejl ved sletning af booking." }, { status: 500 });
+  }
+}

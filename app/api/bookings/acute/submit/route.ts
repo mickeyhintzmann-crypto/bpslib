@@ -9,6 +9,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { sendBookingAutoReply } from "@/lib/booking-confirmation";
 import { getSmtpAdminTo, logEmail, sendMail } from "@/lib/mailer";
 import { findOrCreateCustomer, normalizePhone } from "@/lib/customer-match";
+import { buildLeadMetaFromRequest, insertLeadIntake } from "@/lib/leads-intake";
 
 type AcuteSubmitPayload = {
   date?: unknown;
@@ -321,6 +322,27 @@ export async function POST(request: Request) {
       );
     }
 
+    /* ---- Lead capture (so acute bookings appear in Henvendelser) ---- */
+    try {
+      await insertLeadIntake({
+        source: "booking",
+        service: "bordplade",
+        name,
+        email: email || null,
+        phone,
+        location: `${postalCode} ${address}`.trim(),
+        message: notes || null,
+        pageUrl: request.headers.get("referer") || null,
+        meta: {
+          ...buildLeadMetaFromRequest(request),
+          bookingId: data.id,
+          endpoint: "/api/bookings/acute/submit"
+        }
+      });
+    } catch (leadCaptureError) {
+      console.error("[acute_booking_submit] lead capture failed", leadCaptureError);
+    }
+
     const adminTo = getSmtpAdminTo();
     const manageLink = manageToken ? `https://bpslib.dk/booking/manage/${manageToken}` : "";
     const baseTextLines = [
@@ -362,6 +384,7 @@ export async function POST(request: Request) {
       customerName: name,
       customerEmail: email || undefined,
       customerPhone: phone || undefined,
+      manageToken,
       source: "acute",
     });
 

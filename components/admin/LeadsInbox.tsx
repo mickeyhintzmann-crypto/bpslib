@@ -220,12 +220,31 @@ export const LeadsInbox = () => {
 
   const hasItems = items.length > 0;
 
+  /* The API source param sent to the server – "acute" maps to "booking" on the API side */
+  const apiSourceFilter = sourceFilter === "acute" ? "booking" : sourceFilter;
+
+  /* When "acute" quick-filter is active we fetch source=booking from the API
+     but then further filter client-side to only show acute bookings. */
+  const displayItems = useMemo(() => {
+    if (sourceFilter === "acute") {
+      return items.filter((item) => isAcuteBooking(item));
+    }
+    if (sourceFilter === "booking") {
+      return items.filter((item) => !isAcuteBooking(item));
+    }
+    return items;
+  }, [items, sourceFilter]);
+
   const selectedSummary = useMemo(() => items.find((item) => item.id === selectedId) || null, [items, selectedId]);
+  const isAcuteBooking = (item: LeadListItem) =>
+    item.source === "booking" && (item.meta as Record<string, unknown>)?.endpoint === "/api/bookings/acute/submit";
+
   const sourceCounts = useMemo(
     () => ({
       form: items.filter((item) => item.source === "form").length,
       aiQuote: items.filter((item) => item.source === "ai_quote").length,
-      booking: items.filter((item) => item.source === "booking").length
+      booking: items.filter((item) => item.source === "booking" && !isAcuteBooking(item)).length,
+      acute: items.filter((item) => isAcuteBooking(item)).length
     }),
     [items]
   );
@@ -237,7 +256,7 @@ export const LeadsInbox = () => {
     try {
       const params = new URLSearchParams();
       if (statusFilter !== "alle") params.set("status", statusFilter);
-      if (sourceFilter !== "alle") params.set("source", sourceFilter);
+      if (apiSourceFilter !== "alle") params.set("source", apiSourceFilter);
       if (serviceFilter !== "alle") params.set("service", serviceFilter);
       if (query.trim()) params.set("q", query.trim());
       params.set("page", "1");
@@ -263,7 +282,8 @@ export const LeadsInbox = () => {
         setDetail(null);
         setDetailContext(null);
         setMessages([]);
-      } else if (!selectedId) {
+      } else {
+        /* Always select the newest (first) item when list loads */
         setSelectedId(payload.items[0].id);
       }
     } catch (error) {
@@ -311,7 +331,7 @@ export const LeadsInbox = () => {
   useEffect(() => {
     loadList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, sourceFilter, serviceFilter]);
+  }, [statusFilter, sourceFilter, apiSourceFilter, serviceFilter]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -630,6 +650,9 @@ export const LeadsInbox = () => {
         <Button variant={sourceFilter === "booking" ? "default" : "outline"} onClick={() => runQuickSourceView("booking")}>
           Booking ({sourceCounts.booking})
         </Button>
+        <Button variant={sourceFilter === "acute" ? "default" : "outline"} onClick={() => runQuickSourceView("acute")}>
+          Akut ({sourceCounts.acute})
+        </Button>
         <Button variant={sourceFilter === "form" ? "default" : "outline"} onClick={() => runQuickSourceView("form")}>
           Kontakt/Form ({sourceCounts.form})
         </Button>
@@ -686,15 +709,15 @@ export const LeadsInbox = () => {
         <aside className="overflow-hidden rounded-2xl border border-border bg-white">
           <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Leads</h2>
-            <span className="text-xs text-muted-foreground">{total ?? items.length}</span>
+            <span className="text-xs text-muted-foreground">{displayItems.length}</span>
           </div>
           <div className="max-h-[72vh] divide-y divide-border/60 overflow-y-auto">
-            {!hasItems ? (
+            {displayItems.length === 0 ? (
               <p className="px-4 py-6 text-sm text-muted-foreground">
-                {loadingList ? "Henter leads..." : "No leads yet"}
+                {loadingList ? "Henter leads..." : "Ingen leads"}
               </p>
             ) : (
-              items.map((item) => (
+              displayItems.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -991,10 +1014,11 @@ export const LeadsInbox = () => {
                     onClick={() => {
                       const booking = detailContext?.booking;
                       const slotTime = booking?.startSlotIndex === 0 ? "08:00" : booking?.startSlotIndex === 1 ? "11:00" : booking?.startSlotIndex === 2 ? "13:30" : null;
-                      const dateLine = booking?.date ? `Dato: ${booking.date}` : "";
+                      const formattedDate = booking?.date ? booking.date.split("-").reverse().join("-") : "";
+                      const dateLine = formattedDate ? `Dato: ${formattedDate}` : "";
                       const timeLine = slotTime ? `Tidspunkt: ${slotTime}` : "";
                       const addressLine = booking?.address ? `Adresse: ${booking.address}${booking.postalCode ? `, ${booking.postalCode}` : ""}` : "";
-                      const priceLine = booking?.priceTotal ? `Pris: ${booking.priceTotal},- inkl. moms` : "";
+                      const priceLine = booking?.priceTotal ? `Pris: ${booking.priceTotal}kr inkl moms.` : "";
                       setReplySubject(`Bekræftelse af booking hos BP Slib${detail?.name ? ` – ${short(detail.name, "")}` : ""}`);
                       setReplyMessage(
                         [
