@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -116,6 +116,8 @@ export const BookingWizard = ({
   estimateMax?: number | null;
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const priceToken = searchParams?.get("priceToken") || null;
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
@@ -163,6 +165,43 @@ export const BookingWizard = ({
     setMounted(true);
     setBlockedSlots(initialBlocked);
   }, [initialBlocked]);
+
+  /* Auto-skip step 1 når der kommer en godkendt pris fra prisberegning.
+     Forudfyld også navn/telefon fra estimator_request hvis muligt. */
+  useEffect(() => {
+    if (!priceToken || priceToken.length < 20) return;
+    setTaskType("renovering");
+    setStep((current) => (current < 2 ? 2 : current));
+
+    fetch(`/api/estimator/price-token/${priceToken}`, { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const payload = (await res.json()) as {
+          item?: {
+            estimatorId: string;
+            customerName: string | null;
+            customerPhone: string | null;
+            priceMin: number;
+            priceMax: number;
+          };
+        };
+        if (!payload.item) return;
+        setEstimatorContact({
+          estimatorId: payload.item.estimatorId,
+          name: payload.item.customerName || undefined,
+          phone: payload.item.customerPhone || undefined,
+          priceMin: payload.item.priceMin,
+          priceMax: payload.item.priceMax,
+        });
+        if (payload.item.customerName) {
+          setName((current) => current || (payload.item?.customerName ?? ""));
+        }
+        if (payload.item.customerPhone) {
+          setPhone((current) => current || (payload.item?.customerPhone ?? ""));
+        }
+      })
+      .catch(() => {});
+  }, [priceToken]);
 
   const requiredSlots = 1;
   const extrasSummary = useMemo(() => formatExtrasSummary(extras), [extras]);
