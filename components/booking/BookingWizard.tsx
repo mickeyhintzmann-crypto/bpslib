@@ -594,11 +594,11 @@ export const BookingWizard = ({
             <span className="text-sm text-muted-foreground">Beskriv din opgave, så vender vi tilbage med en pris.</span>
           </Link>
           <a
-            href="tel:+4570228830"
+            href="tel:+4526913737"
             className="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-white p-5 transition hover:border-amber-500 hover:shadow-md"
           >
             <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">Ring</span>
-            <span className="font-semibold text-foreground">+45 70 22 88 30</span>
+            <span className="font-semibold text-foreground">+45 2691 3737</span>
             <span className="text-sm text-muted-foreground">Få en pris over telefonen og et bookinglink på SMS.</span>
           </a>
         </div>

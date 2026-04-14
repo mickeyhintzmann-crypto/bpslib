@@ -240,7 +240,7 @@ export const ManageEstimatorClient = ({ token }: { token: string }) => {
           <div className="mt-3 space-y-1 text-sm">
             <p>
               <span className="font-semibold">Telefon:</span>{" "}
-              <a href="tel:+4570228830" className="text-blue-700 hover:underline">+45 70 22 88 30</a>
+              <a href="tel:+4526913737" className="text-blue-700 hover:underline">+45 2691 3737</a>
             </p>
             <p>
               <span className="font-semibold">Email:</span>{" "}
