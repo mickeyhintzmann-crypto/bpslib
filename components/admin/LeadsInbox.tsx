@@ -84,6 +84,11 @@ type LeadDetailResponse = {
       priceMin: number | null;
       priceMax: number | null;
       summary: string | null;
+      estimatorId: string | null;
+      approvalStatus: string | null;
+      manageToken: string | null;
+      aiPriceMin: number | null;
+      aiPriceMax: number | null;
     } | null;
     booking?: {
       id: string;
@@ -218,6 +223,14 @@ export const LeadsInbox = () => {
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [jobDraft, setJobDraft] = useState<JobDraft | null>(null);
   const [jobSuccessMessage, setJobSuccessMessage] = useState("");
+
+  /* Prisberegner admin-handlinger */
+  const [estimatorBusy, setEstimatorBusy] = useState(false);
+  const [estimatorMsg, setEstimatorMsg] = useState("");
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustPriceMin, setAdjustPriceMin] = useState("");
+  const [adjustPriceMax, setAdjustPriceMax] = useState("");
+  const [adjustNote, setAdjustNote] = useState("");
 
   const hasItems = items.length > 0;
 
@@ -630,6 +643,65 @@ export const LeadsInbox = () => {
     }
   };
 
+  /* ─── Prisberegner admin handlers ─── */
+  const approveEstimator = async () => {
+    const estimatorId = detailContext?.aiQuote?.estimatorId;
+    if (!estimatorId) return;
+    setEstimatorBusy(true);
+    setEstimatorMsg("");
+    try {
+      const res = await fetch(`/api/admin/estimator/${estimatorId}/approve`, { method: "POST" });
+      const payload = (await res.json()) as { ok?: boolean; message?: string };
+      if (!res.ok || !payload.ok) {
+        setEstimatorMsg(payload.message || "Kunne ikke bekræfte pris.");
+        return;
+      }
+      setEstimatorMsg("Pris bekræftet — kunden har fået besked.");
+      if (selectedId) loadDetail(selectedId);
+    } catch (err) {
+      console.error(err);
+      setEstimatorMsg("Netværksfejl.");
+    } finally {
+      setEstimatorBusy(false);
+    }
+  };
+
+  const adjustEstimator = async () => {
+    const estimatorId = detailContext?.aiQuote?.estimatorId;
+    if (!estimatorId) return;
+    const minVal = Number.parseInt(adjustPriceMin, 10);
+    const maxVal = Number.parseInt(adjustPriceMax, 10);
+    if (!Number.isInteger(minVal) || !Number.isInteger(maxVal) || minVal < 0 || maxVal < minVal) {
+      setEstimatorMsg("Ugyldigt prisinterval.");
+      return;
+    }
+    setEstimatorBusy(true);
+    setEstimatorMsg("");
+    try {
+      const res = await fetch(`/api/admin/estimator/${estimatorId}/adjust`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceMin: minVal, priceMax: maxVal, note: adjustNote.trim() || undefined }),
+      });
+      const payload = (await res.json()) as { ok?: boolean; message?: string };
+      if (!res.ok || !payload.ok) {
+        setEstimatorMsg(payload.message || "Kunne ikke justere pris.");
+        return;
+      }
+      setEstimatorMsg("Pris justeret — kunden har fået besked.");
+      setAdjustOpen(false);
+      setAdjustPriceMin("");
+      setAdjustPriceMax("");
+      setAdjustNote("");
+      if (selectedId) loadDetail(selectedId);
+    } catch (err) {
+      console.error(err);
+      setEstimatorMsg("Netværksfejl.");
+    } finally {
+      setEstimatorBusy(false);
+    }
+  };
+
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -876,6 +948,118 @@ export const LeadsInbox = () => {
                   {detailContext?.aiQuote?.summary ? (
                     <p className="text-sm text-muted-foreground">{detailContext.aiQuote.summary}</p>
                   ) : null}
+
+                  {/* Kunde-status */}
+                  {detailContext?.aiQuote?.approvalStatus ? (
+                    <div className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm">
+                      <span className="font-semibold">Kunde-status:</span>{" "}
+                      {detailContext.aiQuote.approvalStatus === "pending" && (
+                        <span className="text-amber-700">⏳ Afventer bekræftelse</span>
+                      )}
+                      {detailContext.aiQuote.approvalStatus === "approved" && (
+                        <span className="text-emerald-700">✓ Pris bekræftet</span>
+                      )}
+                      {detailContext.aiQuote.approvalStatus === "adjusted" && (
+                        <span className="text-orange-700">! Pris justeret</span>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {/* Bekræft/Ret pris knapper */}
+                  {detailContext?.aiQuote?.estimatorId ? (
+                    <div className="space-y-2 rounded-lg border border-amber-300 bg-white p-3">
+                      <p className="text-xs font-semibold uppercase text-amber-900">Handlinger</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          onClick={approveEstimator}
+                          disabled={estimatorBusy}
+                        >
+                          {estimatorBusy ? "Bekræfter..." : "Bekræft pris"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-orange-400 bg-orange-50 text-orange-700 hover:bg-orange-100"
+                          onClick={() => {
+                            setAdjustOpen(!adjustOpen);
+                            const aiMin = detailContext?.aiQuote?.aiPriceMin;
+                            const aiMax = detailContext?.aiQuote?.aiPriceMax;
+                            if (typeof aiMin === "number") setAdjustPriceMin(String(aiMin));
+                            if (typeof aiMax === "number") setAdjustPriceMax(String(aiMax));
+                          }}
+                          disabled={estimatorBusy}
+                        >
+                          Ret pris
+                        </Button>
+                      </div>
+
+                      {adjustOpen ? (
+                        <div className="mt-3 space-y-2 rounded border border-orange-300 bg-orange-50 p-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <label className="text-xs">
+                              <span className="block font-semibold text-orange-900">Ny pris fra (kr)</span>
+                              <input
+                                type="number"
+                                value={adjustPriceMin}
+                                onChange={(e) => setAdjustPriceMin(e.target.value)}
+                                className="mt-1 w-full rounded border border-orange-300 bg-white px-2 py-1"
+                              />
+                            </label>
+                            <label className="text-xs">
+                              <span className="block font-semibold text-orange-900">Ny pris til (kr)</span>
+                              <input
+                                type="number"
+                                value={adjustPriceMax}
+                                onChange={(e) => setAdjustPriceMax(e.target.value)}
+                                className="mt-1 w-full rounded border border-orange-300 bg-white px-2 py-1"
+                              />
+                            </label>
+                          </div>
+                          <label className="block text-xs">
+                            <span className="block font-semibold text-orange-900">Begrundelse (vises til kunden)</span>
+                            <textarea
+                              value={adjustNote}
+                              onChange={(e) => setAdjustNote(e.target.value)}
+                              rows={2}
+                              placeholder="fx: 2-3 vandfald identificeret, prisen er rettet"
+                              className="mt-1 w-full rounded border border-orange-300 bg-white px-2 py-1"
+                            />
+                          </label>
+                          <div className="flex gap-2">
+                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white" onClick={adjustEstimator} disabled={estimatorBusy}>
+                              {estimatorBusy ? "Sender..." : "Send justeret pris"}
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setAdjustOpen(false)} disabled={estimatorBusy}>
+                              Fortryd
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {estimatorMsg ? (
+                        <p className={`text-xs ${estimatorMsg.includes("bekræftet") || estimatorMsg.includes("justeret") ? "text-emerald-700" : "text-red-700"}`}>
+                          {estimatorMsg}
+                        </p>
+                      ) : null}
+
+                      {detailContext?.aiQuote?.manageToken ? (
+                        <p className="text-xs text-muted-foreground">
+                          Kundens link:{" "}
+                          <a
+                            href={`/prisberegner/manage/${detailContext.aiQuote.manageToken}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-700 underline"
+                          >
+                            Åbn manage-side
+                          </a>
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <div className="flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline">
                       <Link href="/admin/ai-estimator">Åbn AI prisberegner</Link>

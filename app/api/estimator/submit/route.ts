@@ -12,6 +12,7 @@ import { findOrCreateCustomer } from "@/lib/customer-match";
 import { sendEmail } from "@/lib/notify/email";
 import { buildNewAiQuoteTemplate } from "@/lib/notify/templates";
 import { analyzeEstimatorImages, type BordpladeFeatures } from "@/lib/vision-analyze";
+import { sendEstimatorAutoReply } from "@/lib/estimator-confirmation";
 
 const asString = (value: FormDataEntryValue | null) => (typeof value === "string" ? value.trim() : "");
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -263,6 +264,7 @@ export async function POST(request: Request) {
 
     const aiEstimate = await estimateAiPrice(supabase, { fields, extras: null });
     const aiStatus = aiEstimate ? "estimated" : "manual";
+    const manageToken = randomUUID();
 
     const { data, error: insertError } = await supabase
       .from("estimator_requests")
@@ -278,7 +280,9 @@ export async function POST(request: Request) {
         ai_price_min: aiEstimate?.min ?? null,
         ai_price_max: aiEstimate?.max ?? null,
         ai_status: aiStatus,
-        customer_id: customerId
+        customer_id: customerId,
+        manage_token: manageToken,
+        customer_approval_status: "pending"
       })
       .select("id")
       .single();
@@ -454,12 +458,28 @@ export async function POST(request: Request) {
       );
     }
 
+    /* ─── Send auto-svar SMS + email til kunde ─── */
+    try {
+      await sendEstimatorAutoReply({
+        estimatorId: data.id,
+        customerName: fields.navn,
+        customerPhone: fields.telefon,
+        customerEmail: fields.email || undefined,
+        manageToken,
+        aiPriceMin: aiEstimate?.min ?? null,
+        aiPriceMax: aiEstimate?.max ?? null,
+      });
+    } catch (autoReplyError) {
+      console.error("[estimator_submit] auto-reply failed:", autoReplyError);
+    }
+
     return NextResponse.json(
       {
         id: data.id,
         aiPriceMin: aiEstimate?.min ?? null,
         aiPriceMax: aiEstimate?.max ?? null,
-        aiStatus
+        aiStatus,
+        manageToken
       },
       { status: 200 }
     );

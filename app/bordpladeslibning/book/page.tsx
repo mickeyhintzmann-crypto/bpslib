@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BpsImage } from "@/components/BpsImage";
 import { BookingWizard } from "@/components/booking/BookingWizard";
+import { PriceTokenBanner } from "@/components/booking/PriceTokenBanner";
 import { Button } from "@/components/ui/button";
 import { homeAssets } from "@/lib/assets";
 import {
@@ -139,9 +140,27 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
   const overrides = templatesOverride ? [] : await loadOverrides(180);
 
   const params = await Promise.resolve(searchParams ?? {});
-  const estimatorId = getParam(params.estimator_id);
-  const estimateMin = parseNumberParam(params.min);
-  const estimateMax = parseNumberParam(params.max);
+  let estimatorId = getParam(params.estimator_id);
+  let estimateMin = parseNumberParam(params.min);
+  let estimateMax = parseNumberParam(params.max);
+  const priceToken = getParam(params.priceToken);
+
+  /* Hvis priceToken er angivet, hent den bekræftede pris fra database */
+  if (priceToken && priceToken.length >= 20) {
+    const supabase = createSupabaseServiceClient();
+    const { data: tokenRow } = await supabase
+      .from("estimator_requests")
+      .select("id, price_min, price_max, ai_price_min, ai_price_max, customer_approval_status")
+      .eq("manage_token", priceToken)
+      .maybeSingle();
+    if (tokenRow && tokenRow.customer_approval_status !== "pending") {
+      estimatorId = (tokenRow.id as string) || estimatorId;
+      const min = typeof tokenRow.price_min === "number" ? tokenRow.price_min : tokenRow.ai_price_min;
+      const max = typeof tokenRow.price_max === "number" ? tokenRow.price_max : tokenRow.ai_price_max;
+      if (typeof min === "number") estimateMin = min;
+      if (typeof max === "number") estimateMax = max;
+    }
+  }
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 pb-16">
@@ -189,6 +208,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
       </section>
 
       <section id="booking-flow">
+        <PriceTokenBanner />
         <BookingWizard
           overrides={overrides}
           templatesOverride={templatesOverride ?? undefined}

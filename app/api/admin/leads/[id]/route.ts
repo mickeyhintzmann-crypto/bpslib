@@ -204,6 +204,11 @@ const fetchLeadContext = async (
     priceMin: number | null;
     priceMax: number | null;
     summary: string | null;
+    estimatorId: string | null;
+    approvalStatus: string | null;
+    manageToken: string | null;
+    aiPriceMin: number | null;
+    aiPriceMax: number | null;
   } | null = null;
 
   let booking: {
@@ -266,6 +271,30 @@ const fetchLeadContext = async (
       }
 
       const { min, max } = extractPriceRange(resultRow);
+
+      /* Hent ekstra data fra estimator_requests (manage_token, approval status) */
+      let estimatorId: string | null = null;
+      let approvalStatus: string | null = null;
+      let manageToken: string | null = null;
+      let estAiMin: number | null = null;
+      let estAiMax: number | null = null;
+
+      if (estimatorRequestId) {
+        const estRow = await supabase
+          .from("estimator_requests")
+          .select("id, customer_approval_status, manage_token, ai_price_min, ai_price_max, price_min, price_max")
+          .eq("id", estimatorRequestId)
+          .maybeSingle();
+        if (!estRow.error && estRow.data) {
+          const row = estRow.data as Record<string, unknown>;
+          estimatorId = typeof row.id === "string" ? row.id : null;
+          approvalStatus = typeof row.customer_approval_status === "string" ? row.customer_approval_status : null;
+          manageToken = typeof row.manage_token === "string" ? row.manage_token : null;
+          estAiMin = typeof row.ai_price_min === "number" ? row.ai_price_min : null;
+          estAiMax = typeof row.ai_price_max === "number" ? row.ai_price_max : null;
+        }
+      }
+
       aiQuote = {
         requestId: requestRow.id,
         resultId: resultRow?.id || null,
@@ -277,7 +306,12 @@ const fetchLeadContext = async (
         needsReview: typeof resultRow?.needs_review === "boolean" ? resultRow.needs_review : null,
         priceMin: min,
         priceMax: max,
-        summary: summarizeAiOutput(resultRow)
+        summary: summarizeAiOutput(resultRow),
+        estimatorId,
+        approvalStatus,
+        manageToken,
+        aiPriceMin: estAiMin,
+        aiPriceMax: estAiMax,
       };
     }
   }
