@@ -1,10 +1,10 @@
 /**
- * SMS sending via Twilio.
+ * SMS sending via Twilio with alphanumeric sender ID.
  *
  * Required env vars:
- *   TWILIO_ACCOUNT_SID   – Twilio Account SID
- *   TWILIO_AUTH_TOKEN     – Twilio Auth Token
- *   TWILIO_PHONE_FROM     – Twilio phone number (E.164 format, e.g. +4512345678)
+ *   TWILIO_ACCOUNT_SID    – Twilio Account SID
+ *   TWILIO_AUTH_TOKEN      – Twilio Auth Token
+ *   TWILIO_SENDER_NAME     – Alphanumeric sender name, e.g. "BP Slib" (max 11 chars)
  */
 
 type SendSmsInput = {
@@ -21,7 +21,7 @@ type SendSmsResult = {
 const getEnv = (key: string) => process.env[key] || "";
 
 const hasTwilioConfig = () => {
-  return Boolean(getEnv("TWILIO_ACCOUNT_SID") && getEnv("TWILIO_AUTH_TOKEN") && getEnv("TWILIO_PHONE_FROM"));
+  return Boolean(getEnv("TWILIO_ACCOUNT_SID") && getEnv("TWILIO_AUTH_TOKEN") && getEnv("TWILIO_SENDER_NAME"));
 };
 
 /**
@@ -43,7 +43,7 @@ export const sendSms = async (input: SendSmsInput): Promise<SendSmsResult> => {
 
   const accountSid = getEnv("TWILIO_ACCOUNT_SID");
   const authToken = getEnv("TWILIO_AUTH_TOKEN");
-  const from = getEnv("TWILIO_PHONE_FROM");
+  const from = getEnv("TWILIO_SENDER_NAME");
   const to = toE164(input.to);
 
   try {
