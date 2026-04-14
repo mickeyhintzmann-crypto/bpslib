@@ -560,6 +560,56 @@ export const BookingWizard = ({
     );
   }
 
+  /* ─── Krav om prisberegning før booking ─── */
+  if (!priceToken) {
+    return (
+      <section className="space-y-5 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-6 md:p-10 shadow-sm">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-200 text-lg">💰</span>
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-amber-900 md:text-3xl">
+              Få din pris først
+            </h2>
+            <p className="mt-2 text-sm text-amber-900/80 md:text-base">
+              For at sikre den bedste service skal vi først kende din opgave og give dig en pris, før du kan booke en tid. Det tager kun et par minutter.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <Link
+            href="/bordpladeslibning/prisberegner"
+            className="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-white p-5 transition hover:border-amber-500 hover:shadow-md"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">Hurtigst</span>
+            <span className="font-semibold text-foreground">AI-prisberegner</span>
+            <span className="text-sm text-muted-foreground">Upload billeder og få en pris i løbet af få minutter.</span>
+          </Link>
+          <Link
+            href="/kontakt"
+            className="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-white p-5 transition hover:border-amber-500 hover:shadow-md"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">Skriv</span>
+            <span className="font-semibold text-foreground">Kontaktformular</span>
+            <span className="text-sm text-muted-foreground">Beskriv din opgave, så vender vi tilbage med en pris.</span>
+          </Link>
+          <a
+            href="tel:+4570228830"
+            className="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-white p-5 transition hover:border-amber-500 hover:shadow-md"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">Ring</span>
+            <span className="font-semibold text-foreground">+45 70 22 88 30</span>
+            <span className="text-sm text-muted-foreground">Få en pris over telefonen og et bookinglink på SMS.</span>
+          </a>
+        </div>
+
+        <div className="rounded-xl bg-white/70 p-4 text-xs text-amber-800/80">
+          Har du allerede fået en pris? Tjek din email eller SMS for linket fra os, så lander du direkte i booking-flowet med din pris klar.
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-6 rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm md:p-8">
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">

@@ -234,6 +234,21 @@ export const LeadsInbox = () => {
   const [adjustPriceMax, setAdjustPriceMax] = useState("");
   const [adjustNote, setAdjustNote] = useState("");
 
+  /* Manuel prisberegning (fx fra telefonopkald) */
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualBusy, setManualBusy] = useState(false);
+  const [manualName, setManualName] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualPostal, setManualPostal] = useState("");
+  const [manualPriceMin, setManualPriceMin] = useState("");
+  const [manualPriceMax, setManualPriceMax] = useState("");
+  const [manualNote, setManualNote] = useState("");
+  const [manualSendNotification, setManualSendNotification] = useState(true);
+  const [manualSource, setManualSource] = useState<"phone" | "contact_form" | "manual">("phone");
+  const [manualResult, setManualResult] = useState<{ bookingUrl: string; manageUrl: string; notificationStatus: string[] } | null>(null);
+  const [manualError, setManualError] = useState("");
+
   const hasItems = items.length > 0;
 
   const isAcuteBooking = (item: LeadListItem) =>
@@ -645,6 +660,72 @@ export const LeadsInbox = () => {
     }
   };
 
+  /* ─── Manuel prisberegning ─── */
+  const createManualEstimator = async () => {
+    setManualError("");
+    setManualResult(null);
+    const minVal = Number.parseInt(manualPriceMin, 10);
+    const maxVal = Number.parseInt(manualPriceMax, 10);
+    if (!manualName.trim()) return setManualError("Skriv kundens navn.");
+    if (!manualPhone.trim()) return setManualError("Skriv telefonnummer.");
+    if (!manualEmail.trim() || !/^\S+@\S+\.\S+$/.test(manualEmail.trim())) return setManualError("Skriv en gyldig email.");
+    if (!Number.isInteger(minVal) || !Number.isInteger(maxVal) || minVal < 0 || maxVal < minVal) {
+      return setManualError("Ugyldigt prisinterval.");
+    }
+
+    setManualBusy(true);
+    try {
+      const res = await fetch("/api/admin/estimator/manual-create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: manualName.trim(),
+          phone: manualPhone.trim(),
+          email: manualEmail.trim(),
+          postalCode: manualPostal.trim() || undefined,
+          priceMin: minVal,
+          priceMax: maxVal,
+          note: manualNote.trim() || undefined,
+          source: manualSource,
+          sendNotification: manualSendNotification,
+        }),
+      });
+      const payload = (await res.json()) as {
+        ok?: boolean;
+        message?: string;
+        manageUrl?: string;
+        bookingUrl?: string;
+        notificationStatus?: string[];
+      };
+      if (!res.ok || !payload.ok) {
+        setManualError(payload.message || "Kunne ikke oprette.");
+        return;
+      }
+      setManualResult({
+        bookingUrl: payload.bookingUrl || "",
+        manageUrl: payload.manageUrl || "",
+        notificationStatus: payload.notificationStatus || [],
+      });
+    } catch (err) {
+      console.error(err);
+      setManualError("Netværksfejl.");
+    } finally {
+      setManualBusy(false);
+    }
+  };
+
+  const resetManualForm = () => {
+    setManualName("");
+    setManualPhone("");
+    setManualEmail("");
+    setManualPostal("");
+    setManualPriceMin("");
+    setManualPriceMax("");
+    setManualNote("");
+    setManualResult(null);
+    setManualError("");
+  };
+
   /* ─── Prisberegner admin handlers ─── */
   const approveEstimator = async () => {
     const estimatorId = detailContext?.aiQuote?.estimatorId;
@@ -711,10 +792,219 @@ export const LeadsInbox = () => {
           <h1 className="font-display text-3xl font-semibold text-foreground">Leads Inbox</h1>
           <p className="text-sm text-muted-foreground">Samlet intake fra formularer, AI-quote og booking.</p>
         </div>
-        <Button variant="outline" onClick={() => loadList()} disabled={loadingList}>
-          {loadingList ? "Henter..." : "Opdater"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            onClick={() => {
+              resetManualForm();
+              setManualOpen(true);
+            }}
+          >
+            + Opret manuel prisberegning
+          </Button>
+          <Button variant="outline" onClick={() => loadList()} disabled={loadingList}>
+            {loadingList ? "Henter..." : "Opdater"}
+          </Button>
+        </div>
       </div>
+
+      {manualOpen ? (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
+          <div className="my-8 w-full max-w-xl rounded-2xl border border-amber-300 bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Opret manuel prisberegning</h2>
+                <p className="text-sm text-muted-foreground">Brug fx når en kunde ringer ind eller kontakter via mail.</p>
+              </div>
+              <button
+                type="button"
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => setManualOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {manualResult ? (
+              <div className="mt-5 space-y-3 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4">
+                <p className="text-sm font-semibold text-emerald-900">Prisberegning oprettet!</p>
+                {manualResult.notificationStatus.length > 0 ? (
+                  <p className="text-xs text-emerald-800">
+                    Besked sendt: {manualResult.notificationStatus.join(", ")}
+                  </p>
+                ) : null}
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span className="font-semibold">Booking-link (til kunden):</span>
+                    <div className="mt-1 flex gap-2">
+                      <input
+                        readOnly
+                        value={manualResult.bookingUrl}
+                        className="flex-1 rounded border border-emerald-300 bg-white px-2 py-1 font-mono"
+                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(manualResult.bookingUrl);
+                        }}
+                      >
+                        Kopiér
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Status-link (kundens manage-side):</span>
+                    <div className="mt-1 flex gap-2">
+                      <input
+                        readOnly
+                        value={manualResult.manageUrl}
+                        className="flex-1 rounded border border-emerald-300 bg-white px-2 py-1 font-mono"
+                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(manualResult.manageUrl);
+                        }}
+                      >
+                        Kopiér
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    onClick={() => {
+                      resetManualForm();
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Opret en til
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setManualOpen(false);
+                      resetManualForm();
+                      loadList();
+                    }}
+                    size="sm"
+                  >
+                    Luk
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Navn *</span>
+                    <input
+                      value={manualName}
+                      onChange={(e) => setManualName(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Telefon *</span>
+                    <input
+                      value={manualPhone}
+                      onChange={(e) => setManualPhone(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Email *</span>
+                    <input
+                      type="email"
+                      value={manualEmail}
+                      onChange={(e) => setManualEmail(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Postnr.</span>
+                    <input
+                      value={manualPostal}
+                      onChange={(e) => setManualPostal(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                      placeholder="fx 2100"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Pris fra (kr) *</span>
+                    <input
+                      type="number"
+                      value={manualPriceMin}
+                      onChange={(e) => setManualPriceMin(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="block font-semibold text-foreground">Pris til (kr) *</span>
+                    <input
+                      type="number"
+                      value={manualPriceMax}
+                      onChange={(e) => setManualPriceMax(e.target.value)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    />
+                  </label>
+                  <label className="block text-sm sm:col-span-2">
+                    <span className="block font-semibold text-foreground">Kilde</span>
+                    <select
+                      value={manualSource}
+                      onChange={(e) => setManualSource(e.target.value as typeof manualSource)}
+                      className="mt-1 h-9 w-full rounded border border-border bg-white px-2"
+                    >
+                      <option value="phone">Telefon</option>
+                      <option value="contact_form">Kontaktformular / email</option>
+                      <option value="manual">Andet</option>
+                    </select>
+                  </label>
+                  <label className="block text-sm sm:col-span-2">
+                    <span className="block font-semibold text-foreground">Intern note</span>
+                    <textarea
+                      value={manualNote}
+                      onChange={(e) => setManualNote(e.target.value)}
+                      rows={2}
+                      className="mt-1 w-full rounded border border-border bg-white px-2 py-1"
+                      placeholder="fx: 2 bordplader ask, lettere slid, pris aftalt pr. telefon"
+                    />
+                  </label>
+                </div>
+
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={manualSendNotification}
+                    onChange={(e) => setManualSendNotification(e.target.checked)}
+                  />
+                  <span>Send email + SMS til kunden med bookinglink</span>
+                </label>
+
+                {manualError ? <p className="text-sm text-red-700">{manualError}</p> : null}
+
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setManualOpen(false)} disabled={manualBusy}>
+                    Fortryd
+                  </Button>
+                  <Button
+                    className="bg-amber-600 text-white hover:bg-amber-700"
+                    onClick={createManualEstimator}
+                    disabled={manualBusy}
+                  >
+                    {manualBusy ? "Opretter..." : "Opret og send link"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         <Button variant={sourceFilter === "alle" ? "default" : "outline"} onClick={() => runQuickSourceView("alle")}>
