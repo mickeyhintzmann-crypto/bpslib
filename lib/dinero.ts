@@ -2,8 +2,67 @@ type DineroRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   organizationId: string;
-  apiKey: string;
+  accessToken: string;
   body?: Record<string, unknown> | null;
+};
+
+// ─── OAuth2 token cache ───────────────────────────────────────────────────────
+type CachedToken = { token: string; expiresAt: number };
+const tokenCache = new Map<string, CachedToken>();
+
+const getAccessToken = async (apiKey: string): Promise<string> => {
+  const clientId = process.env.DINERO_CLIENT_ID;
+  const clientSecret = process.env.DINERO_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      "DINERO_CLIENT_ID og DINERO_CLIENT_SECRET mangler i miljøvariable. " +
+      "Tilføj dem i Vercel → Settings → Environment Variables."
+    );
+  }
+
+  const cacheKey = `${clientId}:${apiKey}`;
+  const cached = tokenCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now() + 60_000) {
+    return cached.token;
+  }
+
+  const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+  const res = await fetch("https://authz.dinero.dk/dineroapi/oauth/token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basicAuth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "password",
+      scope: "read write",
+      username: apiKey,
+      password: apiKey,
+    }).toString(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(
+      `Dinero OAuth fejl (${res.status}): ${text.slice(0, 300)}. ` +
+      "Tjek at din API-nøgle og Client ID/Secret er korrekte."
+    );
+  }
+
+  const json = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!json.access_token) {
+    throw new Error("Dinero OAuth svarede uden access_token.");
+  }
+
+  const expiresIn = typeof json.expires_in === "number" ? json.expires_in : 3600;
+  tokenCache.set(cacheKey, {
+    token: json.access_token,
+    expiresAt: Date.now() + expiresIn * 1000,
+  });
+
+  return json.access_token;
 };
 
 type DineroContactInput = {
@@ -65,12 +124,12 @@ const parseJsonSafe = (raw: string) => {
   }
 };
 
-const dineroRequest = async ({ method = "GET", path, organizationId, apiKey, body }: DineroRequestOptions) => {
+const dineroRequest = async ({ method = "GET", path, organizationId, accessToken, body }: DineroRequestOptions) => {
   const url = `${DINERO_BASE_URL}/${encodeURIComponent(organizationId)}${path.startsWith("/") ? path : `/${path}`}`;
   const response = await fetch(url, {
     method,
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",
       "Content-Type": "application/json"
     },
@@ -98,7 +157,7 @@ const extractInvoiceId = (value: Record<string, unknown> | null) =>
 const extractInvoiceNumber = (value: Record<string, unknown> | null) =>
   firstString(value, ["invoiceNumber", "number", "invoiceNo", "InvoiceNumber", "Number"]);
 
-const findContactByEmail = async (organizationId: string, apiKey: string, email: string) => {
+const findContactByEmail = async (organizationId: string, accessToken: string, email: string) => {
   const searchPaths = [
     `/contacts?query=${encodeURIComponent(email)}`,
     `/contacts?searchString=${encodeURIComponent(email)}`,
@@ -107,7 +166,7 @@ const findContactByEmail = async (organizationId: string, apiKey: string, email:
 
   for (const path of searchPaths) {
     try {
-      const response = await dineroRequest({ organizationId, apiKey, path });
+      const response = await dineroRequest({ organizationId, accessToken, path });
       const listRaw = (response.contacts || response.items || response.collection || response.data) as unknown;
       if (!Array.isArray(listRaw)) {
         continue;
@@ -135,7 +194,7 @@ const findContactByEmail = async (organizationId: string, apiKey: string, email:
   return null;
 };
 
-const createContact = async ({ organizationId, apiKey, input }: { organizationId: string; apiKey: string; input: DineroContactInput }) => {
+const createContact = async ({ organizationId, accessToken, input }: { organizationId: string; accessToken: string; input: DineroContactInput }) => {
   const camelPayload = {
     name: input.name,
     email: input.email,
@@ -155,7 +214,7 @@ const createContact = async ({ organizationId, apiKey, input }: { organizationId
       method: "POST",
       path: "/contacts",
       organizationId,
-      apiKey,
+      accessToken,
       body: camelPayload
     });
     const contactId = extractContactId(response);
@@ -170,7 +229,7 @@ const createContact = async ({ organizationId, apiKey, input }: { organizationId
     method: "POST",
     path: "/contacts",
     organizationId,
-    apiKey,
+    accessToken,
     body: pascalPayload
   });
 
@@ -182,21 +241,21 @@ const createContact = async ({ organizationId, apiKey, input }: { organizationId
   return contactId;
 };
 
-const ensureContact = async (organizationId: string, apiKey: string, input: DineroContactInput) => {
-  const existing = await findContactByEmail(organizationId, apiKey, input.email);
+const ensureContact = async (organizationId: string, accessToken: string, input: DineroContactInput) => {
+  const existing = await findContactByEmail(organizationId, accessToken, input.email);
   if (existing) {
     return existing;
   }
-  return createContact({ organizationId, apiKey, input });
+  return createContact({ organizationId, accessToken, input });
 };
 
 const createInvoice = async ({
   organizationId,
-  apiKey,
+  accessToken,
   input
 }: {
   organizationId: string;
-  apiKey: string;
+  accessToken: string;
   input: DineroInvoiceInput;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
@@ -238,7 +297,7 @@ const createInvoice = async ({
       method: "POST",
       path: "/invoices",
       organizationId,
-      apiKey,
+      accessToken,
       body: camelPayload
     });
   } catch {
@@ -246,19 +305,19 @@ const createInvoice = async ({
       method: "POST",
       path: "/invoices",
       organizationId,
-      apiKey,
+      accessToken,
       body: pascalPayload
     });
   }
 };
 
-const bookInvoice = async (organizationId: string, apiKey: string, invoiceId: string) => {
+const bookInvoice = async (organizationId: string, accessToken: string, invoiceId: string) => {
   try {
     await dineroRequest({
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/book`,
       organizationId,
-      apiKey,
+      accessToken,
       body: {}
     });
   } catch {
@@ -268,7 +327,7 @@ const bookInvoice = async (organizationId: string, apiKey: string, invoiceId: st
 
 const sendInvoice = async (
   organizationId: string,
-  apiKey: string,
+  accessToken: string,
   invoiceId: string,
   customerEmail: string
 ) => {
@@ -284,7 +343,7 @@ const sendInvoice = async (
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
       organizationId,
-      apiKey,
+      accessToken,
       body: camelBody
     });
   } catch {
@@ -292,7 +351,7 @@ const sendInvoice = async (
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
       organizationId,
-      apiKey,
+      accessToken,
       body: pascalBody
     });
   }
@@ -303,10 +362,13 @@ export const verifyDineroCredentials = async (organizationId: string, apiKey: st
     return { ok: true };
   }
 
+  // Validate OAuth exchange works — will throw with a clear message if credentials are wrong
+  const accessToken = await getAccessToken(apiKey);
+
   await dineroRequest({
     path: "/contacts?top=1",
     organizationId,
-    apiKey
+    accessToken
   });
 
   return { ok: true };
@@ -332,10 +394,13 @@ export const createAndSendDineroInvoice = async ({
     };
   }
 
-  const contactId = await ensureContact(organizationId, apiKey, customer);
+  // Exchange API key for OAuth access token once — reused across all calls below
+  const accessToken = await getAccessToken(apiKey);
+
+  const contactId = await ensureContact(organizationId, accessToken, customer);
   const created = await createInvoice({
     organizationId,
-    apiKey,
+    accessToken,
     input: {
       contactId,
       customerEmail: invoice.customerEmail,
@@ -352,8 +417,8 @@ export const createAndSendDineroInvoice = async ({
     throw new Error("Dinero invoice-id mangler i svar.");
   }
 
-  await bookInvoice(organizationId, apiKey, invoiceId);
-  await sendInvoice(organizationId, apiKey, invoiceId, invoice.customerEmail);
+  await bookInvoice(organizationId, accessToken, invoiceId);
+  await sendInvoice(organizationId, accessToken, invoiceId, invoice.customerEmail);
 
   return {
     contactId,
