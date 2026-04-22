@@ -111,6 +111,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "Ugyldigt job-id." }, { status: 400 });
     }
 
+    const payload = (await request.json()) as Record<string, unknown>;
+
+    const customerName = asTrimmed(payload.customerName);
+    const customerEmail = asTrimmed(payload.customerEmail).toLowerCase();
+    const customerPhone = asTrimmed(payload.customerPhone) || null;
+    const customerAddress = asTrimmed(payload.customerAddress) || null;
+    const description = asTrimmed(payload.description);
+
+    const amountExVat = asNumber(payload.amountExVat);
+    const vatPercent = asNumber(payload.vatPercent);
+
+    const supabase = createSupabaseServiceClient();
+
     // ─── Booking-sti ──────────────────────────────────────────────────────────
     if (id.startsWith("booking:")) {
       const bookingId = id.slice("booking:".length);
@@ -178,17 +191,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       }
     }
 
-    const payload = (await request.json()) as Record<string, unknown>;
-
-    const customerName = asTrimmed(payload.customerName);
-    const customerEmail = asTrimmed(payload.customerEmail).toLowerCase();
-    const customerPhone = asTrimmed(payload.customerPhone) || null;
-    const customerAddress = asTrimmed(payload.customerAddress) || null;
-    const description = asTrimmed(payload.description);
-
-    const amountExVat = asNumber(payload.amountExVat);
-    const vatPercent = asNumber(payload.vatPercent);
-
     if (customerName.length < 2) {
       return NextResponse.json({ message: "Kundenavn mangler." }, { status: 400 });
     }
@@ -201,8 +203,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (vatPercent === null || vatPercent < 0 || vatPercent > 100) {
       return NextResponse.json({ message: "Moms skal være mellem 0 og 100." }, { status: 400 });
     }
-
-    const supabase = createSupabaseServiceClient();
 
     const { data: jobData, error: jobError } = await supabase
       .from("jobs")
@@ -227,6 +227,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const job = jobData as unknown as JobRow;
+
 
     if (job.status === "cancelled") {
       return NextResponse.json({ message: "Job er annulleret og kan ikke faktureres." }, { status: 409 });
