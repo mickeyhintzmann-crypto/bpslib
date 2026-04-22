@@ -101,8 +101,8 @@ const isMissingColumn = (message: string | undefined) => {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const { error, employee } = await getSessionEmployee(request);
-    if (error || !employee) {
+    const { error, employee, session } = await getSessionEmployee(request);
+    if (error || !employee || !session) {
       return error;
     }
 

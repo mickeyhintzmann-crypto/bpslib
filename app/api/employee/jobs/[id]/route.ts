@@ -234,8 +234,8 @@ const isMissingColumn = (message: string | undefined) => {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { error, employee } = await getSessionEmployee(request);
-    if (error || !employee) {
+    const { error, employee, session } = await getSessionEmployee(request);
+    if (error || !employee || !session) {
       return error;
     }
 
@@ -254,7 +254,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           .from("bookings")
           .select("id, service_type, status, date, start_slot_index, slot_count, address, postal_code, city, customer_name, customer_phone, customer_email, notes, task_description, price_total")
           .eq("id", bookingId)
-          .eq("assigned_to", employee.id)
+          .eq("assigned_to", session.id)
           .single(),
         supabase
           .from("employee_dinero_connections")
