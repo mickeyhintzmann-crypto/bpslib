@@ -122,6 +122,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const amountExVat = asNumber(payload.amountExVat);
     const vatPercent = asNumber(payload.vatPercent);
 
+    const rawPaymentMethod = typeof payload.paymentMethod === "string" ? payload.paymentMethod : "net0";
+    const paymentMethod = (["mobilepay", "paid", "net0"].includes(rawPaymentMethod) ? rawPaymentMethod : "net0") as "mobilepay" | "paid" | "net0";
+
     const supabase = createSupabaseServiceClient();
 
     // ─── Booking-sti ──────────────────────────────────────────────────────────
@@ -160,7 +163,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
           organizationId: connectionData.organization_id,
           apiKey,
           customer: { name: customerName, email: customerEmail, phone: customerPhone, address: customerAddress },
-          invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK" }
+          invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod }
         });
 
         await supabase.from("job_invoices").upsert({
@@ -316,7 +319,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
           description: resolvedDescription,
           amountExVat,
           vatPercent,
-          currency: "DKK"
+          currency: "DKK",
+          paymentMethod
         }
       });
 

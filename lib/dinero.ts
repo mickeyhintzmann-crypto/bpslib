@@ -72,6 +72,10 @@ type DineroContactInput = {
   address: string | null;
 };
 
+// "mobilepay" og "paid" → faktura bogføres + betaling registreres
+// "net0" → betalingsbetingelse 0 dage, ingen forudbetaling registreres
+export type DineroPaymentMethod = "mobilepay" | "paid" | "net0";
+
 type DineroInvoiceInput = {
   contactId: string;
   customerEmail: string;
@@ -80,6 +84,7 @@ type DineroInvoiceInput = {
   amountExVat: number;
   vatPercent: number;
   currency: string;
+  paymentMethod?: DineroPaymentMethod;
 };
 
 export type DineroInvoiceResult = {
@@ -260,11 +265,15 @@ const createInvoice = async ({
 }) => {
   const today = new Date().toISOString().slice(0, 10);
 
+  const paymentDays = input.paymentMethod === "net0" ? 0 : 8;
+
   const camelPayload = {
     contactGuid: input.contactId,
     date: today,
     currency: input.currency,
     externalReference: input.jobId,
+    paymentConditionType: "Netto",
+    paymentConditionNumberOfDays: paymentDays,
     lines: [
       {
         description: input.description,
@@ -281,6 +290,8 @@ const createInvoice = async ({
     Date: today,
     Currency: input.currency,
     ExternalReference: input.jobId,
+    PaymentConditionType: "Netto",
+    PaymentConditionNumberOfDays: paymentDays,
     Lines: [
       {
         Description: input.description,
@@ -322,6 +333,38 @@ const bookInvoice = async (organizationId: string, accessToken: string, invoiceI
     });
   } catch {
     // some Dinero setups auto-book on create; ignore this failure
+  }
+};
+
+const registerPayment = async (
+  organizationId: string,
+  accessToken: string,
+  invoiceId: string,
+  amountInclVat: number,
+  paymentMethod: "mobilepay" | "paid"
+) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const description = paymentMethod === "mobilepay" ? "Betalt med MobilePay" : "Betalt";
+
+  const camelBody = { amount: amountInclVat, description, date: today };
+  const pascalBody = { Amount: amountInclVat, Description: description, Date: today };
+
+  try {
+    await dineroRequest({
+      method: "POST",
+      path: `/invoices/${encodeURIComponent(invoiceId)}/payments`,
+      organizationId,
+      accessToken,
+      body: camelBody
+    });
+  } catch {
+    await dineroRequest({
+      method: "POST",
+      path: `/invoices/${encodeURIComponent(invoiceId)}/payments`,
+      organizationId,
+      accessToken,
+      body: pascalBody
+    });
   }
 };
 
@@ -383,7 +426,7 @@ export const createAndSendDineroInvoice = async ({
   organizationId: string;
   apiKey: string;
   customer: DineroContactInput;
-  invoice: Omit<DineroInvoiceInput, "contactId">;
+  invoice: Omit<DineroInvoiceInput, "contactId"> & { paymentMethod?: DineroPaymentMethod };
 }): Promise<DineroInvoiceResult> => {
   if (isDryRun()) {
     return {
@@ -418,6 +461,17 @@ export const createAndSendDineroInvoice = async ({
   }
 
   await bookInvoice(organizationId, accessToken, invoiceId);
+
+  // Registrer betaling hvis kunden allerede har betalt på stedet
+  if (invoice.paymentMethod === "mobilepay" || invoice.paymentMethod === "paid") {
+    const amountInclVat = Math.round(invoice.amountExVat * (1 + invoice.vatPercent / 100));
+    try {
+      await registerPayment(organizationId, accessToken, invoiceId, amountInclVat, invoice.paymentMethod);
+    } catch (paymentErr) {
+      console.error("[dinero] registerPayment failed (non-fatal):", paymentErr);
+    }
+  }
+
   await sendInvoice(organizationId, accessToken, invoiceId, invoice.customerEmail);
 
   return {

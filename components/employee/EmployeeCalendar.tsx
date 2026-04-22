@@ -296,6 +296,7 @@ export const EmployeeCalendar = () => {
   const [invoiceDescription, setInvoiceDescription] = useState("");
   const [invoiceAmountExVat, setInvoiceAmountExVat] = useState("");
   const [invoiceVatPercent, setInvoiceVatPercent] = useState("25");
+  const [invoicePaymentMethod, setInvoicePaymentMethod] = useState<"mobilepay" | "paid" | "net0">("net0");
 
   const period = useMemo(() => {
     const base = startOfDay(anchorDate);
@@ -686,7 +687,8 @@ export const EmployeeCalendar = () => {
           customerAddress: invoiceCustomerAddress,
           description: invoiceDescription,
           amountExVat: invoiceAmountExVat,
-          vatPercent: invoiceVatPercent
+          vatPercent: invoiceVatPercent,
+          paymentMethod: invoicePaymentMethod
         })
       });
 
@@ -1279,6 +1281,19 @@ export const EmployeeCalendar = () => {
                       />
                     </label>
                   </div>
+
+                  <label className="grid gap-1 text-sm">
+                    <span className="text-xs text-muted-foreground">Betaling</span>
+                    <select
+                      value={invoicePaymentMethod}
+                      onChange={(event) => setInvoicePaymentMethod(event.target.value as "mobilepay" | "paid" | "net0")}
+                      className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                    >
+                      <option value="net0">0 dage (ikke betalt på stedet)</option>
+                      <option value="paid">Betalt</option>
+                      <option value="mobilepay">Betalt med MobilePay</option>
+                    </select>
+                  </label>
 
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={submitCompleteJob} disabled={completeBusy}>
