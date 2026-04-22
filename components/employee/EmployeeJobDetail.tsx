@@ -125,7 +125,7 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
       const payload = (await response.json()) as JobDetailResponse;
 
       if (response.status === 401) {
-        router.push("/medarbejder/login");
+        router.push("/login");
         return;
       }
 

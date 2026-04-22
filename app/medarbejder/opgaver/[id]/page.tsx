@@ -23,7 +23,7 @@ export default async function EmployeeJobPage({ params }: PageProps) {
   const session = verifyAdminSessionToken(sessionToken);
 
   if (!session || session.role !== "employee") {
-    redirect("/medarbejder/login");
+    redirect("/login");
   }
 
   const { id } = await params;

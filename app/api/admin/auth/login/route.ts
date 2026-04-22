@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             message:
-              "Medarbejderkonto mangler kodeord. Brug førstegangsopsætning på /medarbejder/login med aktiveringskode."
+              "Medarbejderkonto mangler kodeord. Brug førstegangsopsætning på /login med aktiveringskode."
           },
           { status: 401 }
         );
