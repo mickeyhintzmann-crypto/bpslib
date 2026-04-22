@@ -170,11 +170,16 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
     if (!item) {
       return false;
     }
-    return item.status !== "cancelled" && dineroConnected;
-  }, [dineroConnected, item]);
+    return item.status !== "cancelled";
+  }, [item]);
 
   const submitCompleteJob = async () => {
     if (!item) {
+      return;
+    }
+
+    if (!dineroConnected) {
+      setCompleteError("Dinero er ikke forbundet. Gå til kalenderen og tilslut Dinero under indstillinger.");
       return;
     }
 
