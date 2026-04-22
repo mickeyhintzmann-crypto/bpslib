@@ -649,8 +649,7 @@ export const EmployeeCalendar = () => {
   };
 
   const openCompleteForm = () => {
-    if (!selectedJob || selectedJob.id.startsWith("booking:")) {
-      setCompleteError("Vælg et tildelt job for at afslutte og fakturere.");
+    if (!selectedJob) {
       return;
     }
     const defaultAmount = inferDefaultPriceExVat(selectedJob);
@@ -669,8 +668,7 @@ export const EmployeeCalendar = () => {
   };
 
   const submitCompleteJob = async () => {
-    if (!selectedJob || selectedJob.id.startsWith("booking:")) {
-      setCompleteError("Kun jobs kan afsluttes herfra.");
+    if (!selectedJob) {
       return;
     }
 
@@ -1196,14 +1194,12 @@ export const EmployeeCalendar = () => {
                     Send email
                   </a>
                 ) : null}
-                {!selectedJob.id.startsWith("booking:") ? (
-                  <Button
-                    onClick={openCompleteForm}
-                    disabled={completeBusy || selectedJob.status === "cancelled" || !dineroConnected}
-                  >
-                    {selectedJob.status === "invoiced" ? "Se fakturaoplysninger" : "Afslut opgave og send faktura"}
-                  </Button>
-                ) : null}
+                <Button
+                  onClick={openCompleteForm}
+                  disabled={completeBusy || selectedJob.status === "cancelled" || selectedJob.status === "invoiced" || !dineroConnected}
+                >
+                  {selectedJob.status === "invoiced" ? "Faktura sendt" : "Afslut opgave og send faktura"}
+                </Button>
               </div>
 
               {!dineroConnected ? (
@@ -1214,7 +1210,7 @@ export const EmployeeCalendar = () => {
               {completeError ? <p className="text-xs font-medium text-red-700">{completeError}</p> : null}
               {completeMessage ? <p className="text-xs font-medium text-emerald-700">{completeMessage}</p> : null}
 
-              {showCompleteForm && !selectedJob.id.startsWith("booking:") ? (
+              {showCompleteForm ? (
                 <div className="space-y-3 rounded-xl border border-border p-4">
                   <p className="text-sm font-semibold text-foreground">Afslut opgave og send faktura</p>
                   <div className="grid gap-3 md:grid-cols-2">
