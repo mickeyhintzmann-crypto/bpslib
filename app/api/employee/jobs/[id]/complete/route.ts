@@ -107,8 +107,75 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const id = await resolveId(context);
-    if (!id || id.startsWith("booking:")) {
+    if (!id) {
       return NextResponse.json({ message: "Ugyldigt job-id." }, { status: 400 });
+    }
+
+    // ─── Booking-sti ──────────────────────────────────────────────────────────
+    if (id.startsWith("booking:")) {
+      const bookingId = id.slice("booking:".length);
+
+      if (!customerName || customerName.length < 2) return NextResponse.json({ message: "Kundenavn mangler." }, { status: 400 });
+      if (!customerEmail || !customerEmail.includes("@")) return NextResponse.json({ message: "Kunde-email mangler eller er ugyldig." }, { status: 400 });
+      if (amountExVat === null || amountExVat <= 0) return NextResponse.json({ message: "Pris ex. moms skal være større end 0." }, { status: 400 });
+      if (vatPercent === null || vatPercent < 0 || vatPercent > 100) return NextResponse.json({ message: "Moms skal være mellem 0 og 100." }, { status: 400 });
+
+      const { data: existingInvoice } = await supabase
+        .from("job_invoices")
+        .select("id, status, dinero_invoice_id, dinero_invoice_number, sent_at")
+        .eq("job_id", `booking:${bookingId}`)
+        .maybeSingle();
+
+      if (existingInvoice?.status === "sent") {
+        return NextResponse.json({ ok: true, alreadySent: true, invoice: { invoiceId: existingInvoice.dinero_invoice_id, invoiceNumber: existingInvoice.dinero_invoice_number, sentAt: existingInvoice.sent_at } }, { status: 200 });
+      }
+
+      const { data: connectionData, error: connectionError } = await supabase
+        .from("employee_dinero_connections")
+        .select("organization_id, api_key_encrypted, is_active")
+        .eq("employee_id", employee.id)
+        .maybeSingle();
+
+      if (connectionError) return NextResponse.json({ message: connectionError.message }, { status: 500 });
+      if (!connectionData?.is_active) return NextResponse.json({ message: "Dinero er ikke forbundet på din medarbejderprofil endnu." }, { status: 412 });
+
+      const apiKey = decryptSecret(connectionData.api_key_encrypted);
+      const resolvedDescription = description || `${customerAddress ? customerAddress + " · " : ""}Booking`;
+
+      try {
+        const invoiceResult = await createAndSendDineroInvoice({
+          organizationId: connectionData.organization_id,
+          apiKey,
+          customer: { name: customerName, email: customerEmail, phone: customerPhone, address: customerAddress },
+          invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK" }
+        });
+
+        await supabase.from("job_invoices").upsert({
+          job_id: `booking:${bookingId}`,
+          employee_id: employee.id,
+          source: "dinero",
+          status: "sent",
+          customer_name: customerName, customer_email: customerEmail,
+          customer_phone: customerPhone, customer_address: customerAddress,
+          amount_ex_vat: amountExVat, vat_percent: vatPercent, currency: "DKK",
+          description: resolvedDescription,
+          dinero_contact_id: invoiceResult.contactId,
+          dinero_invoice_id: invoiceResult.invoiceId,
+          dinero_invoice_number: invoiceResult.invoiceNumber,
+          sent_at: new Date().toISOString(),
+          error_message: null
+        }, { onConflict: "job_id" });
+
+        await supabase.from("bookings").update({ status: "invoiced" }).eq("id", bookingId);
+        await supabase.from("employee_dinero_connections").update({ last_verified_at: new Date().toISOString(), last_error: null }).eq("employee_id", employee.id);
+
+        return NextResponse.json({ ok: true, jobId: id, invoice: { invoiceId: invoiceResult.invoiceId, invoiceNumber: invoiceResult.invoiceNumber, contactId: invoiceResult.contactId } }, { status: 200 });
+      } catch (invoiceError) {
+        const message = invoiceError instanceof Error ? invoiceError.message : "Ukendt fejl ved afsendelse til Dinero.";
+        await supabase.from("job_invoices").upsert({ job_id: `booking:${bookingId}`, employee_id: employee.id, source: "dinero", status: "failed", customer_name: customerName, customer_email: customerEmail, amount_ex_vat: amountExVat, vat_percent: vatPercent, currency: "DKK", description: resolvedDescription, error_message: message }, { onConflict: "job_id" });
+        await supabase.from("employee_dinero_connections").update({ last_error: message }).eq("employee_id", employee.id);
+        return NextResponse.json({ message: `Faktura blev ikke sendt: ${message}` }, { status: 502 });
+      }
     }
 
     const payload = (await request.json()) as Record<string, unknown>;

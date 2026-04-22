@@ -240,8 +240,101 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const id = await resolveId(context);
-    if (!id || id.startsWith("booking:")) {
+    if (!id) {
       return NextResponse.json({ message: "Ugyldigt job-id." }, { status: 400 });
+    }
+
+    // ─── Booking-sti ──────────────────────────────────────────────────────────
+    if (id.startsWith("booking:")) {
+      const bookingId = id.slice("booking:".length);
+      const supabase = createSupabaseServiceClient();
+
+      const [{ data: bookingData, error: bookingError }, { data: connectionData }] = await Promise.all([
+        supabase
+          .from("bookings")
+          .select("id, service_type, status, date, start_slot_index, slot_count, address, postal_code, city, customer_name, customer_phone, customer_email, notes, task_description, price_total")
+          .eq("id", bookingId)
+          .eq("assigned_to", employee.id)
+          .single(),
+        supabase
+          .from("employee_dinero_connections")
+          .select("organization_id, is_active")
+          .eq("employee_id", employee.id)
+          .maybeSingle()
+      ]);
+
+      if (bookingError || !bookingData) {
+        return NextResponse.json({ message: "Booking ikke fundet." }, { status: 404 });
+      }
+
+      const booking = bookingData as {
+        id: string; service_type: string | null; status: string | null;
+        date: string | null; start_slot_index: number | null; slot_count: number | null;
+        address: string | null; postal_code: string | null; city: string | null;
+        customer_name: string | null; customer_phone: string | null; customer_email: string | null;
+        notes: string | null; task_description: string | null; price_total: number | null;
+      };
+
+      const { data: invoiceRows } = await supabase
+        .from("job_invoices")
+        .select("job_id, status, sent_at")
+        .eq("job_id", `booking:${booking.id}`)
+        .limit(1);
+
+      const invoiceRow = ((invoiceRows || [])[0] || null) as { job_id: string; status: string; sent_at: string | null } | null;
+      const dineroConnection = (connectionData || null) as DineroConnectionRow | null;
+      const priceTotal = typeof booking.price_total === "number" ? booking.price_total : null;
+      const amountExVat = priceTotal ? Math.round(priceTotal / 1.25) : null;
+      const taskDesc = booking.task_description || booking.notes || null;
+      const addressFull = [booking.address, booking.city, booking.postal_code].filter(Boolean).join(", ");
+
+      return NextResponse.json({
+        item: {
+          id: `booking:${booking.id}`,
+          title: booking.service_type || "Booking",
+          service: booking.service_type,
+          status: booking.status || "confirmed",
+          startAt: booking.date ? `${booking.date}T08:00:00` : new Date().toISOString(),
+          endAt: booking.date ? `${booking.date}T16:00:00` : new Date().toISOString(),
+          city: booking.city,
+          location: booking.city || booking.postal_code || null,
+          address: booking.address,
+          notes: taskDesc,
+          taskDescription: taskDesc,
+          lead: {
+            id: `booking:${booking.id}`,
+            name: booking.customer_name,
+            email: booking.customer_email,
+            phone: booking.customer_phone,
+            location: booking.city || null,
+            message: taskDesc
+          },
+          priceMin: priceTotal,
+          priceMax: priceTotal,
+          priceLabel: priceTotal ? `${Math.round(priceTotal).toLocaleString("da-DK")} kr.` : "Ikke angivet",
+          mapsUrl: buildMapsUrl(booking.address, booking.city || null),
+          invoiceStatus: invoiceRow?.status || null,
+          invoicedAt: invoiceRow?.sent_at || null,
+          sourceImages: [],
+          uploadedImages: []
+        },
+        employee: {
+          id: employee.id,
+          name: employee.name,
+          email: employee.email,
+          dineroConnected: Boolean(dineroConnection?.is_active && dineroConnection?.organization_id),
+          dineroOrganizationId: dineroConnection?.organization_id || null
+        },
+        invoiceDefaults: {
+          customerName: booking.customer_name || "",
+          customerEmail: booking.customer_email || "",
+          customerPhone: booking.customer_phone || "",
+          customerAddress: addressFull,
+          description: [booking.service_type, addressFull, taskDesc].filter(Boolean).join(" · "),
+          amountExVat,
+          vatPercent: 25
+        }
+      }, { status: 200 });
     }
 
     const supabase = createSupabaseServiceClient();
