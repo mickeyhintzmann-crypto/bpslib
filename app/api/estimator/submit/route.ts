@@ -191,19 +191,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const boardCount = images.length;
-    const tableNote =
-      (extras.spisebord && spisebordRaw.length > 0 ? ` Derudover er der ${spisebordRaw.length} billede(r) af spisebordet.` : "") +
-      (extras.sofabord && sofabordRaw.length > 0 ? ` Derudover er der ${sofabordRaw.length} billede(r) af sofabordet.` : "");
-    const aiNote =
-      `Hvert billede repræsenterer én køkkenbordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.${tableNote}`;
-
     // Tilkøb: spisebord og sofabord slibes på samme besøg (fast pris, ikke images)
     const extras: BordpladeExtras = {
       ...defaultBordpladeExtras,
       spisebord: asString(formData.get("hasSpisebord")) === "true",
       sofabord: asString(formData.get("hasSofabord")) === "true"
     };
+
+    const boardCount = images.length;
+    const tableNote =
+      (extras.spisebord && spisebordRaw.length > 0 ? ` Derudover er der ${spisebordRaw.length} billede(r) af spisebordet.` : "") +
+      (extras.sofabord && sofabordRaw.length > 0 ? ` Derudover er der ${sofabordRaw.length} billede(r) af sofabordet.` : "");
+    const aiNote =
+      `Hvert billede repræsenterer én køkkenbordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.${tableNote}`;
 
     const fields: EstimatorFormFields = {
       navn: asString(formData.get("navn")),
