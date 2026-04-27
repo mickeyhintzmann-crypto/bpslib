@@ -44,6 +44,15 @@ type UnavailabilityItem = {
   employee_email: string | null;
 };
 
+type RepTaskItem = {
+  id: string;
+  title: string | null;
+  notes: string | null;
+  start_at: string | null;
+  assigned_employee_id: string | null;
+  employee_name: string | null;
+};
+
 type AdminUser = {
   id: string;
   name: string | null;
@@ -87,6 +96,7 @@ type CalendarResponse = {
   overrides?: OverrideItem[];
   bookings?: BookingItem[];
   unavailability?: UnavailabilityItem[];
+  repTasks?: RepTaskItem[];
   message?: string;
 };
 
@@ -343,6 +353,12 @@ export const CalendarAdmin = () => {
   const [daySettings, setDaySettings] = useState<Record<string, DaySettings>>({});
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [unavailability, setUnavailability] = useState<UnavailabilityItem[]>([]);
+  const [repTasks, setRepTasks] = useState<RepTaskItem[]>([]);
+  const [repCreateTitle, setRepCreateTitle] = useState("");
+  const [repCreateNotes, setRepCreateNotes] = useState("");
+  const [repCreateEmployee, setRepCreateEmployee] = useState("");
+  const [repCreateBusy, setRepCreateBusy] = useState(false);
+  const [repCreateError, setRepCreateError] = useState("");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [employeeProfiles, setEmployeeProfiles] = useState<EmployeeProfile[]>([]);
   const [employeeFilter, setEmployeeFilter] = useState("all");
@@ -524,6 +540,7 @@ export const CalendarAdmin = () => {
 
       setBookings(payload.bookings);
       setUnavailability(payload.unavailability || []);
+      setRepTasks(payload.repTasks || []);
       setDaySettings((current) => {
         const next = { ...current };
         payload.overrides?.forEach((override) => {
@@ -728,6 +745,91 @@ export const CalendarAdmin = () => {
     }
   };
 
+  const repTasksByDate = useMemo(() => {
+    const map: Record<string, RepTaskItem[]> = {};
+    repTasks.forEach((task) => {
+      if (!task.start_at) {
+        return;
+      }
+      const dateKey = task.start_at.slice(0, 10);
+      if (!map[dateKey]) {
+        map[dateKey] = [];
+      }
+      map[dateKey].push(task);
+    });
+    return map;
+  }, [repTasks]);
+
+  const createRepTask = async (dateKey: string) => {
+    if (!repCreateTitle.trim()) {
+      setRepCreateError("Titel er påkrævet.");
+      return;
+    }
+    setRepCreateBusy(true);
+    setRepCreateError("");
+    try {
+      const response = await fetch("/api/admin/rep-tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: repCreateTitle.trim(),
+          date: dateKey,
+          notes: repCreateNotes.trim() || null,
+          assignedEmployeeId: repCreateEmployee || null
+        })
+      });
+      let payload: { id?: string; message?: string } = {};
+      try {
+        payload = (await response.json()) as { id?: string; message?: string };
+      } catch {
+        setRepCreateError(`Serverfejl (${response.status}).`);
+        setRepCreateBusy(false);
+        return;
+      }
+      if (!response.ok || !payload.id) {
+        setRepCreateError(payload.message || "Kunne ikke oprette rep-opgave.");
+        setRepCreateBusy(false);
+        return;
+      }
+      const employeeName = repCreateEmployee
+        ? (employeeOptions.find((u) => u.id === repCreateEmployee)?.name ?? null)
+        : null;
+      setRepTasks((current) => [
+        ...current,
+        {
+          id: payload.id!,
+          title: repCreateTitle.trim(),
+          notes: repCreateNotes.trim() || null,
+          start_at: `${dateKey}T07:00:00.000Z`,
+          assigned_employee_id: repCreateEmployee || null,
+          employee_name: employeeName
+        }
+      ]);
+      setRepCreateTitle("");
+      setRepCreateNotes("");
+      setRepCreateEmployee("");
+    } catch (err) {
+      console.error(err);
+      setRepCreateError("Netværksfejl.");
+    } finally {
+      setRepCreateBusy(false);
+    }
+  };
+
+  const deleteRepTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/admin/rep-tasks?id=${encodeURIComponent(taskId)}`, {
+        method: "DELETE"
+      });
+      if (!response.ok) {
+        return;
+      }
+      setRepTasks((current) => current.filter((t) => t.id !== taskId));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const errorIsMissingTable =
     error.toLowerCase().includes("day_overrides") ||
     error.toLowerCase().includes("employee_unavailability") ||
@@ -822,6 +924,17 @@ export const CalendarAdmin = () => {
             >
               + Opret opgave eller akut tid
             </Link>
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedDateKey) {
+                  dayDetailRef.current?.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
+            >
+              🔧 Opret rep-opgave
+            </button>
             <Button variant="outline" size="sm" onClick={() => dayDetailRef.current?.scrollIntoView({ behavior: "smooth" })}>
               Tilgængelige tider
             </Button>
@@ -1035,6 +1148,19 @@ export const CalendarAdmin = () => {
                       );
                     })}
                   </div>
+                  {(repTasksByDate[day.dateKey] || []).length > 0 ? (
+                    <div className="mt-1 space-y-0.5">
+                      {(repTasksByDate[day.dateKey] || []).map((task) => (
+                        <div
+                          key={task.id}
+                          className="truncate rounded px-1 py-0.5 text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
+                          title={`Rep: ${task.title || "Vedligehold"}${task.employee_name ? ` · ${task.employee_name}` : ""}`}
+                        >
+                          🔧 {task.title || "Rep"}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             );
@@ -1161,6 +1287,73 @@ export const CalendarAdmin = () => {
                   ) : null}
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 border-t border-border/60 pt-4">
+              <h3 className="text-sm font-semibold text-foreground">Rep-opgaver denne dag</h3>
+              <p className="text-xs text-muted-foreground">Let slib og olie / vedligeholdelse – optager ikke et slot.</p>
+
+              {(repTasksByDate[selectedDateKey] || []).length > 0 ? (
+                <div className="mt-3 space-y-2">
+                  {(repTasksByDate[selectedDateKey] || []).map((task) => (
+                    <div key={task.id} className="flex items-start justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                      <div>
+                        <p className="text-sm font-semibold text-amber-900">{task.title || "Rep-opgave"}</p>
+                        {task.employee_name ? (
+                          <p className="text-xs text-amber-700">{task.employee_name}</p>
+                        ) : null}
+                        {task.notes ? (
+                          <p className="text-xs text-amber-700">{task.notes}</p>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => deleteRepTask(task.id)}
+                        className="shrink-0 rounded border border-amber-300 bg-white px-2 py-0.5 text-[11px] text-amber-800 hover:bg-red-50"
+                        title="Slet rep-opgave"
+                      >
+                        Slet
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-muted-foreground">Ingen rep-opgaver denne dag.</p>
+              )}
+
+              <div className="mt-4 space-y-2 rounded-xl border border-amber-100 bg-amber-50/60 p-3">
+                <p className="text-xs font-semibold uppercase text-amber-800">Tilføj rep-opgave</p>
+                <input
+                  value={repCreateTitle}
+                  onChange={(e) => setRepCreateTitle(e.target.value)}
+                  placeholder="Titel (fx let slib og olie)"
+                  className="h-9 w-full rounded-md border border-border bg-white px-2 text-sm"
+                />
+                <input
+                  value={repCreateNotes}
+                  onChange={(e) => setRepCreateNotes(e.target.value)}
+                  placeholder="Note (valgfri)"
+                  className="h-9 w-full rounded-md border border-border bg-white px-2 text-sm"
+                />
+                <select
+                  value={repCreateEmployee}
+                  onChange={(e) => setRepCreateEmployee(e.target.value)}
+                  className="h-9 w-full rounded-md border border-border bg-white px-2 text-sm"
+                >
+                  <option value="">Medarbejder (valgfri)</option>
+                  {employeeOptions.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name || user.email}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-3">
+                  <Button size="sm" disabled={repCreateBusy} onClick={() => createRepTask(selectedDateKey)}>
+                    {repCreateBusy ? "Opretter..." : "Opret rep-opgave"}
+                  </Button>
+                  {repCreateError ? <span className="text-xs text-red-600">{repCreateError}</span> : null}
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 border-t border-border/60 pt-4">
@@ -1295,6 +1488,18 @@ export const CalendarAdmin = () => {
                     }}
                   >
                     Tilføj ny opgave
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                    onClick={() => {
+                      const { dateKey } = slotAction;
+                      setSlotAction(null);
+                      setSelectedDateKey(dateKey);
+                      setTimeout(() => dayDetailRef.current?.scrollIntoView({ behavior: "smooth" }), 80);
+                    }}
+                  >
+                    🔧 Opret rep-opgave
                   </Button>
                   <Button
                     variant="outline"

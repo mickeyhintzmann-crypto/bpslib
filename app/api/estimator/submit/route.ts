@@ -167,10 +167,36 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    // Note: combined validation (incl. table images) is done below after extras parsing
+
+    // Extra table images (optional)
+    const spisebordRaw = formData
+      .getAll("spisebordImages")
+      .filter((entry): entry is File => entry instanceof File)
+      .filter((file) => file.size > 0)
+      .slice(0, 3);
+    const sofabordRaw = formData
+      .getAll("sofabordImages")
+      .filter((entry): entry is File => entry instanceof File)
+      .filter((file) => file.size > 0)
+      .slice(0, 3);
+
+    // Validate total upload including table images
+    const allFilesForValidation = [...images, ...spisebordRaw, ...sofabordRaw];
+    const totalUploadBytesAll = allFilesForValidation.reduce((sum, file) => sum + file.size, 0);
+    if (totalUploadBytesAll > MAX_TOTAL_UPLOAD_BYTES) {
+      return NextResponse.json(
+        { message: "Den samlede upload (inkl. borde) er for stor. Maks 40 MB i alt." },
+        { status: 400 }
+      );
+    }
 
     const boardCount = images.length;
+    const tableNote =
+      (extras.spisebord && spisebordRaw.length > 0 ? ` Derudover er der ${spisebordRaw.length} billede(r) af spisebordet.` : "") +
+      (extras.sofabord && sofabordRaw.length > 0 ? ` Derudover er der ${sofabordRaw.length} billede(r) af sofabordet.` : "");
     const aiNote =
-      "Hvert billede repræsenterer én køkkenbordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.";
+      `Hvert billede repræsenterer én køkkenbordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.${tableNote}`;
 
     // Tilkøb: spisebord og sofabord slibes på samme besøg (fast pris, ikke images)
     const extras: BordpladeExtras = {
@@ -228,7 +254,35 @@ export async function POST(request: Request) {
         path: filePath,
         name: file.name,
         isEdge: false,
-        isOverview: true
+        isOverview: true,
+        tag: "kitchen"
+      });
+    }
+
+    // Upload optional table images
+    for (const [index, file] of [...spisebordRaw.map(f => ({ file: f, tag: "spisebord" })), ...sofabordRaw.map(f => ({ file: f, tag: "sofabord" }))].entries()) {
+      const extension = file.file.name.includes(".") ? file.file.name.split(".").pop() || "jpg" : "jpg";
+      const cleanExtension = extension.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const filePath = `${requestId}/table-${Date.now()}-${index}.${cleanExtension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(ESTIMATOR_BUCKET)
+        .upload(filePath, file.file, {
+          contentType: file.file.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.warn("[estimator_submit] table image upload failed, continuing:", uploadError.message);
+        continue;
+      }
+
+      uploadedImages.push({
+        path: filePath,
+        name: file.file.name,
+        isEdge: false,
+        isOverview: true,
+        tag: file.tag
       });
     }
 

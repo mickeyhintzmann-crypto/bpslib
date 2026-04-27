@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     const fromIso = `${from}T00:00:00.000Z`;
     const toExclusiveIso = `${toExclusive}T00:00:00.000Z`;
 
-    const [overrideResult, bookingResult, unavailabilityResult] = await Promise.all([
+    const [overrideResult, bookingResult, unavailabilityResult, repTasksResult] = await Promise.all([
       supabase
         .from("day_overrides")
         .select("date, open_slots_count, show_on_acute_page, note")
@@ -80,6 +80,14 @@ export async function GET(request: Request) {
         .select("id, employee_id, created_by_user_id, type, note, start_at, end_at, employee:employee_id(id,name,email)")
         .lt("start_at", toExclusiveIso)
         .gte("end_at", fromIso)
+        .order("start_at", { ascending: true }),
+      // Rep-opgaver: korte vedligeholdelsesjob der ikke optager et slot
+      supabase
+        .from("jobs")
+        .select("id, title, notes, start_at, assigned_employee_id, employee:assigned_employee_id(name)")
+        .eq("service", "rep")
+        .gte("start_at", fromIso)
+        .lt("start_at", toExclusiveIso)
         .order("start_at", { ascending: true })
     ]);
 
@@ -119,6 +127,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: unavailabilityResult.error.message }, { status: 500 });
     }
 
+    if (repTasksResult.error) {
+      if (isMissingRelation(repTasksResult.error.message, "jobs")) {
+        return NextResponse.json({ message: "Tabellen jobs mangler i databasen." }, { status: 503 });
+      }
+      // Non-fatal: rep-tasks are optional — return empty array if column/constraint issues
+      console.warn("rep-tasks query error:", repTasksResult.error.message);
+    }
+
     const bookings = (bookingResult.data || []).map((booking) => ({
       id: booking.id,
       date: booking.date || "",
@@ -154,11 +170,24 @@ export async function GET(request: Request) {
       };
     });
 
+    const repTasks = (repTasksResult.data || []).map((task) => {
+      const employeeRelation = Array.isArray(task.employee) ? task.employee[0] : task.employee;
+      return {
+        id: task.id,
+        title: task.title ?? null,
+        notes: task.notes ?? null,
+        start_at: task.start_at ?? null,
+        assigned_employee_id: task.assigned_employee_id ?? null,
+        employee_name: (employeeRelation as { name?: string } | null)?.name ?? null
+      };
+    });
+
     return NextResponse.json(
       {
         overrides: overrideResult.data || [],
         bookings,
-        unavailability
+        unavailability,
+        repTasks
       },
       { status: 200 }
     );

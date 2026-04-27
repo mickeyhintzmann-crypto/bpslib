@@ -38,6 +38,8 @@ export const EstimatorForm = () => {
   const [phone, setPhone] = useState("");
   const [hasSpisebord, setHasSpisebord] = useState(false);
   const [hasSofabord, setHasSofabord] = useState(false);
+  const [spisebordImages, setSpisebordImages] = useState<File[]>([]);
+  const [sofabordImages, setSofabordImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -109,6 +111,21 @@ export const EstimatorForm = () => {
     setIsProcessing(false);
   };
 
+  const onTableImageChange = async (
+    files: FileList | null,
+    setter: (images: File[]) => void
+  ) => {
+    if (!files) {
+      setter([]);
+      return;
+    }
+    const selected = Array.from(files)
+      .filter((file) => file.size > 0)
+      .slice(0, 3);
+    const processed = await Promise.all(selected.map((file) => compressImage(file)));
+    setter(processed);
+  };
+
   const validateImages = () => {
     if (images.length < MIN_IMAGES || images.length > MAX_IMAGES) {
       return "Upload 1 til 6 billeder for at fortsætte.";
@@ -160,6 +177,12 @@ export const EstimatorForm = () => {
       formData.append("hasSofabord", hasSofabord ? "true" : "false");
 
       images.forEach((file) => formData.append("images", file));
+      if (hasSpisebord) {
+        spisebordImages.forEach((file) => formData.append("spisebordImages", file));
+      }
+      if (hasSofabord) {
+        sofabordImages.forEach((file) => formData.append("sofabordImages", file));
+      }
 
       const response = await fetch("/api/estimator/submit", {
         method: "POST",
@@ -272,30 +295,75 @@ export const EstimatorForm = () => {
           Slibes på samme besøg som køkkenet — og koster langt mindre end et separat besøg.
         </p>
         <div className="flex flex-col gap-3">
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background/60 p-4 hover:bg-muted/40">
-            <input
-              type="checkbox"
-              checked={hasSpisebord}
-              onChange={(e) => setHasSpisebord(e.target.checked)}
-              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
-            />
-            <div>
-              <p className="text-sm font-medium text-foreground">Spisebord</p>
-              <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
-            </div>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background/60 p-4 hover:bg-muted/40">
-            <input
-              type="checkbox"
-              checked={hasSofabord}
-              onChange={(e) => setHasSofabord(e.target.checked)}
-              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
-            />
-            <div>
-              <p className="text-sm font-medium text-foreground">Sofabord</p>
-              <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
-            </div>
-          </label>
+          <div className="rounded-xl border border-border bg-background/60 p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hasSpisebord}
+                onChange={(e) => {
+                  setHasSpisebord(e.target.checked);
+                  if (!e.target.checked) setSpisebordImages([]);
+                }}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
+              />
+              <div>
+                <p className="text-sm font-medium text-foreground">Spisebord</p>
+                <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
+              </div>
+            </label>
+            {hasSpisebord ? (
+              <div className="mt-3 space-y-1">
+                <label className="grid gap-1 text-xs text-muted-foreground">
+                  Upload billede(r) af spisebordet (valgfrit, maks 3)
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                    multiple
+                    onChange={(e) => onTableImageChange(e.target.files, setSpisebordImages)}
+                    className="rounded-md border border-border bg-white px-2 py-1 text-xs"
+                  />
+                </label>
+                {spisebordImages.length > 0 ? (
+                  <p className="text-[11px] text-muted-foreground">{spisebordImages.length} billede{spisebordImages.length === 1 ? "" : "r"} valgt</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="rounded-xl border border-border bg-background/60 p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hasSofabord}
+                onChange={(e) => {
+                  setHasSofabord(e.target.checked);
+                  if (!e.target.checked) setSofabordImages([]);
+                }}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
+              />
+              <div>
+                <p className="text-sm font-medium text-foreground">Sofabord</p>
+                <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
+              </div>
+            </label>
+            {hasSofabord ? (
+              <div className="mt-3 space-y-1">
+                <label className="grid gap-1 text-xs text-muted-foreground">
+                  Upload billede(r) af sofabordet (valgfrit, maks 3)
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                    multiple
+                    onChange={(e) => onTableImageChange(e.target.files, setSofabordImages)}
+                    className="rounded-md border border-border bg-white px-2 py-1 text-xs"
+                  />
+                </label>
+                {sofabordImages.length > 0 ? (
+                  <p className="text-[11px] text-muted-foreground">{sofabordImages.length} billede{sofabordImages.length === 1 ? "" : "r"} valgt</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 

@@ -398,6 +398,10 @@ export const EmployeeCalendar = () => {
     });
 
     jobs.forEach((job) => {
+      // Rep tasks are shown separately as thin strips — skip here
+      if (job.service === "rep") {
+        return;
+      }
       const startDate = parseIso(job.startAt);
       const endDate = parseIso(job.endAt);
       if (!startDate || !endDate) {
@@ -838,6 +842,9 @@ export const EmployeeCalendar = () => {
       const slotEndMs = new Date(slotEndIso).getTime();
 
       const slotJob = jobs.find((job) => {
+        if (job.service === "rep") {
+          return false;
+        }
         const startDate = parseIso(job.startAt);
         const endDate = parseIso(job.endAt);
         if (!startDate || !endDate) {
@@ -865,6 +872,25 @@ export const EmployeeCalendar = () => {
     },
     [availability, jobs]
   );
+
+  const repTasksByDay = useMemo(() => {
+    const map = new Map<string, JobItem[]>();
+    period.days.forEach((day) => {
+      map.set(toDateKey(day), []);
+    });
+    jobs.forEach((job) => {
+      if (job.service !== "rep") {
+        return;
+      }
+      // start_at is stored as dateT07:00:00.000Z — date key is the first 10 chars
+      const dateKey = job.startAt.slice(0, 10);
+      const bucket = map.get(dateKey);
+      if (bucket) {
+        bucket.push(job);
+      }
+    });
+    return map;
+  }, [jobs, period.days]);
 
   const selectSlotForAbsence = (dateKey: string, slotIndex: number) => {
     const slot = SLOT_RANGES[slotIndex];
@@ -1087,6 +1113,20 @@ export const EmployeeCalendar = () => {
                     );
                   })}
                 </div>
+
+                {(repTasksByDay.get(dateKey) || []).length > 0 ? (
+                  <div className="mt-2 space-y-0.5">
+                    {(repTasksByDay.get(dateKey) || []).map((task) => (
+                      <div
+                        key={task.id}
+                        className="truncate rounded px-2 py-0.5 text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
+                        title={`Rep: ${task.title}${task.notes ? ` · ${task.notes}` : ""}`}
+                      >
+                        🔧 {task.title}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
 
                 {events.length === 0 ? (
                   <p className="mt-3 text-xs text-muted-foreground">Ingen opgaver eller fravær.</p>
