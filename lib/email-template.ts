@@ -25,11 +25,8 @@ export const wrapInEmailTemplate = (opts: {
   greeting: string;
   body: string;
 }) => {
-  const bodyHtml = opts.body
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>");
+  // Body is expected to be HTML — only convert bare newlines to <br>, don't escape tags
+  const bodyHtml = opts.body.replace(/\n/g, "<br>");
 
   return `<!DOCTYPE html>
 <html lang="da">

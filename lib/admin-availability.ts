@@ -392,8 +392,8 @@ export const getSlotRangeForBooking = (
     startTime,
     endTime,
     slotLabel: slotRange(startTime, safeSlotCount).join(" + "),
-    slotStartIso: `${dateKey}T${startTime}:00.000Z`,
-    slotEndIso: `${dateKey}T${endTime}:00.000Z`
+    slotStartIso: `${dateKey}T${startTime}:00`,
+    slotEndIso: `${dateKey}T${endTime}:00`
   };
 };
 

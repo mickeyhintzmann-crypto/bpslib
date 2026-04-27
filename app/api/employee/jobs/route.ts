@@ -48,6 +48,7 @@ type BookingRow = {
   notes: string | null;
   task_description: string | null;
   price_total: number | null;
+  price_net: number | null;
 };
 
 type AiQuoteRequestRow = {
@@ -193,7 +194,7 @@ export async function GET(request: Request) {
       supabase
         .from("bookings")
         .select(
-          "id, service_type, status, date, start_slot_index, slot_count, address, postal_code, city, customer_name, customer_phone, customer_email, notes, task_description, price_total"
+          "id, service_type, status, date, start_slot_index, slot_count, address, postal_code, city, customer_name, customer_phone, customer_email, notes, task_description, price_total, price_net"
         )
         .eq("assigned_to", session.id)
         .gte("date", fromDateKey)
@@ -352,6 +353,7 @@ export async function GET(request: Request) {
           : null,
         priceMin: price?.min ?? null,
         priceMax: price?.max ?? null,
+        priceNet: null,
         priceLabel: formatPriceRange(price?.min ?? null, price?.max ?? null),
         mapsUrl,
         invoiceStatus: invoiceRow?.status || null,
@@ -398,6 +400,7 @@ export async function GET(request: Request) {
           },
           priceMin: null,
           priceMax: null,
+          priceNet: typeof booking.price_net === "number" ? booking.price_net : null,
           priceLabel: formatTotalPrice(booking.price_total),
           mapsUrl: buildMapsUrl(booking.address, leadLocation),
           invoiceStatus: null,

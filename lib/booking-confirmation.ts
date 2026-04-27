@@ -100,6 +100,7 @@ type ManualBookingInfo = {
   startTime: string;   // HH:MM
   address?: string | null;
   service?: string | null;
+  priceTotal?: number | null;
   sendEmail: boolean;
   sendSms: boolean;
 };
@@ -131,9 +132,15 @@ export const sendManualBookingConfirmation = async (info: ManualBookingInfo) => 
 
   const manageLink = info.manageToken ? `${SITE_URL}/booking/manage/${info.manageToken}` : "";
   const addressLine = info.address ? `\nAdresse: ${info.address}` : "";
+  const priceLine = typeof info.priceTotal === "number" && info.priceTotal > 0
+    ? `\nPris: ${info.priceTotal.toLocaleString("da-DK")} kr. inkl. moms`
+    : "";
   const manageLineText = manageLink ? `\nAdministrer din booking her: ${manageLink}` : "";
   const manageLineHtml = manageLink
     ? `<br><a href="${manageLink}" style="color:#c67a2e;text-decoration:underline;">Administrer din booking her</a>`
+    : "";
+  const priceHtml = typeof info.priceTotal === "number" && info.priceTotal > 0
+    ? `<br><strong>Pris: ${info.priceTotal.toLocaleString("da-DK")} kr. inkl. moms</strong>`
     : "";
 
   const bodyText =
@@ -143,6 +150,7 @@ export const sendManualBookingConfirmation = async (info: ManualBookingInfo) => 
     `Dato: ${formattedDate}\n` +
     `Tidspunkt: Kl. ${info.startTime}` +
     addressLine +
+    priceLine +
     `\n\nHar du spørgsmål, er du velkommen til at kontakte os på +45 2691 3737.` +
     manageLineText +
     `\n\nVenlig hilsen\nBP Slib`;
@@ -152,6 +160,7 @@ export const sendManualBookingConfirmation = async (info: ManualBookingInfo) => 
     `Dato: ${formattedDate}<br>` +
     `Tidspunkt: Kl. ${info.startTime}` +
     (info.address ? `<br>Adresse: ${info.address}` : "") +
+    priceHtml +
     `<br><br>Har du spørgsmål, er du velkommen til at kontakte os på ` +
     `<a href="tel:+4526913737" style="color:#c67a2e;">+45 2691 3737</a>.` +
     manageLineHtml;
@@ -179,6 +188,9 @@ export const sendManualBookingConfirmation = async (info: ManualBookingInfo) => 
       `Hej ${name}, din booking hos BP Slib er bekræftet.\n` +
       `${serviceLabel} – ${formattedDate} kl. ${info.startTime}` +
       (info.address ? `\n${info.address}` : "") +
+      (typeof info.priceTotal === "number" && info.priceTotal > 0
+        ? `\nPris: ${info.priceTotal.toLocaleString("da-DK")} kr. inkl. moms`
+        : "") +
       (manageLink ? `\n${manageLink}` : "");
 
     try {

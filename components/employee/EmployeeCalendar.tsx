@@ -29,6 +29,7 @@ type JobItem = {
   lead: JobLead | null;
   priceMin: number | null;
   priceMax: number | null;
+  priceNet: number | null;
   priceLabel: string;
   mapsUrl: string | null;
   invoiceStatus: string | null;
@@ -254,18 +255,18 @@ const inferDefaultPriceExVat = (job: JobItem | null) => {
   if (!job) {
     return 0;
   }
+  // For bookings: use stored priceNet (ex-VAT) directly
+  if (typeof job.priceNet === "number" && job.priceNet > 0) {
+    return Math.round(job.priceNet);
+  }
+  // For jobs: use AI quote max/min (already ex-VAT)
   if (typeof job.priceMax === "number" && job.priceMax > 0) {
     return Math.round(job.priceMax);
   }
   if (typeof job.priceMin === "number" && job.priceMin > 0) {
     return Math.round(job.priceMin);
   }
-  const digits = (job.priceLabel || "").replace(/[^\d]/g, "");
-  if (!digits) {
-    return 0;
-  }
-  const parsed = Number.parseInt(digits, 10);
-  return Number.isFinite(parsed) ? parsed : 0;
+  return 0;
 };
 
 const compactText = (value: string | null | undefined) => (value || "").replace(/\s+/g, " ").trim();
@@ -1236,6 +1237,7 @@ export const EmployeeCalendar = () => {
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-lg font-bold text-foreground">{selectedJob.priceLabel}</p>
+                  <p className="text-[11px] text-muted-foreground">inkl. moms</p>
                 </div>
               </div>
 

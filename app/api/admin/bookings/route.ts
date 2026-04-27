@@ -439,7 +439,7 @@ export async function POST(request: Request) {
       slot_start: slotRange.slotStartIso,
       slot_end: slotRange.slotEndIso,
       manage_token: randomUUID(),
-      status: "new",
+      status: "confirmed",
       source: "manual",
       extras: service === "bordplade" && hasSelectedExtras(extras) ? extras : null,
       assigned_to: assignedTo || null,
@@ -521,6 +521,7 @@ export async function POST(request: Request) {
             startTime,
             address: data.address ?? (address || null),
             service: data.service_type ?? service,
+            priceTotal: typeof data.price_total === "number" ? data.price_total : (totalParsed.value ?? null),
             sendEmail: shouldSendEmail,
             sendSms: shouldSendSms
           });
