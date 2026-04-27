@@ -280,6 +280,14 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
                   <p className="text-sm text-emerald-800/70">Vi glæder os til at komme forbi!</p>
                 </div>
               </div>
+              {booking.priceTotal ? (
+                <div className="mt-4 rounded-xl border-2 border-emerald-400 bg-white px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Din aftalte pris</p>
+                  <p className="mt-1 text-2xl font-bold text-emerald-900">
+                    {booking.priceTotal.toLocaleString("da-DK")} kr. inkl. moms
+                  </p>
+                </div>
+              ) : null}
               <div className="mt-4 rounded-xl bg-white/60 p-4 text-sm text-emerald-900/80">
                 <p className="font-medium">Forberedelse inden vi kommer:</p>
                 <ul className="mt-2 space-y-1.5">
@@ -287,7 +295,7 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
                     <>
                       <li className="flex gap-2"><span>→</span><span>Ryd bordpladen helt — fjern alt der står på den (brødrister, knivblok, skærebrætter osv.)</span></li>
                       <li className="flex gap-2"><span>→</span><span>Sørg for fri adgang til køkkenet så vores folk kan komme til</span></li>
-                      <li className="flex gap-2"><span>→</span><span><strong>Efter behandlingen:</strong> Bordpladen må ikke bruges i 24 timer mens olien hærder. Vi dækker den til, så den er beskyttet</span></li>
+                      <li className="flex gap-2"><span>→</span><span><strong>Efter behandlingen:</strong> Olien hærder i ca. 8 timer — undgå at bruge bordpladen i den tid</span></li>
                       <li className="flex gap-2"><span>→</span><span>Undgå at lægge noget på bordpladen eller stille ting tilbage de første 24 timer</span></li>
                     </>
                   ) : (
