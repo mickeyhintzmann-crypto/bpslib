@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { auditLog } from "@/lib/audit";
 import { checkBookingAvailability, getSlotRangeForBooking } from "@/lib/admin-availability";
 import { hasSelectedExtras, sanitizeExtras } from "@/lib/bordplade/extras";
+import { sendManualBookingConfirmation } from "@/lib/booking-confirmation";
 import { SLOT_TIMES } from "@/lib/booking-schedule";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -69,6 +70,7 @@ type CreatePayload = {
   price_total?: unknown;
   price_net?: unknown;
   price_vat?: unknown;
+  send_notification?: unknown;
 };
 
 const isMissingRelation = (message: string | undefined, relationName: string) => {
@@ -490,6 +492,44 @@ export async function POST(request: Request) {
       actor: session?.email,
       role: session?.role
     });
+
+    // Send booking confirmation to customer if requested
+    const sendNotification =
+      payload.send_notification &&
+      typeof payload.send_notification === "object" &&
+      !Array.isArray(payload.send_notification)
+        ? (payload.send_notification as Record<string, unknown>)
+        : null;
+
+    if (sendNotification) {
+      const shouldSendEmail = sendNotification.email === true;
+      const shouldSendSms = sendNotification.sms === true;
+
+      if (shouldSendEmail || shouldSendSms) {
+        const startTime = Number.isInteger(data.start_slot_index)
+          ? (SLOT_TIMES[data.start_slot_index as number] ?? "")
+          : "";
+
+        try {
+          await sendManualBookingConfirmation({
+            bookingId: data.id,
+            customerName: data.customer_name ?? name,
+            customerEmail: data.customer_email ?? (email || null),
+            customerPhone: data.customer_phone ?? (phone || null),
+            manageToken: insertPayload.manage_token,
+            date: data.date ?? date,
+            startTime,
+            address: data.address ?? (address || null),
+            service: data.service_type ?? service,
+            sendEmail: shouldSendEmail,
+            sendSms: shouldSendSms
+          });
+        } catch (notifyError) {
+          console.error("[booking.create] Notification fejl:", notifyError);
+          // Non-fatal – booking was created successfully
+        }
+      }
+    }
 
     return NextResponse.json(
       {

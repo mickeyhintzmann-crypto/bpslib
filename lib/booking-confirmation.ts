@@ -89,3 +89,105 @@ export const sendBookingAutoReply = async (info: BookingInfo) => {
 
   return results;
 };
+
+type ManualBookingInfo = {
+  bookingId: string;
+  customerName: string;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
+  manageToken?: string | null;
+  date: string;        // YYYY-MM-DD
+  startTime: string;   // HH:MM
+  address?: string | null;
+  service?: string | null;
+  sendEmail: boolean;
+  sendSms: boolean;
+};
+
+const SERVICE_LABELS: Record<string, string> = {
+  bordplade: "Bordpladeslibning",
+  gulv: "Gulvbehandling",
+  toemrer: "Tømrer",
+  maler: "Maler",
+  murer: "Murer",
+  andet: "Opgave",
+};
+
+const formatDanishDate = (dateStr: string) => {
+  const date = new Date(`${dateStr}T12:00:00`);
+  return date.toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+};
+
+/**
+ * Sends a booking confirmation to the customer when admin creates a manual booking.
+ * Includes date, time and address.
+ */
+export const sendManualBookingConfirmation = async (info: ManualBookingInfo) => {
+  const results: string[] = [];
+  const name = info.customerName || "kunde";
+  const serviceLabel = info.service ? (SERVICE_LABELS[info.service] || info.service) : "Opgave";
+  const formattedDate = formatDanishDate(info.date);
+  const subject = `BP Slib – Din booking er bekræftet`;
+
+  const manageLink = info.manageToken ? `${SITE_URL}/booking/manage/${info.manageToken}` : "";
+  const addressLine = info.address ? `\nAdresse: ${info.address}` : "";
+  const manageLineText = manageLink ? `\nAdministrer din booking her: ${manageLink}` : "";
+  const manageLineHtml = manageLink
+    ? `<br><a href="${manageLink}" style="color:#c67a2e;text-decoration:underline;">Administrer din booking her</a>`
+    : "";
+
+  const bodyText =
+    `Hej ${name},\n\n` +
+    `Din booking er bekræftet.\n\n` +
+    `Service: ${serviceLabel}\n` +
+    `Dato: ${formattedDate}\n` +
+    `Tidspunkt: Kl. ${info.startTime}` +
+    addressLine +
+    `\n\nHar du spørgsmål, er du velkommen til at kontakte os på +45 2691 3737.` +
+    manageLineText +
+    `\n\nVenlig hilsen\nBP Slib`;
+
+  const bodyHtml =
+    `Service: ${serviceLabel}<br>` +
+    `Dato: ${formattedDate}<br>` +
+    `Tidspunkt: Kl. ${info.startTime}` +
+    (info.address ? `<br>Adresse: ${info.address}` : "") +
+    `<br><br>Har du spørgsmål, er du velkommen til at kontakte os på ` +
+    `<a href="tel:+4526913737" style="color:#c67a2e;">+45 2691 3737</a>.` +
+    manageLineHtml;
+
+  /* ---- Email ---- */
+  if (info.sendEmail && info.customerEmail) {
+    const htmlBody = wrapInEmailTemplate({ greeting: `Hej ${name},<br>Din booking er bekræftet.`, body: bodyHtml });
+    const emailResult = await sendMail({ to: info.customerEmail, subject, text: bodyText, html: htmlBody });
+
+    await logEmail({
+      kind: "booking.manual.confirmation",
+      to: info.customerEmail,
+      subject,
+      ok: emailResult.ok,
+      error: emailResult.error || null,
+      meta: { bookingId: info.bookingId, channel: "email" },
+    });
+
+    results.push(emailResult.ok ? "email_ok" : "email_fail");
+  }
+
+  /* ---- SMS ---- */
+  if (info.sendSms && info.customerPhone && hasTwilioConfig()) {
+    const smsBody =
+      `Hej ${name}, din booking hos BP Slib er bekræftet.\n` +
+      `${serviceLabel} – ${formattedDate} kl. ${info.startTime}` +
+      (info.address ? `\n${info.address}` : "") +
+      (manageLink ? `\n${manageLink}` : "");
+
+    try {
+      const smsResult = await sendSms({ to: info.customerPhone, body: smsBody });
+      results.push(smsResult.ok ? "sms_ok" : "sms_fail");
+    } catch {
+      results.push("sms_error");
+    }
+  }
+
+  return results;
+};
