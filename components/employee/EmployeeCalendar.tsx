@@ -350,9 +350,9 @@ export const EmployeeCalendar = () => {
 
   // Reschedule state (only for bookings)
   const [showReschedule, setShowReschedule] = useState(false);
-  const [rescheduleDate, setRescheduleDate] = useState("");
-  const [rescheduleSlot, setRescheduleSlot] = useState<"08:00" | "11:00" | "13:30">("08:00");
+  const [rescheduleSelected, setRescheduleSelected] = useState<{ dateKey: string; slotIndex: number } | null>(null);
   const [rescheduleCount, setRescheduleCount] = useState<"1" | "2" | "3">("1");
+  const [rescheduleWeekAnchor, setRescheduleWeekAnchor] = useState(() => new Date());
   const [rescheduleBusy, setRescheduleBusy] = useState(false);
   const [rescheduleError, setRescheduleError] = useState("");
   const [rescheduleMessage, setRescheduleMessage] = useState("");
@@ -772,35 +772,49 @@ export const EmployeeCalendar = () => {
   };
 
   const submitReschedule = async () => {
-    if (!selectedJob || !selectedJob.id.startsWith("booking:")) {
+    if (!selectedJob || !selectedJob.id.startsWith("booking:") || !rescheduleSelected) {
+      return;
+    }
+    const startSlot = SLOT_RANGES[rescheduleSelected.slotIndex];
+    if (!startSlot) {
       return;
     }
     setRescheduleBusy(true);
     setRescheduleError("");
     setRescheduleMessage("");
+    let response: Response | null = null;
     try {
-      const response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/reschedule`, {
+      response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/reschedule`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          date: rescheduleDate,
-          startSlot: rescheduleSlot,
+          date: rescheduleSelected.dateKey,
+          startSlot: startSlot.start,
           slotCount: Number.parseInt(rescheduleCount, 10)
         })
       });
-      const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setRescheduleError(payload.message || "Kunne ikke flytte opgaven.");
-        return;
-      }
-      setRescheduleMessage("Opgaven er flyttet.");
-      setShowReschedule(false);
-      await load();
     } catch {
-      setRescheduleError("Netværksfejl ved flytning af opgave.");
-    } finally {
+      setRescheduleError("Netværksfejl – tjek forbindelsen og prøv igen.");
       setRescheduleBusy(false);
+      return;
     }
+    let payload: { message?: string } = {};
+    try {
+      payload = (await response.json()) as { message?: string };
+    } catch {
+      setRescheduleError(`Serverfejl (${response.status}) – prøv igen eller kontakt support.`);
+      setRescheduleBusy(false);
+      return;
+    }
+    if (!response.ok) {
+      setRescheduleError(payload.message || "Kunne ikke flytte opgaven.");
+      setRescheduleBusy(false);
+      return;
+    }
+    setRescheduleMessage("Opgaven er flyttet.");
+    setShowReschedule(false);
+    await load();
+    setRescheduleBusy(false);
   };
 
   const getSlotOccupancy = useCallback(
@@ -1329,9 +1343,18 @@ export const EmployeeCalendar = () => {
                     type="button"
                     onClick={() => {
                       if (!showReschedule) {
-                        setRescheduleDate(selectedJob.startAt.slice(0, 10));
-                        setRescheduleSlot("08:00");
-                        setRescheduleCount("1");
+                        // Derive current slot index from startAt local time
+                        const bkStart = new Date(selectedJob.startAt);
+                        const bkStartHHMM = `${String(bkStart.getHours()).padStart(2, "0")}:${String(bkStart.getMinutes()).padStart(2, "0")}`;
+                        const bkSlotIdx = SLOT_RANGES.findIndex((s) => s.start === bkStartHHMM);
+                        // Derive slot count from endAt
+                        const bkEnd = new Date(selectedJob.endAt);
+                        const bkEndHHMM = `${String(bkEnd.getHours()).padStart(2, "0")}:${String(bkEnd.getMinutes()).padStart(2, "0")}`;
+                        const bkEndSlotIdx = SLOT_RANGES.findIndex((s) => s.end === bkEndHHMM);
+                        const derivedCount = bkSlotIdx >= 0 && bkEndSlotIdx >= 0 ? bkEndSlotIdx - bkSlotIdx + 1 : 1;
+                        setRescheduleSelected({ dateKey: selectedJob.startAt.slice(0, 10), slotIndex: bkSlotIdx >= 0 ? bkSlotIdx : 0 });
+                        setRescheduleCount(String(Math.max(1, Math.min(3, derivedCount))) as "1" | "2" | "3");
+                        setRescheduleWeekAnchor(new Date(selectedJob.startAt));
                         setRescheduleError("");
                         setRescheduleMessage("");
                       }
@@ -1345,43 +1368,115 @@ export const EmployeeCalendar = () => {
                   {showReschedule ? (
                     <div className="mt-3 space-y-3 rounded-xl border border-border bg-white p-4">
                       <p className="text-sm font-semibold text-foreground">Flyt opgave</p>
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <div className="space-y-1">
-                          <label className="block text-xs font-medium text-muted-foreground">Ny dato</label>
-                          <input
-                            type="date"
-                            value={rescheduleDate}
-                            onChange={(e) => setRescheduleDate(e.target.value)}
-                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="block text-xs font-medium text-muted-foreground">Starttid</label>
-                          <select
-                            value={rescheduleSlot}
-                            onChange={(e) => setRescheduleSlot(e.target.value as "08:00" | "11:00" | "13:30")}
-                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
-                          >
-                            <option value="08:00">08:00</option>
-                            <option value="11:00">11:00</option>
-                            <option value="13:30">13:30</option>
-                          </select>
-                        </div>
-                        <div className="space-y-1">
-                          <label className="block text-xs font-medium text-muted-foreground">Slots</label>
-                          <select
-                            value={rescheduleCount}
-                            onChange={(e) => setRescheduleCount(e.target.value as "1" | "2" | "3")}
-                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
-                          >
-                            <option value="1">1 slot</option>
-                            <option value="2">2 slots</option>
-                            <option value="3">3 slots</option>
-                          </select>
-                        </div>
+
+                      {/* Week navigation */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setRescheduleWeekAnchor((prev) => addDays(prev, -7))}
+                          className="rounded-lg border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                        >
+                          ←
+                        </button>
+                        <span className="flex-1 text-center text-xs font-medium text-muted-foreground">
+                          {(() => {
+                            const monday = startOfWeekMonday(rescheduleWeekAnchor);
+                            const friday = addDays(monday, 4);
+                            const fmt = (d: Date) => d.toLocaleDateString("da-DK", { day: "numeric", month: "short" });
+                            return `${fmt(monday)} – ${fmt(friday)}`;
+                          })()}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setRescheduleWeekAnchor((prev) => addDays(prev, 7))}
+                          className="rounded-lg border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                        >
+                          →
+                        </button>
                       </div>
+
+                      {/* Day-slot grid: 5 columns (Mon–Fri) */}
+                      <div className="grid grid-cols-5 gap-1 text-xs">
+                        {[0, 1, 2, 3, 4].map((dayOffset) => {
+                          const monday = startOfWeekMonday(rescheduleWeekAnchor);
+                          const day = addDays(monday, dayOffset);
+                          const dateKey = toDateKey(day);
+                          return (
+                            <div key={dateKey} className="flex flex-col gap-1">
+                              <p className="text-center font-medium text-muted-foreground leading-tight">
+                                {day.toLocaleDateString("da-DK", { weekday: "short" })}
+                                <br />
+                                <span className="font-normal">{day.getDate()}</span>
+                              </p>
+                              {SLOT_RANGES.map((slot, slotIndex) => {
+                                const occ = getSlotOccupancy(dateKey, slotIndex);
+                                // Treat the booking being moved as free in its current slot
+                                const isSelf = occ.kind === "job" && occ.job.id === selectedJob.id;
+                                const isFree = occ.kind === "free" || isSelf;
+                                const isSelected = rescheduleSelected?.dateKey === dateKey && rescheduleSelected?.slotIndex === slotIndex;
+                                return (
+                                  <button
+                                    key={slotIndex}
+                                    type="button"
+                                    disabled={!isFree}
+                                    onClick={() => isFree && setRescheduleSelected({ dateKey, slotIndex })}
+                                    title={
+                                      isFree
+                                        ? `${dateKey} kl. ${slot.label}`
+                                        : occ.kind === "job"
+                                          ? occ.job.title
+                                          : occ.kind === "absence"
+                                            ? typeLabel[occ.item.type]
+                                            : "Lukket"
+                                    }
+                                    className={[
+                                      "rounded py-1.5 text-[11px] font-medium transition-colors leading-none",
+                                      isSelected
+                                        ? "bg-primary text-primary-foreground"
+                                        : isFree
+                                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 cursor-pointer"
+                                          : "bg-muted text-muted-foreground cursor-not-allowed"
+                                    ].join(" ")}
+                                  >
+                                    {slot.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Slot count */}
+                      <div className="flex items-center gap-3">
+                        <label className="text-xs font-medium text-muted-foreground">Varighed</label>
+                        <select
+                          value={rescheduleCount}
+                          onChange={(e) => setRescheduleCount(e.target.value as "1" | "2" | "3")}
+                          className="h-8 rounded-lg border border-border bg-white px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/40"
+                        >
+                          <option value="1">1 slot (~3 timer)</option>
+                          <option value="2">2 slots (~5½ timer)</option>
+                          <option value="3">3 slots (hel dag)</option>
+                        </select>
+                      </div>
+
+                      {rescheduleSelected ? (
+                        <p className="text-xs text-muted-foreground">
+                          Valgt:{" "}
+                          {new Date(`${rescheduleSelected.dateKey}T12:00:00`).toLocaleDateString("da-DK", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long"
+                          })}{" "}
+                          kl. {SLOT_RANGES[rescheduleSelected.slotIndex]?.label}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">Vælg en ledig tid (grøn) fra kalenderen ovenfor</p>
+                      )}
+
                       <div className="flex flex-wrap gap-2">
-                        <Button onClick={submitReschedule} disabled={rescheduleBusy}>
+                        <Button onClick={submitReschedule} disabled={rescheduleBusy || !rescheduleSelected}>
                           {rescheduleBusy ? "Flytter..." : "Bekræft flytning"}
                         </Button>
                         <Button variant="outline" onClick={() => setShowReschedule(false)} disabled={rescheduleBusy}>
