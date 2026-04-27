@@ -10,9 +10,10 @@ import { siteConfig } from "@/lib/site-config";
 import { trackEvent } from "@/lib/tracking";
 
 const UPLOAD_GUIDE = [
-  "Upload 1 billede pr. bordplade (hele bordpladen i billedet).",
-  "Har du 2 bordplader? Upload 2 billeder.",
-  "Undgå at uploade samme bordplade flere gange."
+  "Upload kun billeder af dine køkkenbordplader.",
+  "1 billede pr. sektion (hele bordpladen synlig i billedet).",
+  "Har du 2 køkkenafsnit? Upload 2 billeder.",
+  "Spise- og sofabord tilføjes med tilvalgene nedenfor — upload ikke billeder af dem."
 ];
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -35,6 +36,8 @@ export const EstimatorForm = () => {
   const [images, setImages] = useState<File[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [hasSpisebord, setHasSpisebord] = useState(false);
+  const [hasSofabord, setHasSofabord] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -153,6 +156,8 @@ export const EstimatorForm = () => {
       const formData = new FormData();
       formData.append("navn", name.trim());
       formData.append("telefon", phone.trim());
+      formData.append("hasSpisebord", hasSpisebord ? "true" : "false");
+      formData.append("hasSofabord", hasSofabord ? "true" : "false");
 
       images.forEach((file) => formData.append("images", file));
 
@@ -261,8 +266,41 @@ export const EstimatorForm = () => {
         </p>
       ) : null}
 
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold text-foreground">2) Har du andre bordplader? (tilkøb)</h2>
+        <p className="text-sm text-muted-foreground">
+          Slibes på samme besøg som køkkenet — og koster langt mindre end et separat besøg.
+        </p>
+        <div className="flex flex-col gap-3">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background/60 p-4 hover:bg-muted/40">
+            <input
+              type="checkbox"
+              checked={hasSpisebord}
+              onChange={(e) => setHasSpisebord(e.target.checked)}
+              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">Spisebord</p>
+              <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
+            </div>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background/60 p-4 hover:bg-muted/40">
+            <input
+              type="checkbox"
+              checked={hasSofabord}
+              onChange={(e) => setHasSofabord(e.target.checked)}
+              className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[var(--color-primary)]"
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">Sofabord</p>
+              <p className="text-xs text-muted-foreground">Massivt træ, behandles samme dag som køkkenet</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">2) Kontaktoplysninger</h2>
+        <h2 className="text-xl font-semibold text-foreground">3) Kontaktoplysninger</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm text-foreground">
             Navn

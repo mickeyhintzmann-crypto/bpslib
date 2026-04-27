@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import { estimateAiPrice } from "@/lib/ai-estimator";
 import { ESTIMATOR_BUCKET, STATUS_VALUES, type EstimatorFormFields } from "@/lib/estimator";
+import { defaultBordpladeExtras, type BordpladeExtras } from "@/lib/bordplade/extras";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { siteConfig } from "@/lib/site-config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -169,7 +170,14 @@ export async function POST(request: Request) {
 
     const boardCount = images.length;
     const aiNote =
-      "Hvert billede repræsenterer én bordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.";
+      "Hvert billede repræsenterer én køkkenbordplade. Antag ikke at flere billeder er flere vinkler af samme bordplade.";
+
+    // Tilkøb: spisebord og sofabord slibes på samme besøg (fast pris, ikke images)
+    const extras: BordpladeExtras = {
+      ...defaultBordpladeExtras,
+      spisebord: asString(formData.get("hasSpisebord")) === "true",
+      sofabord: asString(formData.get("hasSofabord")) === "true"
+    };
 
     const fields: EstimatorFormFields = {
       navn: asString(formData.get("navn")),
@@ -262,7 +270,7 @@ export async function POST(request: Request) {
       console.error("[estimator_submit] customer match failed:", customerError);
     }
 
-    const aiEstimate = await estimateAiPrice(supabase, { fields, extras: null });
+    const aiEstimate = await estimateAiPrice(supabase, { fields, extras });
     const aiStatus = aiEstimate ? "estimated" : "manual";
     const manageToken = randomUUID();
 
@@ -272,7 +280,7 @@ export async function POST(request: Request) {
         gating_answer: "ved_ikke",
         fields: {
           ...fields,
-          extras: null
+          extras
         },
         images: uploadedImages,
         status: STATUS_VALUES.new,
