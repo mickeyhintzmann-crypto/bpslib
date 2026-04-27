@@ -445,13 +445,14 @@ export const BookingCreateAdmin = () => {
                 onChange={(e) => {
                   const next = normalizePriceInput(e.target.value);
                   setPriceTotal(next);
-                  if (!priceNet && !priceVat && next) {
-                    const total = toNullableNumber(next);
-                    if (total) {
-                      const net = Math.round(total / 1.25);
-                      setPriceNet(String(net));
-                      setPriceVat(String(total - net));
-                    }
+                  const total = toNullableNumber(next);
+                  if (total) {
+                    const net = Math.round(total / 1.25);
+                    setPriceNet(String(net));
+                    setPriceVat(String(total - net));
+                  } else {
+                    setPriceNet("");
+                    setPriceVat("");
                   }
                 }}
                 inputMode="numeric"
