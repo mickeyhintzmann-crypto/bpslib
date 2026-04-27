@@ -176,8 +176,57 @@ const overlap = (startMs: number, endMs: number, dayStartMs: number, dayEndMs: n
 const typeLabel: Record<AvailabilityType, string> = {
   sick: "Syg",
   vacation: "Ferie",
-  personal: "Privat"
+  personal: "Fri"
 };
+
+const statusLabel: Record<string, string> = {
+  new: "Ny",
+  confirmed: "Bekræftet",
+  in_progress: "I gang",
+  done: "Færdig",
+  invoiced: "Faktureret",
+  cancelled: "Annulleret",
+  pending: "Afventer",
+  pending_confirmation: "Afventer"
+};
+
+const serviceLabel: Record<string, string> = {
+  bordplade: "Bordpladeslibning",
+  gulv: "Gulvbehandling",
+  toemrer: "Tømrer",
+  maler: "Maler",
+  murer: "Murer",
+  andet: "Andet"
+};
+
+const statusBadgeCls = (status: string) => {
+  switch (status) {
+    case "new":
+    case "pending":
+    case "pending_confirmation":
+      return "bg-blue-100 text-blue-700";
+    case "confirmed":
+      return "bg-emerald-100 text-emerald-700";
+    case "in_progress":
+      return "bg-amber-100 text-amber-700";
+    case "done":
+      return "bg-gray-200 text-gray-700";
+    case "invoiced":
+      return "bg-purple-100 text-purple-700";
+    case "cancelled":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
+};
+
+const formatDateOnly = (value: string) =>
+  new Date(value).toLocaleDateString("da-DK", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
 
 const SLOT_RANGES = [
   { label: "08:00", start: "08:00", end: "11:00" },
@@ -297,6 +346,15 @@ export const EmployeeCalendar = () => {
   const [invoiceAmountExVat, setInvoiceAmountExVat] = useState("");
   const [invoiceVatPercent, setInvoiceVatPercent] = useState("25");
   const [invoicePaymentMethod, setInvoicePaymentMethod] = useState<"mobilepay" | "paid" | "net0">("net0");
+
+  // Reschedule state (only for bookings)
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleSlot, setRescheduleSlot] = useState<"08:00" | "11:00" | "13:30">("08:00");
+  const [rescheduleCount, setRescheduleCount] = useState<"1" | "2" | "3">("1");
+  const [rescheduleBusy, setRescheduleBusy] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState("");
+  const [rescheduleMessage, setRescheduleMessage] = useState("");
 
   const period = useMemo(() => {
     const base = startOfDay(anchorDate);
@@ -476,6 +534,9 @@ export const EmployeeCalendar = () => {
     setShowCompleteForm(false);
     setCompleteError("");
     setCompleteMessage("");
+    setShowReschedule(false);
+    setRescheduleError("");
+    setRescheduleMessage("");
   }, [selectedJobId]);
 
   const logout = async () => {
@@ -709,6 +770,38 @@ export const EmployeeCalendar = () => {
     }
   };
 
+  const submitReschedule = async () => {
+    if (!selectedJob || !selectedJob.id.startsWith("booking:")) {
+      return;
+    }
+    setRescheduleBusy(true);
+    setRescheduleError("");
+    setRescheduleMessage("");
+    try {
+      const response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/reschedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: rescheduleDate,
+          startSlot: rescheduleSlot,
+          slotCount: Number.parseInt(rescheduleCount, 10)
+        })
+      });
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setRescheduleError(payload.message || "Kunne ikke flytte opgaven.");
+        return;
+      }
+      setRescheduleMessage("Opgaven er flyttet.");
+      setShowReschedule(false);
+      await load();
+    } catch {
+      setRescheduleError("Netværksfejl ved flytning af opgave.");
+    } finally {
+      setRescheduleBusy(false);
+    }
+  };
+
   const getSlotOccupancy = useCallback(
     (dateKey: string, slotIndex: number) => {
       if (isWeekendDateKey(dateKey)) {
@@ -913,24 +1006,14 @@ export const EmployeeCalendar = () => {
                   >
                     <p className="text-sm font-semibold text-foreground">{formatDayHeader(day)}</p>
                   </button>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => createQuickAllDay(dateKey, "sick")}
-                      className="rounded-md border border-border px-2 py-1 text-[11px] font-medium"
-                      disabled={absenceBusy}
-                    >
-                      Syg
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => createQuickAllDay(dateKey, "vacation")}
-                      className="rounded-md border border-border px-2 py-1 text-[11px] font-medium"
-                      disabled={absenceBusy}
-                    >
-                      Ferie
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => createQuickAllDay(dateKey, "personal")}
+                    className="rounded-md border border-border px-2 py-1 text-[11px] font-medium"
+                    disabled={absenceBusy}
+                  >
+                    Fri
+                  </button>
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -1059,8 +1142,8 @@ export const EmployeeCalendar = () => {
                 className="h-10 rounded-md border border-border bg-white px-3 text-sm"
               >
                 <option value="sick">Syg</option>
+                <option value="personal">Fri</option>
                 <option value="vacation">Ferie</option>
-                <option value="personal">Privat/læge</option>
               </select>
             </label>
 
@@ -1130,195 +1213,315 @@ export const EmployeeCalendar = () => {
             <p className="text-sm text-muted-foreground">Vælg en opgave i kalenderen for at se detaljer.</p>
           ) : (
             <div className="space-y-4">
-              <div>
-                <h2 className="font-display text-2xl font-semibold text-foreground">{selectedJob.title}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {formatDateTime(selectedJob.startAt)} - {formatDateTime(selectedJob.endAt)}
-                </p>
-              </div>
 
-              <div className="grid gap-3 rounded-xl border border-border/70 bg-muted/20 p-4 md:grid-cols-2">
-                <p>
-                  <strong>Status:</strong> {selectedJob.status}
-                </p>
-                <p>
-                  <strong>Faktura:</strong>{" "}
-                  {selectedJob.invoiceStatus === "sent"
-                    ? `Sendt${selectedJob.invoicedAt ? ` (${formatDateTime(selectedJob.invoicedAt)})` : ""}`
-                    : selectedJob.invoiceStatus === "failed"
-                      ? "Fejlede"
-                      : "Ikke sendt"}
-                </p>
-                <p>
-                  <strong>Service:</strong> {selectedJob.service || "-"}
-                </p>
-                <p>
-                  <strong>Pris:</strong> {selectedJob.priceLabel}
-                </p>
-                <p>
-                  <strong>Adresse:</strong> {selectedJob.address || selectedJob.location || "-"}
-                </p>
-              </div>
-
-              <div className="grid gap-3 rounded-xl border border-border/70 p-4 md:grid-cols-2">
-                <p>
-                  <strong>Kunde navn:</strong> {selectedJob.lead?.name || "-"}
-                </p>
-                <p>
-                  <strong>Telefon:</strong> {selectedJob.lead?.phone || "-"}
-                </p>
-                <p>
-                  <strong>Email:</strong> {selectedJob.lead?.email || "-"}
-                </p>
-                <p>
-                  <strong>Lokation:</strong> {selectedJob.city || selectedJob.lead?.location || selectedJob.location || "-"}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {selectedJob.mapsUrl ? (
-                  <a
-                    href={selectedJob.mapsUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-white"
-                  >
-                    Naviger til adresse
-                  </a>
-                ) : null}
-                {selectedJob.lead?.phone ? (
-                  <a href={`tel:${selectedJob.lead.phone}`} className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
-                    Ring kunde
-                  </a>
-                ) : null}
-                {selectedJob.lead?.email ? (
-                  <a href={`mailto:${selectedJob.lead.email}`} className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
-                    Send email
-                  </a>
-                ) : null}
-                <Button
-                  onClick={openCompleteForm}
-                  disabled={completeBusy || selectedJob.status === "cancelled" || selectedJob.status === "invoiced" || !dineroConnected}
-                >
-                  {selectedJob.status === "invoiced" ? "Faktura sendt" : "Afslut opgave og send faktura"}
-                </Button>
-              </div>
-
-              {!dineroConnected ? (
-                <p className="text-xs font-medium text-amber-700">
-                  Forbind Dinero ovenfor før du kan afslutte opgaver med automatisk faktura.
-                </p>
-              ) : null}
-              {completeError ? <p className="text-xs font-medium text-red-700">{completeError}</p> : null}
-              {completeMessage ? <p className="text-xs font-medium text-emerald-700">{completeMessage}</p> : null}
-
-              {showCompleteForm ? (
-                <div className="space-y-3 rounded-xl border border-border p-4">
-                  <p className="text-sm font-semibold text-foreground">Afslut opgave og send faktura</p>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Kundenavn</span>
-                      <input
-                        value={invoiceCustomerName}
-                        onChange={(event) => setInvoiceCustomerName(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Email</span>
-                      <input
-                        type="email"
-                        value={invoiceCustomerEmail}
-                        onChange={(event) => setInvoiceCustomerEmail(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Telefon</span>
-                      <input
-                        value={invoiceCustomerPhone}
-                        onChange={(event) => setInvoiceCustomerPhone(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Adresse</span>
-                      <input
-                        value={invoiceCustomerAddress}
-                        onChange={(event) => setInvoiceCustomerAddress(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm md:col-span-2">
-                      <span className="text-xs text-muted-foreground">Beskrivelse</span>
-                      <input
-                        value={invoiceDescription}
-                        onChange={(event) => setInvoiceDescription(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Pris ex. moms (DKK)</span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={invoiceAmountExVat}
-                        onChange={(event) => setInvoiceAmountExVat(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs text-muted-foreground">Moms %</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value={invoiceVatPercent}
-                        onChange={(event) => setInvoiceVatPercent(event.target.value)}
-                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                      />
-                    </label>
+              {/* ── Header: service + status + dato ── */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-display text-xl font-semibold text-foreground">
+                      {serviceLabel[selectedJob.service || ""] || selectedJob.title}
+                    </h2>
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeCls(selectedJob.status)}`}>
+                      {statusLabel[selectedJob.status] || selectedJob.status}
+                    </span>
                   </div>
+                  <p className="mt-0.5 text-sm capitalize text-muted-foreground">
+                    {formatDateOnly(selectedJob.startAt)}
+                  </p>
+                  {selectedJob.invoiceStatus === "sent" ? (
+                    <p className="mt-0.5 text-xs font-medium text-emerald-600">
+                      ✓ Faktura sendt{selectedJob.invoicedAt ? ` · ${formatDateTime(selectedJob.invoicedAt)}` : ""}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-lg font-bold text-foreground">{selectedJob.priceLabel}</p>
+                </div>
+              </div>
 
-                  <label className="grid gap-1 text-sm">
-                    <span className="text-xs text-muted-foreground">Betaling</span>
-                    <select
-                      value={invoicePaymentMethod}
-                      onChange={(event) => setInvoicePaymentMethod(event.target.value as "mobilepay" | "paid" | "net0")}
-                      className="h-10 rounded-md border border-border bg-white px-3 text-sm"
-                    >
-                      <option value="net0">0 dage (ikke betalt på stedet)</option>
-                      <option value="paid">Betalt</option>
-                      <option value="mobilepay">Betalt med MobilePay</option>
-                    </select>
-                  </label>
-
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={submitCompleteJob} disabled={completeBusy}>
-                      {completeBusy ? "Sender faktura..." : "Godkend og send faktura"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowCompleteForm(false);
-                        setCompleteError("");
-                      }}
-                      disabled={completeBusy}
-                    >
-                      Annuller
-                    </Button>
+              {/* ── Adresse ── */}
+              {selectedJob.address || selectedJob.city || selectedJob.location ? (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-4 py-3">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Adresse</p>
+                    <p className="mt-0.5 text-sm font-medium text-foreground">
+                      {[selectedJob.address, selectedJob.city || selectedJob.location].filter(Boolean).join(", ")}
+                    </p>
                   </div>
+                  {selectedJob.mapsUrl ? (
+                    <a
+                      href={selectedJob.mapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-9 shrink-0 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-white"
+                    >
+                      Naviger
+                    </a>
+                  ) : null}
                 </div>
               ) : null}
 
-              <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Job note</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
-                  {selectedJob.taskDescription || selectedJob.notes || "-"}
-                </p>
+              {/* ── Kundekort ── */}
+              <div className="rounded-xl border border-border bg-white px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Kunde</p>
+                <div className="mt-2 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-foreground">{selectedJob.lead?.name || "-"}</p>
+                    {selectedJob.lead?.phone ? (
+                      <p className="mt-0.5 text-sm text-foreground">{selectedJob.lead.phone}</p>
+                    ) : null}
+                    {selectedJob.lead?.email ? (
+                      <a href={`mailto:${selectedJob.lead.email}`} className="mt-0.5 block truncate text-sm text-primary">
+                        {selectedJob.lead.email}
+                      </a>
+                    ) : null}
+                    {(selectedJob.city || selectedJob.lead?.location) ? (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {selectedJob.city || selectedJob.lead?.location}
+                      </p>
+                    ) : null}
+                  </div>
+                  {selectedJob.lead?.phone ? (
+                    <a
+                      href={`tel:${selectedJob.lead.phone}`}
+                      className="inline-flex h-10 shrink-0 items-center rounded-full bg-primary px-4 text-sm font-semibold text-white"
+                    >
+                      Ring
+                    </a>
+                  ) : null}
+                </div>
+                {selectedJob.lead?.phone ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <a
+                      href={`sms:${selectedJob.lead.phone}`}
+                      className="inline-flex h-8 items-center rounded-lg border border-border px-3 text-xs font-medium"
+                    >
+                      Send SMS
+                    </a>
+                    {selectedJob.lead?.email ? (
+                      <a
+                        href={`mailto:${selectedJob.lead.email}`}
+                        className="inline-flex h-8 items-center rounded-lg border border-border px-3 text-xs font-medium"
+                      >
+                        Send email
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
+
+              {/* ── Opgavebeskrivelse ── */}
+              {selectedJob.taskDescription || selectedJob.notes || selectedJob.lead?.message ? (
+                <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Opgave</p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+                    {selectedJob.taskDescription || selectedJob.notes || selectedJob.lead?.message}
+                  </p>
+                </div>
+              ) : null}
+
+              {/* ── Flyt opgave (kun bookinger) ── */}
+              {selectedJob.id.startsWith("booking:") && selectedJob.status !== "cancelled" && selectedJob.status !== "invoiced" ? (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!showReschedule) {
+                        setRescheduleDate(selectedJob.startAt.slice(0, 10));
+                        setRescheduleSlot("08:00");
+                        setRescheduleCount("1");
+                        setRescheduleError("");
+                        setRescheduleMessage("");
+                      }
+                      setShowReschedule((prev) => !prev);
+                    }}
+                    className="text-sm font-medium text-primary underline underline-offset-2"
+                  >
+                    {showReschedule ? "Luk" : "Flyt opgave til ny dato/tid"}
+                  </button>
+
+                  {showReschedule ? (
+                    <div className="mt-3 space-y-3 rounded-xl border border-border bg-white p-4">
+                      <p className="text-sm font-semibold text-foreground">Flyt opgave</p>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-muted-foreground">Ny dato</label>
+                          <input
+                            type="date"
+                            value={rescheduleDate}
+                            onChange={(e) => setRescheduleDate(e.target.value)}
+                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-muted-foreground">Starttid</label>
+                          <select
+                            value={rescheduleSlot}
+                            onChange={(e) => setRescheduleSlot(e.target.value as "08:00" | "11:00" | "13:30")}
+                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          >
+                            <option value="08:00">08:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="13:30">13:30</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-muted-foreground">Slots</label>
+                          <select
+                            value={rescheduleCount}
+                            onChange={(e) => setRescheduleCount(e.target.value as "1" | "2" | "3")}
+                            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          >
+                            <option value="1">1 slot</option>
+                            <option value="2">2 slots</option>
+                            <option value="3">3 slots</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button onClick={submitReschedule} disabled={rescheduleBusy}>
+                          {rescheduleBusy ? "Flytter..." : "Bekræft flytning"}
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowReschedule(false)} disabled={rescheduleBusy}>
+                          Annuller
+                        </Button>
+                      </div>
+                      {rescheduleError ? (
+                        <p className="text-xs font-medium text-red-700">{rescheduleError}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {rescheduleMessage ? (
+                    <p className="mt-1 text-xs font-medium text-emerald-700">{rescheduleMessage}</p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {/* ── Afslut opgave / faktura ── */}
+              <div className="rounded-xl border border-border bg-white px-4 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {selectedJob.status === "invoiced" ? "Faktura sendt ✓" : "Afslut og send faktura"}
+                  </p>
+                  {!dineroConnected ? (
+                    <p className="text-xs font-medium text-amber-700">Forbind Dinero ovenfor</p>
+                  ) : null}
+                </div>
+
+                {!showCompleteForm && selectedJob.status !== "invoiced" ? (
+                  <Button
+                    className="mt-3 w-full"
+                    onClick={openCompleteForm}
+                    disabled={completeBusy || selectedJob.status === "cancelled" || !dineroConnected}
+                  >
+                    Afslut opgave og send faktura
+                  </Button>
+                ) : null}
+
+                {completeError ? <p className="mt-2 text-xs font-medium text-red-700">{completeError}</p> : null}
+                {completeMessage ? <p className="mt-2 text-xs font-medium text-emerald-700">{completeMessage}</p> : null}
+
+                {showCompleteForm ? (
+                  <div className="mt-4 space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Kundenavn</span>
+                        <input
+                          value={invoiceCustomerName}
+                          onChange={(event) => setInvoiceCustomerName(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Email</span>
+                        <input
+                          type="email"
+                          value={invoiceCustomerEmail}
+                          onChange={(event) => setInvoiceCustomerEmail(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Telefon</span>
+                        <input
+                          value={invoiceCustomerPhone}
+                          onChange={(event) => setInvoiceCustomerPhone(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Adresse</span>
+                        <input
+                          value={invoiceCustomerAddress}
+                          onChange={(event) => setInvoiceCustomerAddress(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm sm:col-span-2">
+                        <span className="text-xs text-muted-foreground">Beskrivelse (faktura)</span>
+                        <input
+                          value={invoiceDescription}
+                          onChange={(event) => setInvoiceDescription(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Pris ex. moms (DKK)</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={invoiceAmountExVat}
+                          onChange={(event) => setInvoiceAmountExVat(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm">
+                        <span className="text-xs text-muted-foreground">Moms %</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={invoiceVatPercent}
+                          onChange={(event) => setInvoiceVatPercent(event.target.value)}
+                          className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                        />
+                      </label>
+                    </div>
+
+                    <label className="grid gap-1 text-sm">
+                      <span className="text-xs text-muted-foreground">Betaling</span>
+                      <select
+                        value={invoicePaymentMethod}
+                        onChange={(event) => setInvoicePaymentMethod(event.target.value as "mobilepay" | "paid" | "net0")}
+                        className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                      >
+                        <option value="net0">0 dage – ikke betalt endnu</option>
+                        <option value="paid">Betalt kontant</option>
+                        <option value="mobilepay">Betalt med MobilePay</option>
+                      </select>
+                    </label>
+
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Button onClick={submitCompleteJob} disabled={completeBusy}>
+                        {completeBusy ? "Sender faktura..." : "Godkend og send faktura"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowCompleteForm(false);
+                          setCompleteError("");
+                        }}
+                        disabled={completeBusy}
+                      >
+                        Annuller
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
             </div>
           )}
         </div>
