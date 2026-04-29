@@ -225,7 +225,7 @@ export async function POST(request: Request) {
       endpoint: "/api/estimator/submit"
     };
 
-    const uploadedImages: Array<{ path: string; name: string; isEdge: boolean; isOverview: boolean }> = [];
+    const uploadedImages: Array<{ path: string; name: string; isEdge: boolean; isOverview: boolean; tag?: string }> = [];
 
     for (const [index, file] of images.entries()) {
       const extension = file.name.includes(".") ? file.name.split(".").pop() || "jpg" : "jpg";
