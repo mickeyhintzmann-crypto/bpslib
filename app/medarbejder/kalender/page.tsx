@@ -19,7 +19,7 @@ export default async function EmployeeCalendarPage() {
   const session = verifyAdminSessionToken(sessionToken);
 
   if (!session || session.role !== "employee") {
-    redirect("/login");
+    redirect("/medarbejder/login");
   }
 
   return <EmployeeCalendar />;

@@ -489,7 +489,7 @@ export const EmployeeCalendar = () => {
       const availabilityPayload = (await availabilityResponse.json()) as AvailabilityResponse;
 
       if (jobsResponse.status === 401 || availabilityResponse.status === 401) {
-        router.push("/login");
+        router.push("/medarbejder/login");
         router.refresh();
         return;
       }
@@ -548,7 +548,7 @@ export const EmployeeCalendar = () => {
     try {
       await fetch("/api/admin/auth/logout", { method: "POST" });
     } finally {
-      router.push("/login");
+      router.push("/medarbejder/login");
       router.refresh();
     }
   };
