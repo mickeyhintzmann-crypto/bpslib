@@ -6,6 +6,7 @@ import { getSessionEmployee, isMissingTable } from "@/lib/employee-session";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 const DINERO_MIGRATION = "supabase/migrations/20260305000100_employee_dinero_invoicing.sql";
 const JOB_BOOKING_CITY_MIGRATION = "supabase/migrations/20260305000120_booking_job_city_task_description.sql";

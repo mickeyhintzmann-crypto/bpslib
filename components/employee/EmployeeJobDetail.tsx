@@ -223,9 +223,10 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
 
     let payload: { message?: string; alreadySent?: boolean } = {};
     try {
-      payload = (await response.json()) as { message?: string; alreadySent?: boolean };
+      const text = await response.text();
+      payload = JSON.parse(text) as { message?: string; alreadySent?: boolean };
     } catch {
-      setCompleteError(`Serverfejl (${response.status}) – prøv igen eller kontakt support.`);
+      setCompleteError(`Serverfejl (${response.status}) – prøv igen. Kontakt support hvis fejlen gentager sig.`);
       setCompleteBusy(false);
       return;
     }
