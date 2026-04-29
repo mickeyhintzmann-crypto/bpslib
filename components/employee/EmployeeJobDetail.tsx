@@ -106,6 +106,7 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
   const [invoiceDescription, setInvoiceDescription] = useState("");
   const [invoiceAmountExVat, setInvoiceAmountExVat] = useState("");
   const [invoiceVatPercent, setInvoiceVatPercent] = useState("25");
+  const [invoicePaymentMethod, setInvoicePaymentMethod] = useState<"mobilepay" | "paid" | "net0">("net0");
   const [completeBusy, setCompleteBusy] = useState(false);
   const [completeError, setCompleteError] = useState("");
   const [completeMessage, setCompleteMessage] = useState("");
@@ -197,8 +198,9 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
     setCompleteError("");
     setCompleteMessage("");
 
+    let response: Response;
     try {
-      const response = await fetch(`/api/employee/jobs/${encodeURIComponent(item.id)}/complete`, {
+      response = await fetch(`/api/employee/jobs/${encodeURIComponent(item.id)}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -208,25 +210,36 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
           customerAddress: invoiceCustomerAddress,
           description: invoiceDescription,
           amountExVat: invoiceAmountExVat,
-          vatPercent: invoiceVatPercent
+          vatPercent: invoiceVatPercent,
+          paymentMethod: invoicePaymentMethod
         })
       });
-
-      const payload = (await response.json()) as { message?: string; alreadySent?: boolean };
-      if (!response.ok) {
-        setCompleteError(payload.message || "Kunne ikke afslutte opgaven.");
-        return;
-      }
-
-      setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
-      setCompletionConfirm(false);
-      await load();
-    } catch (requestError) {
-      console.error(requestError);
-      setCompleteError("Netværksfejl ved afslutning.");
-    } finally {
+    } catch (networkError) {
+      console.error(networkError);
+      setCompleteError("Netværksfejl – tjek din internetforbindelse og prøv igen.");
       setCompleteBusy(false);
+      return;
     }
+
+    let payload: { message?: string; alreadySent?: boolean } = {};
+    try {
+      payload = (await response.json()) as { message?: string; alreadySent?: boolean };
+    } catch {
+      setCompleteError(`Serverfejl (${response.status}) – prøv igen eller kontakt support.`);
+      setCompleteBusy(false);
+      return;
+    }
+
+    setCompleteBusy(false);
+
+    if (!response.ok) {
+      setCompleteError(payload.message || "Kunne ikke afslutte opgaven.");
+      return;
+    }
+
+    setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
+    setCompletionConfirm(false);
+    await load();
   };
 
   const submitUpload = async () => {
@@ -545,6 +558,18 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
               onChange={(event) => setInvoiceVatPercent(event.target.value)}
               className="h-10 rounded-md border border-border bg-white px-3 text-sm"
             />
+          </label>
+          <label className="grid gap-1 text-sm md:col-span-2">
+            <span className="text-xs text-muted-foreground">Betaling</span>
+            <select
+              value={invoicePaymentMethod}
+              onChange={(event) => setInvoicePaymentMethod(event.target.value as "mobilepay" | "paid" | "net0")}
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+            >
+              <option value="net0">0 dage – ikke betalt endnu</option>
+              <option value="paid">Betalt kontant</option>
+              <option value="mobilepay">Betalt med MobilePay</option>
+            </select>
           </label>
         </div>
 

@@ -28,20 +28,28 @@ const getAccessToken = async (apiKey: string): Promise<string> => {
   }
 
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const res = await fetch("https://authz.dinero.dk/dineroapi/oauth/token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basicAuth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "password",
-      scope: "read write",
-      username: apiKey,
-      password: apiKey,
-    }).toString(),
-    cache: "no-store",
-  });
+  const oauthAbort = new AbortController();
+  const oauthTimer = setTimeout(() => oauthAbort.abort(), 20_000);
+  let res: Response;
+  try {
+    res = await fetch("https://authz.dinero.dk/dineroapi/oauth/token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "password",
+        scope: "read write",
+        username: apiKey,
+        password: apiKey,
+      }).toString(),
+      cache: "no-store",
+      signal: oauthAbort.signal,
+    });
+  } finally {
+    clearTimeout(oauthTimer);
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText);
@@ -131,16 +139,24 @@ const parseJsonSafe = (raw: string) => {
 
 const dineroRequest = async ({ method = "GET", path, organizationId, accessToken, body }: DineroRequestOptions) => {
   const url = `${DINERO_BASE_URL}/${encodeURIComponent(organizationId)}${path.startsWith("/") ? path : `/${path}`}`;
-  const response = await fetch(url, {
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-      "Content-Type": "application/json"
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    cache: "no-store"
-  });
+  const reqAbort = new AbortController();
+  const reqTimer = setTimeout(() => reqAbort.abort(), 20_000);
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      cache: "no-store",
+      signal: reqAbort.signal
+    });
+  } finally {
+    clearTimeout(reqTimer);
+  }
 
   const text = await response.text();
   const parsed = parseJsonSafe(text);

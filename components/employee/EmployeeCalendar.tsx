@@ -742,8 +742,10 @@ export const EmployeeCalendar = () => {
     setCompleteBusy(true);
     setCompleteError("");
     setCompleteMessage("");
+
+    let response: Response;
     try {
-      const response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/complete`, {
+      response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -757,22 +759,32 @@ export const EmployeeCalendar = () => {
           paymentMethod: invoicePaymentMethod
         })
       });
-
-      const payload = (await response.json()) as { message?: string; alreadySent?: boolean };
-      if (!response.ok) {
-        setCompleteError(payload.message || "Kunne ikke afslutte opgaven.");
-        return;
-      }
-
-      setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
-      setShowCompleteForm(false);
-      await load();
-    } catch (completeRequestError) {
-      console.error(completeRequestError);
-      setCompleteError("Netværksfejl ved afslutning af opgave.");
-    } finally {
+    } catch (networkError) {
+      console.error(networkError);
+      setCompleteError("Netværksfejl – tjek din internetforbindelse og prøv igen.");
       setCompleteBusy(false);
+      return;
     }
+
+    let payload: { message?: string; alreadySent?: boolean } = {};
+    try {
+      payload = (await response.json()) as { message?: string; alreadySent?: boolean };
+    } catch {
+      setCompleteError(`Serverfejl (${response.status}) – prøv igen eller kontakt support.`);
+      setCompleteBusy(false);
+      return;
+    }
+
+    setCompleteBusy(false);
+
+    if (!response.ok) {
+      setCompleteError(payload.message || "Kunne ikke afslutte opgaven.");
+      return;
+    }
+
+    setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
+    setShowCompleteForm(false);
+    await load();
   };
 
   const submitReschedule = async () => {
