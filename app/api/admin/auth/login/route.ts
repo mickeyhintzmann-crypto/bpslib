@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { adminSessionCookieName, createAdminSessionToken } from "@/lib/admin-auth";
+import { adminSessionCookieName, createAdminSessionToken, getSessionTtl } from "@/lib/admin-auth";
 import { verifyPassword } from "@/lib/employee-auth";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
@@ -141,19 +141,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Ingen aktiv bruger fundet." }, { status: 401 });
     }
 
+    const role = (selected.role || "owner") as "owner" | "admin" | "employee" | "viewer";
     const token = createAdminSessionToken({
       id: selected.id,
       email: selected.email,
       name: selected.name || "Admin",
-      role: selected.role || "owner"
+      role
     });
+    const cookieTtl = getSessionTtl(role);
     const response = NextResponse.json({ ok: true });
 
     response.cookies.set(adminSessionCookieName, token, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: cookieTtl,
       path: "/"
     });
 

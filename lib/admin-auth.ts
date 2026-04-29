@@ -15,6 +15,8 @@ export type AdminSession = {
 
 const ADMIN_COOKIE_NAME = "admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+// Employees stay logged in until they physically click logout
+const EMPLOYEE_SESSION_TTL_SECONDS = 60 * 60 * 24 * 365;
 
 const getExpectedAdminToken = () => process.env.ADMIN_TOKEN || process.env.ADMIN_INBOX_TOKEN || "";
 const getAdminPassword = () => process.env.ADMIN_PASSWORD || "";
@@ -42,12 +44,16 @@ const normalizeRole = (role: string | null | undefined): AdminRole => {
   return "viewer";
 };
 
+export const getSessionTtl = (role: AdminRole) =>
+  role === "employee" ? EMPLOYEE_SESSION_TTL_SECONDS : SESSION_TTL_SECONDS;
+
 export const createAdminSessionToken = (session: Pick<AdminSession, "id" | "email" | "name" | "role">) => {
   const secret = getAdminPassword();
   if (!secret) {
     throw new Error("ADMIN_PASSWORD mangler i miljøvariabler.");
   }
 
+  const ttl = getSessionTtl(normalizeRole(session.role));
   const now = Math.floor(Date.now() / 1000);
   const payload: AdminSession = {
     id: session.id,
@@ -55,7 +61,7 @@ export const createAdminSessionToken = (session: Pick<AdminSession, "id" | "emai
     name: session.name,
     role: normalizeRole(session.role),
     iat: now,
-    exp: now + SESSION_TTL_SECONDS,
+    exp: now + ttl,
     sid: randomUUID()
   };
   const payloadEncoded = base64UrlEncode(JSON.stringify(payload));
