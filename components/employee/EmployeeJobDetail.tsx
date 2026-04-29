@@ -200,10 +200,11 @@ export const EmployeeJobDetail = ({ jobId }: { jobId: string }) => {
 
     let response: Response;
     try {
-      response = await fetch(`/api/employee/jobs/${encodeURIComponent(item.id)}/complete`, {
+      response = await fetch("/api/employee/invoice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          jobId: item.id,
           customerName: invoiceCustomerName,
           customerEmail: invoiceCustomerEmail,
           customerPhone: invoiceCustomerPhone,

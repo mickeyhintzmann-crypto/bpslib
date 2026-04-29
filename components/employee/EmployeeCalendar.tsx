@@ -745,10 +745,11 @@ export const EmployeeCalendar = () => {
 
     let response: Response;
     try {
-      response = await fetch(`/api/employee/jobs/${encodeURIComponent(selectedJob.id)}/complete`, {
+      response = await fetch("/api/employee/invoice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          jobId: selectedJob.id,
           customerName: invoiceCustomerName,
           customerEmail: invoiceCustomerEmail,
           customerPhone: invoiceCustomerPhone,
