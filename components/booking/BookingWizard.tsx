@@ -306,10 +306,11 @@ export const BookingWizard = ({
       return;
     }
     const nextIndex = weekStartKeys.findIndex((key) => key === weekKey);
-    if (nextIndex >= 0 && nextIndex !== activeWeekIndex) {
+    if (nextIndex >= 0) {
       setActiveWeekIndex(nextIndex);
     }
-  }, [activeWeekIndex, selectedDateKey, weekStartKeys]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDateKey, weekStartKeys]);
 
   const activeWeek = weeks[activeWeekIndex] || null;
 
