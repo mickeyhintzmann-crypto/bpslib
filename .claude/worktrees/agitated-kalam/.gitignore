@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+
+# Env (MÅ IKKE pushes)
+.env
+.env.*
+!.env.example
+
+# Next.js
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local ML artifacts
+model.pth
+model.scaler.pkl
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Lokale/andre projekter i samme mappe (hold repo rent)
+lead-machine-mvp/
+MyAiHelper/
+maltti-trader/
+bordplade/
+bordplader/

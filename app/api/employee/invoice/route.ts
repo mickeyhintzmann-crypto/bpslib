@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
 
       const { data: connectionData, error: connectionError } = await supabase
         .from("employee_dinero_connections")
-        .select("organization_id, api_key_encrypted, is_active")
+        .select("organization_id, api_key_encrypted, is_active, sales_account_number")
         .eq("employee_id", employee.id)
         .maybeSingle();
 
@@ -162,13 +162,14 @@ export async function POST(request: NextRequest) {
 
       const apiKey = decryptSecret(connectionData.api_key_encrypted);
       const resolvedDescription = description || `${customerAddress ? customerAddress + " · " : ""}Booking`;
+      const salesAccountNumber = (connectionData as Record<string, unknown>).sales_account_number as number | null ?? null;
 
       try {
         const invoiceResult = await createAndSendDineroInvoice({
           organizationId: connectionData.organization_id,
           apiKey,
           customer: { name: customerName, email: customerEmail, phone: customerPhone, address: customerAddress },
-          invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod }
+          invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod, salesAccountNumber }
         });
 
         await supabase.from("job_invoices").upsert({
@@ -286,7 +287,7 @@ export async function POST(request: NextRequest) {
 
     const { data: connectionData, error: connectionError } = await supabase
       .from("employee_dinero_connections")
-      .select("organization_id, api_key_encrypted, is_active")
+      .select("organization_id, api_key_encrypted, is_active, sales_account_number")
       .eq("employee_id", employee.id)
       .maybeSingle();
 
@@ -309,6 +310,7 @@ export async function POST(request: NextRequest) {
 
     const connection = connectionData as DineroConnectionRow;
     const apiKey = decryptSecret(connection.api_key_encrypted);
+    const salesAccountNumber = (connectionData as Record<string, unknown>).sales_account_number as number | null ?? null;
 
     await supabase
       .from("jobs")
@@ -334,7 +336,7 @@ export async function POST(request: NextRequest) {
         organizationId: connection.organization_id,
         apiKey,
         customer: { name: customerName, email: customerEmail, phone: customerPhone, address: customerAddress },
-        invoice: { customerEmail, jobId: job.id, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod }
+        invoice: { customerEmail, jobId: job.id, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod, salesAccountNumber }
       });
 
       const invoiceRecord = {

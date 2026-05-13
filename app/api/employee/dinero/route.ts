@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const supabase = createSupabaseServiceClient();
     const { data, error: fetchError } = await supabase
       .from("employee_dinero_connections")
-      .select("organization_id, is_active, updated_at, last_verified_at, last_error")
+      .select("organization_id, is_active, updated_at, last_verified_at, last_error, sales_account_number")
       .eq("employee_id", employee.id)
       .maybeSingle();
 
@@ -39,7 +39,8 @@ export async function GET(request: Request) {
         organizationId: data?.organization_id || null,
         updatedAt: data?.updated_at || null,
         lastVerifiedAt: data?.last_verified_at || null,
-        lastError: data?.last_error || null
+        lastError: data?.last_error || null,
+        salesAccountNumber: data?.sales_account_number ?? null
       },
       { status: 200 }
     );
@@ -59,6 +60,9 @@ export async function POST(request: Request) {
     const payload = (await request.json()) as Record<string, unknown>;
     const organizationId = asTrimmed(payload.organizationId);
     const apiKey = asTrimmed(payload.apiKey);
+    const salesAccountNumber = typeof payload.salesAccountNumber === "number" && Number.isInteger(payload.salesAccountNumber)
+      ? payload.salesAccountNumber
+      : null;
 
     if (!organizationId) {
       return NextResponse.json({ message: "Dinero organization-id mangler." }, { status: 400 });
@@ -81,7 +85,8 @@ export async function POST(request: Request) {
         api_key_encrypted: encrypted,
         is_active: true,
         last_verified_at: new Date().toISOString(),
-        last_error: null
+        last_error: null,
+        sales_account_number: salesAccountNumber
       },
       { onConflict: "employee_id" }
     );

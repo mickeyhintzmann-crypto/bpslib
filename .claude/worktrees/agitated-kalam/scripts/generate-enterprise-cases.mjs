@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
+
+const repoRoot = process.cwd();
+const mediaRoot = path.join(repoRoot, "public", "media");
+const casesRoot = path.join(mediaRoot, "cases", "enterprise");
+const logosRoot = path.join(mediaRoot, "logos", "clients");
+const outputFile = path.join(repoRoot, "lib", "enterpriseCases.ts");
+
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const COVER_OVERRIDES = {
+  "case-001:vibenshuset": "vibenhus:case-001:12-after.JPG",
+  "case-002:brdr.price.tivoli": "brdr.price:case-002:02-after.jpg",
+  "case-003:fairway": "fairway:case-004:03-after.jpg",
+  "case-005:skatteministeriet": "skatteministeriet:case-005:07-afte.jpg",
+  "case-006:rigshospitalets.patienthotel": "rigshospitalets-patienthotel:case-006:02-after..jpg"
+};
+
+function isDirectory(targetPath) {
+  try {
+    return fs.statSync(targetPath).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function sorted(items) {
+  return [...items].sort((a, b) => a.localeCompare(b, "da", { sensitivity: "base", numeric: true }));
+}
+
+function toWebPath(absPath) {
+  const relative = path.relative(path.join(repoRoot, "public"), absPath);
+  const encoded = relative
+    .split(path.sep)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  return `/${encoded}`;
+}
+
+function listImageFilesRecursive(rootDir) {
+  const images = [];
+  const queue = [rootDir];
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || !isDirectory(current)) {
+      continue;
+    }
+
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) {
+        continue;
+      }
+
+      const absPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        queue.push(absPath);
+        continue;
+      }
+
+      if (!entry.isFile()) {
+        continue;
+      }
+
+      const ext = path.extname(entry.name).toLowerCase();
+      if (IMAGE_EXTENSIONS.has(ext)) {
+        images.push(absPath);
+      }
+    }
+  }
+
+  return sorted(images);
+}
+
+function normalizeForMatch(value) {
+  return value
+    .toLowerCase()
+    .replace(/^case[-_ ]*\d+[:._-]*/i, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function toCanonicalMatch(value) {
+  return value
+    .toLowerCase()
+    .replace(/^case[-_ ]*\d+[:._-]*/i, "")
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "oe")
+    .replace(/å/g, "aa")
+    .replace(/\.(svg|png|jpe?g|webp)$/i, "")
+    .replace(/\blogo\b/g, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function toDisplayName(clientId) {
+  const formatted = clientId
+    .replace(/^case[-_ ]*\d+[:._-]*/i, "")
+    .replace(/[-._:]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return formatted
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function chooseCover(images, caseId) {
+  const overrideFile = COVER_OVERRIDES[caseId];
+  if (overrideFile) {
+    const override = images.find(
+      (imagePath) => path.basename(imagePath).toLowerCase() === overrideFile.toLowerCase()
+    );
+    if (override) {
+      return override;
+    }
+    console.warn(`[enterprise-cases] cover override missing for ${caseId}: ${overrideFile}`);
+  }
+
+  const prioritized = images.find((imagePath) => {
+    const name = path.basename(imagePath).toLowerCase();
+    return name.includes("after") || name.includes("finished");
+  });
+  return prioritized ?? images[0];
+}
+
+if (!isDirectory(casesRoot)) {
+  console.error(`[enterprise-cases] Missing directory: ${casesRoot}`);
+  process.exit(1);
+}
+
+if (!isDirectory(logosRoot)) {
+  console.error(`[enterprise-cases] Missing directory: ${logosRoot}`);
+  process.exit(1);
+}
+
+const logoFiles = sorted(
+  fs
+    .readdirSync(logosRoot, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+);
+
+const clientDirs = sorted(
+  fs
+    .readdirSync(casesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(casesRoot, entry.name))
+);
+
+const enterpriseCases = [];
+let matchedLogoCount = 0;
+
+for (const clientDir of clientDirs) {
+  const clientId = path.basename(clientDir);
+  const clientName = toDisplayName(clientId) || clientId;
+  const normalizedClientId = normalizeForMatch(clientId);
+  const canonicalClientId = toCanonicalMatch(clientId);
+
+  const logoFile =
+    logoFiles.find((fileName) => normalizeForMatch(fileName).includes(normalizedClientId)) ??
+    logoFiles.find((fileName) => normalizedClientId.includes(normalizeForMatch(fileName))) ??
+    logoFiles.find((fileName) => toCanonicalMatch(fileName).includes(canonicalClientId)) ??
+    logoFiles.find((fileName) => canonicalClientId.includes(toCanonicalMatch(fileName)));
+
+  const clientLogoSrc = logoFile ? toWebPath(path.join(logosRoot, logoFile)) : undefined;
+
+  const caseDirs = sorted(
+    fs
+      .readdirSync(clientDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => path.join(clientDir, entry.name))
+  );
+
+  const sources = caseDirs.length ? caseDirs : [clientDir];
+
+  for (const sourceDir of sources) {
+    const imageFiles = listImageFilesRecursive(sourceDir);
+    if (!imageFiles.length) {
+      continue;
+    }
+
+    const sourceId = path.basename(sourceDir);
+    const caseId = sourceDir === clientDir ? clientId : `${clientId}--${sourceId}`;
+    const coverAbs = chooseCover(imageFiles, caseId);
+    const imageSrcs = imageFiles.map((imageAbs) => toWebPath(imageAbs));
+    const coverSrc = toWebPath(coverAbs);
+
+    enterpriseCases.push({
+      id: caseId,
+      clientId,
+      clientName,
+      clientLogoSrc,
+      title: `Opgave for ${clientName}`,
+      coverSrc,
+      imageSrcs
+    });
+
+    if (clientLogoSrc) {
+      matchedLogoCount += 1;
+    }
+  }
+}
+
+const content = `/* eslint-disable */\n// Auto-generated by scripts/generate-enterprise-cases.mjs\n// Do not edit manually.\n\nexport type EnterpriseCase = {\n  id: string;\n  clientId: string;\n  clientName: string;\n  clientLogoSrc?: string;\n  title: string;\n  coverSrc: string;\n  imageSrcs: string[];\n};\n\nexport const enterpriseCases: EnterpriseCase[] = ${JSON.stringify(enterpriseCases, null, 2)};\n`;
+
+fs.writeFileSync(outputFile, `${content}\n`, "utf8");
+
+console.log(`[enterprise-cases] clients found: ${clientDirs.length}`);
+console.log(`[enterprise-cases] cases found: ${enterpriseCases.length}`);
+console.log(`[enterprise-cases] cases with logo match: ${matchedLogoCount}`);

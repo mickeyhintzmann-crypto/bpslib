@@ -332,6 +332,8 @@ export const EmployeeCalendar = () => {
   const [dineroConnected, setDineroConnected] = useState(false);
   const [dineroOrganizationId, setDineroOrganizationId] = useState("");
   const [dineroApiKey, setDineroApiKey] = useState("");
+  const [dineroSalesAccountNumber, setDineroSalesAccountNumber] = useState("");
+  const [dineroAccounts, setDineroAccounts] = useState<{ number: number; name: string }[]>([]);
   const [dineroBusy, setDineroBusy] = useState(false);
   const [dineroError, setDineroError] = useState("");
   const [dineroMessage, setDineroMessage] = useState("");
@@ -510,9 +512,21 @@ export const EmployeeCalendar = () => {
 
       setJobs(jobsItems);
       setEmployeeName(jobsPayload.employee?.name || "Medarbejder");
-      setDineroConnected(Boolean(jobsPayload.employee?.dineroConnected));
+      const isConnected = Boolean(jobsPayload.employee?.dineroConnected);
+      setDineroConnected(isConnected);
       setDineroOrganizationId(jobsPayload.employee?.dineroOrganizationId || "");
+      setDineroSalesAccountNumber(jobsPayload.employee?.dineroSalesAccountNumber ? String(jobsPayload.employee.dineroSalesAccountNumber) : "");
       setDineroError(jobsPayload.employee?.dineroLastError || "");
+
+      if (isConnected) {
+        fetch("/api/employee/dinero/accounts", { cache: "no-store" })
+          .then(async (res) => {
+            if (!res.ok) return;
+            const data = await res.json() as { accounts?: { number: number; name: string }[] };
+            setDineroAccounts(data.accounts || []);
+          })
+          .catch(() => {});
+      }
       setSelectedJobId((current) => {
         if (current && jobsItems.some((item) => item.id === current)) {
           return current;
@@ -672,7 +686,8 @@ export const EmployeeCalendar = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           organizationId: dineroOrganizationId.trim(),
-          apiKey: dineroApiKey.trim()
+          apiKey: dineroApiKey.trim(),
+          salesAccountNumber: dineroSalesAccountNumber.trim() ? parseInt(dineroSalesAccountNumber.trim(), 10) : null
         })
       });
       const payload = (await response.json()) as { message?: string; connected?: boolean };
@@ -1013,6 +1028,31 @@ export const EmployeeCalendar = () => {
               className="h-10 rounded-md border border-border bg-white px-3 text-sm"
               placeholder={dineroConnected ? "Indtast ny nøgle for at opdatere" : "Indsæt API-nøgle"}
             />
+          </label>
+          <label className="grid gap-1 text-sm md:col-span-2">
+            <span className="text-xs text-muted-foreground">Salgskonto (til faktura)</span>
+            {dineroAccounts.length > 0 ? (
+              <select
+                value={dineroSalesAccountNumber}
+                onChange={(event) => setDineroSalesAccountNumber(event.target.value)}
+                className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+              >
+                <option value="">Vælg salgskonto...</option>
+                {dineroAccounts.map((acc) => (
+                  <option key={acc.number} value={String(acc.number)}>
+                    {acc.number} – {acc.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="number"
+                value={dineroSalesAccountNumber}
+                onChange={(event) => setDineroSalesAccountNumber(event.target.value)}
+                className="h-10 rounded-md border border-border bg-white px-3 text-sm"
+                placeholder="Kontonummer (hentes automatisk når Dinero er forbundet)"
+              />
+            )}
           </label>
         </div>
 

@@ -93,6 +93,7 @@ type DineroInvoiceInput = {
   vatPercent: number;
   currency: string;
   paymentMethod?: DineroPaymentMethod;
+  salesAccountNumber?: number | null;
 };
 
 export type DineroInvoiceResult = {
@@ -298,7 +299,8 @@ const createInvoice = async ({
         Quantity: 1,
         Unit: "stk",
         BaseAmountValue: input.amountExVat,
-        VatRate: input.vatPercent
+        VatRate: input.vatPercent,
+        ...(input.salesAccountNumber ? { AccountNumber: input.salesAccountNumber } : {})
       }
     ]
   };
@@ -316,7 +318,8 @@ const createInvoice = async ({
         quantity: 1,
         unit: "stk",
         baseAmountValue: input.amountExVat,
-        vatRate: input.vatPercent
+        vatRate: input.vatPercent,
+        ...(input.salesAccountNumber ? { accountNumber: input.salesAccountNumber } : {})
       }
     ]
   };
@@ -433,7 +436,7 @@ export const createAndSendDineroInvoice = async ({
   organizationId: string;
   apiKey: string;
   customer: DineroContactInput;
-  invoice: Omit<DineroInvoiceInput, "contactId"> & { paymentMethod?: DineroPaymentMethod };
+  invoice: Omit<DineroInvoiceInput, "contactId"> & { paymentMethod?: DineroPaymentMethod; salesAccountNumber?: number | null };
 }): Promise<DineroInvoiceResult> => {
   if (isDryRun()) {
     return {
@@ -458,7 +461,8 @@ export const createAndSendDineroInvoice = async ({
       description: invoice.description,
       amountExVat: invoice.amountExVat,
       vatPercent: invoice.vatPercent,
-      currency: invoice.currency
+      currency: invoice.currency,
+      salesAccountNumber: invoice.salesAccountNumber ?? null
     }
   });
 
