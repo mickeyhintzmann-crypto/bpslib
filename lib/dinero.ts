@@ -171,13 +171,27 @@ const dineroRequest = async ({ method = "GET", path, organizationId, accessToken
 };
 
 const extractContactId = (value: Record<string, unknown> | null) =>
-  firstString(value, ["guid", "id", "contactId", "contactGuid", "ContactGuid", "ContactId"]);
+  firstString(value, ["guid", "Guid", "id", "Id", "contactId", "contactGuid", "ContactGuid", "ContactId"]);
 
 const extractInvoiceId = (value: Record<string, unknown> | null) =>
-  firstString(value, ["guid", "id", "invoiceId", "invoiceGuid", "InvoiceGuid", "InvoiceId"]);
+  firstString(value, ["guid", "Guid", "id", "Id", "invoiceId", "invoiceGuid", "InvoiceGuid", "InvoiceId"]);
 
 const extractInvoiceNumber = (value: Record<string, unknown> | null) =>
   firstString(value, ["invoiceNumber", "number", "invoiceNo", "InvoiceNumber", "Number"]);
+
+// Resolve the collection array from a Dinero list response regardless of casing
+const extractCollection = (response: Record<string, unknown>): unknown[] | null => {
+  const candidate =
+    response.Collection ??
+    response.collection ??
+    response.Contacts ??
+    response.contacts ??
+    response.Items ??
+    response.items ??
+    response.Data ??
+    response.data;
+  return Array.isArray(candidate) ? candidate : null;
+};
 
 const findContactByEmail = async (organizationId: string, accessToken: string, email: string) => {
   const searchPaths = [
@@ -189,8 +203,8 @@ const findContactByEmail = async (organizationId: string, accessToken: string, e
   for (const path of searchPaths) {
     try {
       const response = await dineroRequest({ organizationId, accessToken, path });
-      const listRaw = (response.contacts || response.items || response.collection || response.data) as unknown;
-      if (!Array.isArray(listRaw)) {
+      const listRaw = extractCollection(response);
+      if (!listRaw) {
         continue;
       }
 
@@ -203,7 +217,7 @@ const findContactByEmail = async (organizationId: string, accessToken: string, e
         if (!contactId) {
           continue;
         }
-        const candidateEmail = firstString(entry, ["email", "Email", "mail"]);
+        const candidateEmail = firstString(entry, ["email", "Email", "mail", "Mail"]);
         if (candidateEmail && candidateEmail.toLowerCase() === email.toLowerCase()) {
           return contactId;
         }
@@ -216,23 +230,26 @@ const findContactByEmail = async (organizationId: string, accessToken: string, e
   return null;
 };
 
+// Build a contact payload omitting null/empty optional fields so Dinero doesn't
+// reject the request with a validation error on those fields.
+const buildContactPayload = (input: DineroContactInput, pascal: boolean) => {
+  const payload: Record<string, unknown> = pascal
+    ? { Name: input.name, Email: input.email, CountryKey: "DK" }
+    : { name: input.name, email: input.email, countryKey: "DK" };
+
+  if (input.phone) {
+    if (pascal) payload["Phone"] = input.phone;
+    else payload["phone"] = input.phone;
+  }
+  if (input.address) {
+    if (pascal) payload["Address"] = input.address;
+    else payload["address"] = input.address;
+  }
+
+  return payload;
+};
+
 const createContact = async ({ organizationId, accessToken, input }: { organizationId: string; accessToken: string; input: DineroContactInput }) => {
-  const camelPayload = {
-    name: input.name,
-    email: input.email,
-    phone: input.phone,
-    address: input.address,
-    countryKey: "DK"
-  };
-
-  const pascalPayload = {
-    Name: input.name,
-    Email: input.email,
-    Phone: input.phone,
-    Address: input.address,
-    CountryKey: "DK"
-  };
-
   // Dinero requires PascalCase — try it first, fall back to camelCase
   try {
     const response = await dineroRequest({
@@ -240,7 +257,7 @@ const createContact = async ({ organizationId, accessToken, input }: { organizat
       path: "/contacts",
       organizationId,
       accessToken,
-      body: pascalPayload
+      body: buildContactPayload(input, true)
     });
     const contactId = extractContactId(response);
     if (contactId) {
@@ -255,7 +272,7 @@ const createContact = async ({ organizationId, accessToken, input }: { organizat
     path: "/contacts",
     organizationId,
     accessToken,
-    body: camelPayload
+    body: buildContactPayload(input, false)
   });
 
   const contactId = extractContactId(fallback);
@@ -274,6 +291,15 @@ const ensureContact = async (organizationId: string, accessToken: string, input:
   return createContact({ organizationId, accessToken, input });
 };
 
+// Strip any internal prefix (e.g. "booking:") from a job ID so Dinero's
+// ExternalReference field only receives a clean alphanumeric/dash value.
+const cleanExternalReference = (jobId: string): string => {
+  // Remove known prefixes
+  const cleaned = jobId.replace(/^booking:/i, "").replace(/^job:/i, "").trim();
+  // Truncate to 40 chars (safe upper bound for most reference fields)
+  return cleaned.slice(0, 40);
+};
+
 const createInvoice = async ({
   organizationId,
   accessToken,
@@ -285,22 +311,25 @@ const createInvoice = async ({
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const paymentDays = input.paymentMethod === "net0" ? 0 : 8;
+  const externalRef = cleanExternalReference(input.jobId);
+  const accountNumber = input.salesAccountNumber ?? 1000;
 
+  // "timer" is the Danish Dinero unit for hours; other valid values: "stk", "km", "m2"
   const pascalPayload = {
     ContactGuid: input.contactId,
     Date: today,
     Currency: input.currency,
-    ExternalReference: input.jobId,
+    ExternalReference: externalRef,
     PaymentConditionType: "Netto",
     PaymentConditionNumberOfDays: paymentDays,
     ProductLines: [
       {
         Description: input.description,
         Quantity: 1,
-        Unit: "hours",
+        Unit: "timer",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
-        AccountNumber: input.salesAccountNumber ?? 1000
+        AccountNumber: accountNumber
       }
     ]
   };
@@ -309,17 +338,17 @@ const createInvoice = async ({
     contactGuid: input.contactId,
     date: today,
     currency: input.currency,
-    externalReference: input.jobId,
+    externalReference: externalRef,
     paymentConditionType: "Netto",
     paymentConditionNumberOfDays: paymentDays,
     productLines: [
       {
         description: input.description,
         quantity: 1,
-        unit: "hours",
+        unit: "timer",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
-        accountNumber: input.salesAccountNumber ?? 1000
+        accountNumber: accountNumber
       }
     ]
   };
@@ -333,13 +362,16 @@ const createInvoice = async ({
 };
 
 const bookInvoice = async (organizationId: string, accessToken: string, invoiceId: string) => {
+  const timestamp = new Date().toISOString();
   try {
     await dineroRequest({
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/book`,
       organizationId,
       accessToken,
-      body: {}
+      // Dinero's book endpoint accepts an optional Timestamp; include it to avoid
+      // validation errors on stricter account setups.
+      body: { Timestamp: timestamp }
     });
   } catch (err) {
     // Some Dinero setups auto-book on create; log but don't throw
@@ -462,6 +494,7 @@ export const createAndSendDineroInvoice = async ({
       amountExVat: invoice.amountExVat,
       vatPercent: invoice.vatPercent,
       currency: invoice.currency,
+      paymentMethod: invoice.paymentMethod,
       salesAccountNumber: invoice.salesAccountNumber ?? null
     }
   });
