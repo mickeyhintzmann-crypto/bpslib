@@ -169,11 +169,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
           invoice: { customerEmail, jobId: bookingId, description: resolvedDescription, amountExVat, vatPercent, currency: "DKK", paymentMethod }
         });
 
+        // Invoice is created and booked in Dinero — mark as success regardless of email dispatch
+        const invoiceStatus = invoiceResult.emailSent ? "sent" : "booked";
         await supabase.from("job_invoices").upsert({
           job_id: `booking:${bookingId}`,
           employee_id: employee.id,
           source: "dinero",
-          status: "sent",
+          status: invoiceStatus,
           customer_name: customerName, customer_email: customerEmail,
           customer_phone: customerPhone, customer_address: customerAddress,
           amount_ex_vat: amountExVat, vat_percent: vatPercent, currency: "DKK",
@@ -182,13 +184,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
           dinero_invoice_id: invoiceResult.invoiceId,
           dinero_invoice_number: invoiceResult.invoiceNumber,
           sent_at: new Date().toISOString(),
-          error_message: null
+          error_message: invoiceResult.emailError ?? null
         }, { onConflict: "job_id" });
 
         await supabase.from("bookings").update({ status: "invoiced" }).eq("id", bookingId);
         await supabase.from("employee_dinero_connections").update({ last_verified_at: new Date().toISOString(), last_error: null }).eq("employee_id", employee.id);
 
-        return NextResponse.json({ ok: true, jobId: id, invoice: { invoiceId: invoiceResult.invoiceId, invoiceNumber: invoiceResult.invoiceNumber, contactId: invoiceResult.contactId } }, { status: 200 });
+        return NextResponse.json({
+          ok: true,
+          jobId: id,
+          invoice: {
+            invoiceId: invoiceResult.invoiceId,
+            invoiceNumber: invoiceResult.invoiceNumber,
+            contactId: invoiceResult.contactId,
+            emailSent: invoiceResult.emailSent,
+            // If email wasn't sent, show a soft warning so employee knows to follow up
+            warning: invoiceResult.emailSent
+              ? null
+              : `Faktura bogført i Dinero (nr. ${invoiceResult.invoiceNumber ?? invoiceResult.invoiceId}), men email til kunden kunne ikke sendes automatisk. Send den manuelt fra Dinero.`
+          }
+        }, { status: 200 });
       } catch (invoiceError) {
         const message = invoiceError instanceof Error ? invoiceError.message : "Ukendt fejl ved afsendelse til Dinero.";
         await supabase.from("job_invoices").upsert({ job_id: `booking:${bookingId}`, employee_id: employee.id, source: "dinero", status: "failed", customer_name: customerName, customer_email: customerEmail, amount_ex_vat: amountExVat, vat_percent: vatPercent, currency: "DKK", description: resolvedDescription, error_message: message }, { onConflict: "job_id" });

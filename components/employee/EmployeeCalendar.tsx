@@ -783,10 +783,10 @@ export const EmployeeCalendar = () => {
       return;
     }
 
-    let payload: { message?: string; alreadySent?: boolean } = {};
+    let payload: { message?: string; alreadySent?: boolean; invoice?: { warning?: string | null } } = {};
     try {
       const text = await response.text();
-      payload = JSON.parse(text) as { message?: string; alreadySent?: boolean };
+      payload = JSON.parse(text) as { message?: string; alreadySent?: boolean; invoice?: { warning?: string | null } };
     } catch {
       setCompleteError(`Serverfejl (${response.status}) – prøv igen. Kontakt support hvis fejlen gentager sig.`);
       setCompleteBusy(false);
@@ -800,7 +800,9 @@ export const EmployeeCalendar = () => {
       return;
     }
 
-    setCompleteMessage(payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura sendt.");
+    const baseMessage = payload.alreadySent ? "Faktura var allerede sendt." : "Opgave afsluttet og faktura bogført i Dinero.";
+    const warning = payload.invoice?.warning as string | null | undefined;
+    setCompleteMessage(warning ? `${baseMessage}\n\n⚠️ ${warning}` : baseMessage);
     setShowCompleteForm(false);
     await load();
   };

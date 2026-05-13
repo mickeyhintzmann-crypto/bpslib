@@ -101,6 +101,9 @@ export type DineroInvoiceResult = {
   invoiceId: string;
   invoiceNumber: string | null;
   raw: Record<string, unknown>;
+  /** Whether the email was sent via Dinero's API. false = invoice is booked in Dinero but email was not dispatched. */
+  emailSent: boolean;
+  emailError?: string;
 };
 
 const DINERO_BASE_URL = (process.env.DINERO_API_BASE_URL || "https://api.dinero.dk/v1").replace(/\/+$/, "");
@@ -484,28 +487,44 @@ const sendInvoice = async (
   invoiceId: string,
   customerEmail: string
 ) => {
-  const camelBody = { recipientEmail: customerEmail };
-  const pascalBody = { RecipientEmail: customerEmail };
+  const guidPath = `/invoices/${encodeURIComponent(invoiceId)}/email`;
+  const sendPath = `/invoices/${encodeURIComponent(invoiceId)}/send`;
 
-  let lastError: unknown;
+  // Try progressively — log every attempt so we can see exactly what Dinero says
+  const attempts: Array<{ method: string; path: string; body?: Record<string, unknown> }> = [
+    // Full body with subject+message (some Dinero versions require these)
+    { method: "POST", path: guidPath, body: { recipientEmail: customerEmail, subject: "Din faktura fra BP Slib", message: "Se vedlagte faktura." } },
+    { method: "POST", path: guidPath, body: { RecipientEmail: customerEmail, Subject: "Din faktura fra BP Slib", Message: "Se vedlagte faktura." } },
+    // Minimal body
+    { method: "POST", path: guidPath, body: { recipientEmail: customerEmail } },
+    { method: "POST", path: guidPath, body: { RecipientEmail: customerEmail } },
+    // Empty body POST (some Dinero actions take no body)
+    { method: "POST", path: guidPath },
+    // PUT variant (405 often means wrong HTTP method)
+    { method: "PUT",  path: guidPath, body: { recipientEmail: customerEmail, subject: "Din faktura fra BP Slib", message: "Se vedlagte faktura." } },
+    { method: "PUT",  path: guidPath, body: { RecipientEmail: customerEmail } },
+    // Legacy /send path
+    { method: "POST", path: sendPath, body: { recipientEmail: customerEmail } },
+    { method: "POST", path: sendPath, body: { RecipientEmail: customerEmail } },
+    { method: "PUT",  path: sendPath, body: { recipientEmail: customerEmail } },
+  ];
 
-  // Dinero's send endpoint is /email (confirmed in their Postman collection)
-  for (const path of [
-    `/invoices/${encodeURIComponent(invoiceId)}/email`,
-    `/invoices/${encodeURIComponent(invoiceId)}/send`
-  ]) {
-    for (const body of [camelBody, pascalBody]) {
-      try {
-        await dineroRequest({ method: "POST", path, organizationId, accessToken, body });
-        return; // success
-      } catch (err) {
-        lastError = err;
-      }
+  const errors: string[] = [];
+
+  for (const attempt of attempts) {
+    try {
+      await dineroRequest({ method: attempt.method as "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: attempt.path, organizationId, accessToken, body: attempt.body });
+      console.log(`[dinero] sendInvoice succeeded: ${attempt.method} ${attempt.path}`);
+      return; // success
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[dinero] sendInvoice attempt failed (${attempt.method} ${attempt.path}): ${msg}`);
+      errors.push(`${attempt.method} ${attempt.path}: ${msg}`);
     }
   }
 
   throw new Error(
-    `Faktura oprettet i Dinero (id: ${invoiceId}), men afsendelse til ${customerEmail} mislykkedes: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+    `Faktura oprettet i Dinero (id: ${invoiceId}), men afsendelse til ${customerEmail} mislykkedes: ${errors[0] ?? "ukendt fejl"}`
   );
 };
 
@@ -542,7 +561,8 @@ export const createAndSendDineroInvoice = async ({
       contactId: "dryrun-contact",
       invoiceId: `dryrun-invoice-${Date.now()}`,
       invoiceNumber: `${Math.floor(Math.random() * 90000) + 10000}`,
-      raw: { mode: "dry-run" }
+      raw: { mode: "dry-run" },
+      emailSent: true
     };
   }
 
@@ -585,12 +605,26 @@ export const createAndSendDineroInvoice = async ({
     }
   }
 
-  await sendInvoice(organizationId, accessToken, invoiceId, invoice.customerEmail);
+  // Send invoice by email — non-fatal: invoice is already booked in Dinero,
+  // which is the critical step. If email dispatch fails the accountant can
+  // send it manually from Dinero. We report the failure back so the UI can
+  // show a warning rather than a blocking error.
+  let emailSent = false;
+  let emailError: string | undefined;
+  try {
+    await sendInvoice(organizationId, accessToken, invoiceId, invoice.customerEmail);
+    emailSent = true;
+  } catch (sendErr) {
+    emailError = sendErr instanceof Error ? sendErr.message : String(sendErr);
+    console.error("[dinero] sendInvoice failed (non-fatal — invoice is booked):", emailError);
+  }
 
   return {
     contactId,
     invoiceId,
     invoiceNumber: extractInvoiceNumber(created),
-    raw: created
+    raw: created,
+    emailSent,
+    emailError
   };
 };
