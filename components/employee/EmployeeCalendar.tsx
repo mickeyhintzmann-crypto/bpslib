@@ -57,6 +57,7 @@ type JobsResponse = {
     dineroConnected: boolean;
     dineroOrganizationId: string | null;
     dineroLastError: string | null;
+    dineroSalesAccountNumber?: number | null;
   };
 };
 
