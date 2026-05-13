@@ -22,7 +22,7 @@ const SOURCE_VALUES = ["normal", "acute", "manual", "estimator"] as const;
 const SERVICE_VALUES = ["bordplade", "gulv", "toemrer", "maler", "murer", "andet"] as const;
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const BOOKING_SELECT_WITH_CITY_TASK =
-  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat";
+  "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, city, date, start_slot_index, slot_count, notes, task_description, internal_note, extras, price_total, price_net, price_vat, custom_start_time";
 const BOOKING_SELECT_LEGACY =
   "id, created_at, status, service_type, source, assigned_to, customer_name, customer_phone, customer_email, address, postal_code, date, start_slot_index, slot_count, notes, internal_note, extras, price_total, price_net, price_vat";
 
@@ -56,6 +56,7 @@ type CreatePayload = {
   date?: unknown;
   startSlot?: unknown;
   start_slot_index?: unknown;
+  customStartTime?: unknown;
   slot_count?: unknown;
   name?: unknown;
   phone?: unknown;
@@ -353,6 +354,11 @@ export async function POST(request: Request) {
     const extras = sanitizeExtras(payload.extras);
     const assignedTo = typeof payload.assigned_to === "string" ? payload.assigned_to.trim() : "";
 
+    // Custom start time (e.g. "09:30") — set when admin chooses a non-standard time
+    const customStartTimeRaw =
+      typeof payload.customStartTime === "string" ? payload.customStartTime.trim() : "";
+    const customStartTime = /^\d{2}:\d{2}$/.test(customStartTimeRaw) ? customStartTimeRaw : "";
+
     const totalParsed = toNullableInt(payload.price_total);
     const netParsed = toNullableInt(payload.price_net);
     const vatParsed = toNullableInt(payload.price_vat);
@@ -381,10 +387,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Postnr. skal være 4 cifre." }, { status: 400 });
     }
 
-    const startSlotIndex = parseStartSlotIndex(payload);
-    if (!Number.isInteger(startSlotIndex) || startSlotIndex < 0 || startSlotIndex > 2) {
+    // When a custom start time is provided (e.g. "09:30") we skip slot validation
+    // and availability checks — the admin is intentionally booking at a non-standard time.
+    const startSlotIndex = customStartTime ? 0 : parseStartSlotIndex(payload);
+    if (!customStartTime && (!Number.isInteger(startSlotIndex) || startSlotIndex < 0 || startSlotIndex > 2)) {
       return NextResponse.json(
-        { message: "Ugyldig starttid. Vælg 08:00, 11:00 eller 13:30." },
+        { message: "Ugyldig starttid. Vælg 08:00, 11:00 eller 13:30 — eller brug 'Anden tid'." },
         { status: 400 }
       );
     }
@@ -398,17 +406,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Vælg en gyldig service." }, { status: 400 });
     }
 
-    const availability = await checkBookingAvailability({
-      date,
-      startSlotIndex,
-      slotCount
-    });
+    if (!customStartTime) {
+      const availability = await checkBookingAvailability({
+        date,
+        startSlotIndex,
+        slotCount
+      });
 
-    if (!availability.ok) {
-      return NextResponse.json(
-        { message: availability.message || "Tiden er allerede optaget. Vælg en ny tid." },
-        { status: availability.status || 409 }
-      );
+      if (!availability.ok) {
+        return NextResponse.json(
+          { message: availability.message || "Tiden er allerede optaget. Vælg en ny tid." },
+          { status: availability.status || 409 }
+        );
+      }
     }
 
     const slotRange = getSlotRangeForBooking(date, startSlotIndex, slotCount);
@@ -423,6 +433,10 @@ export async function POST(request: Request) {
       priceNet = Math.round(totalParsed.value / 1.25);
       priceVat = totalParsed.value - priceNet;
     }
+    const effectiveSlotStart = customStartTime
+      ? `${date}T${customStartTime}:00`
+      : slotRange.slotStartIso;
+
     const insertPayload = {
       service_type: service || "bordplade",
       customer_name: name,
@@ -436,8 +450,9 @@ export async function POST(request: Request) {
       date,
       start_slot_index: startSlotIndex,
       slot_count: slotCount,
-      slot_start: slotRange.slotStartIso,
+      slot_start: effectiveSlotStart,
       slot_end: slotRange.slotEndIso,
+      custom_start_time: customStartTime || null,
       manage_token: randomUUID(),
       status: "confirmed",
       source: "manual",
@@ -455,7 +470,13 @@ export async function POST(request: Request) {
       .single();
 
     if (error && isMissingColumn(error.message) && isMissingCityTaskColumns(error.message)) {
-      const { city: _city, task_description: _taskDescription, ...legacyInsertPayload } = insertPayload;
+      // Strip newer columns the DB might not have yet
+      const {
+        city: _city,
+        task_description: _taskDescription,
+        custom_start_time: _customStartTime,
+        ...legacyInsertPayload
+      } = insertPayload;
       ({ data, error } = await supabase
         .from("bookings")
         .insert(legacyInsertPayload)
@@ -506,9 +527,14 @@ export async function POST(request: Request) {
       const shouldSendSms = sendNotification.sms === true;
 
       if (shouldSendEmail || shouldSendSms) {
-        const startTime = Number.isInteger(data.start_slot_index)
-          ? (SLOT_TIMES[data.start_slot_index as number] ?? "")
-          : "";
+        // Use custom_start_time if set, otherwise derive from slot index
+        const startTime =
+          (typeof (data as Record<string, unknown>).custom_start_time === "string"
+            ? (data as Record<string, unknown>).custom_start_time as string
+            : null) ||
+          (Number.isInteger(data.start_slot_index)
+            ? (SLOT_TIMES[data.start_slot_index as number] ?? "")
+            : "");
 
         try {
           await sendManualBookingConfirmation({

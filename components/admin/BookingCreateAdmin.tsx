@@ -23,6 +23,7 @@ const SERVICE_LABELS: Record<string, string> = {
 };
 const SLOT_TIMES = ["08:00", "11:00", "13:30"] as const;
 const SLOT_COUNTS = ["1", "2", "3"] as const;
+const CUSTOM_TIME_VALUE = "__custom__" as const;
 const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 type CreateResponse = {
@@ -80,7 +81,8 @@ export const BookingCreateAdmin = () => {
 
   // Tidspunkt
   const [date, setDate] = useState("");
-  const [startSlot, setStartSlot] = useState<(typeof SLOT_TIMES)[number]>(SLOT_TIMES[0]);
+  const [startSlot, setStartSlot] = useState<(typeof SLOT_TIMES)[number] | typeof CUSTOM_TIME_VALUE>(SLOT_TIMES[0]);
+  const [customStartTime, setCustomStartTime] = useState("");
   const [slotCount, setSlotCount] = useState<(typeof SLOT_COUNTS)[number]>("1");
   const [assignedTo, setAssignedTo] = useState("");
 
@@ -154,7 +156,8 @@ export const BookingCreateAdmin = () => {
         body: JSON.stringify({
           service,
           date,
-          startSlot,
+          startSlot: startSlot === CUSTOM_TIME_VALUE ? SLOT_TIMES[0] : startSlot,
+          customStartTime: startSlot === CUSTOM_TIME_VALUE ? customStartTime.trim() : undefined,
           slot_count: Number.parseInt(slotCount, 10),
           name,
           phone,
@@ -278,7 +281,7 @@ export const BookingCreateAdmin = () => {
               <label className="block text-sm font-medium text-foreground">Starttid</label>
               <select
                 value={startSlot}
-                onChange={(e) => setStartSlot(e.target.value as (typeof SLOT_TIMES)[number])}
+                onChange={(e) => setStartSlot(e.target.value as (typeof SLOT_TIMES)[number] | typeof CUSTOM_TIME_VALUE)}
                 className={selectCls}
               >
                 {SLOT_TIMES.map((slot) => (
@@ -286,7 +289,18 @@ export const BookingCreateAdmin = () => {
                     {slot}
                   </option>
                 ))}
+                <option value={CUSTOM_TIME_VALUE}>Anden tid...</option>
               </select>
+              {startSlot === CUSTOM_TIME_VALUE && (
+                <input
+                  type="time"
+                  value={customStartTime}
+                  onChange={(e) => setCustomStartTime(e.target.value)}
+                  className={inputCls}
+                  placeholder="09:30"
+                  step={300}
+                />
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-foreground">Antal slots</label>
