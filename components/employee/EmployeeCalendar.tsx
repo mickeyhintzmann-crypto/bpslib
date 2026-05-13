@@ -1552,14 +1552,14 @@ export const EmployeeCalendar = () => {
               <div className="rounded-xl border border-border bg-white px-4 py-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm font-semibold text-foreground">
-                    {selectedJob.status === "invoiced" ? "Faktura sendt ✓" : "Afslut og send faktura"}
+                    {selectedJob.status === "invoiced" && selectedJob.invoiceStatus === "sent" ? "Faktura sendt ✓" : "Afslut og send faktura"}
                   </p>
                   {!dineroConnected ? (
                     <p className="text-xs font-medium text-amber-700">Forbind Dinero ovenfor</p>
                   ) : null}
                 </div>
 
-                {!showCompleteForm && selectedJob.status !== "invoiced" ? (
+                {!showCompleteForm && !(selectedJob.status === "invoiced" && selectedJob.invoiceStatus === "sent") ? (
                   <Button
                     className="mt-3 w-full"
                     onClick={openCompleteForm}
