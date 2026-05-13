@@ -432,20 +432,45 @@ const bookInvoice = async (
   // Dinero requires the Timestamp from the original create/get response (optimistic concurrency)
   dineroTimestamp?: string
 ) => {
+  // If we didn't receive a Timestamp from the create response, fetch the invoice first
+  // to get the authoritative Timestamp (Dinero requires this for optimistic concurrency)
+  let ts = dineroTimestamp;
+  if (!ts) {
+    console.warn("[dinero] bookInvoice: no Timestamp from create response, fetching invoice...");
+    try {
+      const fetched = await dineroRequest({
+        path: `/invoices/${encodeURIComponent(invoiceId)}`,
+        organizationId,
+        accessToken
+      });
+      ts = firstString(fetched, ["Timestamp", "timestamp"]) ?? undefined;
+      console.log(`[dinero] bookInvoice: fetched Timestamp="${ts}"`);
+    } catch (fetchErr) {
+      console.warn("[dinero] bookInvoice: could not fetch invoice for Timestamp:", fetchErr);
+    }
+  }
+
+  if (!ts) {
+    // Last resort: use current ISO time — will likely cause Dinero 409, which we log clearly
+    ts = new Date().toISOString();
+    console.warn("[dinero] bookInvoice: using current time as Timestamp (may fail optimistic concurrency)");
+  }
+
+  console.log(`[dinero] bookInvoice: invoiceId=${invoiceId} Timestamp=${ts}`);
   try {
-    // Python SDK sends { timestamp } (camelCase) from the create response.
-    // Try both casings for safety.
-    const bodyTs = dineroTimestamp ?? new Date().toISOString();
     await dineroRequest({
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/book`,
       organizationId,
       accessToken,
-      body: { timestamp: bodyTs, Timestamp: bodyTs }
+      body: { timestamp: ts, Timestamp: ts }
     });
+    console.log("[dinero] bookInvoice: succeeded");
   } catch (err) {
-    // Some Dinero setups auto-book on create; log but don't throw
-    console.warn("[dinero] bookInvoice failed (may be already booked):", err);
+    // Log the exact error — booking failure leaves invoice as draft in Dinero
+    console.error("[dinero] bookInvoice FAILED — invoice will remain as draft:", err instanceof Error ? err.message : String(err));
+    // Re-throw so the caller knows booking failed (invoice exists but is not booked)
+    throw err;
   }
 };
 
@@ -591,9 +616,23 @@ export const createAndSendDineroInvoice = async ({
     throw new Error("Dinero invoice-id mangler i svar.");
   }
 
+  // Log the full create response so we can see what fields Dinero returns
+  console.log("[dinero] createInvoice response keys:", Object.keys(created).join(", "));
+  console.log("[dinero] createInvoice response:", JSON.stringify(created).slice(0, 500));
+
   // Pass Dinero's own Timestamp back for optimistic concurrency on book endpoint
   const dineroTimestamp = firstString(created, ["Timestamp", "timestamp"]) ?? undefined;
-  await bookInvoice(organizationId, accessToken, invoiceId, dineroTimestamp);
+  console.log(`[dinero] Timestamp from create response: "${dineroTimestamp}"`);
+
+  try {
+    await bookInvoice(organizationId, accessToken, invoiceId, dineroTimestamp);
+  } catch (bookErr) {
+    const bookMsg = bookErr instanceof Error ? bookErr.message : String(bookErr);
+    throw new Error(
+      `Faktura oprettet som KLADDE i Dinero (id: ${invoiceId}) men kunne ikke bogføres: ${bookMsg}. ` +
+      `Find kladden i Dinero og bogfør den manuelt.`
+    );
+  }
 
   // Registrer betaling hvis kunden allerede har betalt på stedet
   if (invoice.paymentMethod === "mobilepay" || invoice.paymentMethod === "paid") {
