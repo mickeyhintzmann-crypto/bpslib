@@ -232,13 +232,14 @@ const createContact = async ({ organizationId, accessToken, input }: { organizat
     CountryKey: "DK"
   };
 
+  // Dinero requires PascalCase — try it first, fall back to camelCase
   try {
     const response = await dineroRequest({
       method: "POST",
       path: "/contacts",
       organizationId,
       accessToken,
-      body: camelPayload
+      body: pascalPayload
     });
     const contactId = extractContactId(response);
     if (contactId) {
@@ -253,7 +254,7 @@ const createContact = async ({ organizationId, accessToken, input }: { organizat
     path: "/contacts",
     organizationId,
     accessToken,
-    body: pascalPayload
+    body: camelPayload
   });
 
   const contactId = extractContactId(fallback);
@@ -321,13 +322,14 @@ const createInvoice = async ({
     ]
   };
 
+  // Dinero requires PascalCase — try it first, fall back to camelCase
   try {
     return await dineroRequest({
       method: "POST",
       path: "/invoices",
       organizationId,
       accessToken,
-      body: camelPayload
+      body: pascalPayload
     });
   } catch {
     return await dineroRequest({
@@ -335,7 +337,7 @@ const createInvoice = async ({
       path: "/invoices",
       organizationId,
       accessToken,
-      body: pascalPayload
+      body: camelPayload
     });
   }
 };
