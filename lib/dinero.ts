@@ -273,30 +273,6 @@ const ensureContact = async (organizationId: string, accessToken: string, input:
   return createContact({ organizationId, accessToken, input });
 };
 
-// Fetch the first available sales account number from Dinero's chart of accounts.
-// Prefers accounts in the 1000-1999 range (revenue), falls back to any account.
-const resolveSalesAccountNumber = async (organizationId: string, accessToken: string): Promise<number | null> => {
-  try {
-    const res = await dineroRequest({ path: "/accounts", organizationId, accessToken });
-    const items = (res.collection || res.items || res.data || res.accounts) as unknown;
-    if (!Array.isArray(items)) return null;
-
-    let fallback: number | null = null;
-    for (const item of items) {
-      const entry = asRecord(item);
-      if (!entry) continue;
-      const num = entry.number ?? entry.Number ?? entry.accountNumber ?? entry.AccountNumber;
-      if (typeof num !== "number") continue;
-      // Prefer 1000–1999 range (sales / revenue accounts in Danish bookkeeping)
-      if (num >= 1000 && num <= 1999) return num;
-      if (fallback === null) fallback = num;
-    }
-    return fallback;
-  } catch {
-    return null;
-  }
-};
-
 const createInvoice = async ({
   organizationId,
   accessToken,
@@ -309,30 +285,6 @@ const createInvoice = async ({
   const today = new Date().toISOString().slice(0, 10);
   const paymentDays = input.paymentMethod === "net0" ? 0 : 8;
 
-  // Look up a valid sales account number from this organisation's chart of accounts
-  const accountNumber = await resolveSalesAccountNumber(organizationId, accessToken);
-
-  const buildProductLine = (pascal: boolean) => {
-    const base = {
-      description: input.description,
-      quantity: 1,
-      unit: "stk",
-      baseAmountValue: input.amountExVat,
-      vatRate: input.vatPercent,
-    } as Record<string, unknown>;
-    if (accountNumber !== null) base.accountNumber = accountNumber;
-
-    if (!pascal) return base;
-    return {
-      Description: input.description,
-      Quantity: 1,
-      Unit: "stk",
-      BaseAmountValue: input.amountExVat,
-      VatRate: input.vatPercent,
-      ...(accountNumber !== null ? { AccountNumber: accountNumber } : {})
-    };
-  };
-
   const pascalPayload = {
     ContactGuid: input.contactId,
     Date: today,
@@ -340,7 +292,15 @@ const createInvoice = async ({
     ExternalReference: input.jobId,
     PaymentConditionType: "Netto",
     PaymentConditionNumberOfDays: paymentDays,
-    ProductLines: [buildProductLine(true)]
+    ProductLines: [
+      {
+        Description: input.description,
+        Quantity: 1,
+        Unit: "stk",
+        BaseAmountValue: input.amountExVat,
+        VatRate: input.vatPercent
+      }
+    ]
   };
 
   const camelPayload = {
@@ -350,7 +310,15 @@ const createInvoice = async ({
     externalReference: input.jobId,
     paymentConditionType: "Netto",
     paymentConditionNumberOfDays: paymentDays,
-    productLines: [buildProductLine(false)]
+    productLines: [
+      {
+        description: input.description,
+        quantity: 1,
+        unit: "stk",
+        baseAmountValue: input.amountExVat,
+        vatRate: input.vatPercent
+      }
+    ]
   };
 
   // Dinero requires PascalCase — try it first, fall back to camelCase
