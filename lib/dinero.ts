@@ -220,14 +220,16 @@ const createContact = async ({ organizationId, accessToken, input }: { organizat
     name: input.name,
     email: input.email,
     phone: input.phone,
-    address: input.address
+    address: input.address,
+    countryKey: "DK"
   };
 
   const pascalPayload = {
     Name: input.name,
     Email: input.email,
     Phone: input.phone,
-    Address: input.address
+    Address: input.address,
+    CountryKey: "DK"
   };
 
   try {
