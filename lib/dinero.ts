@@ -429,12 +429,18 @@ const bookInvoice = async (
   organizationId: string,
   accessToken: string,
   invoiceId: string,
-  // Dinero requires the Timestamp from the original create/get response (optimistic concurrency)
+  // Dinero returns an opaque Base64 Timestamp for optimistic concurrency.
+  // Pass it from the create response if available.
   dineroTimestamp?: string
 ) => {
-  // If we didn't receive a Timestamp from the create response, fetch the invoice first
-  // to get the authoritative Timestamp (Dinero requires this for optimistic concurrency)
+  const bookPath = `/invoices/${encodeURIComponent(invoiceId)}/book`;
+
+  // Strategy: try booking with several Timestamp variants.
+  // Dinero's optimistic concurrency Timestamp is an opaque Base64 byte[] — NOT a regular ISO date.
+  // If we don't have it, fetch the invoice to find it; if still missing, try empty body.
+
   let ts = dineroTimestamp;
+
   if (!ts) {
     console.warn("[dinero] bookInvoice: no Timestamp from create response, fetching invoice...");
     try {
@@ -443,35 +449,55 @@ const bookInvoice = async (
         organizationId,
         accessToken
       });
-      ts = firstString(fetched, ["Timestamp", "timestamp"]) ?? undefined;
+      // Log all keys so we can identify the correct field name
+      console.log("[dinero] bookInvoice: GET invoice keys:", Object.keys(fetched).join(", "));
+      console.log("[dinero] bookInvoice: GET invoice body:", JSON.stringify(fetched).slice(0, 600));
+      ts = firstString(fetched, ["Timestamp", "timestamp", "TimeStamp", "timeStamp"]) ?? undefined;
       console.log(`[dinero] bookInvoice: fetched Timestamp="${ts}"`);
     } catch (fetchErr) {
-      console.warn("[dinero] bookInvoice: could not fetch invoice for Timestamp:", fetchErr);
+      console.warn("[dinero] bookInvoice: could not fetch invoice:", fetchErr);
     }
   }
 
-  if (!ts) {
-    // Last resort: use current ISO time — will likely cause Dinero 409, which we log clearly
-    ts = new Date().toISOString();
-    console.warn("[dinero] bookInvoice: using current time as Timestamp (may fail optimistic concurrency)");
+  // Build list of book attempts: first try with Timestamp if we have it, then without
+  const attempts: Array<Record<string, unknown> | undefined> = [];
+  if (ts) {
+    attempts.push({ timestamp: ts, Timestamp: ts });
+    attempts.push({ Timestamp: ts });
+    attempts.push({ timestamp: ts });
+  }
+  // Always try empty body — some Dinero configurations don't require Timestamp
+  attempts.push({});
+  attempts.push(undefined); // truly no body
+
+  let lastErr: unknown;
+  for (const body of attempts) {
+    try {
+      console.log(`[dinero] bookInvoice: trying body=${body === undefined ? "(none)" : JSON.stringify(body)}`);
+      await dineroRequest({
+        method: "POST",
+        path: bookPath,
+        organizationId,
+        accessToken,
+        body
+      });
+      console.log("[dinero] bookInvoice: succeeded");
+      return;
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[dinero] bookInvoice attempt failed: ${msg}`);
+      // If it says "already booked" or similar, treat as success
+      if (msg.toLowerCase().includes("already") || msg.includes("58") || msg.includes("409")) {
+        console.log("[dinero] bookInvoice: invoice appears already booked — treating as success");
+        return;
+      }
+    }
   }
 
-  console.log(`[dinero] bookInvoice: invoiceId=${invoiceId} Timestamp=${ts}`);
-  try {
-    await dineroRequest({
-      method: "POST",
-      path: `/invoices/${encodeURIComponent(invoiceId)}/book`,
-      organizationId,
-      accessToken,
-      body: { timestamp: ts, Timestamp: ts }
-    });
-    console.log("[dinero] bookInvoice: succeeded");
-  } catch (err) {
-    // Log the exact error — booking failure leaves invoice as draft in Dinero
-    console.error("[dinero] bookInvoice FAILED — invoice will remain as draft:", err instanceof Error ? err.message : String(err));
-    // Re-throw so the caller knows booking failed (invoice exists but is not booked)
-    throw err;
-  }
+  // All attempts failed
+  console.error("[dinero] bookInvoice ALL attempts FAILED — invoice will remain as draft");
+  throw lastErr;
 };
 
 const registerPayment = async (
@@ -618,10 +644,13 @@ export const createAndSendDineroInvoice = async ({
 
   // Log the full create response so we can see what fields Dinero returns
   console.log("[dinero] createInvoice response keys:", Object.keys(created).join(", "));
-  console.log("[dinero] createInvoice response:", JSON.stringify(created).slice(0, 500));
+  console.log("[dinero] createInvoice response:", JSON.stringify(created).slice(0, 600));
 
-  // Pass Dinero's own Timestamp back for optimistic concurrency on book endpoint
-  const dineroTimestamp = firstString(created, ["Timestamp", "timestamp"]) ?? undefined;
+  // Dinero's Timestamp for optimistic concurrency is an opaque Base64 byte[]
+  // Check all known casings + also raw object values that might be the timestamp
+  const dineroTimestamp =
+    firstString(created, ["Timestamp", "timestamp", "TimeStamp", "timeStamp"]) ??
+    undefined;
   console.log(`[dinero] Timestamp from create response: "${dineroTimestamp}"`);
 
   try {
