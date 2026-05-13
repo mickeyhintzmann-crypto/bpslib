@@ -300,7 +300,7 @@ const createInvoice = async ({
         Unit: "stk",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
-        ...(input.salesAccountNumber ? { AccountNumber: input.salesAccountNumber } : {})
+        AccountNumber: input.salesAccountNumber ?? 1000
       }
     ]
   };
@@ -319,7 +319,7 @@ const createInvoice = async ({
         unit: "stk",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
-        ...(input.salesAccountNumber ? { accountNumber: input.salesAccountNumber } : {})
+        accountNumber: input.salesAccountNumber ?? 1000
       }
     ]
   };
