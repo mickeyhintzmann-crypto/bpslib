@@ -292,13 +292,13 @@ const createInvoice = async ({
     externalReference: input.jobId,
     paymentConditionType: "Netto",
     paymentConditionNumberOfDays: paymentDays,
-    lines: [
+    productLines: [
       {
         description: input.description,
         quantity: 1,
         unit: "stk",
-        amount: input.amountExVat,
-        vat: input.vatPercent
+        baseAmountValue: input.amountExVat,
+        vatRate: input.vatPercent
       }
     ]
   };
@@ -310,13 +310,13 @@ const createInvoice = async ({
     ExternalReference: input.jobId,
     PaymentConditionType: "Netto",
     PaymentConditionNumberOfDays: paymentDays,
-    Lines: [
+    ProductLines: [
       {
         Description: input.description,
         Quantity: 1,
         Unit: "stk",
-        Amount: input.amountExVat,
-        Vat: input.vatPercent
+        BaseAmountValue: input.amountExVat,
+        VatRate: input.vatPercent
       }
     ]
   };
