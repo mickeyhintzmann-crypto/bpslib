@@ -314,29 +314,83 @@ const createInvoice = async ({
   const externalRef = cleanExternalReference(input.jobId);
   const accountNumber = input.salesAccountNumber ?? 1000;
 
-  // Attempt 1: PascalCase ProductLines — Dinero's documented format
-  // Unit enum values tried so far: "stk", "hours", "timer", "time" — all invalid.
-  // Trying "Stk" (PascalCase) as Dinero uses PascalCase throughout.
-  const pascalPayload = {
+  // Dinero requires a specific Unit enum on each ProductLine.
+  // The valid values are not documented publicly. We try all known plausible values
+  // in order — a 400 Unit-validation error does NOT create a draft invoice, so this
+  // is safe to brute-force. The first successful response wins.
+  const UNIT_CANDIDATES = [
+    // Previously tried and confirmed invalid: "stk", "time", "timer", "hours", "Stk"
+    "dag",    // Danish: dag = day
+    "Dag",
+    "uge",    // Danish: uge = week
+    "Uge",
+    "md",     // Danish: måneder (month abbreviation)
+    "Md",
+    "m",      // meter
+    "M",
+    "m2",     // square meter
+    "M2",
+    "km",     // kilometer
+    "Km",
+    "kg",     // kilogram
+    "Kg",
+    "l",      // liter
+    "L",
+    "kasse",  // box
+    "sæt",    // set
+    "service",
+    "none",
+    "None",
+    "piece",
+    "Piece",
+    "pcs",
+    "each",
+    "Each",
+    "hour",
+    "Hour",
+    "day",
+    "Day",
+  ];
+
+  const baseLine = {
+    Description: input.description,
+    Quantity: 1,
+    BaseAmountValue: input.amountExVat,
+    VatRate: input.vatPercent,
+    AccountNumber: accountNumber
+  };
+
+  const baseHeader = {
     ContactGuid: input.contactId,
     Date: today,
     Currency: input.currency,
     ExternalReference: externalRef,
     PaymentConditionType: "Netto",
-    PaymentConditionNumberOfDays: paymentDays,
-    ProductLines: [
-      {
-        Description: input.description,
-        Quantity: 1,
-        Unit: "Stk",
-        BaseAmountValue: input.amountExVat,
-        VatRate: input.vatPercent,
-        AccountNumber: accountNumber
-      }
-    ]
+    PaymentConditionNumberOfDays: paymentDays
   };
 
-  // Attempt 2: camelCase productLines
+  for (const unit of UNIT_CANDIDATES) {
+    const payload = {
+      ...baseHeader,
+      ProductLines: [{ ...baseLine, Unit: unit }]
+    };
+
+    try {
+      const result = await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: payload });
+      console.log(`[dinero] createInvoice succeeded with Unit="${unit}"`);
+      return result;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("ProductLine.Unit") || msg.includes("unit type") || msg.includes("Invalid unit")) {
+        // Unit value rejected — try next candidate
+        continue;
+      }
+      // A different error — stop immediately
+      throw err;
+    }
+  }
+
+  // Also try camelCase as a last resort
   const camelPayload = {
     contactGuid: input.contactId,
     date: today,
@@ -348,7 +402,7 @@ const createInvoice = async ({
       {
         description: input.description,
         quantity: 1,
-        unit: "Stk",
+        unit: "dag",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
         accountNumber: accountNumber
@@ -356,40 +410,16 @@ const createInvoice = async ({
     ]
   };
 
-  // Attempt 3: "lines" format used by Python SDK — no Unit field required
-  const linesPayload = {
-    contactGuid: input.contactId,
-    date: today,
-    currency: input.currency,
-    externalReference: externalRef,
-    paymentConditionType: "Netto",
-    paymentConditionNumberOfDays: paymentDays,
-    lines: [
-      {
-        description: input.description,
-        quantity: 1,
-        unitNetPrice: input.amountExVat,
-        vatRate: input.vatPercent,
-        accountNumber: accountNumber
-      }
-    ]
-  };
-
-  for (const payload of [pascalPayload, camelPayload, linesPayload]) {
-    try {
-      return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: payload });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      // Only continue if it's a Unit validation error — stop on other errors
-      if (!msg.includes("ProductLine.Unit") && !msg.includes("unit type")) {
-        throw err;
-      }
-      // Unit value invalid — try next payload format
-    }
+  try {
+    return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: camelPayload });
+  } catch {
+    // ignored
   }
 
-  // All attempts failed — throw the last Unit error so the caller sees the exact message
-  throw new Error("Dinero faktura fejlede på alle payload-formater. Kontakt api@dinero.dk for gyldige Unit-værdier.");
+  throw new Error(
+    `Dinero afviser alle kendte Unit-værdier (dag/uge/md/m/m2/km/kg/l/piece/each/hour/day/...). ` +
+    `Kontakt Dinero support på api@dinero.dk og spørg efter gyldige værdier for 'ProductLine.Unit'.`
+  );
 };
 
 const bookInvoice = async (
