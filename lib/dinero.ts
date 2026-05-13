@@ -325,6 +325,7 @@ const createInvoice = async ({
       {
         Description: input.description,
         Quantity: 1,
+        Unit: "time",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
         AccountNumber: accountNumber
@@ -343,6 +344,7 @@ const createInvoice = async ({
       {
         description: input.description,
         quantity: 1,
+        unit: "time",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
         accountNumber: accountNumber
@@ -419,18 +421,18 @@ const sendInvoice = async (
 
   let lastError: unknown;
 
-  for (const body of [camelBody, pascalBody]) {
-    try {
-      await dineroRequest({
-        method: "POST",
-        path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
-        organizationId,
-        accessToken,
-        body
-      });
-      return; // success
-    } catch (err) {
-      lastError = err;
+  // Dinero's send endpoint is /email (confirmed in their Postman collection)
+  for (const path of [
+    `/invoices/${encodeURIComponent(invoiceId)}/email`,
+    `/invoices/${encodeURIComponent(invoiceId)}/send`
+  ]) {
+    for (const body of [camelBody, pascalBody]) {
+      try {
+        await dineroRequest({ method: "POST", path, organizationId, accessToken, body });
+        return; // success
+      } catch (err) {
+        lastError = err;
+      }
     }
   }
 
