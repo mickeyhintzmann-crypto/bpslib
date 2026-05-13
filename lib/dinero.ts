@@ -347,8 +347,9 @@ const bookInvoice = async (organizationId: string, accessToken: string, invoiceI
       accessToken,
       body: {}
     });
-  } catch {
-    // some Dinero setups auto-book on create; ignore this failure
+  } catch (err) {
+    // Some Dinero setups auto-book on create; log but don't throw
+    console.warn("[dinero] bookInvoice failed (may be already booked):", err);
   }
 };
 
@@ -390,30 +391,29 @@ const sendInvoice = async (
   invoiceId: string,
   customerEmail: string
 ) => {
-  const camelBody = {
-    recipientEmail: customerEmail
-  };
-  const pascalBody = {
-    RecipientEmail: customerEmail
-  };
+  const camelBody = { recipientEmail: customerEmail };
+  const pascalBody = { RecipientEmail: customerEmail };
 
-  try {
-    await dineroRequest({
-      method: "POST",
-      path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
-      organizationId,
-      accessToken,
-      body: camelBody
-    });
-  } catch {
-    await dineroRequest({
-      method: "POST",
-      path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
-      organizationId,
-      accessToken,
-      body: pascalBody
-    });
+  let lastError: unknown;
+
+  for (const body of [camelBody, pascalBody]) {
+    try {
+      await dineroRequest({
+        method: "POST",
+        path: `/invoices/${encodeURIComponent(invoiceId)}/send`,
+        organizationId,
+        accessToken,
+        body
+      });
+      return; // success
+    } catch (err) {
+      lastError = err;
+    }
   }
+
+  throw new Error(
+    `Faktura oprettet i Dinero (id: ${invoiceId}), men afsendelse til ${customerEmail} mislykkedes: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+  );
 };
 
 export const verifyDineroCredentials = async (organizationId: string, apiKey: string) => {
