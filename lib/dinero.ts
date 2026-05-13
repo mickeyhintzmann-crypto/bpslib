@@ -314,7 +314,6 @@ const createInvoice = async ({
   const externalRef = cleanExternalReference(input.jobId);
   const accountNumber = input.salesAccountNumber ?? 1000;
 
-  // "timer" is the Danish Dinero unit for hours; other valid values: "stk", "km", "m2"
   const pascalPayload = {
     ContactGuid: input.contactId,
     Date: today,
@@ -326,7 +325,6 @@ const createInvoice = async ({
       {
         Description: input.description,
         Quantity: 1,
-        Unit: "timer",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
         AccountNumber: accountNumber
@@ -345,7 +343,6 @@ const createInvoice = async ({
       {
         description: input.description,
         quantity: 1,
-        unit: "timer",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
         accountNumber: accountNumber
