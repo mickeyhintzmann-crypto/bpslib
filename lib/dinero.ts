@@ -314,6 +314,9 @@ const createInvoice = async ({
   const externalRef = cleanExternalReference(input.jobId);
   const accountNumber = input.salesAccountNumber ?? 1000;
 
+  // Attempt 1: PascalCase ProductLines — Dinero's documented format
+  // Unit enum values tried so far: "stk", "hours", "timer", "time" — all invalid.
+  // Trying "Stk" (PascalCase) as Dinero uses PascalCase throughout.
   const pascalPayload = {
     ContactGuid: input.contactId,
     Date: today,
@@ -325,7 +328,7 @@ const createInvoice = async ({
       {
         Description: input.description,
         Quantity: 1,
-        Unit: "time",
+        Unit: "Stk",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
         AccountNumber: accountNumber
@@ -333,6 +336,7 @@ const createInvoice = async ({
     ]
   };
 
+  // Attempt 2: camelCase productLines
   const camelPayload = {
     contactGuid: input.contactId,
     date: today,
@@ -344,7 +348,7 @@ const createInvoice = async ({
       {
         description: input.description,
         quantity: 1,
-        unit: "time",
+        unit: "Stk",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
         accountNumber: accountNumber
@@ -352,25 +356,59 @@ const createInvoice = async ({
     ]
   };
 
-  // Dinero requires PascalCase — try it first, fall back to camelCase
-  try {
-    return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: pascalPayload });
-  } catch {
-    return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: camelPayload });
+  // Attempt 3: "lines" format used by Python SDK — no Unit field required
+  const linesPayload = {
+    contactGuid: input.contactId,
+    date: today,
+    currency: input.currency,
+    externalReference: externalRef,
+    paymentConditionType: "Netto",
+    paymentConditionNumberOfDays: paymentDays,
+    lines: [
+      {
+        description: input.description,
+        quantity: 1,
+        unitNetPrice: input.amountExVat,
+        vatRate: input.vatPercent,
+        accountNumber: accountNumber
+      }
+    ]
+  };
+
+  for (const payload of [pascalPayload, camelPayload, linesPayload]) {
+    try {
+      return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: payload });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // Only continue if it's a Unit validation error — stop on other errors
+      if (!msg.includes("ProductLine.Unit") && !msg.includes("unit type")) {
+        throw err;
+      }
+      // Unit value invalid — try next payload format
+    }
   }
+
+  // All attempts failed — throw the last Unit error so the caller sees the exact message
+  throw new Error("Dinero faktura fejlede på alle payload-formater. Kontakt api@dinero.dk for gyldige Unit-værdier.");
 };
 
-const bookInvoice = async (organizationId: string, accessToken: string, invoiceId: string) => {
-  const timestamp = new Date().toISOString();
+const bookInvoice = async (
+  organizationId: string,
+  accessToken: string,
+  invoiceId: string,
+  // Dinero requires the Timestamp from the original create/get response (optimistic concurrency)
+  dineroTimestamp?: string
+) => {
   try {
+    // Python SDK sends { timestamp } (camelCase) from the create response.
+    // Try both casings for safety.
+    const bodyTs = dineroTimestamp ?? new Date().toISOString();
     await dineroRequest({
       method: "POST",
       path: `/invoices/${encodeURIComponent(invoiceId)}/book`,
       organizationId,
       accessToken,
-      // Dinero's book endpoint accepts an optional Timestamp; include it to avoid
-      // validation errors on stricter account setups.
-      body: { Timestamp: timestamp }
+      body: { timestamp: bodyTs, Timestamp: bodyTs }
     });
   } catch (err) {
     // Some Dinero setups auto-book on create; log but don't throw
@@ -503,7 +541,9 @@ export const createAndSendDineroInvoice = async ({
     throw new Error("Dinero invoice-id mangler i svar.");
   }
 
-  await bookInvoice(organizationId, accessToken, invoiceId);
+  // Pass Dinero's own Timestamp back for optimistic concurrency on book endpoint
+  const dineroTimestamp = firstString(created, ["Timestamp", "timestamp"]) ?? undefined;
+  await bookInvoice(organizationId, accessToken, invoiceId, dineroTimestamp);
 
   // Registrer betaling hvis kunden allerede har betalt på stedet
   if (invoice.paymentMethod === "mobilepay" || invoice.paymentMethod === "paid") {
