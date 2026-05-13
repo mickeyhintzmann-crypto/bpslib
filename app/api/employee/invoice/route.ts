@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
         .eq("job_id", `booking:${bookingId}`)
         .maybeSingle();
 
-      if (existingInvoice?.status === "sent") {
+      if (existingInvoice?.status === "sent" && existingInvoice.dinero_invoice_id) {
         return NextResponse.json({
           ok: true,
           alreadySent: true,
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     const existing = (existingInvoice || null) as ExistingInvoiceRow | null;
-    if (existing?.status === "sent") {
+    if (existing?.status === "sent" && existing.dinero_invoice_id) {
       return NextResponse.json({
         ok: true,
         alreadySent: true,
