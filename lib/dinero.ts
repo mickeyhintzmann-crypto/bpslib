@@ -297,7 +297,7 @@ const createInvoice = async ({
       {
         Description: input.description,
         Quantity: 1,
-        Unit: "stk",
+        Unit: "hours",
         BaseAmountValue: input.amountExVat,
         VatRate: input.vatPercent,
         AccountNumber: input.salesAccountNumber ?? 1000
@@ -316,7 +316,7 @@ const createInvoice = async ({
       {
         description: input.description,
         quantity: 1,
-        unit: "stk",
+        unit: "hours",
         baseAmountValue: input.amountExVat,
         vatRate: input.vatPercent,
         accountNumber: input.salesAccountNumber ?? 1000
