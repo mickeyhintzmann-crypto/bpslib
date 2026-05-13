@@ -273,6 +273,30 @@ const ensureContact = async (organizationId: string, accessToken: string, input:
   return createContact({ organizationId, accessToken, input });
 };
 
+// Fetch the first available sales account number from Dinero's chart of accounts.
+// Prefers accounts in the 1000-1999 range (revenue), falls back to any account.
+const resolveSalesAccountNumber = async (organizationId: string, accessToken: string): Promise<number | null> => {
+  try {
+    const res = await dineroRequest({ path: "/accounts", organizationId, accessToken });
+    const items = (res.collection || res.items || res.data || res.accounts) as unknown;
+    if (!Array.isArray(items)) return null;
+
+    let fallback: number | null = null;
+    for (const item of items) {
+      const entry = asRecord(item);
+      if (!entry) continue;
+      const num = entry.number ?? entry.Number ?? entry.accountNumber ?? entry.AccountNumber;
+      if (typeof num !== "number") continue;
+      // Prefer 1000–1999 range (sales / revenue accounts in Danish bookkeeping)
+      if (num >= 1000 && num <= 1999) return num;
+      if (fallback === null) fallback = num;
+    }
+    return fallback;
+  } catch {
+    return null;
+  }
+};
+
 const createInvoice = async ({
   organizationId,
   accessToken,
@@ -283,26 +307,30 @@ const createInvoice = async ({
   input: DineroInvoiceInput;
 }) => {
   const today = new Date().toISOString().slice(0, 10);
-
   const paymentDays = input.paymentMethod === "net0" ? 0 : 8;
 
-  const camelPayload = {
-    contactGuid: input.contactId,
-    date: today,
-    currency: input.currency,
-    externalReference: input.jobId,
-    paymentConditionType: "Netto",
-    paymentConditionNumberOfDays: paymentDays,
-    productLines: [
-      {
-        description: input.description,
-        quantity: 1,
-        unit: "stk",
-        baseAmountValue: input.amountExVat,
-        vatRate: input.vatPercent,
-        accountNumber: 1000
-      }
-    ]
+  // Look up a valid sales account number from this organisation's chart of accounts
+  const accountNumber = await resolveSalesAccountNumber(organizationId, accessToken);
+
+  const buildProductLine = (pascal: boolean) => {
+    const base = {
+      description: input.description,
+      quantity: 1,
+      unit: "stk",
+      baseAmountValue: input.amountExVat,
+      vatRate: input.vatPercent,
+    } as Record<string, unknown>;
+    if (accountNumber !== null) base.accountNumber = accountNumber;
+
+    if (!pascal) return base;
+    return {
+      Description: input.description,
+      Quantity: 1,
+      Unit: "stk",
+      BaseAmountValue: input.amountExVat,
+      VatRate: input.vatPercent,
+      ...(accountNumber !== null ? { AccountNumber: accountNumber } : {})
+    };
   };
 
   const pascalPayload = {
@@ -312,35 +340,24 @@ const createInvoice = async ({
     ExternalReference: input.jobId,
     PaymentConditionType: "Netto",
     PaymentConditionNumberOfDays: paymentDays,
-    ProductLines: [
-      {
-        Description: input.description,
-        Quantity: 1,
-        Unit: "stk",
-        BaseAmountValue: input.amountExVat,
-        VatRate: input.vatPercent,
-        AccountNumber: 1000
-      }
-    ]
+    ProductLines: [buildProductLine(true)]
+  };
+
+  const camelPayload = {
+    contactGuid: input.contactId,
+    date: today,
+    currency: input.currency,
+    externalReference: input.jobId,
+    paymentConditionType: "Netto",
+    paymentConditionNumberOfDays: paymentDays,
+    productLines: [buildProductLine(false)]
   };
 
   // Dinero requires PascalCase — try it first, fall back to camelCase
   try {
-    return await dineroRequest({
-      method: "POST",
-      path: "/invoices",
-      organizationId,
-      accessToken,
-      body: pascalPayload
-    });
+    return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: pascalPayload });
   } catch {
-    return await dineroRequest({
-      method: "POST",
-      path: "/invoices",
-      organizationId,
-      accessToken,
-      body: camelPayload
-    });
+    return await dineroRequest({ method: "POST", path: "/invoices", organizationId, accessToken, body: camelPayload });
   }
 };
 
