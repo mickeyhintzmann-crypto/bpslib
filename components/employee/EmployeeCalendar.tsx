@@ -275,19 +275,16 @@ const compactText = (value: string | null | undefined) => (value || "").replace(
 const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 
 const buildDefaultInvoiceDescription = (job: JobItem) => {
+  // Use the actual task description if available — this is what appears on the Dinero invoice
+  const taskDesc = compactText(job.taskDescription) || compactText(job.notes) || compactText(job.lead?.message);
+  if (taskDesc) {
+    return truncate(taskDesc, 350);
+  }
+  // Fallback to job title + service
   const city = compactText(job.city || job.location || job.lead?.location);
-  const details = compactText(job.taskDescription) || compactText(job.notes) || compactText(job.lead?.message);
   const parts = [job.title];
-  if (city) {
-    parts.push(`By: ${city}`);
-  }
-  if (job.service) {
-    parts.push(`Service: ${job.service}`);
-  }
-  if (details) {
-    parts.push(`Opgave: ${truncate(details, 280)}`);
-  }
-  return parts.join(" · ");
+  if (city) parts.push(city);
+  return parts.join(", ");
 };
 
 const joinAddressParts = (...parts: Array<string | null | undefined>) => {
@@ -1652,10 +1649,32 @@ export const EmployeeCalendar = () => {
                         />
                       </label>
                       <label className="grid gap-1 text-sm sm:col-span-2">
-                        <span className="text-xs text-muted-foreground">Beskrivelse (faktura)</span>
-                        <input
+                        <span className="text-xs text-muted-foreground">Beskrivelse (vises på faktura)</span>
+                        <textarea
                           value={invoiceDescription}
                           onChange={(event) => setInvoiceDescription(event.target.value)}
+                          rows={3}
+                          className="rounded-md border border-border bg-white px-3 py-2 text-sm resize-none"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm sm:col-span-2">
+                        <span className="text-xs text-muted-foreground">Pris inkl. moms (DKK)</span>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          step="1"
+                          placeholder="fx 3750"
+                          value={invoiceAmountExVat ? String(Math.round(Number(invoiceAmountExVat) * (1 + Number(invoiceVatPercent) / 100))) : ""}
+                          onChange={(event) => {
+                            const total = Number(event.target.value);
+                            if (!Number.isNaN(total) && total >= 0) {
+                              const exVat = Math.round(total / (1 + Number(invoiceVatPercent) / 100));
+                              setInvoiceAmountExVat(String(exVat));
+                            } else {
+                              setInvoiceAmountExVat("");
+                            }
+                          }}
                           className="h-10 rounded-md border border-border bg-white px-3 text-sm"
                         />
                       </label>
@@ -1663,6 +1682,7 @@ export const EmployeeCalendar = () => {
                         <span className="text-xs text-muted-foreground">Pris ex. moms (DKK)</span>
                         <input
                           type="number"
+                          inputMode="numeric"
                           min="0"
                           step="1"
                           value={invoiceAmountExVat}
@@ -1674,6 +1694,7 @@ export const EmployeeCalendar = () => {
                         <span className="text-xs text-muted-foreground">Moms %</span>
                         <input
                           type="number"
+                          inputMode="numeric"
                           min="0"
                           max="100"
                           step="1"
