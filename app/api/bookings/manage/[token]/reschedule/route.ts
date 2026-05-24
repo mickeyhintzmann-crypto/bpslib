@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { sendMail } from "@/lib/mailer";
 
 type RouteContext = {
   params: Promise<{ token: string }> | { token: string };
@@ -65,6 +66,30 @@ export async function POST(request: Request, context: RouteContext) {
         return NextResponse.json({ message: "Tabellen leads mangler i databasen." }, { status: 503 });
       }
       return NextResponse.json({ message: leadError.message || "Kunne ikke gemme ombooking." }, { status: 500 });
+    }
+
+    // Send email notification to admin so the request isn't missed
+    const notifyEmails = (process.env.LEAD_NOTIFY_EMAIL || "")
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    if (notifyEmails.length > 0) {
+      const subject = `Ombooking anmodning – ${booking.customer_name || "Ukendt kunde"}`;
+      const body = [
+        `Kunde: ${booking.customer_name || "Ukendt"}`,
+        `Telefon: ${booking.customer_phone || "Ikke opgivet"}`,
+        `Booking ID: ${booking.id}`,
+        ``,
+        `Kundens besked:`,
+        message,
+        ``,
+        `Ring til kunden og aftale en ny tid.`
+      ].join("\n");
+
+      await Promise.allSettled(
+        notifyEmails.map((to) => sendMail({ to, subject, text: body }))
+      );
     }
 
     return NextResponse.json({ ok: true }, { status: 200 });
