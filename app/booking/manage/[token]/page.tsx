@@ -4,7 +4,7 @@ import { ManageBookingClient } from "@/components/booking/ManageBookingClient";
 
 export const metadata: Metadata = {
   title: "Administrer booking | BPSLIB",
-  description: "Aflys eller anmod om ombooking af din booking.",
+  description: "Se detaljer om din booking og anmod om ny tid.",
   robots: {
     index: false,
     follow: false,

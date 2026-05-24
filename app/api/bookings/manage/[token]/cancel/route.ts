@@ -15,7 +15,15 @@ const isMissingRelation = (message: string | undefined, relationName: string) =>
   );
 };
 
-export async function POST(request: Request, context: RouteContext) {
+// Customer self-cancellation is disabled — bookings can only be cancelled by admin.
+export async function POST(_request: Request, _context: RouteContext) {
+  return NextResponse.json(
+    { message: "Selvbetjeningsaflysning er ikke tilgængelig. Kontakt os på +45 2691 3737 hvis du har brug for at aflyse." },
+    { status: 403 }
+  );
+}
+
+export async function POST_disabled(request: Request, context: RouteContext) {
   try {
     const params = await Promise.resolve(context.params);
     const token = params.token?.trim();

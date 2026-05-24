@@ -73,7 +73,6 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
   const [error, setError] = useState("");
   const [booking, setBooking] = useState<BookingInfo | null>(null);
   const [prevStatus, setPrevStatus] = useState<string | null>(null);
-  const [cancelMessage, setCancelMessage] = useState("");
   const [rescheduleMessage, setRescheduleMessage] = useState("");
   const [rescheduleNote, setRescheduleNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -129,31 +128,6 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [booking?.status, fetchBooking]);
-
-  const cancelBooking = async () => {
-    if (!booking || submitting) return;
-    const confirmed = window.confirm("Er du sikker på, at du vil aflyse din booking?");
-    if (!confirmed) return;
-
-    setSubmitting(true);
-    setCancelMessage("");
-    try {
-      const response = await fetch(`/api/bookings/manage/${token}/cancel`, { method: "POST" });
-      const payload = (await response.json()) as { message?: string };
-      if (!response.ok) {
-        setCancelMessage(payload.message || "Kunne ikke aflyse booking.");
-        return;
-      }
-      setCancelMessage(payload.message || "Bookingen er annulleret.");
-      setPrevStatus(booking.status);
-      setBooking((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
-    } catch (err) {
-      console.error(err);
-      setCancelMessage("Der opstod en fejl. Prøv igen.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const requestReschedule = async () => {
     if (!booking || submitting) return;
@@ -403,38 +377,23 @@ export const ManageBookingClient = ({ token }: { token: string }) => {
           ) : null}
         </section>
 
-        {/* ─── MODIFY BOOKING ─── */}
+        {/* ─── RESCHEDULE ONLY ─── */}
         {canModify ? (
           <section className="rounded-3xl border border-border/70 bg-white/70 p-6 md:p-8">
-            <h2 className="font-display text-lg font-semibold text-foreground">Ændr din booking</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Kan du ikke alligevel? Ingen stress — du kan aflyse eller flytte din tid her.</p>
+            <h2 className="font-display text-lg font-semibold text-foreground">Brug for en anden tid?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Send os en besked — vi finder hurtigt en tid der passer dig.</p>
 
-            <div className="mt-5 space-y-5">
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Anmod om ny tid</h3>
-                <textarea
-                  value={rescheduleNote}
-                  onChange={(event) => setRescheduleNote(event.target.value)}
-                  className="min-h-[100px] w-full rounded-xl border border-border bg-white px-4 py-3 text-sm placeholder:text-muted-foreground/60"
-                  placeholder="Skriv kort om, hvornår du ønsker en ny tid — fx 'Kan det blive tirsdag i stedet?'"
-                />
-                <Button onClick={requestReschedule} disabled={submitting} className="rounded-xl">
-                  {submitting ? "Sender..." : "Send anmodning"}
-                </Button>
-                {rescheduleMessage ? <p className="text-sm text-muted-foreground">{rescheduleMessage}</p> : null}
-              </div>
-
-              <div className="border-t border-border/50 pt-5">
-                <Button
-                  variant="outline"
-                  onClick={cancelBooking}
-                  disabled={submitting}
-                  className="rounded-xl border-red-200 text-red-700 hover:bg-red-50"
-                >
-                  Aflys booking
-                </Button>
-                {cancelMessage ? <p className="mt-2 text-sm text-muted-foreground">{cancelMessage}</p> : null}
-              </div>
+            <div className="mt-5 space-y-3">
+              <textarea
+                value={rescheduleNote}
+                onChange={(event) => setRescheduleNote(event.target.value)}
+                className="min-h-[100px] w-full rounded-xl border border-border bg-white px-4 py-3 text-sm placeholder:text-muted-foreground/60"
+                placeholder="Skriv kort om, hvornår du ønsker en ny tid — fx 'Kan det blive tirsdag i stedet?'"
+              />
+              <Button onClick={requestReschedule} disabled={submitting} className="rounded-xl">
+                {submitting ? "Sender..." : "Send anmodning"}
+              </Button>
+              {rescheduleMessage ? <p className="text-sm text-muted-foreground">{rescheduleMessage}</p> : null}
             </div>
           </section>
         ) : null}
