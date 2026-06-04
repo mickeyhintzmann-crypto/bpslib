@@ -71,7 +71,7 @@ export async function GET(request: Request) {
       supabase
         .from("bookings")
         .select(
-          "id, date, start_slot_index, slot_count, source, status, customer_name, customer_phone, postal_code, address, assigned_to, service_type"
+          "id, date, start_slot_index, slot_count, source, status, customer_name, customer_phone, postal_code, city, address, assigned_to, service_type"
         )
         .gte("date", from)
         .lt("date", toExclusive),
@@ -151,6 +151,7 @@ export async function GET(request: Request) {
       customer_name: booking.customer_name ?? null,
       customer_phone: (booking as Record<string, unknown>).customer_phone as string | null ?? null,
       postal_code: booking.postal_code ?? null,
+      city: (booking as Record<string, unknown>).city as string | null ?? null,
       address: booking.address ?? null,
       assigned_to: booking.assigned_to ?? null,
       service_type: booking.service_type ?? null

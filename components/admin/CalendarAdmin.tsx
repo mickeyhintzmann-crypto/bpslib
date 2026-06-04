@@ -28,6 +28,7 @@ type BookingItem = {
   customer_name: string | null;
   customer_phone: string | null;
   postal_code: string | null;
+  city: string | null;
   address: string | null;
   assigned_to: string | null;
   service_type: string | null;
@@ -1127,7 +1128,11 @@ export const CalendarAdmin = () => {
                             bookingId: slotBooking?.id || null,
                             customerName: slotBooking?.customer_name || null,
                             customerPhone: slotBooking?.customer_phone || null,
-                            customerAddress: slotBooking?.address || null,
+                            customerAddress: [
+                              slotBooking?.address,
+                              slotBooking?.postal_code,
+                              slotBooking?.city
+                            ].filter(Boolean).join(", ") || null,
                             slotOpenByOverride,
                             absenceSummary,
                             isWeekend
