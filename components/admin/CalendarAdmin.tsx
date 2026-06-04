@@ -26,6 +26,7 @@ type BookingItem = {
   source: string | null;
   status: string | null;
   customer_name: string | null;
+  customer_phone: string | null;
   postal_code: string | null;
   address: string | null;
   assigned_to: string | null;
@@ -87,6 +88,9 @@ type SlotActionState = {
   slotIndex: number;
   slotLabel: string;
   bookingId: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  customerAddress: string | null;
   slotOpenByOverride: boolean;
   absenceSummary: string | null;
   isWeekend: boolean;
@@ -1121,6 +1125,9 @@ export const CalendarAdmin = () => {
                             slotIndex,
                             slotLabel,
                             bookingId: slotBooking?.id || null,
+                            customerName: slotBooking?.customer_name || null,
+                            customerPhone: slotBooking?.customer_phone || null,
+                            customerAddress: slotBooking?.address || null,
                             slotOpenByOverride,
                             absenceSummary,
                             isWeekend
@@ -1454,18 +1461,38 @@ export const CalendarAdmin = () => {
 
             <div className="mt-4 space-y-2">
               {slotAction.bookingId ? (
-                <Button
-                  className="w-full"
-                  onClick={() => {
-                    const bookingId = slotAction.bookingId;
-                    setSlotAction(null);
-                    if (bookingId) {
-                      router.push(`/admin/bookings/${bookingId}`);
-                    }
-                  }}
-                >
-                  Åbn eksisterende opgave
-                </Button>
+                <>
+                  {(slotAction.customerName || slotAction.customerPhone || slotAction.customerAddress) ? (
+                    <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-3 space-y-1.5">
+                      {slotAction.customerName ? (
+                        <p className="text-sm font-semibold text-foreground">{slotAction.customerName}</p>
+                      ) : null}
+                      {slotAction.customerPhone ? (
+                        <a
+                          href={`tel:${slotAction.customerPhone}`}
+                          className="flex items-center gap-1.5 text-sm text-primary hover:underline"
+                        >
+                          📞 {slotAction.customerPhone}
+                        </a>
+                      ) : null}
+                      {slotAction.customerAddress ? (
+                        <p className="text-xs text-muted-foreground">{slotAction.customerAddress}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      const bookingId = slotAction.bookingId;
+                      setSlotAction(null);
+                      if (bookingId) {
+                        router.push(`/admin/bookings/${bookingId}`);
+                      }
+                    }}
+                  >
+                    Åbn eksisterende opgave
+                  </Button>
+                </>
               ) : (
                 <>
                   {slotAction.isWeekend ? (
