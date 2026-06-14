@@ -153,6 +153,11 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
   const [moveDate, setMoveDate] = useState("");
   const [moveStart, setMoveStart] = useState<(typeof SLOT_TIMES)[number]>(SLOT_TIMES[0]);
   const [moveSlotCount, setMoveSlotCount] = useState("1");
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editPostalCode, setEditPostalCode] = useState("");
   const [extrasState, setExtrasState] = useState<BordpladeExtras>(defaultBordpladeExtras);
   const [assignedTo, setAssignedTo] = useState("");
   const [priceTotal, setPriceTotal] = useState("");
@@ -180,6 +185,11 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
     }
     const slotCount = nextItem.slot_count && nextItem.slot_count > 0 ? String(nextItem.slot_count) : "1";
     setMoveSlotCount(slotCount);
+    setEditName(nextItem.customer_name || "");
+    setEditPhone(nextItem.customer_phone || "");
+    setEditEmail(nextItem.customer_email || "");
+    setEditAddress(nextItem.address || "");
+    setEditPostalCode(nextItem.postal_code || "");
     setExtrasState(sanitizeExtras(nextItem.extras));
     setAssignedTo(nextItem.assigned_to || "");
     setPriceTotal(nextItem.price_total ? String(nextItem.price_total) : "");
@@ -290,6 +300,16 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
       date: moveDate,
       startSlot: moveStart,
       slot_count: Number.parseInt(moveSlotCount, 10)
+    });
+  };
+
+  const handleSaveCustomer = () => {
+    updateBooking({
+      customer_name: editName.trim() || null,
+      customer_phone: editPhone.trim() || null,
+      customer_email: editEmail.trim() || null,
+      address: editAddress.trim() || null,
+      postal_code: editPostalCode.trim() || null
     });
   };
 
@@ -473,6 +493,73 @@ export const BookingAdminDetail = ({ bookingId }: { bookingId: string }) => {
               </Button>
             </div>
           </Section>
+
+          {/* Kundeoplysninger */}
+          {canEdit ? (
+            <Section title="Kundeoplysninger">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="space-y-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Navn</span>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="block h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
+                    placeholder="Kundens navn"
+                  />
+                </label>
+                <label className="space-y-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Telefon</span>
+                  <input
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="block h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
+                    placeholder="+45 xx xx xx xx"
+                    inputMode="tel"
+                  />
+                </label>
+                <label className="space-y-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Email</span>
+                  <input
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="block h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
+                    placeholder="kunde@email.dk"
+                    inputMode="email"
+                  />
+                </label>
+                <label className="space-y-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Postnummer</span>
+                  <input
+                    value={editPostalCode}
+                    onChange={(e) => setEditPostalCode(e.target.value)}
+                    className="block h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
+                    placeholder="2400"
+                    inputMode="numeric"
+                    maxLength={4}
+                  />
+                </label>
+                <label className="space-y-1.5 md:col-span-2">
+                  <span className="text-xs font-medium text-muted-foreground">Adresse</span>
+                  <input
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    className="block h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
+                    placeholder="Vejnavn og husnummer"
+                  />
+                </label>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSaveCustomer}
+                  disabled={saving}
+                  className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                >
+                  Gem kundeoplysninger
+                </button>
+              </div>
+            </Section>
+          ) : null}
 
           {/* Flyt booking */}
           <Section title="Flyt booking">

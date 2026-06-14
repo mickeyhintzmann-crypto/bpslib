@@ -27,6 +27,11 @@ type UpdatePayload = {
   price_total?: unknown;
   price_net?: unknown;
   price_vat?: unknown;
+  customer_name?: unknown;
+  customer_phone?: unknown;
+  customer_email?: unknown;
+  address?: unknown;
+  postal_code?: unknown;
 };
 
 type BookingRow = {
@@ -355,6 +360,59 @@ export async function PATCH(request: Request, context: RouteContext) {
         updateData.assigned_to = payload.assigned_to;
       } else {
         return NextResponse.json({ message: "assigned_to skal være tekst." }, { status: 400 });
+      }
+    }
+
+    if ("customer_name" in payload || "customer_phone" in payload || "customer_email" in payload || "address" in payload || "postal_code" in payload) {
+      if (session?.role === "employee") {
+        return NextResponse.json({ message: "Kun admin kan ændre kundeoplysninger." }, { status: 403 });
+      }
+
+      if ("customer_name" in payload) {
+        if (!payload.customer_name || typeof payload.customer_name !== "string" || payload.customer_name.trim().length < 2) {
+          return NextResponse.json({ message: "Navn skal være mindst 2 tegn." }, { status: 400 });
+        }
+        updateData.customer_name = payload.customer_name.trim();
+      }
+
+      if ("customer_phone" in payload) {
+        if (payload.customer_phone === null || payload.customer_phone === "") {
+          updateData.customer_phone = null;
+        } else if (typeof payload.customer_phone === "string") {
+          updateData.customer_phone = payload.customer_phone.trim();
+        } else {
+          return NextResponse.json({ message: "Telefonnummer skal være tekst." }, { status: 400 });
+        }
+      }
+
+      if ("customer_email" in payload) {
+        if (payload.customer_email === null || payload.customer_email === "") {
+          updateData.customer_email = null;
+        } else if (typeof payload.customer_email === "string") {
+          updateData.customer_email = payload.customer_email.trim();
+        } else {
+          return NextResponse.json({ message: "Email skal være tekst." }, { status: 400 });
+        }
+      }
+
+      if ("address" in payload) {
+        if (payload.address === null || payload.address === "") {
+          updateData.address = null;
+        } else if (typeof payload.address === "string") {
+          updateData.address = payload.address.trim();
+        } else {
+          return NextResponse.json({ message: "Adresse skal være tekst." }, { status: 400 });
+        }
+      }
+
+      if ("postal_code" in payload) {
+        if (payload.postal_code === null || payload.postal_code === "") {
+          updateData.postal_code = null;
+        } else if (typeof payload.postal_code === "string") {
+          updateData.postal_code = payload.postal_code.trim();
+        } else {
+          return NextResponse.json({ message: "Postnummer skal være tekst." }, { status: 400 });
+        }
       }
     }
 

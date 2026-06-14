@@ -252,17 +252,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Kunne ikke beregne tidsinterval for booking." }, { status: 400 });
     }
 
-    const notes = [
-      "Akut booking via /akutte-tider.",
-      `Fast pris: ${fixedPrice} kr`,
-      `Slot-count: ${slotCount}`,
-      `Startslot: ${startSlot}`,
-      `Adresse: ${address}`,
-      `Postnr: ${postalCode}`,
-      note ? `Kundenote: ${note}` : ""
-    ]
-      .filter(Boolean)
-      .join(" | ");
+    // address og postal_code gemmes i egne kolonner — kun kundens fritekst-note i notes-feltet
+    const notes = note ? `Akut booking via /akutte-tider. | Kundenote: ${note}` : "Akut booking via /akutte-tider.";
 
     const supabase = createSupabaseServiceClient();
     const manageToken = randomUUID();
@@ -290,6 +281,8 @@ export async function POST(request: Request) {
         customer_name: name,
         customer_phone: normalizePhone(phone) || phone,
         customer_email: email || null,
+        address,
+        postal_code: postalCode,
         service_type: "bordplade",
         date,
         start_slot_index: startSlotIndex,
